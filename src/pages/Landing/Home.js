@@ -14,7 +14,7 @@ const Home = () => {
             <section className="section pb-0 hero-section" id="hero">
                 <div className="bg-overlay bg-overlay-pattern"></div>
                 <Container>
-                    <Row className="justify-content-center">
+                    <Row className="justify-content-center container-home">
                         <Col lg={8} sm={10}>
                             <div className="text-center mt-lg-5 pt-5">
                                 <h1 className="display-6 fw-semibold mb-3 lh-base">La mejor plataforma para su mascota es <span

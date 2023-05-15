@@ -33,45 +33,42 @@ document.title="Basic SignIn | Velzon - React Admin & Dashboard Template";
                                     <CardBody className="p-4">
                                         <div className="text-center mt-2">
                                             <h5 className="text-primary">Bienvenido de nuevo !</h5>
-                                            <p className="text-muted">Sign in to continue to Velzon.</p>
                                         </div>
                                         <div className="p-2 mt-4">
                                             <form action="#">
 
                                                 <div className="mb-3">
-                                                    <Label htmlFor="username" className="form-label">Username</Label>
-                                                    <Input type="text" className="form-control" id="username" placeholder="Enter username" />
+                                                    <Label htmlFor="username" className="form-label">Nombre de usuario</Label>
+                                                    <Input type="text" className="form-control" id="username" placeholder="Ingrese su nombre de usuario" />
                                                 </div>
 
                                                 <div className="mb-3">
                                                     <div className="float-end">
-                                                        <Link to="/auth-pass-reset-basic" className="text-muted">Forgot password?</Link>
+                                                        <Link to="/auth-pass-reset-basic" className="text-muted">¿Olvido su contraseña?</Link>
                                                     </div>
-                                                    <Label className="form-label" htmlFor="password-input">Password</Label>
+                                                    <Label className="form-label" htmlFor="password-input">Contraseña</Label>
                                                     <div className="position-relative auth-pass-inputgroup mb-3">
-                                                        <Input type="password" className="form-control pe-5 password-input" placeholder="Enter password" id="password-input" />
+                                                        <Input type="password" className="form-control pe-5 password-input" placeholder="Ingrese su contraseña" id="password-input" />
                                                         <button className="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon"><i className="ri-eye-fill align-middle"></i></button>
                                                     </div>
                                                 </div>
 
                                                 <div className="form-check">
                                                     <Input className="form-check-input" type="checkbox" value="" id="auth-remember-check" />
-                                                    <Label className="form-check-label" htmlFor="auth-remember-check">Remember me</Label>
+                                                    <Label className="form-check-label" htmlFor="auth-remember-check">Recuerdame</Label>
                                                 </div>
 
                                                 <div className="mt-4">
-                                                    <Button color="success" className="btn btn-success w-100" type="submit">Sign In</Button>
+                                                    <Button color="success" className="btn btn-success w-100" type="submit">Iniciar Sesión</Button>
                                                 </div>
 
                                                 <div className="mt-4 text-center">
                                                     <div className="signin-other-title">
-                                                        <h5 className="fs-13 mb-4 title">Sign In with</h5>
+                                                        <h5 className="fs-13 mb-4 title">Iniciar sesión con: </h5>
                                                     </div>
                                                     <div>
                                                         <Button color="primary" className="btn-icon"><i className="ri-facebook-fill fs-16"></i></Button>{" "}
                                                         <Button color="danger" className="btn-icon"><i className="ri-google-fill fs-16"></i></Button>{" "}
-                                                        <Button color="dark" className="btn-icon"><i className="ri-github-fill fs-16"></i></Button>{" "}
-                                                        <Button color="info" className="btn-icon"><i className="ri-twitter-fill fs-16"></i></Button>
                                                     </div>
                                                 </div>
                                             </form>
@@ -80,7 +77,7 @@ document.title="Basic SignIn | Velzon - React Admin & Dashboard Template";
                                 </Card>
 
                                 <div className="mt-4 text-center">
-                                    <p className="mb-0">Don't have an account ? <Link to="/auth-signup-basic" className="fw-semibold text-primary text-decoration-underline"> Signup </Link> </p>
+                                    <p className="mb-0">¿No tienes una cuenta?  <Link to="/registrar" className="fw-semibold text-primary text-decoration-underline"> Registrate </Link> </p>
                                 </div>
 
                             </Col>

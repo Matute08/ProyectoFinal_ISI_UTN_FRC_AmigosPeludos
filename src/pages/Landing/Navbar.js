@@ -55,7 +55,7 @@ const Navbar = ({ direction, ...args }) => {
                             className="navbar-nav mx-auto mt-2 mt-lg-0"
                         >
                             <li className="nav-item">
-                                <NavLink href="/inicio">Inicio</NavLink>
+                                <NavLink href="/">Inicio</NavLink>
                             </li>
 
                             <li className="nav-item">
