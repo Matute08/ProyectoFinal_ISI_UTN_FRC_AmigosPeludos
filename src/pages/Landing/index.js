@@ -4,7 +4,7 @@ import Home from "./Home";
 import Footer from "./footer";
 import Services from "./services";
 import Navbar from "./Navbar";
-import Register from "../AutheticationInner/Register";
+import Register from "../AutheticationInner/Register/Register";
 
 
 const Landing = () => {

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardBody, Col, Container, Row, Form, FormFeedback, Input, Button } from 'reactstrap';
-import ParticlesAuth from './ParticlesAuth';
+import ParticlesAuth from '../ParticlesAuth';
+import { useAuth } from '../authContext';
+
 
 //import images 
-import logo from "../../assets/images/logo/LogoAP.png";
+import logo from "../../../assets/images/logo/LogoAP.png";
 //formik
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -12,10 +14,37 @@ import * as Yup from 'yup';
 const Register = () => {
     document.title = "Registrar - Amigos Peludos";
 
+    const [user, setUser] = useState({
+        email: "",
+        username: "",
+        password: "",
+    })
+
+    const { signup } = useAuth()
+    const navigate =useNavigate()
+
+    const handleChange = ({ target: { name, value } }) => setUser({ ...user, [name]: value })
+
+    const handleSubmit = async e => {
+        e.preventDefault()
+
+        try {
+            await signup(user.email, user.password)
+            navigate("/")
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+
+
+
     const [passwordShow, setPasswordShow] = useState(false);
 
     const validation = useFormik({
-        enableReinitialize: true,
+        //enableReinitialize: true,
 
         initialValues: {
             password: "",
@@ -29,8 +58,9 @@ const Register = () => {
                 .required("Este campo es requerido"),
         }),
         onSubmit: (values) => {
-            // console.log(values);
+            //console.log(values);
         }
+
     });
 
     return (
@@ -38,7 +68,7 @@ const Register = () => {
             <ParticlesAuth>
                 <div className="auth-page-content">
 
-                    <Container>
+                    <Container >
                         <Row>
                             <Col lg={12}>
                                 <div className="text-center mt-sm-5 mb-4 text-white-50">
@@ -55,23 +85,23 @@ const Register = () => {
                             <Col md={8} lg={6} xl={5}>
                                 <Card className="mt-4">
 
-                                    <CardBody className="p-4">
+                                    <CardBody className="p-4" >
                                         <div className="text-center mt-2">
                                             <h5 className="text-primary">Crear una nueva cuenta</h5>
                                         </div>
                                         <div className="p-2 mt-4">
-                                            <Form onSubmit={validation.handleSubmit} className="needs-validation" action="#">
+                                            <Form /* onSubmit={validation.handleSubmit} */ onSubmit={handleSubmit} className="needs-validation" action="#">
 
                                                 <div className="mb-3">
                                                     <label htmlFor="useremail" className="form-label">Email <span className="text-danger">*</span></label>
-                                                    <input type="email" className="form-control" id="useremail" placeholder="Ingrese su correo electronico" required />
+                                                    <input type="email" className="form-control" id="useremail" placeholder="Ingrese su correo electronico" required name='email' onChange={handleChange} />
                                                     <div className="invalid-feedback">
                                                         Por favor, ingrese su correo electronico
                                                     </div>
                                                 </div>
                                                 <div className="mb-3">
                                                     <label htmlFor="username" className="form-label">Nombre de usuario <span className="text-danger">*</span></label>
-                                                    <input type="text" className="form-control" id="username" placeholder="Ingrese un nombre de usuario" required />
+                                                    <input type="text" className="form-control" id="username" placeholder="Ingrese un nombre de usuario" required name='username' onChange={handleChange} />
                                                     <div className="invalid-feedback">
                                                         Por favor, ingrese un nombre de usuario
                                                     </div>
@@ -86,10 +116,11 @@ const Register = () => {
                                                             placeholder="Ingrese su contraseña"
                                                             id="password-input"
                                                             name="password"
-                                                            value={validation.values.password}
-                                                            onBlur={validation.handleBlur}
-                                                            onChange={validation.handleChange}
-                                                            invalid={validation.errors.password && validation.touched.password ? true : false}
+                                                            //value={validation.values.password}
+                                                            //onBlur={validation.handleBlur}
+                                                            //onChange={validation.handleChange}
+                                                            //invalid={validation.errors.password && validation.touched.password ? true : false}
+                                                            onChange={handleChange}
                                                         />
                                                         {validation.errors.password && validation.touched.password ? (
                                                             <FormFeedback type="invalid">{validation.errors.password}</FormFeedback>
@@ -133,7 +164,7 @@ const Register = () => {
 
                                 <div className="mt-4 text-center">
                                     <p className="mb-0">
-                                        Ya tienes una cuenta ? <Link to="/auth-signin-basic" className="fw-semibold text-primary text-decoration-underline"> Inicia sesion </Link> </p>
+                                        Ya tienes una cuenta ? <Link to="/iniciar-sesion" className="fw-semibold text-primary text-decoration-underline"> Inicia sesion </Link> </p>
                                 </div>
 
                             </Col>
