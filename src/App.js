@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Register from './pages/AutheticationInner/Register/Register';
 import Login from "./pages/AutheticationInner/Login/Login"
 import { AuthProvider } from './pages/AutheticationInner/authContext';
+import { ProtectedRoute } from './pages/AutheticationInner/ProtectedRoute';
 
 function App() {
   return (
@@ -16,9 +17,9 @@ function App() {
         <AuthProvider>
           <Routes>
 
-            <Route path='/' Component={Landing}></Route>
-            <Route path="/registrar" Component={Register}></Route>
-            <Route path="/iniciar-sesion" Component={Login}></Route>
+            <Route path='/' element={<Landing/>}/>
+            <Route path="/registrar" element={<Register />}/>
+            <Route path="/iniciar-sesion" element={<Login />}/>
 
 
           </Routes>

@@ -1,18 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { Collapse, Container, NavbarToggler, NavLink, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
 import Scrollspy from "react-scrollspy";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../AutheticationInner/authContext";
+
+
 
 import logo from "../../assets/images/logo/LogoAP.png";
-import Landing from ".";
+import userRandom from "../../assets/images/user/user-random.jpg"
 
 const Navbar = ({ direction, ...args }) => {
+
+    const { user, logout } = useAuth()
+    const navigate = useNavigate()
+
+    const handleLogout = async () => {
+        await logout()
+        navigate("/")
+    }
+
     //DROPDOWN
     const [dropdownOpenBusqueda, setDropdownOpenBusqueda] = useState(false);
     const [dropdownOpenServicios, setDropdownOpenServicios] = useState(false);
+    const [isProfileDropdown, setIsProfileDropdown] = useState(false);
 
-    const toggleBusqueda = () => setDropdownOpenBusqueda((prevState) => !prevState);    
+
+    const toggleBusqueda = () => setDropdownOpenBusqueda((prevState) => !prevState);
     const toggleServicios = () => setDropdownOpenServicios((prevState) => !prevState);
+    const toggleProfileDropdown = () => setIsProfileDropdown(!isProfileDropdown);
 
     const [isOpenMenu, setisOpenMenu] = useState(false);
     const [navClass, setnavClass] = useState("");
@@ -30,7 +45,6 @@ const Navbar = ({ direction, ...args }) => {
             setnavClass("");
         }
     }
-
     return (
         <React.Fragment>
             <nav className={"navbar navbar-expand-lg navbar-landing fixed-top " + navClass} id="navbar">
@@ -91,14 +105,43 @@ const Navbar = ({ direction, ...args }) => {
                         </Scrollspy>
 
                         <div className="">
-                            <Link to="/iniciar-sesion" className="btn btn-link fw-medium text-decoration-none text-dark">Inicia Sesion</Link>
-                            <Link to="/registrar" className="btn btn-primary">Registrate</Link>
+                            {user ? (
+                                <Dropdown isOpen={isProfileDropdown} toggle={toggleProfileDropdown} className="ms-sm-3 header-item topbar-user">
+                                    <DropdownToggle tag="button" type="button" className="btn">
+                                        <span className="d-flex align-items-center">
+                                            <img className="rounded-circle header-profile-user" src={userRandom}
+                                                alt="Header Avatar" />
+                                            <span className="text-start ms-xl-2">
+                                                <span className="d-none d-xl-inline-block ms-1 fw-medium user-name-text">{user.email}</span>
+                                                <span className="d-none d-xl-block ms-1 fs-12 text-muted user-name-sub-text">Usuario</span>
+                                            </span>
+                                        </span>
+                                    </DropdownToggle>
+
+                                    <DropdownMenu className="dropdown-menu-end">
+                                        <DropdownItem href="#"><i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
+                                            <span className="align-middle">Perfil</span></DropdownItem>
+                                        <DropdownItem href="#"><i
+                                            className="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i> <span
+                                                className="align-middle">Mensajes</span></DropdownItem>
+                                        <div className="dropdown-divider"></div>
+                                        <DropdownItem onClick={handleLogout}><i className="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span
+                                            className="align-middle" data-key="t-logout">Cerrar Sesión</span></DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            ) : (
+                                <>
+                                    <Link to="/iniciar-sesion" className="btn btn-link fw-medium text-decoration-none text-dark">Inicia Sesion</Link>
+                                    <Link to="/registrar" className="btn btn-primary">Registrate</Link>
+                                </>
+                            )}
                         </div>
                     </Collapse>
                 </Container>
             </nav>
         </React.Fragment>
-    );
-};
+    )
+}
+    ;
 
 export default Navbar;
