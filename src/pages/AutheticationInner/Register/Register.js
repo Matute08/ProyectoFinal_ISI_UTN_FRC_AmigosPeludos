@@ -43,25 +43,7 @@ const Register = () => {
 
     const [passwordShow, setPasswordShow] = useState(false);
 
-    const validation = useFormik({
-        //enableReinitialize: true,
-
-        initialValues: {
-            password: "",
-        },
-        validationSchema: Yup.object({
-            password: Yup.string()
-                .min(8, 'La contraseña debe ser mayor a 8 caracteres')
-                .matches(RegExp('(.*[a-z].*)'), 'Al menos una minuscula')
-                .matches(RegExp('(.*[A-Z].*)'), 'Al menos una mayuscula')
-                .matches(RegExp('(.*[0-9].*)'), 'Al menos un numero')
-                .required("Este campo es requerido"),
-        }),
-        onSubmit: (values) => {
-            //console.log(values);
-        }
-
-    });
+    
 
     return (
         <React.Fragment>
@@ -116,15 +98,9 @@ const Register = () => {
                                                             placeholder="Ingrese su contraseña"
                                                             id="password-input"
                                                             name="password"
-                                                            //value={validation.values.password}
-                                                            //onBlur={validation.handleBlur}
-                                                            //onChange={validation.handleChange}
-                                                            //invalid={validation.errors.password && validation.touched.password ? true : false}
                                                             onChange={handleChange}
                                                         />
-                                                        {validation.errors.password && validation.touched.password ? (
-                                                            <FormFeedback type="invalid">{validation.errors.password}</FormFeedback>
-                                                        ) : null}
+                                                        
                                                         <Button color="link" onClick={() => setPasswordShow(!passwordShow)} className="position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button"
                                                             id="password-addon"><i className="ri-eye-fill align-middle"></i></Button>
                                                     </div>
