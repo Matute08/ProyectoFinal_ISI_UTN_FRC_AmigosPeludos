@@ -8,6 +8,10 @@
 @import "./variables";
 @import "../../../../node_modules/bootstrap/scss/mixins";
 
+@import "theme-light";
+@import "theme-dark";
+
+
 
 // Structure
 
@@ -85,7 +89,13 @@
 @import "../plugins/datatables";
 @import "../plugins/select2";
 
+@import "../plugins/toastify";
+@import "../plugins/choices";
+@import "../plugins/flatpicker";
+//@import "../plugins/flag-input";
+
 // Pages
 
 @import "../pages/landing";
-@import "../pages/authetication"
+@import "../pages/authetication";
+@import "../pages/profile";

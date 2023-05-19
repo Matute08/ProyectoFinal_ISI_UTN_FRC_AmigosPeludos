@@ -49,7 +49,7 @@ const Navbar = ({ direction, ...args }) => {
         <React.Fragment>
             <nav className={"navbar navbar-expand-lg navbar-landing fixed-top " + navClass} id="navbar">
                 <Container>
-                    <Link className="navbar-brand" to="/index">
+                    <Link className="navbar-brand" to="/">
                         <img src={logo} className="card-logo card-logo-dark" alt="logo dark" height="90" width="90" />
                     </Link>
 
@@ -119,8 +119,8 @@ const Navbar = ({ direction, ...args }) => {
                                     </DropdownToggle>
 
                                     <DropdownMenu className="dropdown-menu-end">
-                                        <DropdownItem href="#"><i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
-                                            <span className="align-middle">Perfil</span></DropdownItem>
+                                        <DropdownItem><Link to={"/perfil"}><i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
+                                            <span className="align-middle">Perfil</span></Link></DropdownItem>
                                         <DropdownItem href="#"><i
                                             className="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i> <span
                                                 className="align-middle">Mensajes</span></DropdownItem>
