@@ -6,6 +6,10 @@
     margin-bottom: $grid-gutter-width;
     box-shadow: $card-box-shadow;
 }
+.card-img-top{
+    width:auto;
+    height:200px;
+}
 
 .card-header {
     border-bottom: 1px solid $border-color;
