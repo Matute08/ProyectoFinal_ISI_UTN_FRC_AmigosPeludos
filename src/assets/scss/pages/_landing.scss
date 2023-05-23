@@ -41,8 +41,7 @@
     padding: 10px 0px;
     transition: all 0.5s ease;
     @media (max-width: 991.98px) {
-        //background-color: $white;
-        box-shadow: 0 1px 16px -2px rgba(56, 65, 74, 0.15);
+        background-color: #F2E7D9;
         padding: 10px 8px;
     }
 
@@ -168,5 +167,27 @@
     @media (max-width: 991.98px) {
         margin-top: 40px;
 
+    }
+}
+.button-navbar{
+    @media (max-width: 991.98px) {
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+.btn-login{
+    @media (max-width: 991.98px) {
+        margin-right: 16px;
+        box-shadow: 0px 8px 9px rgba(0, 0, 0, 0.3);
+    }
+}
+.btn-register{
+    @media (max-width: 991.98px) {
+        box-shadow: 0px 8px 9px rgba(0, 0, 0, 0.3);
+    }
+}
+.ul-nav{
+    @media (max-width: 991.98px) {
+        margin-bottom: 20px;
     }
 }

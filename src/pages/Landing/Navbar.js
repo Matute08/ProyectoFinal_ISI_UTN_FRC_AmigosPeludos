@@ -66,7 +66,7 @@ const Navbar = ({ direction, ...args }) => {
                     >
                         <Scrollspy
                             currentClassName="active"
-                            className="navbar-nav mx-auto mt-2 mt-lg-0"
+                            className="navbar-nav mx-auto mt-2 mt-lg-0 ul-nav"
                         >
                             <li className="nav-item">
                                 <NavLink href="/">Inicio</NavLink>
@@ -104,7 +104,7 @@ const Navbar = ({ direction, ...args }) => {
                             </li>
                         </Scrollspy>
 
-                        <div className="">
+                        <div className="button-navbar">
                             {user ? (
                                 <Dropdown isOpen={isProfileDropdown} toggle={toggleProfileDropdown} className="ms-sm-3 header-item topbar-user">
                                     <DropdownToggle tag="button" type="button" className="btn">
@@ -131,8 +131,8 @@ const Navbar = ({ direction, ...args }) => {
                                 </Dropdown>
                             ) : (
                                 <>
-                                    <Link to="/iniciar-sesion" className="btn btn-link fw-medium text-decoration-none text-dark">Inicia Sesion</Link>
-                                    <Link to="/registrar" className="btn btn-primary">Registrate</Link>
+                                    <Link to="/iniciar-sesion" className="btn btn-link fw-medium text-decoration-none text-dark btn-login">Inicia Sesion</Link>
+                                    <Link to="/registrar" className="btn btn-primary btn-register">Registrate</Link>
                                 </>
                             )}
                         </div>
