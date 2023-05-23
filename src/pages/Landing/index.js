@@ -31,7 +31,7 @@ const Landing = () => {
 
     return (
         <React.Fragment>
- 
+
                 <Navbar/>
                 <Home/>
                 <Services/>
@@ -43,6 +43,8 @@ const Landing = () => {
                     <i className="ri-arrow-up-line"></i>
                 </button>
             </div>
+
+
         </React.Fragment>
     );
 };

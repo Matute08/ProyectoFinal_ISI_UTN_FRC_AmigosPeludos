@@ -10,6 +10,7 @@ import { AuthProvider } from './pages/AutheticationInner/authContext';
 import { ProtectedRoute } from './pages/AutheticationInner/ProtectedRoute';
 import UserProfileSetting from './pages/Profile/Settings';
 import Profile from './pages/Profile/Profile';
+import PasswordReset from './pages/AutheticationInner/PasswordReset/passwordReset';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/iniciar-sesion" element={<Login />}/>
             <Route path="/modificar-perfil" element={<UserProfileSetting />}/>
             <Route path="/perfil" element={<Profile />}/>
+            <Route path='/restablecer-contraseña' element={<PasswordReset></PasswordReset>}></Route>
             
 
 

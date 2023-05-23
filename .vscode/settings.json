@@ -1,6 +1,3 @@
 {
-    "prettier.bracketSameLine": false,
-    "prettier.bracketSpacing": true,
-    "prettier.endOfLine": "lf",
-    "prettier.htmlWhitespaceSensitivity": "css"
+
 }

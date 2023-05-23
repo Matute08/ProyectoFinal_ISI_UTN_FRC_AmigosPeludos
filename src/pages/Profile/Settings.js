@@ -19,6 +19,7 @@ import {
 import classnames from "classnames";
 import Flatpickr from "react-flatpickr";
 import Navbar from "../Landing/Navbar";
+import Footer from "../Landing/footer";
 
 //import images
 import progileBg from "../../assets/images/user/user-random.jpg";
@@ -134,6 +135,8 @@ const UserProfileSetting = () => {
                       
                   </Nav>
                 </CardHeader>
+
+                
                 <CardBody className="p-4">
                   <TabContent activeTab={activeTab}>
                     <TabPane tabId="1">
@@ -350,6 +353,11 @@ const UserProfileSetting = () => {
           </Row>
         </Container>
       </div>
+
+      <>
+        <Footer></Footer>
+      </>
+                              
     </React.Fragment>
   );
 };
