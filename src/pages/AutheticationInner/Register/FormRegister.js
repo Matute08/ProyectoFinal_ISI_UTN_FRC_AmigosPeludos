@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { Form, Input, Button } from "reactstrap";
+import { Form, Input, Button, Alert } from "reactstrap";
 import { useAuth } from "../authContext";
 import { Link, useNavigate } from "react-router-dom";
-import { saveUser } from "../firebase";
 
-export const FormRegister = (props) => {
+export const FormRegister = () => {
     const [formData, setFormData] = useState({
         name: "",
         lastname: "",
@@ -20,9 +19,13 @@ export const FormRegister = (props) => {
     //ver contraseña
     const [passwordShow, setPasswordShow] = useState(false);
     //manejo de errores
-    const [error, setError] = useState("");
+    const [alertText, setAlertText] = useState(
+        "Registrese gratuitamente en Amigos Peludos"
+    );
+    const [alertClass, setAlertClass] = useState("text-dark alert-dark");
 
-    const { signup, context } = useAuth();
+
+    const { signup } = useAuth();
     const navigate = useNavigate();
 
     const handleChange = ({ target: { name, value } }) =>
@@ -32,30 +35,37 @@ export const FormRegister = (props) => {
         e.preventDefault();
 
         try {
-            if (formData.password.length < 8) {
-                throw new Error(
-                    "La contraseña debe tener al menos 8 caracteres."
-                );
-            } else if (!emailRegex.test(formData.email)) {
-                throw new Error("Ingrese un mail correcto");
-            }
-            await signup(
-                formData.email,
-                formData.name,
-                formData.lastname,
-                formData.username,
-                formData.date,
-                formData.password,
-                formData.rol
-            );
+            await signup(formData.email, formData.password);
             navigate("/");
         } catch (error) {
-            setError(error);
+            if (!emailRegex.test(formData.email)) {
+                throw new Error("Ingrese un mail correcto");
+            }
+            if (!emailRegex.test(formData.email)) {
+                throw new Error("Email incorrecto");
+            }
+            if (formData.password.length < 8) {
+                setAlertText("La contraseña debe tener al menos 8 caracteres.");
+            }
+            if (error.code === "auth/email-already-in-use") {
+                setAlertText(
+                    "El correo electronico ya se encuentra registrado."
+                );
+            }
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+            setAlertClass("text-danger alert-danger")
         }
     };
 
     return (
         <Form onSubmit={handleSubmit} className="needs-validation" action="#">
+            <Alert
+                className={"alert-borderless text-center mb-2 mx-2 "+ alertClass}
+                role="alert"
+            >
+                {alertText}
+            </Alert>
             <div className="mb-3">
                 <label htmlFor="useremail" className="form-label">
                     Email <span className="text-danger">*</span>
@@ -177,7 +187,6 @@ export const FormRegister = (props) => {
                     >
                         <i className="ri-eye-fill align-middle"></i>
                     </Button>
-                    <p>{error.toString()}</p>
                 </div>
             </div>
 

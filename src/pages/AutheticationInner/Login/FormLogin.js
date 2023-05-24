@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import {
-    Card,
-    CardBody,
-    Col,
-    Container,
     Input,
     Label,
-    Row,
     Button,
     Form,
     Alert,
@@ -24,6 +19,8 @@ export const FormLogin = () => {
     const [alertText, setAlertText] = useState(
         "Incia sesion para continuar en Amigos Peludos"
     );
+    const [alertClass, setAlertClass] = useState("text-dark alert-dark");
+
 
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -56,13 +53,14 @@ export const FormLogin = () => {
                     "Demasiados intentos de inicio de sesion. Intenta restableciendo tu contraseña"
                 );
             }
+            setAlertClass("text-danger alert-danger")
         }
     };
 
     return (
         <Form action="#" onSubmit={handleSubmit}>
             <Alert
-                className="alert-borderless alert-warning text-center mb-2 mx-2"
+                className={"alert-borderless text-center mb-2 mx-2 " + alertClass}
                 role="alert"
             >
                 {alertText}

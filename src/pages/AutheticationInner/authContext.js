@@ -20,13 +20,12 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
 
     //REGISTRAR
-    const signup = (email, name, lastname, username, date, password, rol) => {
-        createUserWithEmailAndPassword(auth, email, password);
-
+    const signup = (email, password) => {
+        return createUserWithEmailAndPassword(auth, email, password);
     };
 
     //INICIAR SESION
-    const login =  (email, password) =>
+    const login = (email, password) =>
         signInWithEmailAndPassword(auth, email, password);
 
     //CERRAR SESION

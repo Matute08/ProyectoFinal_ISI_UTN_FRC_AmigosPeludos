@@ -142,6 +142,6 @@ const Navbar = ({ direction, ...args }) => {
         </React.Fragment>
     )
 }
-    ;
+    
 
 export default Navbar;

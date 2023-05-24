@@ -1,5 +1,4 @@
-import React from "react";
-import { BrowserRouter as Router, Route, Routes} from "react-router-dom";
+import React,{useEffect} from "react";
 import Home from "./Home";
 import Footer from "./footer";
 import Services from "./services";
@@ -8,6 +7,11 @@ import Navbar from "./Navbar";
 
 const Landing = () => {
     document.title = " AMIGOS PELUDOS";
+
+
+    useEffect(() => {
+        toTop(); // Desplaza la página hacia arriba al cargar
+      }, []);
 
     window.onscroll = function () {
         scrollFunction();
