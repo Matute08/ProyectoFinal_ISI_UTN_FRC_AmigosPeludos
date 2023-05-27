@@ -3,7 +3,6 @@ import { Col, Container, Row } from 'reactstrap';
 import { Link, useNavigate } from 'react-router-dom';
 
 
-
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/effect-fade";
@@ -11,7 +10,6 @@ import "swiper/css/pagination";
 
 
 const Home = () => {
-
 
 
 

@@ -1,15 +1,17 @@
-import React,{useEffect} from "react";
+import React,{useEffect, useState} from "react";
 import Home from "./Home";
 import Footer from "./footer";
 import Services from "./services";
 import Navbar from "./Navbar";
-
+import { getUsuarios } from "../../api/api";
 
 const Landing = () => {
     document.title = " AMIGOS PELUDOS";
 
 
+
     useEffect(() => {
+        getUsuarios() // esta aca para probar si funciona la api. se carga el landing y deberia mostrarse en consola
         toTop(); // Desplaza la página hacia arriba al cargar
       }, []);
 

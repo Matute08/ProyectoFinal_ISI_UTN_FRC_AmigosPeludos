@@ -15,7 +15,7 @@ import { FormRegister } from "./FormRegister";
 const Register = () => {
     document.title = "Registrar - Amigos Peludos";
 
-
+    console.log()
     return (
         <React.Fragment>
             <ParticlesAuth>

@@ -11,7 +11,6 @@ import { ProtectedRoute } from './pages/AutheticationInner/ProtectedRoute';
 import UserProfileSetting from './pages/Profile/Settings';
 import Profile from './pages/Profile/Profile';
 import PasswordReset from './pages/AutheticationInner/PasswordReset/passwordReset';
-
 function App() {
   return (
     <>

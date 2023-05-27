@@ -7,11 +7,21 @@ export const FormRegister = () => {
     const [formData, setFormData] = useState({
         name: "",
         lastname: "",
-        email: "",
-        username: "",
         date: "",
+        email: "",
         password: "",
-        rol: "usuario",
+        login: "hola",
+        tieneMascota:"0",
+        mailVerificado:"0",
+        habilitada:"0",
+        fechaAlta:"",
+        generoId:"",
+        celular:"",
+        calle:"",
+        codigoPostal:"",
+        rolId:"1",
+        cuentaVerificada:"",
+        tipoAutenticacionId:"",
     });
 
     //formato mail
@@ -33,9 +43,10 @@ export const FormRegister = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         try {
+            
             await signup(formData.email, formData.password);
+
             navigate("/");
         } catch (error) {
             if (!emailRegex.test(formData.email)) {
@@ -121,7 +132,7 @@ export const FormRegister = () => {
                 </div>
             </div>
 
-            <div className="mb-3">
+            {/* <div className="mb-3">
                 <label htmlFor="username" className="form-label">
                     Nombre de usuario <span className="text-danger">*</span>
                 </label>
@@ -138,7 +149,7 @@ export const FormRegister = () => {
                 <div className="invalid-feedback">
                     Por favor, ingrese un nombre de usuario
                 </div>
-            </div>
+            </div> */}
 
             <div className="mb-3">
                 <label htmlFor="date" className="form-label">
