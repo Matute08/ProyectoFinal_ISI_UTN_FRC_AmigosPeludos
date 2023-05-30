@@ -7,6 +7,7 @@ import {
     sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth } from "../AutheticationInner/firebase";
+import { getUserMail } from "../../services/api";
 
 //-------------------------------------------
 export const authContext = createContext();
@@ -27,6 +28,7 @@ export function AuthProvider({ children }) {
     //INICIAR SESION
     const login = (email, password) =>
         signInWithEmailAndPassword(auth, email, password);
+        
 
     //CERRAR SESION
     const logout = () => signOut(auth);
@@ -38,11 +40,13 @@ export function AuthProvider({ children }) {
 
     //si esta logueado, me devuelve el objeto entero con la infnormacion. Sino, me devuelve NULL
     useEffect(() => {
-        onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe =  onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
-            setLoading(false);
+
+            setLoading(false)
         });
-    });
+        return () => unsubscribe();
+    }, []);
 
     return (
         <authContext.Provider

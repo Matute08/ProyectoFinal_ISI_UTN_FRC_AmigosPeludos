@@ -11,11 +11,16 @@ import ParticlesAuth from "../ParticlesAuth";
 //import images
 import logo from "../../../assets/images/logo/LogoAP.png";
 import { FormRegister } from "./FormRegister";
+import { postUser } from "../../../services/api";
 
 const Register = () => {
     document.title = "Registrar - Amigos Peludos";
 
-    console.log()
+    const handleSubmit = async(data) =>{
+        
+       await postUser(data)
+    }
+
     return (
         <React.Fragment>
             <ParticlesAuth>
@@ -54,7 +59,7 @@ const Register = () => {
 
 
 
-                                            <FormRegister></FormRegister>
+                                            <FormRegister handleSubmit={handleSubmit}></FormRegister>
                                         
                                         
                                         

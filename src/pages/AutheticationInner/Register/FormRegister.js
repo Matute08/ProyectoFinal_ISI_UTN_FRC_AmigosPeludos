@@ -3,25 +3,25 @@ import { Form, Input, Button, Alert } from "reactstrap";
 import { useAuth } from "../authContext";
 import { Link, useNavigate } from "react-router-dom";
 
-export const FormRegister = () => {
+export const FormRegister = ({ handleSubmit }) => {
     const [formData, setFormData] = useState({
-        name: "",
-        lastname: "",
-        date: "",
-        email: "",
+        nombre: "",
+        apellido: "",
+        fechaNacimiento:null,
+        mail: "",
         password: "",
         login: "hola",
-        tieneMascota:"0",
-        mailVerificado:"0",
-        habilitada:"0",
-        fechaAlta:"",
-        generoId:"",
-        celular:"",
-        calle:"",
-        codigoPostal:"",
-        rolId:"1",
-        cuentaVerificada:"",
-        tipoAutenticacionId:"",
+        tieneMascota: false,
+        mailVerificado: false,
+        habilitada: false,
+        generoId: 1,
+        barrioId: 1,
+        celular: "",
+        calle: "",
+        codigoPostal: "",
+        rolId: 1,
+        cuentaVerificada: 0,
+        tipoAutenticacionId: 1,
     });
 
     //formato mail
@@ -34,78 +34,81 @@ export const FormRegister = () => {
     );
     const [alertClass, setAlertClass] = useState("text-dark alert-dark");
 
-
     const { signup } = useAuth();
     const navigate = useNavigate();
 
-    const handleChange = ({ target: { name, value } }) =>
+    const handleChange = ({ target: { name, value } }) => {
         setFormData({ ...formData, [name]: value });
+    };
 
-    const handleSubmit = async (e) => {
+    const _handleSubmit = async (e) => {
+        //metodo privado de este componente
         e.preventDefault();
-        try {
-            
-            await signup(formData.email, formData.password);
+        if (formData.password.length < 8) {
+            setAlertText("La contraseña debe tener al menos 8 caracteres.");
+            setAlertClass("text-danger alert-danger");
 
-            navigate("/");
-        } catch (error) {
-            if (!emailRegex.test(formData.email)) {
-                throw new Error("Ingrese un mail correcto");
+        }else{
+            try {
+                await signup(formData.mail, formData.password);
+                handleSubmit({ ...formData });
+    
+                navigate("/");
+            } catch (error) {
+                if (!emailRegex.test(formData.mail)) {
+                    setAlertText("Ingrese un mail correcto");
+                }
+                if (error.code === "auth/email-already-in-use") {
+                    setAlertText(
+                        "El correo electronico ya se encuentra registrado."
+                    );
+                }
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+                setAlertClass("text-danger alert-danger");
             }
-            if (!emailRegex.test(formData.email)) {
-                throw new Error("Email incorrecto");
-            }
-            if (formData.password.length < 8) {
-                setAlertText("La contraseña debe tener al menos 8 caracteres.");
-            }
-            if (error.code === "auth/email-already-in-use") {
-                setAlertText(
-                    "El correo electronico ya se encuentra registrado."
-                );
-            }
-            document.body.scrollTop = 0;
-            document.documentElement.scrollTop = 0;
-            setAlertClass("text-danger alert-danger")
         }
     };
 
     return (
-        <Form onSubmit={handleSubmit} className="needs-validation" action="#">
+        <Form onSubmit={_handleSubmit} className="needs-validation" action="#">
             <Alert
-                className={"alert-borderless text-center mb-2 mx-2 "+ alertClass}
+                className={
+                    "alert-borderless text-center mb-2 mx-2 " + alertClass
+                }
                 role="alert"
             >
                 {alertText}
             </Alert>
             <div className="mb-3">
-                <label htmlFor="useremail" className="form-label">
+                <label htmlFor="mail" className="form-label">
                     Email <span className="text-danger">*</span>
                 </label>
                 <input
                     type="email"
                     className="form-control"
-                    id="useremail"
+                    id="mail"
                     placeholder="Ingrese su correo electronico"
                     required
-                    name="email"
-                    value={formData.email}
+                    name="mail"
+                    value={formData.mail}
                     onChange={handleChange}
                 />
                 <div className="invalid-feedback"></div>
             </div>
 
             <div className="mb-3">
-                <label htmlFor="username" className="form-label">
+                <label htmlFor="nombre" className="form-label">
                     Nombre <span className="text-danger">*</span>
                 </label>
                 <input
                     type="text"
                     className="form-control"
-                    id="name"
+                    id="nombre"
                     placeholder="Ingrese su nombre"
                     required
-                    name="name"
-                    value={formData.name}
+                    name="nombre"
+                    value={formData.nombre}
                     onChange={handleChange}
                 />
                 <div className="invalid-feedback">
@@ -114,17 +117,17 @@ export const FormRegister = () => {
             </div>
 
             <div className="mb-3">
-                <label htmlFor="username" className="form-label">
+                <label htmlFor="apellido" className="form-label">
                     Apellido <span className="text-danger">*</span>
                 </label>
                 <input
                     type="text"
                     className="form-control"
-                    id="lastname"
+                    id="apellido"
                     placeholder="Ingrese su apellido"
                     required
-                    name="lastname"
-                    value={formData.lastname}
+                    name="apellido"
+                    value={formData.apellido}
                     onChange={handleChange}
                 />
                 <div className="invalid-feedback">
@@ -133,26 +136,7 @@ export const FormRegister = () => {
             </div>
 
             {/* <div className="mb-3">
-                <label htmlFor="username" className="form-label">
-                    Nombre de usuario <span className="text-danger">*</span>
-                </label>
-                <input
-                    type="text"
-                    className="form-control"
-                    id="username"
-                    placeholder="Ingrese un nombre de usuario"
-                    required
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                />
-                <div className="invalid-feedback">
-                    Por favor, ingrese un nombre de usuario
-                </div>
-            </div> */}
-
-            <div className="mb-3">
-                <label htmlFor="date" className="form-label">
+                <label htmlFor="fechaNacimiento" className="form-label">
                     Fecha de Nacimiento <span className="text-danger">*</span>
                 </label>
                 <input
@@ -160,18 +144,18 @@ export const FormRegister = () => {
                     className="form-control"
                     placeholder="Ingrese su fecha de nacimiento"
                     required
-                    id="date"
-                    name="date"
-                    value={formData.date}
+                    id="fechaNacimiento"
+                    name="fechaNacimiento"
+                    value={formData.fechaNacimiento}
                     onChange={handleChange}
                     options={{
-                        dateFormat: "d M, Y",
+                        dateFormat: "Y, M, d",
                     }}
                 />
                 <div className="invalid-feedback">
                     Por favor, ingrese su fecha de nacimiento
                 </div>
-            </div>
+            </div> */}
 
             <div className="mb-3">
                 <label className="form-label" htmlFor="password-input">
