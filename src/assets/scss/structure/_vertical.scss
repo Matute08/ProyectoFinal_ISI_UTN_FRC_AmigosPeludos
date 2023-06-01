@@ -21,8 +21,14 @@
 }
 
 .page-content {
-    padding: calc(#{$header-height} + #{$grid-gutter-width}) calc(#{$grid-gutter-width} * 0.5) $footer-height calc(#{$grid-gutter-width} * 0.5);
+    padding: calc(#{$header-height} + #{$grid-gutter-width}*4) calc(#{$grid-gutter-width} * 0.5) $footer-height calc(#{$grid-gutter-width} * 0.5);
     min-height: 100vh;
+
+
+
+
+
+
 }
 
 .navbar-menu {
@@ -1359,11 +1365,12 @@
             }
         }
     }
-    
+
     @media (min-width: 1440px) {
 
         .page-content {
             padding: calc(#{$header-height} + #{$grid-gutter-width} * 2) calc(#{$grid-gutter-width} * 0.5) $footer-height calc(#{$grid-gutter-width} * 0.5);
+
         }
 
         .navbar-menu {
@@ -1395,6 +1402,7 @@
 
         &[data-sidebar-size="md"] {
 
+
             .main-content {
                 margin-left: calc(#{$vertical-menu-width-md} + 25px);
             }
@@ -1409,6 +1417,7 @@
         }
 
         &[data-sidebar-size="sm"] {
+
             .main-content {
                 margin-left: calc(#{$vertical-menu-width-sm} + 25px);
             }
@@ -1427,6 +1436,7 @@
         }
 
         &[data-sidebar-size="sm-hover"] {
+
             .main-content {
                 margin-left: calc(#{$vertical-menu-width-sm} + 25px);
             }

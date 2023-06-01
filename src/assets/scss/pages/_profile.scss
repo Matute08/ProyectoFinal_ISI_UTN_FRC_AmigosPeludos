@@ -12,6 +12,17 @@
 
 
 // profile
+.page-content-profile{
+    
+    margin: 20px 0 0 0 ;
+    padding: 0 calc(#{$grid-gutter-width} * 0.5) $footer-height calc(#{$grid-gutter-width} * 0.5);
+    min-height: 100vh;
+
+    @media (max-width: 990px) {
+        padding: 20px calc(#{$grid-gutter-width} * 0.5) $footer-height calc(#{$grid-gutter-width} * 0.5);
+    
+    }
+}
 
 .profile-wid-bg {
     
@@ -33,8 +44,6 @@
         bottom: 0;
         opacity: 0.9;
         background: $primary;
-        background: linear-gradient(to top, darken($primary, 25%), $primary);
-
     }
 
     .profile-wid-img {

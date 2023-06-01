@@ -71,6 +71,7 @@
     "react-filepond": "^7.1.2",
     "react-flatpickr": "^3.10.13",
     "react-google-login": "^5.2.2",
+    "react-hook-form": "^7.44.2",
     "react-i18next": "^12.2.0",
     "react-jvectormap": "^0.0.16",
     "react-leaflet": "^4.2.0",

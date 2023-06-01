@@ -41,9 +41,9 @@
     padding: 10px 0px;
     transition: all 0.5s ease;
     @media (max-width: 991.98px) {
-        background-color: #F2E7D9;
+        background-color: #fff;
         padding: 10px 8px;
-        position: static;
+       
 
     }
 
@@ -81,7 +81,6 @@
         background-color: $white;
         box-shadow: 0 1px 16px -2px rgba(56, 65, 74, 0.15);
         @media (max-width: 991.98px) {
-            background-color: #F2E7D9;
             box-shadow: none;
         }
     }

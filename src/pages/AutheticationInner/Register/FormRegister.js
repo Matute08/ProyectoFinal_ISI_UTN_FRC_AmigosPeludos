@@ -4,6 +4,11 @@ import { useAuth } from "../authContext";
 import { Link, useNavigate } from "react-router-dom";
 
 export const FormRegister = ({ handleSubmit }) => {
+
+
+
+
+
     const [formData, setFormData] = useState({
         nombre: "",
         apellido: "",
@@ -23,6 +28,8 @@ export const FormRegister = ({ handleSubmit }) => {
         cuentaVerificada: 0,
         tipoAutenticacionId: 1,
     });
+
+
 
     //formato mail
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
