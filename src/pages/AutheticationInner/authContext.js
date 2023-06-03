@@ -5,6 +5,8 @@ import {
     onAuthStateChanged,
     signOut,
     sendPasswordResetEmail,
+    GoogleAuthProvider,
+    signInWithPopup,
 } from "firebase/auth";
 import { auth } from "../AutheticationInner/firebase";
 import { getUserMail } from "../../services/api";
@@ -25,10 +27,15 @@ export function AuthProvider({ children }) {
         return createUserWithEmailAndPassword(auth, email, password);
     };
 
-    //INICIAR SESION
+    //INICIAR SESION CON MAIL
     const login = (email, password) =>
         signInWithEmailAndPassword(auth, email, password);
-        
+
+    //INICIAR SESION CON GOOGLE
+    const registerWithGoogle = () => {
+        const googleProvider = new GoogleAuthProvider();
+        return signInWithPopup(auth, googleProvider);
+    };
 
     //CERRAR SESION
     const logout = () => signOut(auth);
@@ -40,17 +47,28 @@ export function AuthProvider({ children }) {
 
     //si esta logueado, me devuelve el objeto entero con la infnormacion. Sino, me devuelve NULL
     useEffect(() => {
-        const unsubscribe =  onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-
-            setLoading(false)
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            if (currentUser) {
+                setUser(currentUser);
+                setLoading(false);
+            } else {
+                setUser(null);
+            }
         });
         return () => unsubscribe();
     }, []);
 
     return (
         <authContext.Provider
-            value={{ signup, login, user, logout, loading, resetPassword }}
+            value={{
+                signup,
+                login,
+                user,
+                logout,
+                loading,
+                resetPassword,
+                registerWithGoogle,
+            }}
         >
             {children}
         </authContext.Provider>

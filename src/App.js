@@ -24,6 +24,7 @@ function App() {
             <Route path="/iniciar-sesion" element={<Login />}/>
             <Route path="/modificar-perfil" element={<ProtectedRoute><UserProfileSetting /></ProtectedRoute>}/>
             <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
+            <Route path="/crear-mascota" element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
             <Route path='/restablecer-contraseña' element={<PasswordReset></PasswordReset>}></Route>
             
 

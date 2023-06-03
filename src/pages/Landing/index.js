@@ -3,7 +3,6 @@ import Home from "./Home";
 import Footer from "./footer";
 import Services from "./services";
 import Navbar from "./Navbar";
-import { getUser } from "../../services/api";
 
 const Landing = () => {
     document.title = " AMIGOS PELUDOS";

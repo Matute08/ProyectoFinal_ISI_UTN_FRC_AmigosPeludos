@@ -8,43 +8,37 @@ import {
 } from "reactstrap";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../authContext";
+import { useForm } from "react-hook-form";
+
 
 export const FormLogin = () => {
-    const [user, setUser] = useState({
-        email: "",
-        username: "",
-        password: "",
-    });
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm();
+
     const [alertText, setAlertText] = useState(
         "Incia sesion para continuar en Amigos Peludos"
     );
     const [alertClass, setAlertClass] = useState("text-dark alert-dark");
 
 
-    const { login } = useAuth();
+    const { login, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
     const [passwordShow, setPasswordShow] = useState(false);
 
-    //actualizar/cambiar de estados
-    const handleChange = ({ target: { name, value } }) =>
-        setUser({ ...user, [name]: value });
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const onSubmit = async(data)=>{
+        console.log(data)
+        
         try {
-            await login(user.email, user.password);
+            await login(data.mail, data.password);
             navigate("/");
         } catch (error) {
-            if (user.email === "" || user.password === "") {
-                setAlertText("Complete todos los campos");
-            }
             if (
                 error.code === "auth/user-not-found" ||
                 error.code === "auth/wrong-password" ||
-                error.code === "auth/invalid-email" ||
-                !emailRegex.test(user.email)
+                error.code === "auth/invalid-email"
             ) {
                 setAlertText("Usuario y/o contraseña incorrecto");
             }
@@ -55,10 +49,16 @@ export const FormLogin = () => {
             }
             setAlertClass("text-danger alert-danger")
         }
-    };
+    }
+
+    const handleGoogleSignIn = async() =>{
+        await loginWithGoogle();
+        navigate("/");
+
+    }
 
     return (
-        <Form action="#" onSubmit={handleSubmit}>
+        <Form action="#" onSubmit={handleSubmit(onSubmit)}>
             <Alert
                 className={"alert-borderless text-center mb-2 mx-2 " + alertClass}
                 role="alert"
@@ -68,16 +68,27 @@ export const FormLogin = () => {
 
             <div className="mb-3">
                 <Label htmlFor="useremail" className="form-label">
-                    Corre Electronico
+                    Correo Electronico
                 </Label>
-                <Input
-                    type="email"
+                <input
+                    type="text"
+                    name="mail"
                     className="form-control"
-                    id="useremail"
-                    placeholder="Ingrese su correo electronico"
-                    name="email"
-                    onChange={handleChange}
+                    placeholder="ejemplo@gmail.com"
+                    {...register("mail", {
+                        required: {
+                            value: true,
+                            message: "El Email es requerido",
+                        },
+                        pattern: {
+                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                            message: "Escriba el email correctamente",
+                        },
+                    })}
                 />
+                {errors.mail && (
+                    <span className="text-danger">{errors.mail.message}</span>
+                )}
             </div>
 
             <div className="mb-3">
@@ -90,14 +101,28 @@ export const FormLogin = () => {
                     Contraseña
                 </label>
                 <div className="position-relative auth-pass-inputgroup">
-                    <Input
+                <input
                         type={passwordShow ? "text" : "password"}
-                        className="form-control pe-5 password-input"
-                        placeholder="Ingrese su contraseña"
-                        id="password-input"
                         name="password"
-                        onChange={handleChange}
+                        placeholder="********"
+                        {...register("password", {
+                            required: {
+                                value: true,
+                                message: "La Contraseña es requerida.",
+                            },
+                            minLength: {
+                                value: 8,
+                                message:
+                                    "La contraseña debe contener al menos 8 caracteres",
+                            },
+                        })}
+                        className="form-control pe-5 password-input"
                     />
+                    {errors.password && (
+                        <span className="text-danger">
+                            {errors.password.message}
+                        </span>
+                    )}
                     <Button
                         color="link"
                         onClick={() => setPasswordShow(!passwordShow)}
@@ -140,10 +165,7 @@ export const FormLogin = () => {
                     <h5 className="fs-13 mb-4 title">Iniciar sesión con: </h5>
                 </div>
                 <div>
-                    <Button color="primary" className="btn-icon">
-                        <i className="ri-facebook-fill fs-16"></i>
-                    </Button>{" "}
-                    <Button color="danger" className="btn-icon">
+                    <Button color="danger" className="btn-icon" onClick={handleGoogleSignIn}> 
                         <i className="ri-google-fill fs-16"></i>
                     </Button>{" "}
                 </div>

@@ -19,7 +19,7 @@ import Navbar from "../Landing/Navbar";
 import Footer from "../Landing/footer";
 import { useAuth } from "../AutheticationInner/authContext";
 import { getUserMail, getBarrioUser, getCiudadUser } from "../../services/api";
-import Mascota from "./Mascotas";
+import Mascota from "./Mascotas/Mascotas";
 
 //Images
 import avatar1 from "../../assets/images/user/user-random.jpg";
@@ -36,10 +36,19 @@ const Profile = () => {
     };
 
     const barrio = async () => {
-        setUserBarrio(await getBarrioUser(userData.barrioId));
+        if (userData.barrioId === 0) {
+            setUserBarrio(null)
+        }else{
+            setUserBarrio(await getBarrioUser(userData.barrioId));
+        }
     };
     const ciudad = async () => {
-        setUserCiudad(await getCiudadUser(userBarrio.ciudadId));
+        if (userBarrio=== null) {
+            setUserCiudad(null)
+        }else{
+            setUserCiudad(await getCiudadUser(userBarrio.ciudadId));
+
+        }
     };
 
     useEffect(() => {
@@ -60,7 +69,7 @@ const Profile = () => {
     }, [userData]);
     useEffect(() => {
         if (userData && userBarrio && userCiudad) {
-            setIsLoading(false);
+            setIsLoading(true);
         }
     }, [userData, userBarrio, userCiudad]);
 
@@ -72,21 +81,21 @@ const Profile = () => {
     SwiperCore.use([Autoplay]);
 
     document.title = "Perfil | Amigos Peludos";
+    const nombreUsuario = userData?.nombre
+    const apellidoUsuario = userData?.apellido
+    const mail = userData?.mail
+    const celular = userData?.celular
+    const calle = userData?.calle
+    const nroCalle = userData?.nroCalle
+    const genero = userData?.generoId
 
-    const nombreUsuario = userData?.nombre;
-    const apellidoUsuario = userData?.apellido;
-    const celular = userData?.celular;
-    const direccion = userData?.calle;
     const nombreBarrio = userBarrio?.nombre;
     const nombreCiudad = userCiudad?.nombre;
-    const mail = userData?.mail;
+
 
     return (
         <React.Fragment>
-            {isLoading ? (
-                <div>CARGANDO...</div>
-            ) : (
-                <>
+      
                     <>
                         <Navbar></Navbar>
                     </>
@@ -144,6 +153,17 @@ const Profile = () => {
                                                             className="ps-0"
                                                             scope="row"
                                                         >
+                                                            Correo Electronico:
+                                                        </th>
+                                                        <td className="text-muted">
+                                                            {mail}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th
+                                                            className="ps-0"
+                                                            scope="row"
+                                                        >
                                                             Numero de Celular :
                                                         </th>
                                                         <td className="text-muted">
@@ -155,10 +175,10 @@ const Profile = () => {
                                                             className="ps-0"
                                                             scope="row"
                                                         >
-                                                            Correo Electronico:
+                                                            Genero :
                                                         </th>
                                                         <td className="text-muted">
-                                                            {mail}
+                                                            {genero}
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -180,7 +200,7 @@ const Profile = () => {
                                                             Ciudad:
                                                         </th>
                                                         <td className="text-muted">
-                                                            {nombreCiudad}
+                                                            {nombreCiudad ? nombreCiudad : " "}
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -191,7 +211,7 @@ const Profile = () => {
                                                             Barrio:
                                                         </th>
                                                         <td className="text-muted">
-                                                            {nombreBarrio}
+                                                            {nombreBarrio ? nombreBarrio : " "}
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -202,9 +222,10 @@ const Profile = () => {
                                                             Direccion:
                                                         </th>
                                                         <td className="text-muted">
-                                                            {direccion}
+                                                            {calle} {nroCalle}
                                                         </td>
                                                     </tr>
+                                                   
                                                 </tbody>
                                             </Table>
                                         </div>
@@ -258,8 +279,7 @@ const Profile = () => {
                     <>
                         <Footer></Footer>
                     </>
-                </>
-            )}
+             
         </React.Fragment>
     );
 };

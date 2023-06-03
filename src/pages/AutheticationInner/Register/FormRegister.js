@@ -1,38 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Alert } from "reactstrap";
 import { useAuth } from "../authContext";
 import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { postUser, getGenero } from "../../../services/api";
 
-export const FormRegister = ({ handleSubmit }) => {
+export const FormRegister = () => {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm();
 
+    const [genero, setGenero] = useState([]);
 
+    useEffect(() => {
+        const getGeneros = async () => {
+            const data = await getGenero();
+            if (data) {
+                setGenero(data);
+            }
+        };
+        getGeneros();
+    }, []);
 
-
-
-    const [formData, setFormData] = useState({
-        nombre: "",
-        apellido: "",
-        fechaNacimiento:null,
-        mail: "",
-        password: "",
-        login: "hola",
-        tieneMascota: false,
-        mailVerificado: false,
-        habilitada: false,
-        generoId: 1,
-        barrioId: 1,
-        celular: "",
-        calle: "",
-        codigoPostal: "",
-        rolId: 1,
-        cuentaVerificada: 0,
-        tipoAutenticacionId: 1,
-    });
-
-
-
-    //formato mail
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     //ver contraseña
     const [passwordShow, setPasswordShow] = useState(false);
     //manejo de errores
@@ -40,45 +31,46 @@ export const FormRegister = ({ handleSubmit }) => {
         "Registrese gratuitamente en Amigos Peludos"
     );
     const [alertClass, setAlertClass] = useState("text-dark alert-dark");
-
-    const { signup } = useAuth();
+    const { signup, registerWithGoogle } = useAuth();
     const navigate = useNavigate();
 
-    const handleChange = ({ target: { name, value } }) => {
-        setFormData({ ...formData, [name]: value });
-    };
-
-    const _handleSubmit = async (e) => {
-        //metodo privado de este componente
-        e.preventDefault();
-        if (formData.password.length < 8) {
-            setAlertText("La contraseña debe tener al menos 8 caracteres.");
-            setAlertClass("text-danger alert-danger");
-
-        }else{
-            try {
-                await signup(formData.mail, formData.password);
-                handleSubmit({ ...formData });
-    
-                navigate("/");
-            } catch (error) {
-                if (!emailRegex.test(formData.mail)) {
-                    setAlertText("Ingrese un mail correcto");
-                }
-                if (error.code === "auth/email-already-in-use") {
-                    setAlertText(
-                        "El correo electronico ya se encuentra registrado."
-                    );
-                }
-                document.body.scrollTop = 0;
-                document.documentElement.scrollTop = 0;
-                setAlertClass("text-danger alert-danger");
+    const onSubmit = async (data) => {
+        console.log(data);
+        data.fechaNacimiento = new Date(data.fechaNacimiento).toISOString();
+        data.tipoAutenticacionId = "1";
+        console.log(data);
+        try {
+            const signUp = await signup(data.mail, data.password);
+            if (signUp) {
+                await postUser(data);
             }
+            navigate("/");
+        } catch (error) {
+            if (error.code === "auth/email-already-in-use") {
+                setAlertText(
+                    "El correo electronico ya se encuentra registrado."
+                );
+            }
+
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+            setAlertClass("text-danger alert-danger");
         }
     };
 
+    const handleGoogleSignIn = async () => {
+        await registerWithGoogle();
+        navigate("/");
+    };
+
+    
+
     return (
-        <Form onSubmit={_handleSubmit} className="needs-validation" action="#">
+        <Form
+            onSubmit={handleSubmit(onSubmit)}
+            className="needs-validation"
+            action="#"
+        >
             <Alert
                 className={
                     "alert-borderless text-center mb-2 mx-2 " + alertClass
@@ -87,42 +79,56 @@ export const FormRegister = ({ handleSubmit }) => {
             >
                 {alertText}
             </Alert>
+
+            {/* MAIL */}
             <div className="mb-3">
-                <label htmlFor="mail" className="form-label">
+                <label className="form-label">
                     Email <span className="text-danger">*</span>
                 </label>
                 <input
-                    type="email"
-                    className="form-control"
-                    id="mail"
-                    placeholder="Ingrese su correo electronico"
-                    required
+                    type="text"
                     name="mail"
-                    value={formData.mail}
-                    onChange={handleChange}
+                    className="form-control"
+                    placeholder="ejemplo@gmail.com"
+                    {...register("mail", {
+                        required: {
+                            value: true,
+                            message: "El Email es requerido",
+                        },
+                        pattern: {
+                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                            message: "Escriba el email correctamente",
+                        },
+                    })}
                 />
-                <div className="invalid-feedback"></div>
+                {errors.mail && (
+                    <span className="text-danger">{errors.mail.message}</span>
+                )}
             </div>
 
+            {/* NOMBRE */}
             <div className="mb-3">
-                <label htmlFor="nombre" className="form-label">
+                <label className="form-label">
                     Nombre <span className="text-danger">*</span>
                 </label>
                 <input
                     type="text"
-                    className="form-control"
-                    id="nombre"
-                    placeholder="Ingrese su nombre"
-                    required
                     name="nombre"
-                    value={formData.nombre}
-                    onChange={handleChange}
+                    className="form-control"
+                    placeholder="Nombre"
+                    {...register("nombre", {
+                        required: {
+                            value: true,
+                            message: "El nombre es requerido",
+                        },
+                    })}
                 />
-                <div className="invalid-feedback">
-                    Por favor, ingrese su nombre
-                </div>
+                {errors.nombre && (
+                    <span className="text-danger">{errors.nombre.message}</span>
+                )}
             </div>
 
+            {/* APELLIDO */}
             <div className="mb-3">
                 <label htmlFor="apellido" className="form-label">
                     Apellido <span className="text-danger">*</span>
@@ -130,19 +136,59 @@ export const FormRegister = ({ handleSubmit }) => {
                 <input
                     type="text"
                     className="form-control"
-                    id="apellido"
-                    placeholder="Ingrese su apellido"
-                    required
                     name="apellido"
-                    value={formData.apellido}
-                    onChange={handleChange}
+                    placeholder="Apellido"
+                    {...register("apellido", {
+                        required: {
+                            value: true,
+                            message: "El Apellido es requerido",
+                        },
+                    })}
                 />
-                <div className="invalid-feedback">
-                    Por favor, ingrese su apellido
-                </div>
+                {errors.apellido && (
+                    <span className="text-danger">
+                        {errors.apellido.message}
+                    </span>
+                )}
             </div>
 
-            {/* <div className="mb-3">
+            {/* GENERO */}
+            <div className="mb-3">
+                <label htmlFor="generoId" className="form-label">
+                    Genero <span className="text-danger">*</span>
+                </label>
+                <select
+                    name="generoId"
+                    className="form-select "
+                    placeholder="Ingrese su genero"
+                    {...register("generoId", {
+                        required: {
+                            value: true,
+                            message: "El campo Genero es requerido.",
+                        },
+                    })}
+                >
+                    <option value="">Seleccione un género</option>
+                    {genero &&
+                        genero.map((elemento) => (
+                            <option
+                                className="form-control"
+                                key={elemento.id}
+                                value={elemento.id}
+                            >
+                                {elemento.nombre}
+                            </option>
+                        ))}
+                </select>
+                {errors.generoId && (
+                    <span className="text-danger">
+                        {errors.generoId.message}
+                    </span>
+                )}
+            </div>
+
+            {/* FECHA NACIMIENTO */}
+            <div className="mb-3">
                 <label htmlFor="fechaNacimiento" className="form-label">
                     Fecha de Nacimiento <span className="text-danger">*</span>
                 </label>
@@ -150,35 +196,49 @@ export const FormRegister = ({ handleSubmit }) => {
                     type="date"
                     className="form-control"
                     placeholder="Ingrese su fecha de nacimiento"
-                    required
-                    id="fechaNacimiento"
                     name="fechaNacimiento"
-                    value={formData.fechaNacimiento}
-                    onChange={handleChange}
-                    options={{
-                        dateFormat: "Y, M, d",
-                    }}
+                    {...register("fechaNacimiento", {
+                        required: {
+                            value: true,
+                            message: "La fecha de nacimiento es requerida",
+                        },
+                    })}
                 />
-                <div className="invalid-feedback">
-                    Por favor, ingrese su fecha de nacimiento
-                </div>
-            </div> */}
+                {errors.fechaNacimiento && (
+                    <span className="text-danger">
+                        {errors.fechaNacimiento.message}
+                    </span>
+                )}
+            </div>
 
+            {/* CONTRASEÑA */}
             <div className="mb-3">
                 <label className="form-label" htmlFor="password-input">
                     Contraseña <span className="text-danger">*</span>
                 </label>
                 <div className="position-relative auth-pass-inputgroup">
-                    <Input
+                    <input
                         type={passwordShow ? "text" : "password"}
-                        className="form-control pe-5 password-input"
-                        placeholder="Ingrese su contraseña"
-                        id="password-input"
                         name="password"
-                        value={formData.password}
-                        required
-                        onChange={handleChange}
+                        placeholder="********"
+                        {...register("password", {
+                            required: {
+                                value: true,
+                                message: "La Contraseña es requerida.",
+                            },
+                            minLength: {
+                                value: 8,
+                                message:
+                                    "La contraseña debe contener al menos 8 caracteres",
+                            },
+                        })}
+                        className="form-control pe-5 password-input"
                     />
+                    {errors.password && (
+                        <span className="text-danger">
+                            {errors.password.message}
+                        </span>
+                    )}
 
                     <Button
                         color="link"
@@ -221,13 +281,8 @@ export const FormRegister = ({ handleSubmit }) => {
                 <div>
                     <button
                         type="button"
-                        className="btn btn-primary btn-icon waves-effect waves-light"
-                    >
-                        <i className="ri-facebook-fill fs-16"></i>
-                    </button>{" "}
-                    <button
-                        type="button"
                         className="btn btn-danger btn-icon waves-effect waves-light"
+                        onClick={handleGoogleSignIn}
                     >
                         <i className="ri-google-fill fs-16"></i>
                     </button>{" "}

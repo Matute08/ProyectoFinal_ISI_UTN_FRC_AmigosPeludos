@@ -1,6 +1,7 @@
 import React from 'react';
 import { Col, Container, Row } from 'reactstrap';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../AutheticationInner/authContext';
 
 
 // Import Swiper styles
@@ -11,6 +12,8 @@ import "swiper/css/pagination";
 
 const Home = () => {
 
+    const {user} = useAuth()
+    console.log(user)
 
 
 

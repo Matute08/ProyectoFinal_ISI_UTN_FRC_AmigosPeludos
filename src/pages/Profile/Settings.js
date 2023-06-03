@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import {
     Card,
     CardBody,
@@ -19,8 +20,6 @@ import {
     Button,
 } from "reactstrap";
 import classnames from "classnames";
-import Flatpickr from "react-flatpickr";
-import Modal from "react-bootstrap/Modal";
 import Navbar from "../Landing/Navbar";
 import Footer from "../Landing/footer";
 import { useAuth } from "../AutheticationInner/authContext";
@@ -36,6 +35,7 @@ import progileBg from "../../assets/images/user/user-random.jpg";
 import avatar1 from "../../assets/images/user/user-random.jpg";
 
 const UserProfileSetting = () => {
+
     const [show, setShow] = useState(false);
 
     const handleClose = () => setShow(false);
@@ -46,7 +46,6 @@ const UserProfileSetting = () => {
     const [userData, setUserData] = useState();
     const [userBarrio, setUserBarrio] = useState();
     const [userCiudad, setUserCiudad] = useState();
-    const [isLoading, setIsLoading] = useState(true);
     const [userId, setUserId] = useState();
 
     const [activeTab, setActiveTab] = useState("1");
@@ -54,6 +53,39 @@ const UserProfileSetting = () => {
     const tabChange = (tab) => {
         if (activeTab !== tab) setActiveTab(tab);
     };
+
+
+    const {
+        register,
+        handleSubmit,
+    } = useForm();
+
+    const onSubmit = async (data) => {
+        console.log(data);
+        if (data.nombre === "") {
+            data.nombre = nombreUsuario;
+        }
+        if (data.apellido === "") {
+            data.apellido = apellidoUsuario;
+        }
+        if (data.mail === "") {
+            data.mail = mail;
+        }
+        if (data.celular === "") {
+            data.celular = celular;
+        }
+
+        try {
+            await updateUser(userId, data); // Llama a la función de la API para actualizar los datos del usuario
+            setUserData(data);
+            navigate("/perfil");
+        } catch (error) {
+            // Maneja cualquier error de la actualización
+            console.error("Error al actualizar el usuario:", error);
+        }
+    };
+
+ 
 
     //----OBTENER DATOS
     const usuario = async () => {
@@ -64,10 +96,18 @@ const UserProfileSetting = () => {
     };
 
     const barrio = async () => {
-        setUserBarrio(await getBarrioUser(userData.barrioId));
+        if (userData.barrioId === 0) {
+            setUserBarrio(null);
+        } else {
+            setUserBarrio(await getBarrioUser(userData.barrioId));
+        }
     };
     const ciudad = async () => {
-        setUserCiudad(await getCiudadUser(userBarrio.ciudadId));
+        if (userBarrio === null) {
+            setUserCiudad(null);
+        } else {
+            setUserCiudad(await getCiudadUser(userBarrio.ciudadId));
+        }
     };
 
     useEffect(() => {
@@ -91,50 +131,16 @@ const UserProfileSetting = () => {
             usuario();
         }
     }, [userData]);
-    useEffect(() => {
-        if (userData && userBarrio && userCiudad) {
-            setIsLoading(false);
-        }
-    }, [userData, userBarrio, userCiudad]);
 
     const nombreUsuario = userData?.nombre;
     const apellidoUsuario = userData?.apellido;
+    const mail = userData?.mail;
     const celular = userData?.celular;
     const calle = userData?.calle;
+    const nroCalle = userData?.nroCalle;
+    const genero = userData?.generoId;
     const nombreBarrio = userBarrio?.nombre;
     const nombreCiudad = userCiudad?.nombre;
-    const mail = userData?.mail;
-
-    //ACTUALIZAR DATOS
-
-    const [updateUserData, setUpdateUserData] = useState({});
-
-    useEffect(() => {
-        setUpdateUserData({
-            nombre: nombreUsuario,
-            apellido: apellidoUsuario,
-            mail: mail,
-            celular: celular,
-            calle: calle,
-        });
-    }, [nombreUsuario, apellidoUsuario, mail, celular, calle]);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault(); // Evita que se produzca la acción predeterminada de envío del formulario
-        try {
-            console.log(updateUserData);
-            console.log(nombreUsuario);
-            console.log(updateUserData.nombre);
-            await updateUser(userId, updateUserData); // Llama a la función de la API para actualizar los datos del usuario
-            setUserData(updateUserData);
-            navigate("/perfil");
-
-            // Actualiza cualquier otro estado o realiza acciones adicionales después de la actualización exitosa
-        } catch (error) {
-            // Maneja cualquier error de la actualización
-            console.error("Error al actualizar el usuario:", error);
-        }
-    };
 
     document.title = "Modificar Perfil | Amigos Peludos";
     return (
@@ -226,7 +232,11 @@ const UserProfileSetting = () => {
                                     <TabContent activeTab={activeTab}>
                                         <TabPane tabId="1">
                                             {/* FORMULARIO */}
-                                            <Form onSubmit={handleSubmit}>
+                                            <Form
+                                                onSubmit={handleSubmit(
+                                                    onSubmit
+                                                )}
+                                            >
                                                 <Row>
                                                     <Col lg={6}>
                                                         <div className="mb-3">
@@ -236,27 +246,16 @@ const UserProfileSetting = () => {
                                                             >
                                                                 Nombre
                                                             </Label>
-                                                            <Input
+                                                            <input
                                                                 type="text"
                                                                 className="form-control"
-                                                                id="firstnameInput"
                                                                 name="nombre"
-                                                                placeholder={
-                                                                    nombreUsuario
-                                                                }
                                                                 defaultValue={
                                                                     nombreUsuario
                                                                 }
-                                                                onChange={(e) =>
-                                                                    setUpdateUserData(
-                                                                        {
-                                                                            ...updateUserData,
-                                                                            nombre: e
-                                                                                .target
-                                                                                .value,
-                                                                        }
-                                                                    )
-                                                                }
+                                                                {...register(
+                                                                    "nombre"
+                                                                )}
                                                             />
                                                         </div>
                                                     </Col>
@@ -268,28 +267,16 @@ const UserProfileSetting = () => {
                                                             >
                                                                 Apellido
                                                             </Label>
-                                                            <Input
+                                                            <input
                                                                 type="text"
                                                                 className="form-control"
                                                                 name="apellido"
-                                                                id="lastnameInput"
-                                                                placeholder={
-                                                                    apellidoUsuario
-                                                                }
                                                                 defaultValue={
                                                                     apellidoUsuario
                                                                 }
-                                                                onChange={(e) =>
-                                                                    setUpdateUserData(
-                                                                        {
-                                                                            ...updateUserData,
-                                                                            apellido:
-                                                                                e
-                                                                                    .target
-                                                                                    .value,
-                                                                        }
-                                                                    )
-                                                                }
+                                                                {...register(
+                                                                    "apellido"
+                                                                )}
                                                             />
                                                         </div>
                                                     </Col>
@@ -302,28 +289,16 @@ const UserProfileSetting = () => {
                                                                 Numero de
                                                                 Celular
                                                             </Label>
-                                                            <Input
+                                                            <input
                                                                 type="number"
                                                                 className="form-control"
                                                                 name="celular"
-                                                                id="phonenumberInput"
-                                                                placeholder={
-                                                                    celular
-                                                                }
                                                                 defaultValue={
                                                                     celular
                                                                 }
-                                                                onChange={(e) =>
-                                                                    setUpdateUserData(
-                                                                        {
-                                                                            ...updateUserData,
-                                                                            celular:
-                                                                                e
-                                                                                    .target
-                                                                                    .value,
-                                                                        }
-                                                                    )
-                                                                }
+                                                                {...register(
+                                                                    "celular"
+                                                                )}
                                                             />
                                                         </div>
                                                     </Col>
@@ -336,36 +311,20 @@ const UserProfileSetting = () => {
                                                                 Correo
                                                                 Electronico
                                                             </Label>
-                                                            <Input
+                                                            <input
                                                                 type="email"
                                                                 className="form-control"
                                                                 name="mail"
-                                                                id="emailInput"
                                                                 defaultValue={
                                                                     mail
                                                                 }
                                                                 readOnly
+                                                                {...register(
+                                                                    "mail"
+                                                                )}
                                                             />
                                                         </div>
                                                     </Col>
-                                                    {/* <Col lg={6}>
-                                                        <div className="mb-3">
-                                                            <Label
-                                                                htmlFor="JoiningdatInput"
-                                                                className="form-label"
-                                                            >
-                                                                Fecha de
-                                                                Nacimiento
-                                                            </Label>
-                                                            <Flatpickr
-                                                                className="form-control"
-                                                                options={{
-                                                                    dateFormat:
-                                                                        "d M, Y",
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    </Col> */}
 
                                                     <Col lg={2}>
                                                         <div className="mb-3">
@@ -375,10 +334,9 @@ const UserProfileSetting = () => {
                                                             >
                                                                 Pais
                                                             </Label>
-                                                            <Input
+                                                            <input
                                                                 type="text"
                                                                 className="form-control"
-                                                                id="countryInput"
                                                                 placeholder="Argentina"
                                                                 readOnly
                                                             />
@@ -393,10 +351,9 @@ const UserProfileSetting = () => {
                                                             >
                                                                 Provincia
                                                             </Label>
-                                                            <Input
+                                                            <input
                                                                 type="text"
                                                                 className="form-control"
-                                                                id="provinceInput"
                                                                 placeholder="Cordoba"
                                                                 readOnly
                                                             />
@@ -411,10 +368,9 @@ const UserProfileSetting = () => {
                                                             >
                                                                 Ciudad
                                                             </Label>
-                                                            <Input
+                                                            <input
                                                                 type="text"
                                                                 className="form-control"
-                                                                id="cityInput"
                                                                 placeholder="Cordoba"
                                                                 readOnly
                                                             />
@@ -429,12 +385,10 @@ const UserProfileSetting = () => {
                                                             >
                                                                 Barrio
                                                             </Label>
-                                                            <Input
+                                                            <input
                                                                 type="text"
                                                                 className="form-control"
-                                                                id="barrioInput"
                                                                 name="barrio"
-                                                                placeholder="Barrio"
                                                                 DefaultValue={
                                                                     nombreBarrio
                                                                 }
@@ -451,27 +405,16 @@ const UserProfileSetting = () => {
                                                             >
                                                                 Direccion
                                                             </Label>
-                                                            <Input
+                                                            <input
                                                                 type="text"
                                                                 className="form-control"
-                                                                id="addressInput"
                                                                 name="calle"
-                                                                placeholder={
-                                                                    calle
-                                                                }
                                                                 defaultValue={
                                                                     calle
                                                                 }
-                                                                onChange={(e) =>
-                                                                    setUpdateUserData(
-                                                                        {
-                                                                            ...updateUserData,
-                                                                            calle: e
-                                                                                .target
-                                                                                .value,
-                                                                        }
-                                                                    )
-                                                                }
+                                                                {...register(
+                                                                    "calle"
+                                                                )}
                                                             />
                                                         </div>
                                                     </Col>
@@ -484,27 +427,30 @@ const UserProfileSetting = () => {
                                                             >
                                                                 Altura
                                                             </Label>
-                                                            <Input
+                                                            <input
                                                                 type="number"
                                                                 className="form-control"
                                                                 minLength="1"
                                                                 maxLength="6"
-                                                                id="numberInput"
-                                                                placeholder="Numero"
+                                                                defaultValue={
+                                                                    nroCalle
+                                                                }
+                                                                {...register(
+                                                                    "nroCalle"
+                                                                )}
                                                             />
                                                         </div>
                                                     </Col>
 
                                                     <Col lg={12}>
                                                         <div className="hstack gap-2 justify-content-end">
-                                                            <Button
+                                                            <button
                                                                 className="btn btn-primary"
-                                                                onClick={
-                                                                    handleShow
-                                                                }
+                                                                type="submit"
+                                                                
                                                             >
                                                                 Actualizar
-                                                            </Button>
+                                                            </button>
                                                             <Link
                                                                 to={"/perfil"}
                                                                 type="button"
@@ -515,6 +461,7 @@ const UserProfileSetting = () => {
                                                         </div>
                                                     </Col>
                                                 </Row>
+                                                
                                             </Form>
                                         </TabPane>
                                     </TabContent>
@@ -522,21 +469,6 @@ const UserProfileSetting = () => {
                             </Card>
                         </Col>
                     </Row>
-
-                    <Modal show={show} onHide={handleClose}>
-                        <Modal.Header closeButton>
-                            <Modal.Title>Actualizar Datos</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>Deseas actualizar tus datos?</Modal.Body>
-                        <Modal.Footer>
-                            <Button variant="secondary" onClick={handleSubmit}>
-                                Actualizar
-                            </Button>
-                            <Button variant="secondary" onClick={handleClose}>
-                                Cerrar
-                            </Button>
-                        </Modal.Footer>
-                    </Modal>
                 </Container>
             </div>
 
