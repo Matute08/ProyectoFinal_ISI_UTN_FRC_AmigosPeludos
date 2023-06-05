@@ -22,14 +22,14 @@ import {
 import classnames from "classnames";
 import Navbar from "../landing/Navbar";
 import Footer from "../landing/Footer";
-import { useAuth } from "../autheticationInner/AuthContext";
+import { useAuth } from "../../services/AuthContext";
 import {
     getUserMail,
     getBarrioUser,
     getCiudadUser,
     updateUser,
 } from "../../services/Api";
-import { uploadFileUser } from "../autheticationInner/Firebase";
+import { uploadFileUser } from "../../services/Firebase";
 
 //import images
 import progileBg from "../../assets/images/user/user-random.jpg";

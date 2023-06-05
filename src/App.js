@@ -6,7 +6,7 @@ import Landing from './pages/landing/Index';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Register from './pages/autheticationInner/Register/Register';
 import Login from "./pages/autheticationInner/Login/Login"
-import { AuthProvider } from './pages/autheticationInner/AuthContext';
+import { AuthProvider } from './services/AuthContext';
 import { ProtectedRoute } from './pages/autheticationInner/ProtectedRoute';
 import UserProfileSetting from './pages/profile/Settings';
 import Profile from './pages/profile/UserProfile';

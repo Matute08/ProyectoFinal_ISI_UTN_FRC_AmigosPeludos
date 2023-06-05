@@ -9,7 +9,7 @@ import {
     signInWithPopup,
 } from "firebase/auth";
 import { auth } from "./Firebase";
-import { getUserMail } from "../../services/Api";
+import { getUserMail } from "./Api";
 
 //-------------------------------------------
 export const authContext = createContext();

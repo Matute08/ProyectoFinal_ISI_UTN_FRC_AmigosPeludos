@@ -13,7 +13,7 @@ import {
     Input,
 } from "reactstrap";
 import ParticlesAuth from "../ParticlesAuth";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "../../../services/AuthContext";
 
 import logoLight from "../../../assets/images/logo/LogoAP.png";
 

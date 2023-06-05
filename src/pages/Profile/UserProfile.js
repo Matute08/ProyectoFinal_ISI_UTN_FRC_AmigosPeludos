@@ -16,7 +16,7 @@ import classnames from "classnames";
 import SwiperCore, { Autoplay } from "swiper";
 import Navbar from "../landing/Navbar";
 import Footer from "../landing/Footer";
-import { useAuth } from "../autheticationInner/AuthContext";
+import { useAuth } from "../../services/AuthContext";
 import { getUserMail, getBarrioUser, getCiudadUser } from "../../services/Api";
 import Mascota from "./Mascotas/Mascotas";
 
