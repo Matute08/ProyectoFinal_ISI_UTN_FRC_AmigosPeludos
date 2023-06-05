@@ -161,7 +161,7 @@ const UserProfileSetting = () => {
             <>
                 <Navbar></Navbar>
             </>
-            <div className="page-content">
+            <div className="page-content perfil-fondo">
                 <Container fluid>
                     <Row>
                         <Col xxl={3}>

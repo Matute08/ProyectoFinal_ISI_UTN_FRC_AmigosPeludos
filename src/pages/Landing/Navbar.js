@@ -68,8 +68,8 @@ const Navbar = ({ direction, ...args }) => {
     };
 
     const location = useLocation();
-    const isLandingPage = window.location.pathname === "/" ? true : false;
-    console.log(isLandingPage)
+    //const isLandingPage = window.location.pathname === "/" ? true : false;
+    //console.log(isLandingPage)
 
     // Clases existentes
     const colorClass =
@@ -83,7 +83,7 @@ const Navbar = ({ direction, ...args }) => {
             <nav
                 className={
                     "navbar navbar-expand-lg navbar-landing fixed-top " +
-                    navClass + `${!isLandingPage? colorClass : ""}`
+                    navClass
                 }
                 id="navbar"
             >

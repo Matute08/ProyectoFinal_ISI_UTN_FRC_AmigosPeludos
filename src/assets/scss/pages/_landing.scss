@@ -84,7 +84,7 @@
     }
 
     &.is-sticky {
-        background-color: rgba(250,175,107,255);
+        background-color: #e9d29f;
         box-shadow: 0 1px 16px -2px rgba(56, 65, 74, 0.15);
         @media (max-width: 991.98px) {
             box-shadow: none;
@@ -169,6 +169,7 @@
         padding: 8px 0px;
     }
 };
+
 
 .text-home{
     color: $black !important;

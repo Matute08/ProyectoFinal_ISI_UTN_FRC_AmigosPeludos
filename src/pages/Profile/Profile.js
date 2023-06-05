@@ -90,7 +90,7 @@ const Profile = () => {
             {!isLoading ? (
                 <>
                     <Navbar/>
-                    <Container fluid className="page-content">
+                    <Container fluid className="page-content perfil-fondo">
                         <Row>
                             <Col xxl={3}>
                                 <Card className="mt-n5">

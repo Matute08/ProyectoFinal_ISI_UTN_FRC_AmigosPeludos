@@ -28,31 +28,18 @@ const Footer = () => {
                                     <li className="list-inline-item">
                                         <Link to="#" className="avatar-xs d-block">
                                             <div className="avatar-title rounded-circle">
-                                                <i className="ri-github-fill"></i>
+                                                <i className="ri-instagram-fill"></i>
                                             </div>
                                         </Link>
                                     </li>
                                     <li className="list-inline-item">
                                         <Link to="#" className="avatar-xs d-block">
                                             <div className="avatar-title rounded-circle">
-                                                <i className="ri-linkedin-fill"></i>
+                                                <i className="ri-twitter-fill"></i>
                                             </div>
                                         </Link>
                                     </li>
-                                    <li className="list-inline-item">
-                                        <Link to="#" className="avatar-xs d-block">
-                                            <div className="avatar-title rounded-circle">
-                                                <i className="ri-google-fill"></i>
-                                            </div>
-                                        </Link>
-                                    </li>
-                                    <li className="list-inline-item">
-                                        <Link to="#" className="avatar-xs d-block">
-                                            <div className="avatar-title rounded-circle">
-                                                <i className="ri-dribbble-line"></i>
-                                            </div>
-                                        </Link>
-                                    </li>
+                                    
                                 </ul>
                             </div>
                         </Col>
