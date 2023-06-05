@@ -7,7 +7,7 @@ import {
     Alert,
 } from "reactstrap";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../authContext";
+import { useAuth } from "../AuthContext";
 import { useForm } from "react-hook-form";
 
 

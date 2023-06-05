@@ -21,15 +21,15 @@ import {
 } from "reactstrap";
 import classnames from "classnames";
 import Navbar from "../Landing/Navbar";
-import Footer from "../Landing/footer";
-import { useAuth } from "../AutheticationInner/authContext";
+import Footer from "../Landing/Footer";
+import { useAuth } from "../AutheticationInner/AuthContext";
 import {
     getUserMail,
     getBarrioUser,
     getCiudadUser,
     updateUser,
-} from "../../services/api";
-import { uploadFileUser } from "../AutheticationInner/firebase";
+} from "../../services/Api";
+import { uploadFileUser } from "../AutheticationInner/Firebase";
 
 //import images
 import progileBg from "../../assets/images/user/user-random.jpg";

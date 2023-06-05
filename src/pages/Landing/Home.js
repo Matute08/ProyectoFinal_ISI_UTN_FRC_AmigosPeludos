@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col, Container, Row } from 'reactstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../AutheticationInner/authContext';
+import { useAuth } from '../AutheticationInner/AuthContext';
 
 
 // Import Swiper styles

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Col, Container, Form, Label, Row } from "reactstrap";
 
-import { useAuth } from "../../AutheticationInner/authContext";
+import { useAuth } from "../../AutheticationInner/AuthContext";
 import {
     getTipoMascota,
     getSexoMascota,
@@ -11,8 +11,8 @@ import {
     postMascota,
     getUserMail,
     updateUser,
-} from "../../../services/api";
-import { uploadFilePetsUser } from "../../AutheticationInner/firebase";
+} from "../../../services/Api";
+import { uploadFilePetsUser } from "../../AutheticationInner/Firebase";
 
 //import images
 

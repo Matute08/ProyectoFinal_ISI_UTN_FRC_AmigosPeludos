@@ -15,9 +15,9 @@ import {
 import classnames from "classnames";
 import SwiperCore, { Autoplay } from "swiper";
 import Navbar from "../Landing/Navbar";
-import Footer from "../Landing/footer";
-import { useAuth } from "../AutheticationInner/authContext";
-import { getUserMail, getBarrioUser, getCiudadUser } from "../../services/api";
+import Footer from "../Landing/Footer";
+import { useAuth } from "../AutheticationInner/AuthContext";
+import { getUserMail, getBarrioUser, getCiudadUser } from "../../services/Api";
 import Mascota from "./Mascotas/Mascotas";
 
 //Images

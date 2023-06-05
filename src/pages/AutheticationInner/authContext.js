@@ -8,8 +8,8 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
 } from "firebase/auth";
-import { auth } from "../AutheticationInner/firebase";
-import { getUserMail } from "../../services/api";
+import { auth } from "./Firebase";
+import { getUserMail } from "../../services/Api";
 
 //-------------------------------------------
 export const authContext = createContext();

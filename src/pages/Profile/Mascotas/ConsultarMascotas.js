@@ -2,7 +2,7 @@ import React, { useState, useEffect, input } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Col, Container, Form, Label, Row, Table } from "reactstrap";
 
-import { useAuth } from "../../AutheticationInner/authContext";
+import { useAuth } from "../../AutheticationInner/AuthContext";
 import {
     getMascotaId,
     getTipoMascota,
@@ -11,7 +11,7 @@ import {
     postMascota,
     getUserMail,
     updateUser,
-} from "../../../services/api";
+} from "../../../services/Api";
 
 //import images
 

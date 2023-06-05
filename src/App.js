@@ -2,15 +2,15 @@
 import React from 'react';
 import './App.css';
 import '../src/assets/scss/themes.scss';
-import Landing from './pages/Landing';
+import Landing from './pages/Landing/Index';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Register from './pages/AutheticationInner/Register/Register';
 import Login from "./pages/AutheticationInner/Login/Login"
-import { AuthProvider } from './pages/AutheticationInner/authContext';
+import { AuthProvider } from './pages/AutheticationInner/AuthContext';
 import { ProtectedRoute } from './pages/AutheticationInner/ProtectedRoute';
 import UserProfileSetting from './pages/Profile/Settings';
 import Profile from './pages/Profile/Profile';
-import PasswordReset from './pages/AutheticationInner/PasswordReset/passwordReset';
+import PasswordReset from './pages/AutheticationInner/PasswordReset/PasswordReset';
 function App() {
   return (
     <>

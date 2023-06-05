@@ -1,7 +1,7 @@
 import React,{useEffect, useState} from "react";
 import Home from "./Home";
-import Footer from "./footer";
-import Services from "./services";
+import Footer from "./Footer";
+import Services from "./Services";
 import Navbar from "./Navbar";
 
 const Landing = () => {

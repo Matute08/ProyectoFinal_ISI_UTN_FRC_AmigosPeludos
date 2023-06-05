@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Alert } from "reactstrap";
-import { useAuth } from "../authContext";
+import { useAuth } from "../AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { postUser, getGenero } from "../../../services/api";
+import { postUser, getGenero } from "../../../services/Api";
 
 export const FormRegister = () => {
     const {

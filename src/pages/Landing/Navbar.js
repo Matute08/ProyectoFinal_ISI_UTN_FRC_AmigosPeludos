@@ -11,8 +11,8 @@ import {
 } from "reactstrap";
 import Scrollspy from "react-scrollspy";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../AutheticationInner/authContext";
-import { getUserMail } from "../../services/api";
+import { useAuth } from "../AutheticationInner/AuthContext";
+import { getUserMail } from "../../services/Api";
 
 import logo from "../../assets/images/logo/LogoAP.png";
 import userRandom from "../../assets/images/user/user-random.jpg";

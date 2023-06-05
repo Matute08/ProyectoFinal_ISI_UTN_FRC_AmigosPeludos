@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
 
 import img from "../../../assets/images/pets/gato2.jpeg";
-import { useAuth } from "../../AutheticationInner/authContext";
-import { getUserMail, getMascotasUsuario } from "../../../services/api";
+import { useAuth } from "../../AutheticationInner/AuthContext";
+import { getUserMail, getMascotasUsuario } from "../../../services/Api";
 import AgregarMascota from "./AgregarMascota";
 import ConsultarMascota from "./ConsultarMascotas";
 
