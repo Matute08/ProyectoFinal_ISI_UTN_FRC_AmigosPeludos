@@ -14,9 +14,9 @@ import {
 } from "reactstrap";
 import classnames from "classnames";
 import SwiperCore, { Autoplay } from "swiper";
-import Navbar from "../Landing/Navbar";
-import Footer from "../Landing/Footer";
-import { useAuth } from "../AutheticationInner/AuthContext";
+import Navbar from "../landing/Navbar";
+import Footer from "../landing/Footer";
+import { useAuth } from "../autheticationInner/AuthContext";
 import { getUserMail, getBarrioUser, getCiudadUser } from "../../services/Api";
 import Mascota from "./Mascotas/Mascotas";
 

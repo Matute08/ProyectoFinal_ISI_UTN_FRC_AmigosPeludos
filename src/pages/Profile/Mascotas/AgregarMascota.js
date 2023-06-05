@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Col, Container, Form, Label, Row } from "reactstrap";
 
-import { useAuth } from "../../AutheticationInner/AuthContext";
+import { useAuth } from "../../autheticationInner/AuthContext";
 import {
     getTipoMascota,
     getSexoMascota,
@@ -12,7 +12,7 @@ import {
     getUserMail,
     updateUser,
 } from "../../../services/Api";
-import { uploadFilePetsUser } from "../../AutheticationInner/Firebase";
+import { uploadFilePetsUser } from "../../autheticationInner/Firebase";
 
 //import images
 
