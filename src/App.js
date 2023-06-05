@@ -4,13 +4,13 @@ import './App.css';
 import '../src/assets/scss/themes.scss';
 import Landing from './pages/landing/Index';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Register from './pages/autheticationInner/Register/Register';
-import Login from "./pages/autheticationInner/Login/Login"
+import Register from './pages/autheticationInner/register/Register';
+import Login from "./pages/autheticationInner/login/Login"
 import { AuthProvider } from './services/AuthContext';
 import { ProtectedRoute } from './pages/autheticationInner/ProtectedRoute';
 import UserProfileSetting from './pages/profile/Settings';
 import Profile from './pages/profile/UserProfile';
-import PasswordReset from './pages/autheticationInner/PasswordReset/PasswordReset';
+import PasswordReset from './pages/autheticationInner/passwordReset/PasswordReset';
 function App() {
   return (
     <>
