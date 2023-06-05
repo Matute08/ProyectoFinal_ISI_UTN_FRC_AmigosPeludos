@@ -1,40 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import {
-    Card,
-    CardBody,
-    CardHeader,
-    Col,
-    Container,
-    Form,
-    Input,
-    Label,
-    Nav,
-    NavItem,
-    NavLink,
-    Row,
-    TabContent,
-    TabPane,
-    Button,
-} from "reactstrap";
-
+import { Col, Container, Form, Label, Row } from "reactstrap";
 
 import { useAuth } from "../../AutheticationInner/authContext";
-import { getTipoMascota, getSexoMascota, getEdadMascota, postMascota, getUserMail, updateUser } from "../../../services/api";
+import {
+    getTipoMascota,
+    getSexoMascota,
+    getEdadMascota,
+    postMascota,
+    getUserMail,
+    updateUser,
+} from "../../../services/api";
+import { uploadFilePetsUser } from "../../AutheticationInner/firebase";
 
 //import images
 
-
-const AgregarMascota = ({onCancel}) => {
+const AgregarMascota = ({ onCancel }) => {
     const handleCancelar = () => {
         onCancel(); // Llama a la función onCancel pasada como prop
-      };
+    };
 
-     const navigate = useNavigate();
+    const navigate = useNavigate();
 
-     const { user } = useAuth();
-     const [userData, setUserData] = useState();
+    const { user } = useAuth();
+    const [userData, setUserData] = useState();
     // const [userId, setUserId] = useState();
 
     const [tipoMascota, setTipoMascota] = useState();
@@ -42,12 +32,12 @@ const AgregarMascota = ({onCancel}) => {
     const [edadMascota, setEdadMascota] = useState();
 
     useEffect(() => {
-        const usuario = async()=>{
-            const dataUsuario = await getUserMail(user.email)
+        const usuario = async () => {
+            const dataUsuario = await getUserMail(user.email);
             if (dataUsuario) {
-                setUserData(dataUsuario)
+                setUserData(dataUsuario);
             }
-        }
+        };
         const tipoMascotas = async () => {
             const dataTipoMascota = await getTipoMascota();
             if (dataTipoMascota) {
@@ -66,7 +56,7 @@ const AgregarMascota = ({onCancel}) => {
                 setEdadMascota(dataEdadMascota);
             }
         };
-        usuario()
+        usuario();
         tipoMascotas();
         tipoSexo();
         edadMascota();
@@ -80,27 +70,28 @@ const AgregarMascota = ({onCancel}) => {
 
     const onSubmit = async (data) => {
         data.idUsuario = `${userData.id}`;
-        console.log(userData.tieneMascota)
+        console.log(userData.tieneMascota);
         userData.tieneMascota = true;
 
-
         if (data.castracion === "1") {
-            data.castracion = true
-        }else{
-            data.castracion = false
+            data.castracion = true;
+        } else {
+            data.castracion = false;
         }
-        
-        try {
-            await postMascota(data)
-            await updateUser(userData.id, userData)
-            window.location.reload();
 
+        try {
+            if (data.foto) {
+                const url = await uploadFilePetsUser(data.foto[0])
+                data.foto = url;
+            }
+            await postMascota(data);
+            await updateUser(userData.id, userData);
+            window.location.reload();
         } catch (error) {
             // Maneja cualquier error de la actualización
             console.error("Error al actualizar el usuario:", error);
         }
     };
-
 
     document.title = "Agregar Mascota | Amigos Peludos";
     return (
@@ -109,7 +100,7 @@ const AgregarMascota = ({onCancel}) => {
                 {/* FORMULARIO */}
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <Row>
-                        <Col lg={6}>
+                        <Col lg={3}>
                             <div className="mb-3">
                                 <Label className="form-label">
                                     Nombre de la mascota
@@ -135,7 +126,8 @@ const AgregarMascota = ({onCancel}) => {
                             </div>
                         </Col>
 
-                        <Col lg={6}>
+
+                        <Col lg={3}>
                             <div className="mb-3">
                                 <label className="form-label">
                                     Tipo de Mascota{" "}
@@ -174,7 +166,7 @@ const AgregarMascota = ({onCancel}) => {
                             </div>
                         </Col>
 
-                        <Col lg={6}>
+                        <Col lg={3}>
                             <div className="mb-3">
                                 <Label className="form-label">
                                     Edad aproximada
@@ -190,9 +182,7 @@ const AgregarMascota = ({onCancel}) => {
                                         },
                                     })}
                                 >
-                                    <option value="">
-                                        Seleccione...
-                                    </option>
+                                    <option value="">Seleccione...</option>
                                     {edadMascota &&
                                         edadMascota.map((elemento) => (
                                             <option
@@ -236,9 +226,7 @@ const AgregarMascota = ({onCancel}) => {
                         </Col>
                         <Col lg={3}>
                             <div className="mb-3">
-                                <Label
-                                    className="form-label"
-                                >
+                                <Label className="form-label">
                                     Peso aproximado
                                 </Label>
                                 <input
@@ -262,9 +250,7 @@ const AgregarMascota = ({onCancel}) => {
                             </div>
                         </Col>
 
-                        
-
-                        <Col lg={6}>
+                        <Col lg={3}>
                             <div className="mb-3">
                                 <Label className="form-label">Castrada/o</Label>
                                 <select
@@ -278,9 +264,7 @@ const AgregarMascota = ({onCancel}) => {
                                         },
                                     })}
                                 >
-                                    <option value="">
-                                        Seleccione...
-                                    </option>
+                                    <option value="">Seleccione...</option>
                                     <option value="1">Si</option>
                                     <option value="0">No</option>
                                 </select>
@@ -291,7 +275,7 @@ const AgregarMascota = ({onCancel}) => {
                                 )}
                             </div>
                         </Col>
-                        <Col lg={6}>
+                        <Col lg={3}>
                             <div className="mb-3">
                                 <Label className="form-label">
                                     Sexo Mascota
@@ -307,9 +291,7 @@ const AgregarMascota = ({onCancel}) => {
                                         },
                                     })}
                                 >
-                                    <option value="">
-                                        Seleccione...
-                                    </option>
+                                    <option value="">Seleccione...</option>
                                     {tipoSexo &&
                                         tipoSexo.map((elemento) => (
                                             <option
@@ -328,24 +310,45 @@ const AgregarMascota = ({onCancel}) => {
                                 )}
                             </div>
                         </Col>
-                        
+                        <Col lg={3}>
+                            <div className="mb-3">
+                                <Label className="form-label">
+                                    Foto de la mascota
+                                </Label>
+                                <input
+                                    id="profile-img-file-input"
+                                    type="file"
+                                    className="form-control"
+                                    {...register("foto",{
+                                        required:{
+                                            value:true,
+                                            message:"La foto de la mascota es obligatoria"
+                                        }
+                                    })}
+                                />
+                                {errors.foto && (
+                                    <span className="text-danger">
+                                        {errors.foto.message}
+                                    </span>
+                                )}
+                            </div>
+                        </Col>
 
                         <Col lg={12}>
                             <div className="mb-3">
-                                <Label
-                                    className="form-label"
-                                >
+                                <Label className="form-label">
                                     Descripcion de la mascota
                                 </Label>
                                 <textarea
                                     type="text"
                                     className="form-control"
                                     name="descripcion"
-                                    {...register("descripcion",{
-                                        maxLength:{
+                                    {...register("descripcion", {
+                                        maxLength: {
                                             value: 400,
-                                            message: "El maximo de caracteres es 400"
-                                        } 
+                                            message:
+                                                "El maximo de caracteres es 400",
+                                        },
                                     })}
                                 />
                                 {errors.descripcion && (
@@ -361,7 +364,6 @@ const AgregarMascota = ({onCancel}) => {
                                 <button
                                     className="btn btn-primary"
                                     type="submit"
-                                    
                                 >
                                     Agregar Mascota
                                 </button>
@@ -377,7 +379,6 @@ const AgregarMascota = ({onCancel}) => {
                     </Row>
                 </Form>
             </Container>
-            
         </React.Fragment>
     );
 };

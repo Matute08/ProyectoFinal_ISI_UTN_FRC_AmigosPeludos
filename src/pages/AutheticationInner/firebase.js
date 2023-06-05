@@ -1,11 +1,10 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import {getStorage, ref, uploadBytes, getDownloadURL} from "firebase/storage"
+import { v4 } from "uuid";
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyBAhPb1c3gWjDNeWxN2-1e3TD04Vkej5wk",
     authDomain: "amigospeludos-a7049.firebaseapp.com",
@@ -18,5 +17,18 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseApp);
+export const storage = getStorage(firebaseApp)
 
 
+export async function uploadFileUser(file) {
+    const storageRef =  ref(storage, `avatarUser/${v4()}`)
+    await uploadBytes(storageRef, file)
+    const url = await getDownloadURL(storageRef)
+    return url
+}
+export async function uploadFilePetsUser(file) {
+    const storageRef =  ref(storage, `petsUser/${v4()}`)
+    await uploadBytes(storageRef, file)
+    const url = await getDownloadURL(storageRef)
+    return url
+}

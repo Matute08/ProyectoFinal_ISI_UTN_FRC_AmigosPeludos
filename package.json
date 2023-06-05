@@ -100,6 +100,7 @@
     "simplebar-react": "^3.2.1",
     "styled-components": "^5.3.10",
     "swiper": "^9.0.5",
+    "uuid": "^9.0.0",
     "web-vitals": "^3.1.1",
     "yup": "^1.0.0"
   },

@@ -77,6 +77,18 @@ export async function getGenero() {
   }
 }
 
+//GET DATOS DE MASCOTAS CON ID
+export async function getMascotaId(id) {
+    try {
+        const response = await axios({
+            url: `${url}/mascota/${id}`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
 //GET MASCOTAS DE USUARIO
 export async function getMascotasUsuario(idUsuario) {
     try {
@@ -153,7 +165,6 @@ export async function postUserWithGoogle(userData) {
 }
 
 export async function postMascota(userData) {
-    console.log("entro")
     console.log(userData)
     try {
         const response = await axios.post(`${url}/mascota`, userData);

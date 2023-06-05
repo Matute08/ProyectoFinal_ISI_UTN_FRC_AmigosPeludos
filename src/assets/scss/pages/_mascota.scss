@@ -1,6 +1,7 @@
 .card-title-pets {
-    font-size: 16px;
+    font-size: 20px;
     margin: 0;
+    padding-bottom: 10px;
 }
 
 .boton-flotante {
@@ -21,4 +22,29 @@
     }
  
     
+}
+
+.img-mascota{
+    width: max-content;
+    height: 300px;
+    display: block;
+    margin: 0 auto;
+}
+.img-consultar-mascota{
+    height: 400px;
+}
+
+.datos-mascotas{
+    font-size: 16px;
+    border: solid #0000 2px;
+}
+.container-datos-mascotas{
+    border: solid 1px;
+    border-radius: 10px;
+    margin: 10px;
+    width:500px;
+    
+}
+.text-foto{
+    font-size: 20px;
 }

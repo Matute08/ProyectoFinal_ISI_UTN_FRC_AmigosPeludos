@@ -1,11 +1,10 @@
-import React, { useContext, useState, useEffect, Component } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
     Card,
     CardBody,
     Col,
     Container,
-    Input,
     Nav,
     NavItem,
     NavLink,
@@ -26,80 +25,71 @@ import avatar1 from "../../assets/images/user/user-random.jpg";
 
 const Profile = () => {
     const { user } = useAuth();
-    const [userData, setUserData] = useState();
-    const [userBarrio, setUserBarrio] = useState();
-    const [userCiudad, setUserCiudad] = useState();
+    const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-
-    const usuario = async () => {
-        setUserData(await getUserMail(user.email));
-    };
-
-    const barrio = async () => {
-        if (userData.barrioId === 0) {
-            setUserBarrio(null)
-        }else{
-            setUserBarrio(await getBarrioUser(userData.barrioId));
-        }
-    };
-    const ciudad = async () => {
-        if (userBarrio=== null) {
-            setUserCiudad(null)
-        }else{
-            setUserCiudad(await getCiudadUser(userBarrio.ciudadId));
-
-        }
-    };
-
-    useEffect(() => {
-        usuario();
-    }, [user]);
-
-    useEffect(() => {
-        if (userData) {
-            barrio();
-            if (userBarrio) {
-                ciudad();
-            } else {
-                barrio();
-            }
-        } else {
-            usuario();
-        }
-    }, [userData]);
-    useEffect(() => {
-        if (userData && userBarrio && userCiudad) {
-            setIsLoading(true);
-        }
-    }, [userData, userBarrio, userCiudad]);
-
     const [activeTab, setActiveTab] = useState("1");
+
     const tabChange = (tab) => {
         if (activeTab !== tab) setActiveTab(tab);
     };
 
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const userData = await getUserMail(user.email);
+            setUserData(userData);
+            setIsLoading(false);
+        };
+
+        fetchUserData();
+    }, [user]);
+
+    const tableData = [
+        {
+            title: "Nombre y Apellido",
+            value: userData ? `${userData.nombre} ${userData.apellido}` : "",
+        },
+        {
+            title: "Correo Electrónico",
+            value: userData ? userData.mail : "",
+        },
+        {
+            title: "Número de Celular",
+            value: userData ? userData.celular : "",
+        },
+        {
+            title: "Género",
+            value: userData ? userData.generoId : "--",
+        },
+        {
+            title: "Provincia",
+            value: "Córdoba",
+        },
+        {
+            title: "Ciudad",
+            value: "Córdoba",
+        },
+        {
+            title: "Barrio",
+            value: userData ? userData.barrioId : "-",
+        },
+        {
+            title: "Dirección",
+            value:
+                !userData || userData.calle === null
+                    ? " "
+                    : userData.calle + " " + userData.nroCalle,
+        },
+    ];
+
     SwiperCore.use([Autoplay]);
 
     document.title = "Perfil | Amigos Peludos";
-    const nombreUsuario = userData?.nombre
-    const apellidoUsuario = userData?.apellido
-    const mail = userData?.mail
-    const celular = userData?.celular
-    const calle = userData?.calle
-    const nroCalle = userData?.nroCalle
-    const genero = userData?.generoId
-
-    const nombreBarrio = userBarrio?.nombre;
-    const nombreCiudad = userCiudad?.nombre;
-
 
     return (
         <React.Fragment>
-      
-                    <>
-                        <Navbar></Navbar>
-                    </>
-
+            {!isLoading ? (
+                <>
+                    <Navbar/>
                     <Container fluid className="page-content">
                         <Row>
                             <Col xxl={3}>
@@ -108,19 +98,22 @@ const Profile = () => {
                                         <div className="text-center">
                                             <div className="profile-user position-relative d-inline-block mx-auto  mb-4">
                                                 <div className="col-auto">
-                                                    <div className="avatar-lg">
+                                                    <div className="img-profile">
                                                         <img
-                                                            src={avatar1}
+                                                            src={userData.foto ? userData.foto : avatar1}
                                                             alt="user-img"
                                                             className="img-thumbnail rounded-circle"
                                                         />
                                                     </div>
                                                 </div>
                                             </div>
-                                            {/* NOMBRE USUARIO */}
                                             <h5 className="fs-16 mb-1">
-                                                {nombreUsuario}{" "}
-                                                {apellidoUsuario}
+                                                {userData && (
+                                                    <>
+                                                        {userData.nombre}{" "}
+                                                        {userData.apellido}
+                                                    </>
+                                                )}
                                             </h5>
                                             <p className="text-muted mb-0">
                                                 Usuario
@@ -136,103 +129,36 @@ const Profile = () => {
                                         <div className="table-responsive">
                                             <Table className="table-borderless mb-0">
                                                 <tbody>
-                                                    <tr>
-                                                        <th
-                                                            className="ps-0"
-                                                            scope="row"
-                                                        >
-                                                            Nombre y Apellido:
-                                                        </th>
-                                                        <td className="text-muted">
-                                                            {nombreUsuario}{" "}
-                                                            {apellidoUsuario}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th
-                                                            className="ps-0"
-                                                            scope="row"
-                                                        >
-                                                            Correo Electronico:
-                                                        </th>
-                                                        <td className="text-muted">
-                                                            {mail}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th
-                                                            className="ps-0"
-                                                            scope="row"
-                                                        >
-                                                            Numero de Celular :
-                                                        </th>
-                                                        <td className="text-muted">
-                                                            {celular}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th
-                                                            className="ps-0"
-                                                            scope="row"
-                                                        >
-                                                            Genero :
-                                                        </th>
-                                                        <td className="text-muted">
-                                                            {genero}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th
-                                                            className="ps-0"
-                                                            scope="row"
-                                                        >
-                                                            Provincia:
-                                                        </th>
-                                                        <td className="text-muted">
-                                                            Cordoba
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th
-                                                            className="ps-0"
-                                                            scope="row"
-                                                        >
-                                                            Ciudad:
-                                                        </th>
-                                                        <td className="text-muted">
-                                                            {nombreCiudad ? nombreCiudad : " "}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th
-                                                            className="ps-0"
-                                                            scope="row"
-                                                        >
-                                                            Barrio:
-                                                        </th>
-                                                        <td className="text-muted">
-                                                            {nombreBarrio ? nombreBarrio : " "}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th
-                                                            className="ps-0"
-                                                            scope="row"
-                                                        >
-                                                            Direccion:
-                                                        </th>
-                                                        <td className="text-muted">
-                                                            {calle} {nroCalle}
-                                                        </td>
-                                                    </tr>
-                                                   
+                                                    {tableData.map(
+                                                        (elemento) => (
+                                                            <tr
+                                                                key={
+                                                                    elemento.title
+                                                                }
+                                                            >
+                                                                <th
+                                                                    className="ps-0"
+                                                                    scope="row"
+                                                                >
+                                                                    {
+                                                                        elemento.title
+                                                                    }
+                                                                </th>
+                                                                <td className="text-muted">
+                                                                    {
+                                                                        elemento.value
+                                                                    }
+                                                                </td>
+                                                            </tr>
+                                                        )
+                                                    )}
                                                 </tbody>
                                             </Table>
                                         </div>
                                         <div className="d-flex justify-content-center">
                                             <Link
                                                 to="/modificar-perfil"
-                                                className="btn btn-success "
+                                                className="btn btn-success"
                                             >
                                                 <i className="ri-edit-box-line align-bottom"></i>{" "}
                                                 Editar Perfil
@@ -243,7 +169,6 @@ const Profile = () => {
                             </Col>
 
                             <Col xxl={9}>
-                                {/* TITULOS PESTAÑAS */}
                                 <Card className="mt-xxl-n5">
                                     <CardHeader>
                                         <Nav
@@ -262,24 +187,24 @@ const Profile = () => {
                                                     }}
                                                     type="button"
                                                 >
-                                                    <i className="far fa-user"></i>
-                                                    Datos de mis Mascotas
+                                                    <i className="far fa-user"></i>{" "}
+                                                    Mis Mascotas
                                                 </NavLink>
                                             </NavItem>
                                         </Nav>
                                     </CardHeader>
                                     <CardBody>
-                                        <Mascota></Mascota>
+                                        <Mascota />
                                     </CardBody>
                                 </Card>
                             </Col>
                         </Row>
                     </Container>
-
-                    <>
-                        <Footer></Footer>
-                    </>
-             
+                    <Footer />
+                </>
+            ) : (
+                <></>
+            )}
         </React.Fragment>
     );
 };

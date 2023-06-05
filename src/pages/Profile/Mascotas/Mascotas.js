@@ -7,20 +7,29 @@ import img from "../../../assets/images/pets/gato2.jpeg";
 import { useAuth } from "../../AutheticationInner/authContext";
 import { getUserMail, getMascotasUsuario } from "../../../services/api";
 import AgregarMascota from "./AgregarMascota";
-
+import ConsultarMascota from "./ConsultarMascotas";
 
 const Mascota = () => {
     const { user } = useAuth();
     const [userData, setUserData] = useState();
     const [mostrarAgregarMascota, setMostrarAgregarMascota] = useState(false);
+    const [mostrarConsultarMascota, setMostrarContultarMascota] = useState(0);
+
     const [userMascota, setUserMascota] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const handleMostrarComponenteAgregarMascota = () => {
         setMostrarAgregarMascota(true);
     };
+
+    const handleMostrarComponenteConsultarMascota = (id) => {
+        setMostrarContultarMascota(id);
+
+    };
     const handleCancelar = () => {
         setMostrarAgregarMascota(false);
+        setMostrarContultarMascota(0)
+        console.log(mostrarConsultarMascota)
     };
 
     useEffect(() => {
@@ -35,7 +44,6 @@ const Mascota = () => {
             const mascota = async () => {
                 setUserMascota(await getMascotasUsuario(userData.id));
             };
-
             mascota();
         }
     }, [userData]);
@@ -45,49 +53,58 @@ const Mascota = () => {
     document.title = "Gallery | Velzon - React Admin & Dashboard Template";
 
     return (
-        <React.Fragment>
-            {tieneMascota ? (
-                <Container fluid>
-                    <Row>
-                        {userMascota.map((elemento) => (
-                            <Col sm={6} xl={3} key={elemento.id}>
-                                <Card>
-                                    <img
-                                        className="card-img-top img-fluid"
-                                        src={img}
-                                        alt="Card cap"
-                                    />
-                                    <CardBody className="d-flex justify-content-between align-items-center">
-                                        <h4 className="card-title-pets">
-                                            {elemento.nombre}
-                                        </h4>
-
-                                        <div className="text-end">
-                                            <Link
-                                                to="#"
-                                                className="btn btn-primary"
-                                            >
-                                                Ver Información
-                                            </Link>
-                                        </div>
-                                    </CardBody>
-                                </Card>
-                            </Col>
-                            
-                        ))}
-                        
-                    </Row>
-                </Container>
-            ) : mostrarAgregarMascota ? (
+<React.Fragment>
+            {mostrarAgregarMascota ? (
                 <AgregarMascota onCancel={handleCancelar} />
+            ) : mostrarConsultarMascota !== 0 ? (
+                <ConsultarMascota onCancel={handleCancelar} mascotaId={mostrarConsultarMascota} />
             ) : (
                 <>
-                    <h1>NO HAY MASCOTAS AGREGADAS</h1>
+                    {tieneMascota ? (
+                        <Container fluid>
+                            <Row>
+                                {userMascota.map((elemento) => (
+                                    <Col sm={4} xl={3} key={elemento.id}>
+                                        <Card>
+                                            <img
+                                                className="card-img-top img-fluid img-mascota"
+                                                src={elemento.foto}
+                                                alt="Imagen de la mascota"
+                                            />
+                                            <CardBody className="d-flex flex-column justify-content-between align-items-center">
+                                                <h4 className="card-title-pets">
+                                                    {elemento.nombre}
+                                                </h4>
+
+                                                <div className="text-end">
+                                                    <Link
+                                                        to="#"
+                                                        className="btn btn-primary"
+                                                        style={{ width: "100%" }}
+                                                        onClick={() => handleMostrarComponenteConsultarMascota(elemento.id)}
+                                                    >
+                                                        Ver Información
+                                                    </Link>
+                                                </div>
+                                            </CardBody>
+                                        </Card>
+                                    </Col>
+                                ))}
+                            </Row>
+                        </Container>
+                    ) : (
+                        <>
+                            <div className="alert alert-primary" role="alert">
+                                <h5>No tienes mascotas agregadas.</h5>
+                            </div>
+                        </>
+                    )}
                     <div
                         style={{
                             position: "fixed",
                             bottom: "20px",
                             right: "20px",
+                            zIndex: "9999",
                         }}
                         className="floating-button-container"
                     >

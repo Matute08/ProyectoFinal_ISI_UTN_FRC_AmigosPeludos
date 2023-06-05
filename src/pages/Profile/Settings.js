@@ -29,6 +29,7 @@ import {
     getCiudadUser,
     updateUser,
 } from "../../services/api";
+import { uploadFileUser } from "../AutheticationInner/firebase";
 
 //import images
 import progileBg from "../../assets/images/user/user-random.jpg";
@@ -74,10 +75,22 @@ const UserProfileSetting = () => {
         if (data.celular === "") {
             data.celular = celular;
         }
+        if (data.calle === "") {
+            data.calle = null
+        }
+        if (data.nroCalle === "") {
+            data.nroCalle = null
+        }
 
         try {
+            //setUserData(data);
+            if (data.foto !== "") {
+                const url = await uploadFileUser(data.foto[0])
+                console.log(url) 
+                data.foto= url;
+                console.log(data)  
+            }
             await updateUser(userId, data); // Llama a la función de la API para actualizar los datos del usuario
-            setUserData(data);
             navigate("/perfil");
         } catch (error) {
             // Maneja cualquier error de la actualización
@@ -162,10 +175,11 @@ const UserProfileSetting = () => {
                                                 alt="user-profile"
                                             />
                                             <div className="avatar-xs p-0 rounded-circle profile-photo-edit">
-                                                <Input
+                                                <input
                                                     id="profile-img-file-input"
                                                     type="file"
                                                     className="profile-img-file-input"
+                                                    {...register("foto")}
                                                 />
                                                 <Label
                                                     htmlFor="profile-img-file-input"
@@ -397,7 +411,7 @@ const UserProfileSetting = () => {
                                                         </div>
                                                     </Col>
 
-                                                    <Col lg={4}>
+                                                    <Col lg={3}>
                                                         <div className="mb-3">
                                                             <Label
                                                                 htmlFor="addressInput"
@@ -419,7 +433,7 @@ const UserProfileSetting = () => {
                                                         </div>
                                                     </Col>
 
-                                                    <Col lg={2}>
+                                                    <Col lg={1}>
                                                         <div className="mb-3">
                                                             <Label
                                                                 htmlFor="numberInput"
