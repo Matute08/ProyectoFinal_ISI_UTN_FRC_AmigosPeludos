@@ -7,10 +7,11 @@ import { useAuth } from "../../../services/AuthContext";
 import {
     getTipoMascota,
     getSexoMascota,
-    getEdadMascota,
+    getAllEdadMascota,
     postMascota,
     getUserMail,
     updateUser,
+    getAllRazaId
 } from "../../../services/Api";
 import { uploadFilePetsUser } from "../../../services/Firebase";
 
@@ -30,6 +31,8 @@ const AgregarMascota = ({ onCancel }) => {
     const [tipoMascota, setTipoMascota] = useState();
     const [tipoSexo, setTipoSexo] = useState();
     const [edadMascota, setEdadMascota] = useState();
+    const [raza, setRaza] = useState();
+
 
     useEffect(() => {
         const usuario = async () => {
@@ -51,7 +54,7 @@ const AgregarMascota = ({ onCancel }) => {
             }
         };
         const edadMascota = async () => {
-            const dataEdadMascota = await getEdadMascota();
+            const dataEdadMascota = await getAllEdadMascota();
             if (dataEdadMascota) {
                 setEdadMascota(dataEdadMascota);
             }
@@ -61,6 +64,14 @@ const AgregarMascota = ({ onCancel }) => {
         tipoSexo();
         edadMascota();
     }, []);
+
+    const getRaza = async(e) =>{
+        const op = e.target.value;
+        setRaza(await getAllRazaId(op))
+        if (raza) {
+            console.log(raza)
+        }
+    }
 
     const {
         register,
@@ -109,6 +120,8 @@ const AgregarMascota = ({ onCancel }) => {
                                     type="text"
                                     className="form-control"
                                     name="nombre"
+                                    
+
                                     placeholder="Nombre de la mascota"
                                     {...register("nombre", {
                                         required: {
@@ -142,7 +155,9 @@ const AgregarMascota = ({ onCancel }) => {
                                             message:
                                                 "El tipo de la mascota es requerido.",
                                         },
+                                        
                                     })}
+                                    onChange={getRaza}
                                 >
                                     <option value="">
                                         Seleccione un tipo de mascota
@@ -201,22 +216,34 @@ const AgregarMascota = ({ onCancel }) => {
                                 )}
                             </div>
                         </Col>
-
                         <Col lg={3}>
                             <div className="mb-3">
-                                <Label className="form-label">Raza</Label>
-                                <input
-                                    type="text"
-                                    className="form-control"
+                                <Label className="form-label">
+                                    Raza
+                                </Label>
+                                <select
                                     name="raza"
-                                    placeholder="Raza"
-                                    {...register("raza", {
+                                    className="form-select "
+                                    {...register("razaId", {
                                         required: {
                                             value: true,
-                                            message: "La raza es requerida",
+                                            message:
+                                                "La raza de la mascota es requerida.",
                                         },
                                     })}
-                                />
+                                >
+                                    <option value="">Seleccione...</option>
+                                    {raza &&
+                                        raza.map((elemento) => (
+                                            <option
+                                                className="form-control"
+                                                key={elemento.id}
+                                                value={elemento.id}
+                                            >
+                                                {elemento.nombre}
+                                            </option>
+                                        ))}
+                                </select>
                                 {errors.raza && (
                                     <span className="text-danger">
                                         {errors.raza.message}
@@ -224,7 +251,9 @@ const AgregarMascota = ({ onCancel }) => {
                                 )}
                             </div>
                         </Col>
-                        <Col lg={3}>
+
+
+                        <Col lg={2}>
                             <div className="mb-3">
                                 <Label className="form-label">
                                     Peso aproximado
@@ -250,7 +279,7 @@ const AgregarMascota = ({ onCancel }) => {
                             </div>
                         </Col>
 
-                        <Col lg={3}>
+                        <Col lg={2}>
                             <div className="mb-3">
                                 <Label className="form-label">Castrada/o</Label>
                                 <select
@@ -275,7 +304,7 @@ const AgregarMascota = ({ onCancel }) => {
                                 )}
                             </div>
                         </Col>
-                        <Col lg={3}>
+                        <Col lg={2}>
                             <div className="mb-3">
                                 <Label className="form-label">
                                     Sexo Mascota
@@ -310,6 +339,35 @@ const AgregarMascota = ({ onCancel }) => {
                                 )}
                             </div>
                         </Col>
+
+                        <Col lg={3}>
+                            <div className="mb-3">
+                                <Label className="form-label">
+                                    Color
+                                </Label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    name="color"
+                                    placeholder="Color"
+                                    {...register("color", {
+                                        required: {
+                                            value: true,
+                                            message:
+                                                "El color de la mascota es requerido",
+                                        },
+                                    })}
+                                />
+                                {errors.color && (
+                                    <span className="text-danger">
+                                        {errors.color.message}
+                                    </span>
+                                )}
+                            </div>
+                        </Col>
+
+
+
                         <Col lg={3}>
                             <div className="mb-3">
                                 <Label className="form-label">

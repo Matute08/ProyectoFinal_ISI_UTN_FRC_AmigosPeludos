@@ -115,8 +115,20 @@ export async function getTipoMascota() {
         console.log(error);
     }
   }
+  //GET TIPO MASCOTA POR ID
+export async function getTipoMascotaId(id) {
+    try {
+        const response = await axios({
+            url: `${url}/tipoMascota/${id}`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+  }
 
-  //GET TIPO SEXO MASCOTA
+  //GET SEXO MASCOTA
   export async function getSexoMascota() {
     try {
         const response = await axios({
@@ -128,11 +140,23 @@ export async function getTipoMascota() {
         console.log(error);
     }
   }
-  //GET EDAD MASCOTA
-  export async function getEdadMascota() {
+    //GET EDAD TODAS LAS MASCOTA 
+    export async function getAllEdadMascota() {
+        try {
+            const response = await axios({
+                url: `${url}/edadMascota/`,
+                method: "GET",
+            });
+            return response.data;
+        } catch (error) {
+            console.log(error);
+        }
+      }
+  //GET EDAD MASCOTA ID
+  export async function getEdadMascotaId(id) {
     try {
         const response = await axios({
-            url: `${url}/edadMascota`,
+            url: `${url}/edadMascota/${id}`,
             method: "GET",
         });
         return response.data;
@@ -140,6 +164,32 @@ export async function getTipoMascota() {
         console.log(error);
     }
   }
+//GET DATOS DE TODAS LAS RAZAS CON ID
+export async function getAllRazaId(id) {
+    try {
+        const response = await axios({
+            url: `${url}/raza/tipomascota/${id}`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+//GET DATOS DE RAZA CON ID
+export async function getRazaId(id) {
+    try {
+        const response = await axios({
+            url: `${url}/raza/${id}`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
 
 
 //POST

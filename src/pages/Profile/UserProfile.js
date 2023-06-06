@@ -18,8 +18,7 @@ import Navbar from "../landing/Navbar";
 import Footer from "../landing/Footer";
 import { useAuth } from "../../services/AuthContext";
 import { getUserMail, getBarrioUser, getCiudadUser } from "../../services/Api";
-import Mascota from "./Mascotas/Mascotas";
-
+import Mascota from "../profile/pet/Mascotas";
 //Images
 import avatar1 from "../../assets/images/user/user-random.jpg";
 
@@ -92,7 +91,7 @@ const Profile = () => {
                     <Navbar/>
                     <Container fluid className="page-content perfil-fondo">
                         <Row>
-                            <Col xxl={3}>
+                            <Col xxl={3} lg={4} md={12} >
                                 <Card className="mt-n5">
                                     <CardBody className="p-4">
                                         <div className="text-center">
@@ -168,8 +167,8 @@ const Profile = () => {
                                 </Card>
                             </Col>
 
-                            <Col xxl={9}>
-                                <Card className="mt-xxl-n5">
+                            <Col xxl={9} lg={8} md={12} >
+                                <Card className="mt-n5">
                                     <CardHeader>
                                         <Nav
                                             className="nav-tabs-custom rounded card-header-tabs border-bottom-0"

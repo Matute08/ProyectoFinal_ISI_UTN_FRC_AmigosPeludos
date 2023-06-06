@@ -48,12 +48,39 @@ const UserProfileSetting = () => {
     const [userBarrio, setUserBarrio] = useState();
     const [userCiudad, setUserCiudad] = useState();
     const [userId, setUserId] = useState();
+    const [isLoading, setIsLoading] = useState(true);
+
 
     const [activeTab, setActiveTab] = useState("1");
 
     const tabChange = (tab) => {
         if (activeTab !== tab) setActiveTab(tab);
     };
+
+    useEffect(() => {
+        usuario();
+            console.log(userData)
+
+    }, [user]);
+    useEffect(() => {
+        if (userData) {
+            obtenerId(userData);
+            setIsLoading(false);
+        }
+    }, [userData]);
+
+    useEffect(() => {
+        if (userData) {
+            barrio();
+            if (userBarrio) {
+                ciudad();
+            } else {
+                barrio();
+            }
+        } else {
+            usuario();
+        }
+    }, [userData]);
 
 
     const {
@@ -123,27 +150,7 @@ const UserProfileSetting = () => {
         }
     };
 
-    useEffect(() => {
-        usuario();
-    }, [user]);
-    useEffect(() => {
-        if (userData) {
-            obtenerId(userData);
-        }
-    }, [userData]);
-
-    useEffect(() => {
-        if (userData) {
-            barrio();
-            if (userBarrio) {
-                ciudad();
-            } else {
-                barrio();
-            }
-        } else {
-            usuario();
-        }
-    }, [userData]);
+   
 
     const nombreUsuario = userData?.nombre;
     const apellidoUsuario = userData?.apellido;
@@ -158,9 +165,10 @@ const UserProfileSetting = () => {
     document.title = "Modificar Perfil | Amigos Peludos";
     return (
         <React.Fragment>
+            {!isLoading ? (
             <>
                 <Navbar></Navbar>
-            </>
+           
             <div className="page-content perfil-fondo">
                 <Container fluid>
                     <Row>
@@ -170,7 +178,7 @@ const UserProfileSetting = () => {
                                     <div className="text-center">
                                         <div className="profile-user position-relative d-inline-block mx-auto  mb-4">
                                             <img
-                                                src={avatar1}
+                                                src={userData.foto ? userData.foto : avatar1}
                                                 className="rounded-circle avatar-xl img-thumbnail user-profile-image"
                                                 alt="user-profile"
                                             />
@@ -224,7 +232,7 @@ const UserProfileSetting = () => {
                                                 Datos Personales
                                             </NavLink>
                                         </NavItem>
-                                        <NavItem>
+                                        {/* <NavItem>
                                             <NavLink
                                                 to="#"
                                                 className={classnames({
@@ -238,7 +246,7 @@ const UserProfileSetting = () => {
                                                 <i className="far fa-user"></i>
                                                 Cambiar Contraseña
                                             </NavLink>
-                                        </NavItem>
+                                        </NavItem> */}
                                     </Nav>
                                 </CardHeader>
 
@@ -486,9 +494,14 @@ const UserProfileSetting = () => {
                 </Container>
             </div>
 
-            <>
+           
                 <Footer></Footer>
             </>
+            ):(
+                <>
+                <h2>cargando..</h2>
+                </>
+            )}
         </React.Fragment>
     );
 };

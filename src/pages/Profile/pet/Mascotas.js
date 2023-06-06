@@ -29,7 +29,6 @@ const Mascota = () => {
     const handleCancelar = () => {
         setMostrarAgregarMascota(false);
         setMostrarContultarMascota(0)
-        console.log(mostrarConsultarMascota)
     };
 
     useEffect(() => {
@@ -50,7 +49,6 @@ const Mascota = () => {
 
     const tieneMascota = userData?.tieneMascota;
 
-    document.title = "Gallery | Velzon - React Admin & Dashboard Template";
 
     return (
 <React.Fragment>

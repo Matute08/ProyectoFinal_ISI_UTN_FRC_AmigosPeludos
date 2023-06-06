@@ -7,10 +7,12 @@ import {
     getMascotaId,
     getTipoMascota,
     getSexoMascota,
-    getEdadMascota,
+    getEdadMascotaId,
     postMascota,
     getUserMail,
     updateUser,
+    getRazaId,
+    getTipoMascotaId,
 } from "../../../services/Api";
 
 //import images
@@ -28,38 +30,58 @@ const ConsultarMascota = ({ onCancel, mascotaId }) => {
     const [tipoMascota, setTipoMascota] = useState();
     const [tipoSexo, setTipoSexo] = useState();
     const [edadMascota, setEdadMascota] = useState();
+    const [nameRaza, setNameRaza] = useState();
 
+    
     useEffect(() => {
-        const mascota = async () => {
-            const dataMascota = await getMascotaId(mascotaId);
-            if (dataMascota) {
-                setMascotaData(dataMascota);
-            }
+        const fetchMascota = async () => {
+          const dataMascota = await getMascotaId(mascotaId);
+          if (dataMascota) {
+            setMascotaData(dataMascota);
+          }
         };
-        // const tipoMascotas = async () => {
-        //     const dataTipoMascota = await getTipoMascota();
-        //     if (dataTipoMascota) {
-        //         setTipoMascota(dataTipoMascota);
-        //     }
-        // };
-        // const tipoSexo = async () => {
-        //     const dataTipoSexo = await getSexoMascota();
-        //     if (dataTipoSexo) {
-        //         setTipoSexo(dataTipoSexo);
-        //     }
-        // };
-        // const edadMascota = async () => {
-        //     const dataEdadMascota = await getEdadMascota();
-        //     if (dataEdadMascota) {
-        //         setEdadMascota(dataEdadMascota);
-        //     }
-        // };
+    
+        fetchMascota();
+      }, [mascotaId]);
+    
+      useEffect(() => {
+        const fetchEdadMascota = async () => {
+          if (mascotaData && mascotaData.edadId) {
+            const dataEdadMascota = await getEdadMascotaId(mascotaData.edadId);
+            if (dataEdadMascota) {
+              setEdadMascota(dataEdadMascota);
+            }
+          }
+        };
+    
+        fetchEdadMascota();
+      }, [mascotaData]);
 
-        mascota();
-        // tipoMascotas();
-        // tipoSexo();
-        // edadMascota();
-    }, []);
+      useEffect(() => {
+        const fetchTipoMascota = async () => {
+          if (mascotaData && mascotaData.tipoId) {
+            const dataTipo = await getTipoMascotaId(mascotaData.tipoId);
+            if (dataTipo) {
+              setTipoMascota(dataTipo);
+            }
+          }
+        };
+    
+        fetchTipoMascota();
+      }, [mascotaData]);
+    
+      useEffect(() => {
+        const fetchRaza = async () => {
+          if (mascotaData && mascotaData.razaId) {
+            const dataRaza = await getRazaId(mascotaData.razaId);
+            if (dataRaza) {
+              setNameRaza(dataRaza);
+            }
+          }
+        };
+    
+        fetchRaza();
+      }, [mascotaData]);
 
     const tableData = [
         {
@@ -69,17 +91,17 @@ const ConsultarMascota = ({ onCancel, mascotaId }) => {
         },
         {
             title: "Tipo de mascota",
-            value: mascotaData ? mascotaData.tipoId : "",
+            value: tipoMascota ? tipoMascota.tipo : "",
             col: 6,
         },
         {
             title: "Edad aproximada",
-            value: mascotaData ? mascotaData.edadId : "",
+            value: edadMascota ? edadMascota.descripcion : "",
             col: 6,
         },
         {
             title: "Raza",
-            value: mascotaData ? mascotaData.raza : "",
+            value: nameRaza ? nameRaza.nombre : "",
             col: 3,
         },
         {
@@ -89,12 +111,12 @@ const ConsultarMascota = ({ onCancel, mascotaId }) => {
         },
         {
             title: "Castrada/o",
-            value: mascotaData ? mascotaData.castracion : "",
+            value: mascotaData ? `${mascotaData.castracion===1 ? "No" : "Si"}` :  "",
             col: 6,
         },
         {
             title: "Sexo",
-            value: mascotaData ? mascotaData.sexoId : "",
+            value: mascotaData ? (`${mascotaData.sexoId===1 ? "Macho" : (mascotaData.sexoId===2 ? "Hembra" : "Nose")}`) : "",
             col: 6,
         },
         {
@@ -112,63 +134,67 @@ const ConsultarMascota = ({ onCancel, mascotaId }) => {
     document.title = "Agregar Mascota | Amigos Peludos";
     return (
         <React.Fragment>
-            <Container fluid>
-                {/* FORMULARIO */}
-                <Form>
+            <Container fluid >
+                <Row className="">
                     <Row className="">
-                        <Row className="">
-                            <Col lg={6} sm={12}>
-                                {tableData.map((elemento) => {
-                                    if (elemento.title === "Foto") {
-                                        return null; // Omitir el título y el valor "Foto" en el lado izquierdo
-                                    }
-                                    return (
-                                        <div
-                                            key={elemento.title}
-                                            className="d-flex align-items-start  container-datos-mascotas "
-                                        >
-                                            <div className="flex-column  datos-mascotas ">
-                                                <p className="p-2 m-0">
-                                                    <strong>
-                                                        {elemento.title}:
-                                                    </strong>{" "}
-                                                    {elemento.value}
-                                                </p>
-                                            </div>
+                        <Col lg={6} md={6} sm={12} className="container-texto">
+                            {tableData.map((elemento) => {
+                                if (elemento.title === "Foto") {
+                                    return null; // Omitir el título y el valor "Foto" en el lado izquierdo
+                                }
+                                return (
+                                    <div
+                                        key={elemento.title}
+                                        className="d-flex align-items-start  container-datos-mascotas "
+                                    >
+                                        <div className="flex-column  datos-mascotas ">
+                                            <p className="p-2 m-0">
+                                                <strong>
+                                                    {elemento.title}:
+                                                </strong>{" "}
+                                                {elemento.value}
+                                            </p>
                                         </div>
-                                    );
-                                })}
-                            </Col>
-                            <Col lg={6} sm={12} className="text-center">
-                                <h5 className="ps-0 text-center text-foto">
-                                    {
-                                        tableData.find(
-                                            (elemento) =>
-                                                elemento.title === "Foto"
-                                        ).title
-                                    }
-                                </h5>
-                                <img
-                                    className="img-fluid img-consultar-mascota"
-                                    src={
-                                        tableData.find(
-                                            (elemento) =>
-                                                elemento.title === "Foto"
-                                        ).value
-                                    }
-                                    alt="Imagen de la mascota"
-                                />
-                            </Col>
-                            <div className="text-end">
-                                <button
-                                    className="btn btn-primary"
-                                >
-                                    Volver
-                                </button>
+                                    </div>
+                                );
+                            })}
+                        </Col>
+                        <Col lg={6} md={6} sm={12} className="text-center">
+                            <div className="container-text-foto">
+                            <h5 className="ps-0 text-center text-foto">
+                                {
+                                    tableData.find(
+                                        (elemento) => elemento.title === "Foto"
+                                    ).title
+                                }
+                            </h5>
+
                             </div>
-                        </Row>
+                            <img
+                                className="img-fluid img-consultar-mascota"
+                                src={
+                                    tableData.find(
+                                        (elemento) => elemento.title === "Foto"
+                                    ).value
+                                }
+                                alt="Imagen de la mascota"
+                            />
+                        </Col>
+                        <div className="text-end">
+                            <button
+                                className="btn btn-primary m-3"
+                            >
+                                Modificar Datos
+                            </button>
+                        <button
+                                className="btn btn-success"
+                                onClick={handleCancelar}
+                            >
+                                Volver
+                            </button>
+                        </div>
                     </Row>
-                </Form>
+                </Row>
             </Container>
         </React.Fragment>
     );

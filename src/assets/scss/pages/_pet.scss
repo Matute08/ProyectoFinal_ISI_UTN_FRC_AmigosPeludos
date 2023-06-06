@@ -43,8 +43,26 @@
     border-radius: 10px;
     margin: 10px;
     width:500px;
+    @media (max-width: 1400px) {
+        width: 290px;
+    }
+
+    @media (max-width: 767px){
+    width:400px;
+
+    }
+    @media (max-width: 470px){
+        width:250px;
+    
+        }
     
 }
-.text-foto{
-    font-size: 20px;
+.container-text-foto{
+    display: flex;
+    justify-content: center;
+    
+    .text-foto{
+        width: fit-content;
+        font-size: 20px ;
+    }
 }
