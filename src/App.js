@@ -11,6 +11,8 @@ import { ProtectedRoute } from './pages/autheticationInner/ProtectedRoute';
 import UserProfileSetting from './pages/profile/Settings';
 import Profile from './pages/profile/UserProfile';
 import PasswordReset from './pages/autheticationInner/passwordReset/PasswordReset';
+import AddPets from './pages/profile/pet/addPet/AddPets';
+import SettingsPet from './pages/profile/pet/settingsPet/SettingsPet';
 function App() {
   return (
     <>
@@ -24,7 +26,8 @@ function App() {
             <Route path="/iniciar-sesion" element={<Login />}/>
             <Route path="/modificar-perfil" element={<ProtectedRoute><UserProfileSetting /></ProtectedRoute>}/>
             <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
-            <Route path="/crear-mascota" element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
+            <Route path="/agregar-mascota" element={<ProtectedRoute><AddPets /></ProtectedRoute>}/>
+            <Route path="/modificar-mascota/:mascotaId" element={<ProtectedRoute><SettingsPet /></ProtectedRoute>}/>
             <Route path='/restablecer-contraseña' element={<PasswordReset></PasswordReset>}></Route>
             
 

@@ -7,6 +7,7 @@ import {
     sendPasswordResetEmail,
     GoogleAuthProvider,
     signInWithPopup,
+    deleteUser,
 } from "firebase/auth";
 import { auth } from "./Firebase";
 import { getUserMail } from "./Api";
@@ -44,6 +45,23 @@ export function AuthProvider({ children }) {
     const resetPassword = (email) => {
         sendPasswordResetEmail(auth, email);
     };
+    //ELIMINAR USUARIO
+    const deleteAccount = async() => {
+        const user = auth.currentUser
+        
+        if (user) {
+            try {
+                await user.getIdToken(true)
+                await user.delete();
+                return{success: true}
+            } catch (error) {
+                return {success: false, error}
+            }
+        }
+        
+        user.delete()
+        // deleteUser();
+    };
 
     //si esta logueado, me devuelve el objeto entero con la infnormacion. Sino, me devuelve NULL
     useEffect(() => {
@@ -55,6 +73,7 @@ export function AuthProvider({ children }) {
                 setUser(null);
             }
         });
+        console.log(user);
         return () => unsubscribe();
     }, []);
 
@@ -68,6 +87,7 @@ export function AuthProvider({ children }) {
                 loading,
                 resetPassword,
                 registerWithGoogle,
+                deleteAccount,
             }}
         >
             {children}

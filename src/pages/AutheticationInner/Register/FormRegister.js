@@ -3,7 +3,8 @@ import { Form, Input, Button, Alert } from "reactstrap";
 import { useAuth } from "../../../services/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { postUser, getGenero } from "../../../services/Api";
+import { postUser, getGenero,getUserMail, updateUser } from "../../../services/Api";
+import Loading from "../../loading/Loading";
 
 export const FormRegister = () => {
     const {
@@ -12,17 +13,6 @@ export const FormRegister = () => {
         formState: { errors },
     } = useForm();
 
-    const [genero, setGenero] = useState([]);
-
-    useEffect(() => {
-        const getGeneros = async () => {
-            const data = await getGenero();
-            if (data) {
-                setGenero(data);
-            }
-        };
-        getGeneros();
-    }, []);
 
     //ver contraseña
     const [passwordShow, setPasswordShow] = useState(false);
@@ -32,19 +22,43 @@ export const FormRegister = () => {
     );
     const [alertClass, setAlertClass] = useState("text-dark alert-dark");
     const { signup, registerWithGoogle } = useAuth();
-    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(true);
 
+    const navigate = useNavigate();
+    const showLoadingOverlay = () =>{
+        setIsLoading(true)
+    }
+    const hideLoadingOverlay = () => {
+        setIsLoading(false);
+      };
+    
+      const handleAsyncTask = async () => {
+        showLoadingOverlay();}
+
+
+
+
+    //funcion de registro por formulario
     const onSubmit = async (data) => {
-        console.log(data);
-        data.fechaNacimiento = new Date(data.fechaNacimiento).toISOString();
-        data.tipoAutenticacionId = "1";
-        console.log(data);
+        showLoadingOverlay()
+        const isUser = await getUserMail(data.mail);
+        data.habilitada = true;        
+        //registro de usuario
         try {
+            //registro en firebase
             const signUp = await signup(data.mail, data.password);
-            if (signUp) {
-                await postUser(data);
+            if (signUp) { //si se registro en firebase, lo registro en la base de datos
+                if (isUser) { //corroboro si es un usuario que se dio de baja, o un usuario nuevo
+                    console.log("entro al es usuario");
+                    await updateUser(isUser.id, data)
+                }else{
+                    console.log("entro a usuario nuevo");
+                    data.tipoAutenticacionId = "1";
+                    await postUser(data);
+                }
             }
             navigate("/");
+            hideLoadingOverlay()
         } catch (error) {
             if (error.code === "auth/email-already-in-use") {
                 setAlertText(
@@ -106,108 +120,25 @@ export const FormRegister = () => {
                 )}
             </div>
 
-            {/* NOMBRE */}
+            {/* NOMBRE COMPLETO */}
             <div className="mb-3">
                 <label className="form-label">
-                    Nombre <span className="text-danger">*</span>
+                    Nombre Completo <span className="text-danger">*</span>
                 </label>
                 <input
                     type="text"
-                    name="nombre"
+                    name="nombreCompleto"
                     className="form-control"
-                    placeholder="Nombre"
-                    {...register("nombre", {
+                    placeholder="Nombre Completo"
+                    {...register("nombreCompleto", {
                         required: {
                             value: true,
-                            message: "El nombre es requerido",
+                            message: "Debe indicar nombre y apellido separado por un espacio.",
                         },
                     })}
                 />
-                {errors.nombre && (
-                    <span className="text-danger">{errors.nombre.message}</span>
-                )}
-            </div>
-
-            {/* APELLIDO */}
-            <div className="mb-3">
-                <label htmlFor="apellido" className="form-label">
-                    Apellido <span className="text-danger">*</span>
-                </label>
-                <input
-                    type="text"
-                    className="form-control"
-                    name="apellido"
-                    placeholder="Apellido"
-                    {...register("apellido", {
-                        required: {
-                            value: true,
-                            message: "El Apellido es requerido",
-                        },
-                    })}
-                />
-                {errors.apellido && (
-                    <span className="text-danger">
-                        {errors.apellido.message}
-                    </span>
-                )}
-            </div>
-
-            {/* GENERO */}
-            <div className="mb-3">
-                <label htmlFor="generoId" className="form-label">
-                    Genero <span className="text-danger">*</span>
-                </label>
-                <select
-                    name="generoId"
-                    className="form-select "
-                    placeholder="Ingrese su genero"
-                    {...register("generoId", {
-                        required: {
-                            value: true,
-                            message: "El campo Genero es requerido.",
-                        },
-                    })}
-                >
-                    <option value="">Seleccione un género</option>
-                    {genero &&
-                        genero.map((elemento) => (
-                            <option
-                                className="form-control"
-                                key={elemento.id}
-                                value={elemento.id}
-                            >
-                                {elemento.nombre}
-                            </option>
-                        ))}
-                </select>
-                {errors.generoId && (
-                    <span className="text-danger">
-                        {errors.generoId.message}
-                    </span>
-                )}
-            </div>
-
-            {/* FECHA NACIMIENTO */}
-            <div className="mb-3">
-                <label htmlFor="fechaNacimiento" className="form-label">
-                    Fecha de Nacimiento <span className="text-danger">*</span>
-                </label>
-                <input
-                    type="date"
-                    className="form-control"
-                    placeholder="Ingrese su fecha de nacimiento"
-                    name="fechaNacimiento"
-                    {...register("fechaNacimiento", {
-                        required: {
-                            value: true,
-                            message: "La fecha de nacimiento es requerida",
-                        },
-                    })}
-                />
-                {errors.fechaNacimiento && (
-                    <span className="text-danger">
-                        {errors.fechaNacimiento.message}
-                    </span>
+                {errors.nombreCompleto && (
+                    <span className="text-danger">{errors.nombreCompleto.message}</span>
                 )}
             </div>
 

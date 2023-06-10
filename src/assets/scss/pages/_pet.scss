@@ -20,49 +20,88 @@
         transform: translateY(-3px);
         box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.7);
     }
- 
-    
+
+
 }
 
-.img-mascota{
+ 
+ 
+  
+  
+  
+  
+
+.button-pets {
+    /* Ajusta el tamaño de la imagen */
+    background-size: contain;
+    /* Ajusta la posición del icono */
+    background-position: center;
+    /* Evita que la imagen se repita */
+    background-repeat: no-repeat;
+    height: 50px;
+    width: 50px;
+    border: none;
+
+}
+
+.button-consultar {
+    background-image: url("../../images/pets/buttons/consultar.png");
+}
+
+.button-modificar {
+    background-image: url("../../images/pets/buttons/modificar.png");
+    margin: 0 14px 0 14px;
+}
+
+.button-eliminar {
+    background-image: url("../../images/pets/buttons/eliminar.png");
+    border: none;
+}
+
+.img-mascota {
     width: max-content;
     height: 300px;
     display: block;
     margin: 0 auto;
 }
-.img-consultar-mascota{
+
+.img-consultar-mascota {
     height: 400px;
 }
 
-.datos-mascotas{
+.datos-mascotas {
     font-size: 16px;
     border: solid #0000 2px;
 }
-.container-datos-mascotas{
+
+.container-datos-mascotas {
     border: solid 1px;
     border-radius: 10px;
     margin: 10px;
-    width:500px;
+    width: 500px;
+
     @media (max-width: 1400px) {
         width: 290px;
     }
 
-    @media (max-width: 767px){
-    width:400px;
+    @media (max-width: 767px) {
+        width: 400px;
 
     }
-    @media (max-width: 470px){
-        width:250px;
-    
-        }
-    
+
+    @media (max-width: 470px) {
+        width: 250px;
+
+    }
+
 }
-.container-text-foto{
+
+.container-text-foto {
     display: flex;
     justify-content: center;
-    
-    .text-foto{
+
+    .text-foto {
         width: fit-content;
-        font-size: 20px ;
+        font-size: 20px;
     }
 }

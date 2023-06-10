@@ -194,7 +194,6 @@ export async function getRazaId(id) {
 
 //POST
 export async function postUser(userData) {
-    console.log(userData)
     try {
         const response = await axios.post(`${url}/usuario`, userData);
         console.log(response);
@@ -204,7 +203,6 @@ export async function postUser(userData) {
     }
 }
 export async function postUserWithGoogle(userData) {
-    console.log(userData)
     try {
         const response = await axios.post(`${url}/usuario`, userData);
         console.log(response);
@@ -215,7 +213,6 @@ export async function postUserWithGoogle(userData) {
 }
 
 export async function postMascota(userData) {
-    console.log(userData)
     try {
         const response = await axios.post(`${url}/mascota`, userData);
         console.log(response);
@@ -227,10 +224,8 @@ export async function postMascota(userData) {
 
 
 
-//UPDATE
+//UPDATE USER
 export async function updateUser(id, userData) {
-    console.log(id)
-    console.log(userData)
     try {
         const existingUserData = await getUserId(id); // Obtener los datos existentes del usuario desde la API
         const updatedUserData = Object.assign(
@@ -238,7 +233,6 @@ export async function updateUser(id, userData) {
             existingUserData.data,
             userData
         ); // Combinar los datos existentes y los datos actualizados
-
         console.log(existingUserData);
         console.log(updatedUserData);
 
@@ -252,3 +246,40 @@ export async function updateUser(id, userData) {
         console.log(error);
     }
 }
+//UPDATE PET
+export async function updatePets(idPet, dataPet) {
+
+    try {
+        // Obtener los datos existentes de la mascota desde la API
+        const existingPetData = await getMascotaId(idPet);
+        
+
+        // Combinar los datos existentes y los datos actualizados
+        const updatedPetData = {
+            ...existingPetData,
+            ...dataPet
+        };
+
+        // Realizar la solicitud PUT para actualizar la mascota
+        const response = await axios.put(`${url}/mascota/${idPet}`, updatedPetData);
+
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+
+  //ELIMINAR MASCOTA
+
+  export const deletePet =async(petId) => {
+    try {
+        const response = await axios.delete(`${url}/mascota/${petId}`);
+        console.log(response);
+        return response
+      } catch (error) {
+        console.error(error)
+  
+      }
+    };

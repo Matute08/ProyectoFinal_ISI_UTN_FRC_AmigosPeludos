@@ -8,7 +8,7 @@ export function ProtectedRoute({children}){
     const {user, loading} = useAuth()
 
     if (loading) {
-        return <h2>Cargando...</h2>
+        return <></>
     }
     if (!user) {
         return <Navigate to={Landing}></Navigate>

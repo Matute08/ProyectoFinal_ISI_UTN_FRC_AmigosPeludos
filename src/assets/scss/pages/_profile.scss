@@ -19,6 +19,14 @@
     
 }
 
+.button-profile{
+    display: flex;
+    justify-content: space-around;
+    @media (max-width: 990px) {
+        justify-content: space-evenly;
+    }
+    
+}
 
 // profile
 .page-content-profile{
@@ -31,6 +39,7 @@
         padding: 20px calc(#{$grid-gutter-width} * 0.5) $footer-height calc(#{$grid-gutter-width} * 0.5);
     
     }
+    
 }
 
 .profile-wid-bg {
@@ -216,3 +225,4 @@ $value in $theme-colors {
         padding: 0 $card-spacer-x;
     }
 }
+

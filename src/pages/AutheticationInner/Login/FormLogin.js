@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Input,
     Label,
@@ -11,7 +11,7 @@ import { useAuth } from "../../../services/AuthContext";
 import { useForm } from "react-hook-form";
 
 
-export const FormLogin = () => {
+export const FormLogin = ({mensaje}) => {
     const {
         register,
         handleSubmit,
@@ -27,6 +27,7 @@ export const FormLogin = () => {
     const { login, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
     const [passwordShow, setPasswordShow] = useState(false);
+
 
     const onSubmit = async(data)=>{
         console.log(data)

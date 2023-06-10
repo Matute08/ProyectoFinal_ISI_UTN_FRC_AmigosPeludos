@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import {getStorage, ref, uploadBytes, getDownloadURL} from "firebase/storage"
+import { getAuth} from "firebase/auth";
+import {getStorage, ref, uploadBytes, getDownloadURL, deleteObject} from "firebase/storage"
 import { v4 } from "uuid";
 
 
@@ -19,7 +19,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseApp);
 export const storage = getStorage(firebaseApp)
 
-
+//funciones de firebase
 export async function uploadFileUser(file) {
     const storageRef =  ref(storage, `avatarUser/${v4()}`)
     await uploadBytes(storageRef, file)
@@ -32,3 +32,9 @@ export async function uploadFilePetsUser(file) {
     const url = await getDownloadURL(storageRef)
     return url
 }
+
+export async function deleteFileStorage(file){
+    const storageRef = ref(storage, file)
+    await deleteObject(storageRef)
+}
+

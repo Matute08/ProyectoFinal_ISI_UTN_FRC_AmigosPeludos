@@ -1,34 +1,64 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardBody, Col, Container, Row } from "reactstrap";
+import {
+    Card,
+    CardBody,
+    Col,
+    Container,
+    Row,
+    Button,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+} from "reactstrap";
 import { Link } from "react-router-dom";
-import { Tooltip } from "react-tooltip";
 
-import img from "../../../assets/images/pets/gato2.jpeg";
 import { useAuth } from "../../../services/AuthContext";
-import { getUserMail, getMascotasUsuario } from "../../../services/Api";
-import AgregarMascota from "./AgregarMascota";
-import ConsultarMascota from "./ConsultarMascotas";
+import {
+    getUserMail,
+    getMascotasUsuario,
+    deletePet,
+    updateUser,
+} from "../../../services/Api";
+import AgregarMascota from "./addPet/AddPets";
+import ConsultarMascota from "../pet/consultPet/ConsultPet";
+import { deleteFileStorage } from "../../../services/Firebase";
 
 const Mascota = () => {
     const { user } = useAuth();
     const [userData, setUserData] = useState();
     const [mostrarAgregarMascota, setMostrarAgregarMascota] = useState(false);
     const [mostrarConsultarMascota, setMostrarContultarMascota] = useState(0);
-
     const [userMascota, setUserMascota] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [countPetUser, setCountPetUser] = useState([]);
 
-    const handleMostrarComponenteAgregarMascota = () => {
-        setMostrarAgregarMascota(true);
-    };
+    const [modal, setModal] = useState(false);
+    const toggle = () => setModal(!modal);
 
     const handleMostrarComponenteConsultarMascota = (id) => {
         setMostrarContultarMascota(id);
-
     };
     const handleCancelar = () => {
         setMostrarAgregarMascota(false);
-        setMostrarContultarMascota(0)
+        setMostrarContultarMascota(0);
+    };
+
+    //funcion para eliminar a la mascota
+    const handleDeletePet = async (id, foto) => {
+        console.log(countPetUser);
+        if (countPetUser === 1) {
+            console.log("entro");
+            userData.tieneMascota = false;
+            console.log(userData.tieneMascota);
+        }
+        try {
+            await deletePet(id);
+            await updateUser(userData.id, userData);
+            await deleteFileStorage(foto);
+            window.location.reload();
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     useEffect(() => {
@@ -47,15 +77,23 @@ const Mascota = () => {
         }
     }, [userData]);
 
+    useEffect(() => {
+        if (userMascota) {
+            setCountPetUser(userMascota.length);
+        }
+    }, [userMascota]);
+
     const tieneMascota = userData?.tieneMascota;
 
-
     return (
-<React.Fragment>
+        <React.Fragment>
             {mostrarAgregarMascota ? (
                 <AgregarMascota onCancel={handleCancelar} />
             ) : mostrarConsultarMascota !== 0 ? (
-                <ConsultarMascota onCancel={handleCancelar} mascotaId={mostrarConsultarMascota} />
+                <ConsultarMascota
+                    onCancel={handleCancelar}
+                    mascotaId={mostrarConsultarMascota}
+                />
             ) : (
                 <>
                     {tieneMascota ? (
@@ -74,17 +112,71 @@ const Mascota = () => {
                                                     {elemento.nombre}
                                                 </h4>
 
-                                                <div className="text-end">
+                                                <div className="d-flex justify-content-center ">
                                                     <Link
                                                         to="#"
-                                                        className="btn btn-primary"
-                                                        style={{ width: "100%" }}
-                                                        onClick={() => handleMostrarComponenteConsultarMascota(elemento.id)}
-                                                    >
-                                                        Ver Información
-                                                    </Link>
+                                                        className="button-pets button-consultar"
+                                                        onClick={() =>
+                                                            handleMostrarComponenteConsultarMascota(
+                                                                elemento.id
+                                                            )
+                                                        }
+                                                    ></Link>
+                                                    <Link
+                                                        to={`/modificar-mascota/${elemento.id}`}
+                                                        className="button-pets button-modificar"
+                                                    ></Link>
+                                                    <Link
+                                                        to="#"
+                                                        className="button-pets button-eliminar"
+                                                        onClick={toggle}
+                                                    ></Link>
                                                 </div>
                                             </CardBody>
+                                            <div>
+                                                <Modal
+                                                    isOpen={modal}
+                                                    toggle={toggle}
+                                                >
+                                                    <div className="container-modal">
+                                                        <div className="container-modal-header row">
+                                                            <div className="warning-icon col-2"></div>
+                                                            <div className="col-10">
+                                                                <ModalHeader
+                                                                    toggle={
+                                                                        toggle
+                                                                    }
+                                                                    className="modal-header"
+                                                                >
+                                                                    ¡Atención!
+                                                                </ModalHeader>
+                                                            </div>
+                                                        </div>
+                                                        <ModalBody className="modal-body">
+                                                            {`¿Estás seguro/a de que quieres eliminar a ${elemento.nombre}?`}
+                                                        </ModalBody>
+                                                        <ModalFooter className="modal-footer-button">
+                                                            <Button
+                                                                color="danger"
+                                                                onClick={() =>
+                                                                    handleDeletePet(
+                                                                        elemento.id,
+                                                                        elemento.foto
+                                                                    )
+                                                                }
+                                                            >
+                                                                Eliminar
+                                                            </Button>{" "}
+                                                            <Button
+                                                                color="success"
+                                                                onClick={toggle}
+                                                            >
+                                                                Cancelar
+                                                            </Button>
+                                                        </ModalFooter>
+                                                    </div>
+                                                </Modal>
+                                            </div>
                                         </Card>
                                     </Col>
                                 ))}
@@ -97,29 +189,6 @@ const Mascota = () => {
                             </div>
                         </>
                     )}
-                    <div
-                        style={{
-                            position: "fixed",
-                            bottom: "20px",
-                            right: "20px",
-                            zIndex: "9999",
-                        }}
-                        className="floating-button-container"
-                    >
-                        <button
-                            type="button"
-                            variant="primary"
-                            id="floating-button"
-                            className="boton-flotante"
-                            onClick={handleMostrarComponenteAgregarMascota}
-                            data-tooltip-id="botonTooltip"
-                            data-tooltip-place="top"
-                            data-tooltip-variant="info"
-                        >
-                            +
-                        </button>
-                        <Tooltip id="botonTooltip">Agregar Mascota</Tooltip>
-                    </div>
                 </>
             )}
         </React.Fragment>

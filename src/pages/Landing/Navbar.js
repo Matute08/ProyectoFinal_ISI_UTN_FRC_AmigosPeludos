@@ -67,15 +67,6 @@ const Navbar = ({ direction, ...args }) => {
         }
     };
 
-    const location = useLocation();
-    //const isLandingPage = window.location.pathname === "/" ? true : false;
-    //console.log(isLandingPage)
-
-    // Clases existentes
-    const colorClass =
-        "navbar-colored";
-
-    // Clase condicional para el fondo
 
 
     return (
@@ -224,8 +215,8 @@ const Navbar = ({ direction, ...args }) => {
                                                 src={
                                                     userData &&
                                                     userData.foto !== null
-                                                        ? userData.foto
-                                                        : user?.photoURL ||
+                                                        ? userData.foto ||
+                                                         user?.photoURL :
                                                           userRandom
                                                 }
                                                 alt="Header Avatar"

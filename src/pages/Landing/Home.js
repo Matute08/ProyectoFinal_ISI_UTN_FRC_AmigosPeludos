@@ -13,7 +13,6 @@ import "swiper/css/pagination";
 const Home = () => {
 
     const {user} = useAuth()
-    console.log(user)
 
 
 
