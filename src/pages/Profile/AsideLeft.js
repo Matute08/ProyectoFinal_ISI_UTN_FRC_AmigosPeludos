@@ -1,107 +1,84 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import UiContent from "../../assets/scss/components/Common/UiContent";
-import {
-    Card,
-    Table,
-    CardBody,
-    Col,
-    Container,
-    Row,
-    Button,
-    ModalHeader,
-    ModalFooter,
-    Modal,
-    ModalBody,
-} from "reactstrap";
+import Swal from "sweetalert2";
+import { Card, Table, CardBody, Col } from "reactstrap";
 import { useAuth } from "../../services/AuthContext";
 import {
     getUserMail,
     getBarrioUser,
     getCiudadUser,
     updateUser,
+    getGenero,
+    getGeneroId,
 } from "../../services/Api";
 //Images
 import avatar1 from "../../assets/images/user/user-random.jpg";
-import Loading from "../loading/Loading";
-import ModalLogin from "../autheticationInner/login/ModalLogin";
+import Loading from "../components/Loading";
+import Modal from "../components/Modal";
 
 const AsideLeft = () => {
+    const { handleSweetAlertDeleteUser } = Modal();
     const navigate = useNavigate();
     const { user, deleteAccount } = useAuth();
     const [userData, setUserData] = useState(null);
+    const [barrioData, setBarrioData] = useState(null);
+    const [generoData, setGeneroData] = useState(null);
+
     const [isLoading, setIsLoading] = useState(true);
-
-    const [modal, setModal] = useState(false);
-    const toggle = () => setModal(!modal);
-    const [showModalLogin, setShowModalLogin] = useState(false);
-   
-    const handleCloseModalLogin = () => {
-        setShowModalLogin(false);
-    }
-
-
 
     useEffect(() => {
         const fetchUserData = async () => {
             const userData = await getUserMail(user.email);
+            userData.calle = `${userData.calle + " " + userData.nroCalle}`
             setUserData(userData);
             setIsLoading(false);
         };
-
+        console.log(userData);
         fetchUserData();
     }, [user]);
 
-    const tableData = [
-        {
-            title: "Nombre Completo",
-            value: userData ? userData.nombreCompleto : "",
-        },
-        {
-            title: "Correo Electrónico",
-            value: userData ? userData.mail : "",
-        },
-        {
-            title: "Número de Celular",
-            value: userData ? userData.celular : "",
-        },
-        {
-            title: "Género",
-            value: userData ? userData.generoId : "-",
-        },
-        {
-            title: "Provincia",
-            value: "Córdoba",
-        },
-        {
-            title: "Ciudad",
-            value: "Córdoba",
-        },
-        {
-            title: "Barrio",
-            value: userData ? userData.barrioId : "-",
-        },
-        {
-            title: "Dirección",
-            value:
-                !userData || userData.calle === null
-                    ? " "
-                    : userData.calle + " " + userData.nroCalle,
-        },
-    ];
 
-    //funcion para eliminar a la mascota
+    const keyMap = {
+        nombreCompleto: "Nombre Completo",
+        mail: "Correo Electronico",
+        celular: "Número de Celular",
+        generoUsuario: "Género",
+        provincia: "Provincia",
+        ciudadUsuario: "Ciudad",
+        barrioUsuario: "Barrio",
+        calle: "Calle",
+    };
+    const excludedKeys = [
+        "id",
+        "foto",
+        "tipoAutenticacionId",
+        "tieneMascota",
+        "rolId",
+        "password",
+        "mailVerificado",
+        "habilitada",
+        "generoId",
+        "fechaNacimiento",
+        "cuentaVerificada",
+        "codigoPostal",
+        "username",
+        "barrioId",
+        "nroCalle"
+
+    ];
+  
+
+    //funcion para eliminar al usuario
     const handleDeleteUser = async () => {
         const deleteResponse = await deleteAccount();
-        if (deleteResponse.success) {
+        if (deleteResponse.success.success) {
             userData.habilitada = false;
             await updateUser(userData.id, userData);
-            navigate("/");
         } else {
-            console.log(deleteResponse.error.code);
-            toggle();
-            setShowModalLogin(true);
+            //console.log(deleteResponse.error.code);
         }
+        return deleteResponse.success;
     };
 
     return (
@@ -139,91 +116,111 @@ const AsideLeft = () => {
                         </Card>
 
                         <Card>
-                            <CardBody className="p-4 mb-4">
+                            <CardBody className="p-2 mb-4">
                                 <h5 className="card-title mb-3 text-center">
                                     Datos Personales
                                 </h5>
                                 <div className="table-responsive">
                                     <Table className="table-borderless mb-0">
-                                        <tbody>
-                                            {tableData.map((elemento) => (
-                                                <tr key={elemento.title}>
-                                                    <th
-                                                        className="ps-0"
-                                                        scope="row"
-                                                    >
-                                                        {elemento.title}
-                                                    </th>
-                                                    <td className="text-muted">
-                                                        {elemento.value}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
+                                        {userData &&
+                                            Object.entries(userData).map(
+                                                ([key, value]) => {
+                                                    if (
+                                                        key === "fotos" ||
+                                                        excludedKeys.includes(
+                                                            key
+                                                        )
+                                                    ) {
+                                                        return null; // Omitir el título y el valor "Foto" en el lado izquierdo
+                                                    }
+                                                    const modifiedKey =
+                                                        keyMap[key] || key;
+                                                    return (
+                                                        <div key={key.id}>
+                                                            <div className="m-0">
+                                                                <p className=" m-0 p-2 ">
+                                                                    <strong>
+                                                                        {
+                                                                            modifiedKey
+                                                                        }
+                                                                        :
+                                                                    </strong>{" "}
+                                                                    {value}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                }
+                                            )}
+                                    
                                     </Table>
                                 </div>
                                 <div className="d-flex button-profile">
                                     <Link
-                                        to="/modificar-perfil"
-                                        className="btn btn-success btn-editar"
+                                        class="button-pz btn-pz-success"
+                                        to={"/modificar-perfil"}
                                     >
-                                        <i className="ri-edit-box-line align-bottom"></i>{" "}
-                                        Editar Perfil
+                                        <span class="span-pz text-pz">
+                                            Modificar Perfil
+                                        </span>
+                                        <span class="span-pz icon-pz">
+                                            <svg
+                                                viewBox="0 0 490 490"
+                                                className="svg-pz-modificar"
+                                            >
+                                                <g
+                                                    transform="translate(0,490) scale(0.1,-0.1)"
+                                                    fill="#ffff"
+                                                >
+                                                    <path
+                                                        d="M4107 4670 c-32 -12 -77 -32 -100 -47 -23 -14 -181 -164 -352 -334
+                                                            l-310 -309 318 -317 318 -318 313 315 c293 295 315 320 352 394 38 79 39 82
+                                                            39 190 -1 91 -5 121 -23 166 -44 111 -142 209 -252 252 -81 31 -226 35 -303 8z"
+                                                    />
+                                                    <path
+                                                        d="M2442 3077 c-424 -424 -772 -777 -772 -782 0 -13 612 -625 625 -625
+                                                            3 0 1555 1542 1555 1555 0 13 -612 625 -625 625 -6 0 -358 -348 -783 -773z"
+                                                    />
+                                                    <path
+                                                        d="M743 3765 c-124 -34 -213 -108 -270 -223 l-38 -76 0 -1360 0 -1361
+                                                            23 -58 c34 -82 125 -178 211 -220 l66 -32 1366 0 1365 0 76 38 c121 59 204
+                                                            167 228 296 6 34 10 387 10 953 l0 900 -29 29 c-38 37 -82 39 -116 4 l-25 -24
+                                                            0 -904 c0 -991 2 -965 -60 -1039 -16 -20 -53 -48 -82 -62 l-52 -26 -1305 0
+                                                            c-908 0 -1318 3 -1345 11 -53 15 -138 100 -154 155 -9 32 -12 350 -12 1345 l0
+                                                            1304 24 51 c13 28 41 65 62 82 78 65 36 62 1034 62 l907 0 27 26 c35 36 34 77
+                                                            -3 115 l-29 29 -914 -1 c-754 0 -922 -3 -965 -14z"
+                                                    />
+                                                    <path
+                                                        d="M1432 1773 c-73 -208 -133 -386 -132 -396 0 -25 54 -77 79 -77 16 0
+                                                            759 255 768 264 1 1 -129 133 -290 294 l-292 292 -133 -377z"
+                                                    />
+                                                </g>
+                                            </svg>
+                                        </span>
                                     </Link>
+
                                     <Link
-                                        to="#"
-                                        className="btn btn-danger btn-delete"
-                                        onClick={toggle}
+                                        class="button-pz btn-pz-danger"
+                                        onClick={() =>
+                                            handleSweetAlertDeleteUser(
+                                                handleDeleteUser
+                                            )
+                                        }
                                     >
-                                        <i className="ri-edit-box-line align-bottom"></i>{" "}
-                                        Eliminar Perfil
+                                        <span class="span-pz text-pz">
+                                            Eliminar Perfil
+                                        </span>
+                                        <span class="span-pz icon-pz">
+                                            <svg
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                className="svg-pz"
+                                            >
+                                                <path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z"></path>
+                                            </svg>
+                                        </span>
                                     </Link>
-                                </div>
-
-                                <div>
-                                    {/* MODAL CONFIRMAR ELIMINACION */}
-                                    <Modal isOpen={modal} toggle={toggle}>
-                                        <div className="container-modal">
-                                            <div className="container-modal-header row">
-                                                <div className="warning-icon col-2"></div>
-                                                <div className=" col-10 ">
-                                                    <ModalHeader
-                                                        toggle={toggle}
-                                                        className="modal-header "
-                                                    >
-                                                        ¡Atención!
-                                                    </ModalHeader>
-                                                </div>
-                                            </div>
-                                            <ModalBody className="modal-body">
-                                                La cuenta sera dada de baja. Si
-                                                deseas volver solo registrate
-                                                nuevamente.
-                                            </ModalBody>
-                                            <ModalFooter className="modal-footer-button">
-                                                <Button
-                                                    color="danger"
-                                                    onClick={() =>
-                                                        handleDeleteUser()
-                                                    }
-                                                >
-                                                    Eliminar
-                                                </Button>{" "}
-                                                <Button
-                                                    color="success"
-                                                    onClick={toggle}
-                                                >
-                                                    Cancelar
-                                                </Button>
-                                            </ModalFooter>
-                                        </div>
-                                    </Modal>
-
-                                    {/* MODAL LOGIN */}
-                                    {showModalLogin && (
-
-                                    <ModalLogin onClose={handleCloseModalLogin} ></ModalLogin>
-                                    )}
                                 </div>
                             </CardBody>
                         </Card>

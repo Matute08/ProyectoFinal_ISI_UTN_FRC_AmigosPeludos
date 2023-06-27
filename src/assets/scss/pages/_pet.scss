@@ -24,12 +24,21 @@
 
 }
 
- 
- 
-  
-  
-  
-  
+
+
+
+.button-consultar{
+    border: none;
+    box-shadow: 0px 1px 10px rgba(255,255 ,255 , 0.2);
+    transition: all 400ms ease;
+    &:hover{
+        box-shadow: 0px 1px 10px rgba(219, 122, 122, 0.9);
+        transform: translateY(-3%);
+        cursor: pointer;
+    }
+}
+
+
 
 .button-pets {
     /* Ajusta el tamaño de la imagen */
@@ -41,28 +50,18 @@
     height: 50px;
     width: 50px;
     border: none;
+    margin: 10px;
 
-}
-
-.button-consultar {
-    background-image: url("../../images/pets/buttons/consultar.png");
-}
-
-.button-modificar {
-    background-image: url("../../images/pets/buttons/modificar.png");
-    margin: 0 14px 0 14px;
-}
-
-.button-eliminar {
-    background-image: url("../../images/pets/buttons/eliminar.png");
-    border: none;
+   
 }
 
 .img-mascota {
-    width: max-content;
-    height: 300px;
+    width: 100%;
+    height:300px;
     display: block;
     margin: 0 auto;
+    // object-fit: cover;
+
 }
 
 .img-consultar-mascota {
@@ -72,6 +71,10 @@
 .datos-mascotas {
     font-size: 16px;
     border: solid #0000 2px;
+
+    p ,strong{
+        font-size: 1.1em;
+    }
 }
 
 .container-datos-mascotas {
@@ -104,4 +107,14 @@
         width: fit-content;
         font-size: 20px;
     }
+}
+
+
+
+//
+
+.icon-tabler-info-circle {
+    width: fit-content;
+
+
 }

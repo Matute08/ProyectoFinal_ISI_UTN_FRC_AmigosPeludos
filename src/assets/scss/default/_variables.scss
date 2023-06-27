@@ -10,8 +10,8 @@ $variable-prefix:             vz-; // Deprecated in v5.2.0 for the shorter `$pre
 $prefix:                      $variable-prefix;
 
 // Font Family
-$font-family-primary:                             'Poppins', sans-serif;
-$font-family-secondary:                           'hkgrotesk', sans-serif;
+$font-family-primary:                             'hkgrotesk', sans-serif;
+$font-family-secondary:                           'Quicksand', sans-serif;
 
 //
 // Vertical Menu
@@ -183,14 +183,14 @@ $grays: (
 // fusv-enable
 
 // scss-docs-start color-variables
-$blue:       #3577f1;
+$blue:       #0000ff;
 $indigo:     #405189;
 $purple:     #6559cc;
 $pink:       #f672a7;
-$red:        #f06548;
-$orange:     #f1963b;
+$red:        #e62222;
+$orange:     #da7715;
 $yellow:     #f7b84b;
-$green:      #0ab39c;
+$green:      #125e03;
 $teal:       #02a8b5;
 $cyan:       #299cdb;
 // scss-docs-end color-variables
@@ -214,26 +214,26 @@ $colors: (
 // scss-docs-end colors-map
 
 // scss-docs-start theme-color-variables
-$primary:       $indigo;
-$secondary:     $blue;
-$success:       $green;
-$info:          $cyan;
-$warning:       $yellow;
-$danger:        $red;
-$light:         $gray-100;
-$dark:          $gray-900;
+ $primary:       $indigo;
+ $secondary:     $blue;
+ $success:       $green;
+ $info:          $cyan;
+ $warning:       $yellow;
+ $danger:        $red;
+ $light:         $gray-100;
+ $dark:          $gray-900;
 // scss-docs-end theme-color-variables
 
 // scss-docs-start theme-colors-map
-$theme-colors: (
-  "primary":    $primary,
-  "secondary":  $secondary,
-  "success":    $success,
-  "info":       $info,
-  "warning":    $warning,
-  "danger":     $danger,
-  "light":      $light,
-  "dark":       $dark
+ $theme-colors: (
+   "primary":    $primary,
+   "secondary":  $secondary,
+   "success":    $success,
+   "info":       $info,
+   "warning":    $warning,
+   "danger":     $danger,
+   "light":      $light,
+   "dark":       $dark
 );
 // scss-docs-end theme-colors-map
 
@@ -696,13 +696,13 @@ $font-family-code:            var(--#{$prefix}font-monospace);
 // $font-size-root affects the value of `rem`, which is used for as well font sizes, paddings, and margins
 // $font-size-base affects the font size of the body text
 $font-size-root:              null;
-$font-size-base:              0.8125rem; // Assumes the browser default, typically `16px`
+$font-size-base:              0.9rem; // Assumes the browser default, typically `16px`
 $font-size-sm:                $font-size-base * .875;
 $font-size-lg:                $font-size-base * 1.25;
 
 $font-weight-lighter:         lighter;
-$font-weight-light:           300;
-$font-weight-normal:          400;
+$font-weight-light:           400;
+$font-weight-normal:          500;
 $font-weight-semibold:        600;
 $font-weight-bold:            700;
 $font-weight-bolder:          bolder;
@@ -843,16 +843,16 @@ $table-bg-scale:              -80%;
 // scss-docs-end table-variables
 
 // scss-docs-start table-loop
-$table-variants: (
-  "primary":    shift-color($primary, $table-bg-scale),
-  "secondary":  shift-color($secondary, $table-bg-scale),
-  "success":    shift-color($success, $table-bg-scale),
-  "info":       shift-color($info, $table-bg-scale),
-  "warning":    shift-color($warning, $table-bg-scale),
-  "danger":     shift-color($danger, $table-bg-scale),
-  "light":      $light,
-  "dark":       $dark,
-);
+// $table-variants: (
+//   "primary":    shift-color($primary, $table-bg-scale),
+//   "secondary":  shift-color($secondary, $table-bg-scale),
+//   "success":    shift-color($success, $table-bg-scale),
+//   "info":       shift-color($info, $table-bg-scale),
+//   "warning":    shift-color($warning, $table-bg-scale),
+//   "danger":     shift-color($danger, $table-bg-scale),
+//   "light":      $light,
+//   "dark":       $dark,
+// );
 // scss-docs-end table-loop
 
 

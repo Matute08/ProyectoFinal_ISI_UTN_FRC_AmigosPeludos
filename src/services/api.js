@@ -29,7 +29,19 @@ export async function getUserId(id) {
 export async function getUserMail(mail) {
     try {
         const response = await axios({
-            url: `${url}/usuario/mail/${mail}`,
+            url: `${url}/usuarioFull/email/${mail}`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function getUsuarioCompleto(){
+    try {
+        const response = await axios({
+            url: `${url}/usuario/mail`,
             method: "GET",
         });
         return response.data;
@@ -50,8 +62,31 @@ export async function getBarrioUser(id) {
         console.log(error);
     }
 }
+export async function getAllBarrio() {
+    try {
+        const response = await axios({
+            url: `${url}/barrio`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 //GET CIUDAD
+export async function getCiudad() {
+    try {
+        const response = await axios({
+            url: `${url}/ciudad/`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+//GET CIUDAD del usuario
 export async function getCiudadUser(id) {
     try {
         const response = await axios({
@@ -66,22 +101,32 @@ export async function getCiudadUser(id) {
 
 //GET GENERO
 export async function getGenero() {
-  try {
-      const response = await axios({
-          url: `${url}/genero`,
-          method: "GET",
-      });
-      return response.data;
-  } catch (error) {
-      console.log(error);
-  }
+    try {
+        const response = await axios({
+            url: `${url}/genero`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
 }
-
+export async function getGeneroId(id) {
+    try {
+        const response = await axios({
+            url: `${url}/genero/${id}`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
 //GET DATOS DE MASCOTAS CON ID
 export async function getMascotaId(id) {
     try {
         const response = await axios({
-            url: `${url}/mascota/${id}`,
+            url: `${url}/mascotaFull/${id}`,
             method: "GET",
         });
         return response.data;
@@ -93,7 +138,7 @@ export async function getMascotaId(id) {
 export async function getMascotasUsuario(idUsuario) {
     try {
         const response = await axios({
-            url: `${url}/mascota/usuario/${idUsuario}`,
+            url: `${url}/mascotaFull/usuario/${idUsuario}`,
             method: "GET",
         });
         return response.data;
@@ -101,7 +146,6 @@ export async function getMascotasUsuario(idUsuario) {
         console.log(error);
     }
 }
-
 
 //GET TIPO MASCOTA
 export async function getTipoMascota() {
@@ -114,8 +158,8 @@ export async function getTipoMascota() {
     } catch (error) {
         console.log(error);
     }
-  }
-  //GET TIPO MASCOTA POR ID
+}
+//GET TIPO MASCOTA POR ID
 export async function getTipoMascotaId(id) {
     try {
         const response = await axios({
@@ -126,10 +170,10 @@ export async function getTipoMascotaId(id) {
     } catch (error) {
         console.log(error);
     }
-  }
+}
 
-  //GET SEXO MASCOTA
-  export async function getSexoMascota() {
+//GET SEXO MASCOTA
+export async function getSexoMascota() {
     try {
         const response = await axios({
             url: `${url}/sexoMascota`,
@@ -139,21 +183,21 @@ export async function getTipoMascotaId(id) {
     } catch (error) {
         console.log(error);
     }
-  }
-    //GET EDAD TODAS LAS MASCOTA 
-    export async function getAllEdadMascota() {
-        try {
-            const response = await axios({
-                url: `${url}/edadMascota/`,
-                method: "GET",
-            });
-            return response.data;
-        } catch (error) {
-            console.log(error);
-        }
-      }
-  //GET EDAD MASCOTA ID
-  export async function getEdadMascotaId(id) {
+}
+//GET EDAD TODAS LAS MASCOTA
+export async function getAllEdadMascota() {
+    try {
+        const response = await axios({
+            url: `${url}/edadMascota/`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+//GET EDAD MASCOTA ID
+export async function getEdadMascotaId(id) {
     try {
         const response = await axios({
             url: `${url}/edadMascota/${id}`,
@@ -163,7 +207,7 @@ export async function getTipoMascotaId(id) {
     } catch (error) {
         console.log(error);
     }
-  }
+}
 //GET DATOS DE TODAS LAS RAZAS CON ID
 export async function getAllRazaId(id) {
     try {
@@ -176,6 +220,7 @@ export async function getAllRazaId(id) {
         console.log(error);
     }
 }
+
 //GET DATOS DE RAZA CON ID
 export async function getRazaId(id) {
     try {
@@ -188,15 +233,23 @@ export async function getRazaId(id) {
         console.log(error);
     }
 }
-
-
-
+//GET DATOS DE RAZA 
+export async function getRaza() {
+    try {
+        const response = await axios({
+            url: `${url}/raza`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 //POST
 export async function postUser(userData) {
     try {
         const response = await axios.post(`${url}/usuario`, userData);
-        console.log(response);
         return response;
     } catch (error) {
         console.log(error);
@@ -205,7 +258,6 @@ export async function postUser(userData) {
 export async function postUserWithGoogle(userData) {
     try {
         const response = await axios.post(`${url}/usuario`, userData);
-        console.log(response);
         return response;
     } catch (error) {
         console.log(error);
@@ -215,14 +267,11 @@ export async function postUserWithGoogle(userData) {
 export async function postMascota(userData) {
     try {
         const response = await axios.post(`${url}/mascota`, userData);
-        console.log(response);
         return response;
     } catch (error) {
         console.log(error);
     }
 }
-
-
 
 //UPDATE USER
 export async function updateUser(id, userData) {
@@ -233,14 +282,11 @@ export async function updateUser(id, userData) {
             existingUserData.data,
             userData
         ); // Combinar los datos existentes y los datos actualizados
-        console.log(existingUserData);
-        console.log(updatedUserData);
 
         const response = await axios.put(
             `${url}/usuario/${id}`,
             updatedUserData
         );
-        console.log(response);
         return response;
     } catch (error) {
         console.log(error);
@@ -248,20 +294,21 @@ export async function updateUser(id, userData) {
 }
 //UPDATE PET
 export async function updatePets(idPet, dataPet) {
-
     try {
         // Obtener los datos existentes de la mascota desde la API
         const existingPetData = await getMascotaId(idPet);
-        
 
         // Combinar los datos existentes y los datos actualizados
         const updatedPetData = {
             ...existingPetData,
-            ...dataPet
+            ...dataPet,
         };
 
         // Realizar la solicitud PUT para actualizar la mascota
-        const response = await axios.put(`${url}/mascota/${idPet}`, updatedPetData);
+        const response = await axios.put(
+            `${url}/mascota/${idPet}`,
+            updatedPetData
+        );
 
         return response;
     } catch (error) {
@@ -269,17 +316,98 @@ export async function updatePets(idPet, dataPet) {
     }
 }
 
+//ELIMINAR MASCOTA
 
-
-  //ELIMINAR MASCOTA
-
-  export const deletePet =async(petId) => {
+export const deletePet = async (petId) => {
     try {
         const response = await axios.delete(`${url}/mascota/${petId}`);
-        console.log(response);
-        return response
-      } catch (error) {
-        console.error(error)
-  
-      }
-    };
+        return response;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+
+
+//PUBLICACIONES
+//GET  PUBLICACIONES
+export async function getPublicaciones() {
+    try {
+        const response = await axios({
+            url: `${url}/publicacionMascota`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+//GET PUBLICACIONES ID
+export async function getPublicacionesId(id) {
+    try {
+        const response = await axios({
+            url: `${url}/publicacionMascota/${id}`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+//GET PUBLICACIONES DE UN USUARIO
+export async function getPublicacionesUser(mail) {
+    try {
+        const response = await axios({
+            url: `${url}/publicacionMascota/email/${mail}`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//POST PUBLICACIONES
+export async function postPublicacion(userData) {
+    try {
+        const response = await axios.post(`${url}/publicacionMascota`, userData);
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+//UPDATE PUBLICACIONES
+export async function updatePost(id, userData) {
+    try {
+        console.log(userData);
+        const existingUserData = await getPublicacionesId(id); // Obtener los datos existentes del usuario desde la API
+        console.log(existingUserData);
+        
+        const updatedUserData = Object.assign(
+            {},
+            existingUserData,
+            userData
+        ); // Combinar los datos existentes y los datos actualizados
+
+        const response = await axios.put(
+            `${url}/publicacionMascota/${id}`,
+            updatedUserData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//ELIMINAR PUBLICACION
+
+export const deletePost = async (petId) => {
+    try {
+        const response = await axios.delete(`${url}/publicacionMascota/${petId}`);
+        return response;
+    } catch (error) {
+        console.error(error);
+    }
+};

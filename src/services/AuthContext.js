@@ -73,7 +73,6 @@ export function AuthProvider({ children }) {
                 setUser(null);
             }
         });
-        console.log(user);
         return () => unsubscribe();
     }, []);
 

@@ -1,57 +1,21 @@
-//
-// _landing.scss
-//
-
-.layout-wrapper {
-    &.landing {
-        background-color: var(--#{$prefix}card-bg-custom);
-        font-size: 15px;
-    }
-}
-
-// helper
-
-.section {
-    padding: 90px 0;
-    position: relative;
-
-    @media (max-width:767.98px) {
-        padding: 50px 0;
-    }
-}
-
-.icon-effect {
-    position: relative;
-
-    &::before {
-        content: "";
-        position: absolute;
-        width: 24px;
-        height: 24px;
-        background-color: rgba($success, 0.2);
-        border-radius: 50%;
-        bottom: 0;
-        left: 0;
-    }
-}
-
 // navbar
 
 
 .navbar-landing {
     padding: 10px 0px;
     transition: all 0.5s ease;
+
     @media (max-width: 991.98px) {
         background-color: #e9d29f;
         padding: 10px 8px;
-       
+
 
     }
 
     .navbar-nav {
         .nav-item {
             .nav-link {
-                font-size: 16px ;
+                font-size: 16px;
                 font-weight: $font-weight-medium;
                 transition: all 0.4s;
                 font-family: $font-family-secondary;
@@ -67,9 +31,10 @@
                 &:hover,
                 &.active,
                 &:focus {
-                    color: #EC6B76 ;
+                    color: #EC6B76;
                 }
             }
+
             &.active {
                 .nav-link {
                     color: $success !important;
@@ -81,6 +46,7 @@
     &.is-sticky {
         background-color: #e9d29f;
         box-shadow: 0 1px 16px -2px rgba(56, 65, 74, 0.15);
+
         @media (max-width: 991.98px) {
             box-shadow: none;
         }
@@ -91,18 +57,110 @@
 
 .hero-section {
     background-color: rgba(var(--#{$prefix}light-rgb), 0.5);
-    height: 700px;
+    padding: 0;
+    position: relative;
+    //overflow-x: hidden;
 
 }
 
 .bg-overlay-pattern {
-    background-image: url("../../images/landing/img-perro-landing.jpg");
-    background-color: transparent;
-    background-position: center;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: url("../../images/landing/img-perro-landing.jpg") no-repeat;
     background-size: cover;
-    opacity: 0.2;
+    background-position: center;
+    //background-attachment: fixed;
+    opacity: 0.9;
+
+    @media (max-width: 768px) {
+        background-image: url("../../images/landing/gatito-landing.jpg");
+        opacity: 0.3;
+
+    }
 }
 
+.container-row {
+    position: absolute;
+    height: 100vh;
+    align-content: center;
+    top: 0;
+}
+
+.container-home {
+    width: 100%;
+    margin-top: 50px;
+    display: flex;
+    justify-content: end;
+    padding: 0;
+
+
+    .div-contenido {
+        width: 40%;
+        margin-right: 100px;
+
+        .text-title {
+            font-size: 2em;
+        }
+
+        .span-title {
+            color: inherit;
+            padding: 0;
+            background: none;
+            background-image: linear-gradient(120deg, #f08089, #db8c93);
+            background-repeat: no-repeat;
+            background-position: 0 80%;
+            position: relative;
+            animation-delay: 1s;
+            background-size: 100% 0.4em;
+        }
+
+        .span-text {
+            color: #ec6b76;
+            font-weight: 800;
+        }
+
+        .text-home {
+            color: $black !important;
+            font-weight: 400;
+            text-align: justify;
+            font-size: 1.25em;
+        }
+
+        @media (min-width: 769px) and (max-width: 1440px) {
+            margin-right: 50px;
+
+            .text-title {
+                font-size: 2.4em;
+            }
+        }
+
+        @media (min-width: 1440px) {
+            .text-title {
+                font-size: 3.3em;
+            }
+        }
+    }
+
+    @media (max-width: 768px) {
+        height: 70%;
+        justify-content: center !important;
+
+        .div-contenido {
+            width: 100%;
+            text-align: center;
+            align-content: center;
+
+            margin-left: 30px;
+            margin-right: 10px;
+        }
+    }
+}
+
+
+//Footer
 .custom-footer {
     color: #9ba7b3;
     margin-top: auto;
@@ -145,7 +203,7 @@
 }
 
 
-.dropdownmenu{
+.dropdownmenu {
     background-color: transparent;
     border: none;
     font-size: 16px;
@@ -154,48 +212,44 @@
     font-family: $font-family-secondary;
     color: var(--#{$prefix}dark);
     padding: 14px;
+
     &:hover,
     &.active,
     &:focus {
         color: #EC6B76 !important;
         background-color: transparent !important;
     }
+
     @media (max-width: 991.98px) {
         padding: 8px 0px;
     }
-};
-
-
-.text-home{
-    color: $black !important;
-    font-weight: 400;
-    text-align: justify;
 }
 
-.container-home{
-    @media (max-width: 991.98px) {
-        margin-top: 40px;
+;
 
-    }
-}
-.button-navbar{
+
+
+.button-navbar {
     @media (max-width: 991.98px) {
         display: flex;
         justify-content: flex-end;
     }
 }
-.btn-login{
+
+.btn-login {
     @media (max-width: 991.98px) {
         margin-right: 16px;
         box-shadow: 0px 8px 9px rgba(0, 0, 0, 0.3);
     }
 }
-.btn-register{
+
+.btn-register {
     @media (max-width: 991.98px) {
         box-shadow: 0px 8px 9px rgba(0, 0, 0, 0.3);
     }
 }
-.ul-nav{
+
+.ul-nav {
     @media (max-width: 991.98px) {
         margin-bottom: 20px;
     }

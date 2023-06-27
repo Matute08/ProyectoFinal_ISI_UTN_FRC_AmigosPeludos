@@ -32,7 +32,12 @@ export async function uploadFilePetsUser(file) {
     const url = await getDownloadURL(storageRef)
     return url
 }
-
+export async function uploadFilesPetsLost(file) {
+    const storageRef =  ref(storage, `petsLost/${v4()}`)
+    await uploadBytes(storageRef, file)
+    const url = await getDownloadURL(storageRef)
+    return url
+}
 export async function deleteFileStorage(file){
     const storageRef = ref(storage, file)
     await deleteObject(storageRef)

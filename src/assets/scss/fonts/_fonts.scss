@@ -3,10 +3,39 @@
 //
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+//quicksand
+
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&display=swap');
 
 //
 // Premium Font : HKGrotesk
 //
+@font-face {
+    font-family: "quicksand";
+    src: url("../../fonts/quicksand/Quicksand-Light.eot");
+    src: local('quicksand light'), url("../../fonts/quicksand/Quicksand-Light_woff.woff") format("woff");
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: "quicksand";
+    src: url("../../fonts/quicksand/Quicksand-Regular.eot");
+    src: local('quicksand regular'), url("../../fonts/quicksand/Quicksand-Regular_woff.woff") format("woff");
+    font-weight: 400;
+}
+@font-face {
+    font-family: "quicksand";
+    src: url("../../fonts/quicksand/Quicksand-Medium.eot");
+    src: local('quicksand medium'), url("../../fonts/quicksand/Quicksand-Medium_woff.woff") format("woff");
+    font-weight: 500;
+}
+@font-face {
+    font-family: "quicksand";
+    src: url("../../fonts/quicksand/Quicksand-SemiBold.eot");
+    src: local('quicksand semibold'), url("../../fonts/quicksand/Quicksand-SemiBold_woff.woff") format("woff");
+    font-weight: 600;
+}
+
 
 @font-face {
     font-family: "hkgrotesk";

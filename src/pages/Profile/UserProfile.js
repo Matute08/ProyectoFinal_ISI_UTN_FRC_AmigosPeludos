@@ -10,9 +10,11 @@ import {
     Row,
     Table,
     CardHeader,
+    TabContent,
+    TabPane,
 } from "reactstrap";
 import { Tooltip } from "react-tooltip";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import classnames from "classnames";
 import SwiperCore, { Autoplay } from "swiper";
@@ -20,13 +22,24 @@ import Navbar from "../landing/Navbar";
 import Footer from "../landing/Footer";
 import Mascota from "../profile/pet/Mascotas";
 import AsideLeft from "./AsideLeft";
+import MyPosts from "./post/MyPosts";
 //Images
 
 const Profile = () => {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("1");
+    const [activityTab, setActivityTab] = useState("1");
 
-    const tabChange = (tab) => {
-        if (activeTab !== tab) setActiveTab(tab);
+    const toggleTab = (tab) => {
+        if (activeTab !== tab) {
+            setActiveTab(tab);
+        }
+    };
+
+    const toggleActivityTab = (tab) => {
+        if (activityTab !== tab) {
+            setActivityTab(tab);
+        }
     };
 
     SwiperCore.use([Autoplay]);
@@ -35,78 +48,93 @@ const Profile = () => {
 
     return (
         <React.Fragment>
-
             <Navbar />
-            
+
             <Container fluid className="page-content perfil-fondo">
                 <Row>
-                    
                     {/* COMPONENTE DE LA INFO DEL USUARIO */}
                     <AsideLeft></AsideLeft>
 
-                    <Col xxl={9} lg={8} md={12} >
+                    <Col xxl={9} lg={8} md={12}>
                         <Card className="mt-n5">
-                            <CardHeader >
+                            <CardHeader>
                                 <Nav
                                     className="nav-tabs-custom rounded card-header-tabs border-bottom-0"
                                     role="tablist"
                                 >
                                     <NavItem>
                                         <NavLink
-                                            to="#"
+                                            href="#mis-mascotas"
                                             className={classnames({
                                                 active: activeTab === "1",
                                             })}
                                             onClick={() => {
-                                                tabChange("1");
+                                                toggleTab("1");
                                             }}
-                                            type="button"
                                         >
-                                            <i className="far fa-user"></i> Mis
-                                            Mascotas
+                                            <i className="ri-airplay-fill d-inline-block d-md-none"></i>{" "}
+                                            <span className="d-none d-md-inline-block">
+                                                Mis Mascotas
+                                            </span>
+                                        </NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink
+                                            href="#mis-publicaciones"
+                                            className={classnames({
+                                                active: activeTab === "2",
+                                            })}
+                                            onClick={() => {
+                                                toggleTab("2");
+                                            }}
+                                        >
+                                            <i className="ri-list-unordered d-inline-block d-md-none"></i>{" "}
+                                            <span className="d-none d-md-inline-block">
+                                                Mis Publicaciones
+                                            </span>
                                         </NavLink>
                                     </NavItem>
                                 </Nav>
                             </CardHeader>
                             <CardBody>
+                                <TabContent activeTab={activeTab}>
+                                    <TabPane tabId="1">
+                                        {/* COMPONENTE MASCOTAS */}
+                                        <Mascota />
+                                    </TabPane>
 
-                                {/* COMPONENTE MASCOTAS */}
-                                <Mascota />
-
+                                    <TabPane tabId="2">
+                                        <MyPosts></MyPosts>
+                                    </TabPane>
+                                </TabContent>
                             </CardBody>
                         </Card>
                     </Col>
                 </Row>
 
                 <div
-                        style={{
-                            position: "fixed",
-                            bottom: "20px",
-                            right: "20px",
-                            zIndex: "9999",
+                    style={{
+                        position: "fixed",
+                        bottom: "20px",
+                        right: "20px",
+                        zIndex: "9999",
+                    }}
+                    className="floating-button-container"
+                >
+                    <button
+                        class="Btn"
+                        onClick={() => {
+                            navigate("/agregar-mascota");
                         }}
-                        className="floating-button-container"
                     >
-                        <Link
-                            to={"/agregar-mascota"}
-                            type="button"
-                            variant="primary"
-                            id="floating-button"
-                            className="boton-flotante"
-                            data-tooltip-id="botonTooltip"
-                            data-tooltip-place="top"
-                            data-tooltip-variant="info"
-                            
-                        >
-                            +
-                        </Link>
-                        <Tooltip id="botonTooltip">Agregar Mascota</Tooltip>
-                    </div>
-                
+                        <div class="sign">+</div>
+
+                        <div class="text">Agregar Mascota</div>
+                    </button>
+                </div>
             </Container>
-            
+
             <Footer />
-        
         </React.Fragment>
     );
 };

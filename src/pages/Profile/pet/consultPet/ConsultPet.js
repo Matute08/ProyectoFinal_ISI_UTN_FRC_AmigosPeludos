@@ -1,14 +1,8 @@
 import React, { useState, useEffect, input } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { Col, Container, Row } from "reactstrap";
 
-import {
-    getMascotaId,
-    getEdadMascotaId,
-    getRazaId,
-    getTipoMascotaId,
-} from "../../../../services/Api";
-import Loading from "../../../loading/Loading";
+import { getMascotaId, getTipoMascotaId } from "../../../../services/Api";
+import Loading from "../../../components/Loading";
 
 //import images
 
@@ -17,120 +11,46 @@ const ConsultarMascota = ({ onCancel, mascotaId }) => {
         onCancel(); // Llama a la función onCancel pasada como prop
     };
     const [mascotaData, setMascotaData] = useState();
-    const [tipoMascota, setTipoMascota] = useState();
-    const [edadMascota, setEdadMascota] = useState();
-    const [nameRaza, setNameRaza] = useState();
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchMascota = async () => {
             const dataMascota = await getMascotaId(mascotaId);
             if (dataMascota) {
+                if (dataMascota.castracion === true) {
+                    dataMascota.castracion = "Si";
+                } else {
+                    dataMascota.castracion = "No";
+                }
                 setMascotaData(dataMascota);
             }
             setIsLoading(false);
         };
-
+        console.log(mascotaData);
         fetchMascota();
     }, [mascotaId]);
 
-    useEffect(() => {
-        const fetchEdadMascota = async () => {
-            if (mascotaData && mascotaData.edadId) {
-                const dataEdadMascota = await getEdadMascotaId(
-                    mascotaData.edadId
-                );
-                if (dataEdadMascota) {
-                    setEdadMascota(dataEdadMascota);
-                }
-            }
-        };
 
-        fetchEdadMascota();
-    }, [mascotaData]);
-
-    useEffect(() => {
-        const fetchTipoMascota = async () => {
-            if (mascotaData && mascotaData.tipoId) {
-                const dataTipo = await getTipoMascotaId(mascotaData.tipoId);
-                if (dataTipo) {
-                    setTipoMascota(dataTipo);
-                }
-            }
-        };
-
-        fetchTipoMascota();
-    }, [mascotaData]);
-
-    useEffect(() => {
-        const fetchRaza = async () => {
-            if (mascotaData && mascotaData.razaId) {
-                const dataRaza = await getRazaId(mascotaData.razaId);
-                if (dataRaza) {
-                    setNameRaza(dataRaza);
-                }
-            }
-        };
-
-        fetchRaza();
-    }, [mascotaData]);
-
-    const tableData = [
-        {
-            title: "Nombre de la mascota",
-            value: mascotaData ? mascotaData.nombre : "",
-            col: 3,
-        },
-        {
-            title: "Tipo de mascota",
-            value: tipoMascota ? tipoMascota.tipo : "",
-            col: 6,
-        },
-        {
-            title: "Edad aproximada",
-            value: edadMascota ? edadMascota.descripcion : "",
-            col: 6,
-        },
-        {
-            title: "Raza",
-            value: nameRaza ? nameRaza.nombre : "",
-            col: 3,
-        },
-        {
-            title: "Peso aproximado",
-            value: mascotaData ? mascotaData.peso : "",
-            col: 3,
-        },
-        {
-            title: "Castrada/o",
-            value: mascotaData
-                ? `${mascotaData.castracion === 1 ? "No" : "Si"}`
-                : "",
-            col: 6,
-        },
-        {
-            title: "Sexo",
-            value: mascotaData
-                ? `${
-                      mascotaData.sexoId === 1
-                          ? "Macho"
-                          : mascotaData.sexoId === 2
-                          ? "Hembra"
-                          : "Nose"
-                  }`
-                : "",
-            col: 6,
-        },
-        {
-            title: "Descripción",
-            value: mascotaData ? mascotaData.descripcion : "",
-            col: 12,
-        },
-        {
-            title: "Foto",
-            value: mascotaData ? mascotaData.foto : "",
-            col: 12,
-        },
+    const keyMap = {
+        nombre: "Nombre ",
+        tipoNombre: "Tipo de mascota",
+        edadMascota: "Edad aproximada",
+        razaNombre: "Raza",
+        peso: "Peso aproximado",
+        castracion: "Castrado/a",
+        sexoMascota: "Sexo",
+        descripcion: "Descripción",
+        color: "Color",
+        foto: "Foto de la mascota",
+        tipoMascotaNombre: "Tipo de mascota"
+    };
+    const excludedKeys = [
+        "id",
+        "edadId",
+        "sexoId",
+        "idUsuario",
+        "razaId",
+        "mailUsuario",
     ];
 
     document.title = "Agregar Mascota | Amigos Peludos";
@@ -147,26 +67,33 @@ const ConsultarMascota = ({ onCancel, mascotaId }) => {
                                     sm={12}
                                     className="container-texto"
                                 >
-                                    {tableData.map((elemento) => {
-                                        if (elemento.title === "Foto") {
-                                            return null; // Omitir el título y el valor "Foto" en el lado izquierdo
-                                        }
-                                        return (
-                                            <div
-                                                key={elemento.title}
-                                                className="d-flex align-items-start  container-datos-mascotas "
-                                            >
-                                                <div className="flex-column  datos-mascotas ">
-                                                    <p className="p-2 m-0">
-                                                        <strong>
-                                                            {elemento.title}:
-                                                        </strong>{" "}
-                                                        {elemento.value}
-                                                    </p>
+                                    {Object.entries(mascotaData).map(
+                                        ([key, value]) => {
+                                            if (
+                                                key === "foto" ||
+                                                excludedKeys.includes(key)
+                                            ) {
+                                                return null; // Omitir el título y el valor "Foto" en el lado izquierdo
+                                            }
+                                            const modifiedKey =
+                                                keyMap[key] || key;
+                                            return (
+                                                <div
+                                                    key={key}
+                                                    className="d-flex align-items-start  container-datos-mascotas "
+                                                >
+                                                    <div className="flex-column  datos-mascotas ">
+                                                        <p className="p-2 m-0">
+                                                            <strong>
+                                                                {modifiedKey}:
+                                                            </strong>{" "}
+                                                            {value}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        );
-                                    })}
+                                            );
+                                        }
+                                    )}
                                 </Col>
                                 <Col
                                     lg={6}
@@ -176,32 +103,45 @@ const ConsultarMascota = ({ onCancel, mascotaId }) => {
                                 >
                                     <div className="container-text-foto">
                                         <h5 className="ps-0 text-center text-foto">
-                                            {
-                                                tableData.find(
-                                                    (elemento) =>
-                                                        elemento.title ===
-                                                        "Foto"
-                                                ).title
-                                            }
+                                            {keyMap["foto"]}
                                         </h5>
                                     </div>
                                     <img
                                         className="img-fluid img-consultar-mascota"
-                                        src={
-                                            tableData.find(
-                                                (elemento) =>
-                                                    elemento.title === "Foto"
-                                            ).value
-                                        }
+                                        src={mascotaData["foto"]}
                                         alt="Imagen de la mascota"
                                     />
                                 </Col>
-                                <div className="text-end">
+                                <div className="d-flex justify-content-end mt-5">
                                     <button
-                                        className="btn btn-success"
+                                        class="button-pz btn-pz-secondary"
                                         onClick={handleCancelar}
                                     >
-                                        Volver
+                                        <span class="span-pz text-pz">
+                                            Volver
+                                        </span>
+                                        <span class="span-pz icon-pz">
+                                            <svg
+                                                viewBox="0 0 232 217"
+                                                className="svg-pz"
+                                            >
+                                                <g
+                                                    transform="translate(0,210) scale(0.1,-0.1)"
+                                                    fill="#ffff"
+                                                    stroke="none"
+                                                >
+                                                    <path
+                                                        d="M740 2163 c-27 -11 -705 -486 -717 -502 -7 -9 -15 -31 -19 -48 -13
+                                                                                            -65 5 -79 399 -319 319 -195 373 -224 408 -224 31 0 47 7 70 29 42 42 38 79
+                                                                                            -21 205 l-49 106 510 0 509 0 38 -34 37 -34 3 -404 c2 -441 3 -435 -57 -475
+                                                                                            l-34 -23 -571 0 -572 0 -44 -22 c-55 -28 -86 -73 -95 -138 -14 -101 16 -180
+                                                                                            83 -222 l37 -23 575 -3 c389 -2 597 1 642 8 187 32 350 169 417 353 l26 72 3
+                                                                                            425 c3 350 0 439 -12 498 -39 187 -161 330 -342 400 l-69 27 -552 5 -552 5 45
+                                                                                            108 c24 59 44 121 44 137 0 60 -85 116 -140 93z"
+                                                    />
+                                                </g>
+                                            </svg>
+                                        </span>
                                     </button>
                                 </div>
                             </Row>

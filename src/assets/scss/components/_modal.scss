@@ -1,241 +1,118 @@
-//
-// _modal.scss
-//
+.swal2-cancel{
+	margin: 0 10px 0 10px !important;
+}
+.swal2-confirm{
+	margin: 0 10px 0 10px !important;
+}
 
-.container-modal {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    
-  }
-  .container-modal-header{
+.container-modal{
 	display: flex;
-	flex-direction: row;
-	align-items: center;
 	justify-content: center;
 	width: 100%;
+}
+
+.inputbox {
+	position: relative;
+	width:95%;
+	margin: 15px 5px 5px 5px;
+	justify-content: center;
   }
-  
-  .warning-icon {
-	padding: 20px 20px 0 20px;
-	margin: 0 0 0 15px;
-    width: 40px;
-    height: 40px;
-    background-image: url("../../images/pets/buttons/advertencia.png");
-    background-size: cover;
-    background-repeat: no-repeat;
-  }
-  
-  .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    width: 100%;
-  }
-  
-  .modal-header{
-      h5{
-      
-      text-align: center;
-      margin: 0;
-        font-size: 20px !important;
-      }
 
-  } 
-   
-  .close-button {
-    margin-left: auto;
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-  }
-  
-  .modal-body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-    font-size: 18px;
-  }
-  
-  .modal-footer-button {
-    display: flex;
-    justify-content: center;
-  }
-  
-  .modal-body,
-  .modal-footer-button {
-    margin-bottom: 10px;
-  }
-  
-//estilos por defecto 
-
-.modal-title {
-    font-weight: $font-weight-semibold;
-}
-
-.modal-dialog:not(.modal-dialog-scrollable) {
-    .modal-header {
-        padding-bottom: 0;
-    
-        .btn-close {
-            margin-top: -$modal-header-padding;
-        }
-    }
-    
-    .modal-footer {
-        padding-top: 0;
-    }
-}
-
-.modal {
-	&.fadeInRight {
-		.modal-dialog {
-			opacity: 0;
-			transform: translateX(20%);
-			transition: all .3s ease-in-out;
-		}
-
-		&.show {
-			.modal-dialog {
-				opacity: 1;
-				transform: translateX(0);
-			}
-		}
-	}
-
-	&.fadeInLeft {
-		.modal-dialog {
-			animation: fadeInLeft 0.3s ease-in-out;
-			transform: translate(-50%, 0);
-		}
-
-		&.show {
-			.modal-dialog {
-				transform: none;
-			}
-		}
-	}
-
-	&.fadeInUp {
-		.modal-dialog {
-			animation: fadeInUp 0.3s ease-in-out;
-			transform: translate(0, 30%);
-		}
-
-		&.show {
-			.modal-dialog {
-				transform: none;
-			}
-		}
-	}
-
-	&.flip {
-		perspective: 1300px;
-
-		.modal-dialog {
-			opacity: 0;
-			transform: rotateY(-70deg);
-			transition: all .3s;
-		}
-
-		&.show {
-			.modal-dialog {
-				opacity: 1;
-				transform: rotateY(0deg);
-			}
-		}
-	}
-
-	&.zoomIn {
-		.modal-dialog {
-			opacity: 0;
-			transform: scale(.7);
-			transition: all .3s ease;
-		}
-
-		&.show {
-			.modal-dialog {
-				opacity: 1;
-				transform: scale(1)
-			}
-		}
-	}
-}
-
-
-.modal-dialog-right {
-	margin-right: $modal-dialog-margin-y-sm-up;
-}
-
-// modal-dialog-bottom
-.modal-dialog-bottom {
-	display: flex;
-	align-items: flex-end;
-	min-height: calc(100% - #{$modal-dialog-margin-y-sm-up});
-
-	@media (min-width: 576px) {
-		min-height: calc(100% - #{$modal-dialog-margin-y-sm-up*2 });
-	}
-}
-
-.modal-dialog-bottom-right {
-	display: flex;
-	align-items: flex-end;
-	min-height: calc(100% - #{$modal-dialog-margin-y-sm-up});
-	margin-right: $modal-dialog-margin-y-sm-up;
-
-	@media (min-width: 576px) {
-		min-height: calc(100% - #{$modal-dialog-margin-y-sm-up*2 });
-	}
-}
-
-@keyframes fadeInLeft {
-	0% {
-		opacity: 0;
-		transform: translate3d(-30%, 0, 0);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateZ(0);
-	}
-}
-
-
-@keyframes fadeInUp {
-	0% {
-		opacity: 0;
-		transform: translate3d(0, 30%, 0);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateZ(0);
-	}
-}
-
-@keyframes zoomIn {
-	0% {
-		opacity: 0;
-		transform: scale3d(.3, .3, .3);
-	}
-
-	50% {
-		opacity: 1
-	}
-}
-
-.login-modal {
-	background-image: url("../../images/authetication/perrosygatos.jpg");
-	background-size: cover;
-	background-position: center;
-	height: 300px;
-}
-.modal-contenedor-login{
+  .inputbox input {
+	position: relative;
 	width: 100%;
-}
+	padding: 20px 10px 10px;
+	background: transparent;
+	outline: none;
+	box-shadow: none;
+	border: none;
+	color: #23242a;
+	font-size: 1em;
+	letter-spacing: 0.05em;
+	transition: 0.5s;
+	z-index: 10;
+	margin-top: 15px;
+
+  }
+
+  .inputbox span {
+	position: absolute;
+	left: 0;
+	padding: 20px 10px 10px;
+	font-size: 1em;
+	color: #8f8f8f;
+	letter-spacing: 00.05em;
+	transition: 0.5s;
+	pointer-events: none;
+  }
+
+  .inputbox input:valid ~span,
+  .inputbox input:focus ~span {
+	color: #23242a;
+	transform: translateX(-10px) translateY(-34px);
+	font-size: 0,75em;
+  }
+
+  .inputbox i {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	height: 2px;
+	background: #e9d29f;
+	border-radius: 4px;
+	transition: 0.5s;
+	pointer-events: none;
+	z-index: 9;
+  }
+
+  .inputbox input:valid ~i,
+  .inputbox input:focus ~i {
+	height: 44px;
+  }
+
+
+
+
+
+
+  .input {
+	font-family: 'Segoe UI', sans-serif;
+	margin: 1em 0 1em 0;
+	max-width: 100%;
+	position: relative;
+  }
+  
+  .input input {
+	font-size: 100%;
+	padding: 0.8em;
+	outline: none;
+	border: 2px solid #000000;
+	background-color: transparent;
+	border-radius: 20px;
+	width: 100%;
+	margin-top: 13px;
+  }
+  
+  .input label {
+	font-size: 100%;
+	position: absolute;
+	left: 0;
+	padding: 0.8em;
+	margin-left: 0.5em;
+	pointer-events: none;
+	transition: all 0.3s ease;
+	color: rgb(0, 0, 0);
+  }
+  
+  .input :is(input:focus, input:valid)~label {
+	transform: translateY(-35%) scale(.9);
+	margin: 0em;
+	margin-left: 1.3em;
+	padding: 0.5em;
+	background-color: white;
+  }
+  
+  .inputGroup :is(input:focus, input:valid) {
+	border-color: rgb(37, 37, 211);
+  }

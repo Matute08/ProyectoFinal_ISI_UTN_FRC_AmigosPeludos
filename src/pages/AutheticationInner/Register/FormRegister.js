@@ -4,7 +4,7 @@ import { useAuth } from "../../../services/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { postUser, getGenero,getUserMail, updateUser } from "../../../services/Api";
-import Loading from "../../loading/Loading";
+import Loading from "../../components/Loading";
 
 export const FormRegister = () => {
     const {
