@@ -1,4 +1,4 @@
-import Landing from "../Landing";
+import Landing from "../Landing/Index";
 import { useAuth } from "../../services/AuthContext";
 import { Navigate } from "react-router-dom";
 
