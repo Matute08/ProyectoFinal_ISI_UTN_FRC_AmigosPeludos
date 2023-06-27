@@ -28,7 +28,7 @@ import {
     postPublicacion,
     getPublicacionesId,
     updatePost,
-} from "../../services/Api";
+} from "../../services/api";
 import classnames from "classnames";
 import LeafletMaps from "../components/maps/LeafletMaps";
 import {
@@ -37,8 +37,8 @@ import {
 } from "../../services/Firebase";
 import Loading from "../components/Loading";
 
-import Navbar from "../landing/Navbar";
-import Footer from "../landing/Footer";
+import Navbar from "../Landing/Navbar";
+import Footer from "../Landing/footer";
 // Import React FilePond
 import { FilePond, registerPlugin } from "react-filepond";
 // Import FilePond styles

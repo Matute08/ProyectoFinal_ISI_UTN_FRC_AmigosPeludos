@@ -26,13 +26,13 @@ import {
     getAllRazaId,
     getAllBarrio,
     postPublicacion,
-} from "../../services/Api";
+} from "../../services/api";
 import classnames from "classnames";
 import { uploadFilesPetsLost } from "../../services/Firebase";
 import Loading from "../components/Loading";
+import Navbar from "../Landing/Navbar";
 import Maps from "../components/maps/Maps";
-import Navbar from "../landing/Navbar";
-import Footer from "../landing/Footer";
+import Footer from "../Landing/footer";
 // Import React FilePond
 import { FilePond, registerPlugin } from "react-filepond";
 // Import FilePond styles

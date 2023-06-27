@@ -23,7 +23,7 @@ import {
     getUserMail,
     updateUser,
     getAllRazaId,
-} from "../../../../services/Api";
+} from "../../../../services/api";
 import classnames from "classnames";
 import { uploadFilePetsUser } from "../../../../services/Firebase";
 import Loading from "../../../components/Loading";

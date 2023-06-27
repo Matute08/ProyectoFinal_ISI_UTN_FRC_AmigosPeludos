@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Card, Col, Container, Row } from "reactstrap";
-import Navbar from "../landing/Navbar";
-import Footer from "../landing/Footer";
+import Navbar from "../Landing/Navbar";
+import Footer from "../Landing/footer";
 import { Link } from "react-router-dom";
 import Pagination from "../components/Pagination";
 import Loading from "../components/Loading";
 import FilterPets from "../components/FilterPets";
 import { useNavigate } from "react-router-dom";
 import LeafletMaps from "../components/maps/LeafletMaps";
-import { getPublicaciones } from "../../services/Api";
+import { getPublicaciones } from "../../services/api";
 const LostPets = () => {
     const navigate = useNavigate();
     const [activeCardId, setActiveCardId] = useState(null);

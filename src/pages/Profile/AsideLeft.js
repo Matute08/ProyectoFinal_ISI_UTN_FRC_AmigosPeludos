@@ -11,7 +11,7 @@ import {
     updateUser,
     getGenero,
     getGeneroId,
-} from "../../services/Api";
+} from "../../services/api";
 //Images
 import avatar1 from "../../assets/images/user/user-random.jpg";
 import Loading from "../components/Loading";

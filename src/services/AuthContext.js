@@ -10,7 +10,7 @@ import {
     deleteUser,
 } from "firebase/auth";
 import { auth } from "./Firebase";
-import { getUserMail } from "./Api";
+import { getUserMail } from "./api";
 
 //-------------------------------------------
 export const authContext = createContext();

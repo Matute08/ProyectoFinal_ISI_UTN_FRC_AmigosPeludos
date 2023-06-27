@@ -7,7 +7,7 @@ import {
     getUserMail,
     getPublicacionesUser,
     deletePost
-} from "../../../services/Api";
+} from "../../../services/api";
 
 import { deleteFileStorage } from "../../../services/Firebase";
 import Modal from "../../components/Modal";

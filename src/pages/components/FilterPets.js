@@ -5,7 +5,7 @@ import {
     getSexoMascota,
     getCiudad,
     getAllBarrio,
-} from "../../services/Api";
+} from "../../services/api";
 import Loading from "./Loading";
 import { Col } from "reactstrap";
 

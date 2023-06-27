@@ -2,19 +2,19 @@
 import React from 'react';
 import './App.css';
 import '../src/assets/scss/themes.scss';
-import Landing from './pages/landing/Index';
+import Landing from './pages/Landing';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Register from './pages/autheticationInner/register/Register';
-import Login from "./pages/autheticationInner/login/Login"
+import Register from './pages/AutheticationInner/Register/Register';
+import Login from "./pages/AutheticationInner/Login/Login"
 import { AuthProvider } from './services/AuthContext';
-import { ProtectedRoute } from './pages/autheticationInner/ProtectedRoute';
+import { ProtectedRoute } from './pages/AutheticationInner/ProtectedRoute';
 //perfil
-import UserProfileSetting from './pages/profile/Settings';
-import Profile from './pages/profile/UserProfile';
-import PasswordReset from './pages/autheticationInner/passwordReset/PasswordReset';
+import UserProfileSetting from './pages/Profile/Settings';
+import Profile from './pages/Profile/UserProfile';
+import PasswordReset from './pages/AutheticationInner/PasswordReset/passwordReset';
 //mascotas usuario
-import AddPets from './pages/profile/pet/addPet/AddPets';
-import SettingsPet from './pages/profile/pet/settingsPet/SettingsPet';
+import AddPets from './pages/Profile/pet/addPet/AddPets';
+import SettingsPet from './pages/Profile/pet/settingsPet/SettingsPet';
 //mascota perdida
 import LostPets from './pages/petSearch/LostPets';
 import AddLostPets from './pages/petSearch/AddLostPets';

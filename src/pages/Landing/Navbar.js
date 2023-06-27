@@ -12,7 +12,7 @@ import {
 import Scrollspy from "react-scrollspy";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../services/AuthContext";
-import { getUserMail } from "../../services/Api";
+import { getUserMail } from "../../services/api";
 
 import logo from "../../assets/images/logo/LogoAP.png";
 import userRandom from "../../assets/images/user/user-random.jpg";

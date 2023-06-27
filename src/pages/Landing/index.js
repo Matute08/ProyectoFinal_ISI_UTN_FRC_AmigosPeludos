@@ -1,8 +1,8 @@
 import React,{useEffect, useState} from "react";
 import Home from "./Home";
-import Footer from "./Footer";
-import Services from "./Services";
+import Footer from "./footer";
 import Navbar from "./Navbar";
+import Services from "./services";
 
 const Landing = () => {
     document.title = " AMIGOS PELUDOS";

@@ -20,8 +20,8 @@ import {
     Button,
 } from "reactstrap";
 import classnames from "classnames";
-import Navbar from "../landing/Navbar";
-import Footer from "../landing/Footer";
+import Navbar from "../Landing/Navbar";
+import Footer from "../Landing/footer";
 import { useAuth } from "../../services/AuthContext";
 import {
     getUserMail,
@@ -30,7 +30,7 @@ import {
     updateUser,
     getGenero,
     getAllBarrio,
-} from "../../services/Api";
+} from "../../services/api";
 import { deleteFileStorage, uploadFileUser } from "../../services/Firebase";
 import Loading from "../components/Loading";
 

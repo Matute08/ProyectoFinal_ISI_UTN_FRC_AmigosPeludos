@@ -26,9 +26,9 @@ import {
     getAllRazaId,
     updatePets,
     getRaza,
-} from "../../../../services/Api";
-import Navbar from "../../../landing/Navbar";
-import Footer from "../../../landing/Footer";
+} from "../../../../services/api";
+import Navbar from "../../../Landing/Navbar";
+import Footer from "../../../Landing/footer";
 import Loading from "../../../components/Loading";
 import {
     deleteFileStorage,

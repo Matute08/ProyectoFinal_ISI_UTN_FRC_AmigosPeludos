@@ -3,7 +3,7 @@ import { Form, Input, Button, Alert } from "reactstrap";
 import { useAuth } from "../../../services/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { postUser, getGenero,getUserMail, updateUser } from "../../../services/Api";
+import { postUser, getGenero,getUserMail, updateUser } from "../../../services/api";
 import Loading from "../../components/Loading";
 
 export const FormRegister = () => {

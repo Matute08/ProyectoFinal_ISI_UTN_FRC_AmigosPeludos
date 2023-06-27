@@ -8,7 +8,7 @@ import {
     getMascotasUsuario,
     deletePet,
     updateUser,
-} from "../../../services/Api";
+} from "../../../services/api";
 import AgregarMascota from "./addPet/AddPets";
 import ConsultarMascota from "../pet/consultPet/ConsultPet";
 import { deleteFileStorage } from "../../../services/Firebase";

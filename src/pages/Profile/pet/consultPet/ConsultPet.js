@@ -1,7 +1,7 @@
 import React, { useState, useEffect, input } from "react";
 import { Col, Container, Row } from "reactstrap";
 
-import { getMascotaId, getTipoMascotaId } from "../../../../services/Api";
+import { getMascotaId, getTipoMascotaId } from "../../../../services/api";
 import Loading from "../../../components/Loading";
 
 //import images

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Loading from "../components/Loading";
-import Navbar from "../landing/Navbar";
-import Footer from "../landing/Footer";
+import Navbar from "../Landing/Navbar";
+import Footer from "../Landing/footer";
 import { Col, Container, Row, Card, CardBody, CardHeader } from "reactstrap";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -26,7 +26,7 @@ import "swiper/css/effect-fade";
 import "swiper/css/effect-flip";
 
 import LeafletMaps from "../components/maps/LeafletMaps";
-import { getPublicacionesId } from "../../services/Api";
+import { getPublicacionesId } from "../../services/api";
 
 const ConsultPosts = () => {
     const [isLoading, setIsLoading] = useState();

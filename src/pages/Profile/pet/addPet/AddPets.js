@@ -12,8 +12,8 @@ import {
 } from "reactstrap";
 
 import classnames from "classnames";
-import Navbar from "../../../landing/Navbar";
-import Footer from "../../../landing/Footer";
+import Navbar from "../../../Landing/Navbar";
+import Footer from "../../../Landing/footer";
 import AsideLeft from "../../AsideLeft";
 import FormAddPets from "./FormAddPets";
 

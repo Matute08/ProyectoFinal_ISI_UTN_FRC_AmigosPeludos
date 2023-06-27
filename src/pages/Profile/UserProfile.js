@@ -18,9 +18,9 @@ import { Link, useNavigate } from "react-router-dom";
 
 import classnames from "classnames";
 import SwiperCore, { Autoplay } from "swiper";
-import Navbar from "../landing/Navbar";
-import Footer from "../landing/Footer";
-import Mascota from "../profile/pet/Mascotas";
+import Navbar from "../Landing/Navbar";
+import Footer from "../Landing/footer";
+import Mascota from "../Profile/pet/Mascotas";
 import AsideLeft from "./AsideLeft";
 import MyPosts from "./post/MyPosts";
 //Images
