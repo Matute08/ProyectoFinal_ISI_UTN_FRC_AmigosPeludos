@@ -1,5 +1,5 @@
 import axios from "axios";
-const url = "https://localhost:7253/api";
+const url = "http://www.amigospeludos.somee.com/api";
 
 //GET USUARIO
 export async function getUser() {
