@@ -1,0 +1,166 @@
+.titulo-consult-pest{
+    font-size: 2em;
+    margin: 0 0 40px 0;
+}
+
+.container-consult-post {
+
+    .consult-post .fila-consult{
+      @media (max-width: 700px) {
+        display: inline;
+      }
+    }
+    .consult-post .row .col {
+      display: flex;
+      justify-content: center;
+       
+
+    }
+
+}
+.fila-imgubi{
+  display: inline;
+
+}
+.card-title-post{
+    font-size: 1.3em;
+}
+.mapa-consult{
+  width: 90%;
+}
+
+.container-datos-mascotas {
+    border: none;
+    margin: 0;
+
+    .datos-mascotas {
+
+        display: flex;
+        p {
+            font-size: 1em;
+            strong {
+              display: inline-block;
+                font-size: 1.1em;
+                
+            }
+        }
+    }
+
+    
+}
+
+
+.card-consult-post {
+    background-color: #ffffff;
+    width: 90%;
+
+
+    @media (max-width: 990px) {
+        width: 80%;
+        display: flex;
+        justify-content: center;
+    }
+
+    
+    @media (max-width: 700px) {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+  
+}
+}
+
+.swiper {
+    height: 510px;
+
+    @media (max-width: 700px) {
+      height: 400px;
+      
+}
+}
+
+.swiper-wrapper .swiper-slide {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .img-fluid {
+        width: 90%;
+        height: 100%;
+        background-repeat: repeat;
+        background-position: center center;
+        background-attachment: fixed;
+        background-size: contain ;
+    }
+}
+
+
+
+
+
+//boton
+.container-button-contact{
+    display: flex;
+    justify-content: center;
+}
+  
+  @keyframes bg{
+    0%{
+      background-position:0% 50%;
+    }
+    50%{
+      background-position:100% 50%;
+    }
+    100%{
+      background-position:0% 50%;
+    }
+  }
+  
+  .social-button{
+    background:rgb(26, 26, 26);
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%);
+    box-shadow: 0px 3px 10px rgba(0,0,0,.25);
+    padding:1rem;
+    border-radius:100vw;
+    display:flex;
+    align-items:center;
+    margin:1rem;
+    color:white;
+    width: min-content;
+    border: none;
+
+  }
+  
+  .facebook{
+    background:#3b5998;
+  }
+  
+  .whatsapp{
+    background:#1c8516;
+
+  }
+  
+  .mail{
+    background:#dd4b39;
+
+  }
+  
+  .social-button:hover{
+    cursor:pointer;
+  }
+  
+  .social-button span{
+    display:inline-block;
+    white-space: nowrap;
+    max-width:0px;
+    overflow:hidden;
+    transition:350ms ease;
+    
+  }
+  
+  .social-button:hover span{
+    max-width:100px;
+    margin-left:0.5rem;
+  }
