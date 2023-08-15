@@ -18,7 +18,7 @@ import logo from "../../assets/images/logo/LogoAP.png";
 import userRandom from "../../assets/images/user/user-random.jpg";
 import Loading from "../components/Loading";
 
-const Navbar = ({ direction, ...args }) => {
+const Navbar = ({isHomePage, direction, ...args}) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
@@ -58,27 +58,13 @@ const Navbar = ({ direction, ...args }) => {
         setIsLoading(false);
     }, [user]);
 
-    useEffect(() => {
-        window.addEventListener("scroll", scrollNavigation, true);
-    });
-
-    const scrollNavigation = () => {
-        var scrollup = document.documentElement.scrollTop;
-        if (scrollup > 50) {
-            setnavClass("is-sticky ");
-        } else {
-            setnavClass("");
-        }
-    };
-
     return (
         <React.Fragment>
             {!isLoading ? (
                 <>
                     <nav
-                        className={
-                            "navbar navbar-expand-lg navbar-landing fixed-top " +
-                            navClass
+                        className={(isHomePage ? "navbar-color-home" : "navbar-color") +
+                            " navbar navbar-expand-lg navbar-landing  " 
                         }
                         id="navbar"
                     >
@@ -133,7 +119,7 @@ const Navbar = ({ direction, ...args }) => {
                                             </DropdownToggle>
                                             <DropdownMenu {...args}>
                                                 <DropdownItem>
-                                                    <NavLink href="#mascotasencontradas">
+                                                    <NavLink href="/mascotas-encontradas">
                                                         {" "}
                                                         Mascotas Encontradas
                                                     </NavLink>
@@ -145,7 +131,7 @@ const Navbar = ({ direction, ...args }) => {
                                                     </NavLink>
                                                 </DropdownItem>
                                                 <DropdownItem>
-                                                    <NavLink href="#mascotasadopcion">
+                                                    <NavLink href="/mascotas-adopcion">
                                                         {" "}
                                                         Mascotas en Adopción
                                                     </NavLink>

@@ -34,7 +34,7 @@ const Landing = () => {
     return (
         <React.Fragment>
 
-                <Navbar/>
+                <Navbar isHomePage={true}/>
                 <Home/>
                 <Services/>
                 <Footer/>

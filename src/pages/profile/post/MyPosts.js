@@ -61,7 +61,7 @@ const MyPosts = () => {
                                     <Col sm={4} xl={3} key={elemento.id}>
                                         <Card>
                                             <Link className="button-consultar"
-                                                to={`/consultar-posteo/${elemento.id}`}
+                                                to={elemento.tipoPublicacionId === 3 ?  `/consultar-posteo-adopcion/${elemento.id}` :`/consultar-posteo/${elemento.id}` }
                                             >
                                                 <img
                                                     className="card-img-top img-fluid img-mascota"
@@ -75,14 +75,14 @@ const MyPosts = () => {
                                             </Link>
                                             <CardBody className="d-flex flex-column justify-content-between align-items-center">
                                                 <h4 className="card-title-pets">
-                                                    {elemento.nombre}
+                                                    {elemento.nombre === '' ?'-' : elemento.nombre}
                                                 </h4>
 
                                                 <div className="d-flex justify-content-center ">
 
                                                     <Link
                                                         className="button-pets"
-                                                        to={`/modificar-posteo/${elemento.id}`}
+                                                        to={elemento.tipoPublicacionId === 3 ?  `/modificar-posteo-adopcion/${elemento.id}` :`/modificar-posteo/${elemento.id}` }
                                                     >
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"

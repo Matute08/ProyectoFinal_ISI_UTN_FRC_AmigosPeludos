@@ -71,6 +71,8 @@ const SettingsLostPets = () => {
     const [ciudad, setCiudad] = useState();
     const [barrio, setBarrio] = useState();
     const [post, setPost] = useState([]);
+    const [labelFecha, setLabelFecha] = useState();
+
 
     const tabChange = (tab) => {
         if (activeTab !== tab) setActiveTab(tab);
@@ -102,6 +104,12 @@ const SettingsLostPets = () => {
                     "yyyy-MM-dd"
                 );
                 updatedPost.fechaPerdida = fechaPerdida;
+
+                if (updatedPost.tipoPublicacionId === 1) {
+                    setLabelFecha("Fecha de Perdida")
+                }else{
+                    setLabelFecha("Fecha de Encuentro")
+                }
 
                 setPost(updatedPost);
             }
@@ -249,7 +257,6 @@ const SettingsLostPets = () => {
         }
 
         if (files.length === 0) {
-            console.log("esta aca");
             data.latitud = post.latitud;
             data.longitud = post.longitud;
             await updatePost(posteoId, data);
@@ -266,7 +273,7 @@ const SettingsLostPets = () => {
                 data.latitud = post.latitud;
                 data.longitud = post.longitud;
                 data.fotos = urls;
-                data.tipoPublicacionId = 1;
+                data.tipoPublicacionId = post.tipoPublicacionId;
                 data.usuarioId = userData.id;
                 data.mailUsuario = user.email;
 
@@ -292,7 +299,7 @@ const SettingsLostPets = () => {
                     <Container fluid className="page-content perfil-fondo">
                         <Row>
                             {/* fotos */}
-                            <Col xxl={3}>
+                            <Col xl={3}>
                                 <Card className="mt-n5">
                                     <CardBody className="p-4">
                                         <div className="text-center">
@@ -321,7 +328,7 @@ const SettingsLostPets = () => {
                                 </Card>
                             </Col>
 
-                            <Col xxl={9}>
+                            <Col xl={9}>
                                 <Card className="mt-n5">
                                     <CardHeader>
                                         <Nav
@@ -340,7 +347,7 @@ const SettingsLostPets = () => {
                                                     }}
                                                     type="button"
                                                 >
-                                                    Publicar Mascota Perdida
+                                                    Actualizar Datos Publicación
                                                 </NavLink>
                                             </NavItem>
                                         </Nav>
@@ -354,9 +361,7 @@ const SettingsLostPets = () => {
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Nombre de la mascota
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
+                                                            
                                                         </Label>
                                                         <input
                                                             type="text"
@@ -365,24 +370,10 @@ const SettingsLostPets = () => {
                                                             placeholder="Nombre de la mascota"
                                                             {...register(
                                                                 "nombre",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
-                                                                }
+                                                                
                                                             )}
                                                         />
-                                                        {errors.nombre && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .nombre
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
+                                                        
                                                     </div>
                                                 </Col>
                                                 {/* tipo de mascota */}
@@ -412,8 +403,7 @@ const SettingsLostPets = () => {
                                                             }
                                                         >
                                                             <option value="">
-                                                                Seleccione un
-                                                                tipo de mascota
+                                                                Seleccione...
                                                             </option>
                                                             {tipoMascota &&
                                                                 tipoMascota.map(
@@ -568,22 +558,14 @@ const SettingsLostPets = () => {
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Castrada/o
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
+                                                           
                                                         </Label>
                                                         <select
                                                             name="castracion"
                                                             className="form-select "
                                                             {...register(
                                                                 "castracion",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
-                                                                }
+                                                               
                                                             )}
                                                         >
                                                             <option value="">
@@ -595,16 +577,11 @@ const SettingsLostPets = () => {
                                                             <option value="0">
                                                                 No
                                                             </option>
+                                                            <option value="null">
+                                                                No se
+                                                            </option>
                                                         </select>
-                                                        {errors.castracion && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .castracion
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
+                                                        
                                                     </div>
                                                 </Col>
                                                 {/* sexo */}
@@ -669,7 +646,7 @@ const SettingsLostPets = () => {
                                                 <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
-                                                            Fecha de Perdida
+                                                            {labelFecha}
                                                             <span className="text-danger">
                                                                 *
                                                             </span>
@@ -1022,7 +999,7 @@ const SettingsLostPets = () => {
                                                             class="button-pz btn-pz-secondary"
                                                             onClick={() => {
                                                                 navigate(
-                                                                    "/mascotas-perdidas"
+                                                                    "/perfil"
                                                                 );
                                                             }}
                                                         >

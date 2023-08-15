@@ -1,0 +1,19 @@
+.radio-options {
+    display: flex;
+    flex-direction: column;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px; /* Ajusta el espaciado entre las opciones */
+}
+.radio-text {
+    margin-left: 10px; /* Ajusta el espaciado entre el radio y el texto */
+    
+}
+.description-form{
+    font-size: 1.4em;
+    padding: 0 6px 12px 6px;
+    text-align: justify;
+}

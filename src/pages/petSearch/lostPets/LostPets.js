@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Card, Col, Container, Row } from "reactstrap";
-import Navbar from "../landing/Navbar";
-import Footer from "../landing/Footer";
+import Navbar from "../../landing/Navbar";
+import Footer from "../../landing/Footer";
 import { Link } from "react-router-dom";
-import Pagination from "../components/Pagination";
-import Loading from "../components/Loading";
-import FilterPets from "../components/FilterPets";
+import Pagination from "../../components/Pagination";
+import Loading from "../../components/Loading";
+import FilterPets from "../../components/FilterPets";
 import { useNavigate } from "react-router-dom";
-import LeafletMaps from "../components/maps/LeafletMaps";
-import { getPublicaciones } from "../../services/api";
+import LeafletMaps from "../../components/maps/LeafletMaps";
+import { getMascotasPublicadas } from "../../../services/api";
 const LostPets = () => {
+
     const navigate = useNavigate();
     const [activeCardId, setActiveCardId] = useState(null);
     const [isCardShowing, setCardShowing] = useState(false);
@@ -24,10 +25,10 @@ const LostPets = () => {
     // Dentro de la función useEffect
     useEffect(() => {
         const fetchPublicData = async () => {
-            const publicData = await getPublicaciones();
+            const publicData = await getMascotasPublicadas("Perdida");
             // Ordenar las publicaciones por fecha de forma descendente (de la más reciente a la más antigua)
             const sortedPublicaciones = publicData.sort(
-                (a, b) => new Date(a.fechaAlta) - new Date(b.fechaAlta)
+                (a, b) => new Date(b.fechaAlta) - new Date(a.fechaAlta)
             );
             setPublicaciones(sortedPublicaciones);
             setIsLoading(false);
@@ -243,7 +244,7 @@ const LostPets = () => {
                         >
                             <Link
                                 className="Btn"
-                                to={"/registrar-mascota-perdida"}
+                                to={"/publicacion-mascota-perdida"}
                             >
                                 <div className="sign">+</div>
                                 <div className="text text-center">

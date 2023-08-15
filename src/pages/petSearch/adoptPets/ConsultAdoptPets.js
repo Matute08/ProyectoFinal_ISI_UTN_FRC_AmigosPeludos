@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import Loading from "../components/Loading";
-import Navbar from "../landing/Navbar";
-import Footer from "../landing/Footer";
 import { Col, Container, Row, Card, CardBody, CardHeader } from "reactstrap";
-import { useAuth } from "../../services/AuthContext";
-
 import { Swiper, SwiperSlide } from "swiper/react";
-import {
-    Scrollbar,
-    Autoplay,
-} from "swiper";
+import { Scrollbar, Autoplay } from "swiper";
 import "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -19,17 +11,21 @@ import "swiper/css/scrollbar";
 import "swiper/css/effect-fade";
 import "swiper/css/effect-flip";
 
-import LeafletMaps from "../components/maps/LeafletMaps";
-import { getPublicacionesId } from "../../services/api";
+import Loading from "../../components/Loading";
+import Navbar from "../../landing/Navbar";
+import Footer from "../../landing/Footer";
+import { useAuth } from "../../../services/AuthContext";
+import LeafletMaps from "../../components/maps/LeafletMaps";
+import { getPublicacionesId } from "../../../services/api";
+import FormAdoptPets from "./FormAdoptPets";
 
-const ConsultPosts = () => {
-    const {user} = useAuth()
+const ConsultAdoptPets = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { user } = useAuth();
     const [isLoading, setIsLoading] = useState();
     const { posteoId } = useParams();
     const [datosPublicacion, setDatosPublicacion] = useState();
-    const [tipoPublicacion, setTipoPublicacion] = useState();
     const [titulo, setTitulo] = useState();
-    const [labelFecha, setLabelFecha] = useState();
     const [url, setUrl] = useState([]);
 
     useEffect(() => {
@@ -37,59 +33,14 @@ const ConsultPosts = () => {
         const fetchPublicData = async () => {
             const publicData = await getPublicacionesId(posteoId);
             const updatedPublicData = { ...publicData }; // Copia del objeto publicData
-            updatedPublicData.fechaPerdida = new Date(
-                publicData.fechaPerdida
-            ).toLocaleDateString("es-ES", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-            });
             updatedPublicData.castracion === true
-                ? (updatedPublicData.castracion = "Si") 
-                : (updatedPublicData.castracion === false) 
-                ? (updatedPublicData.castracion = "No")
-                : ((updatedPublicData.castracion = "No se"));
-            
-            
-            if (updatedPublicData.tipoPublicacionId === 1) {
-                setTitulo("Detalle de la Mascota Perdida")
-                setLabelFecha("Perdida el")
-            }else if (updatedPublicData.tipoPublicacionId ===2) {
-                setTitulo("Detalle de la Mascota Encontrada")
-                setLabelFecha("Encontrada el")
-            }else{
-                setTitulo("Detalle de la Mascota En Adopción")
-            }
+                ? (updatedPublicData.castracion = "Si")
+                : (updatedPublicData.castracion = "No");
             setDatosPublicacion(updatedPublicData);
             setIsLoading(false);
         };
         fetchPublicData();
     }, []);
-
-    const openWhatsApp = () => {
-        // Número de teléfono al que enviar el mensaje
-        const phoneNumber = datosPublicacion && datosPublicacion.telefono;
-
-        // Mensaje predeterminado
-        const message = "¡Hola! Encontre a tu mascota perdida! ";
-
-        // Crear la URL de WhatsApp con el número de teléfono y el mensaje
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-            message
-        )}`;
-
-        // Redireccionar al usuario a la URL de WhatsApp
-        window.open(whatsappUrl, "_blank");
-    };
-
-    const pagination = {
-        clickable: true,
-        renderBullet: function (index, className) {
-            return (
-                '<span className="' + className + '">' + (index + 1) + "</span>"
-            );
-        },
-    };
     const keyMap = {
         nombre: "Nombre",
         tipoMascotaNombre: "Tipo de mascota",
@@ -97,14 +48,9 @@ const ConsultPosts = () => {
         razaNombre: "Raza",
         castracion: "Castrado/a",
         sexoMascota: "Sexo",
-        color: "Color",
         descripcion: "Descripción",
-        calle: "Calle",
         barrioPublicacion: "Barrio",
         ciudadPublicacion: "Ciudad",
-        fechaPerdida: labelFecha,
-
-        //fotos: "Foto de la mascota",
     };
     const excludedKeys = [
         "id",
@@ -121,6 +67,9 @@ const ConsultPosts = () => {
         "barrioId",
         "publicacionTipo",
         "fechaAlta",
+        "color",
+        "fechaPerdida",
+        "calle",
     ];
 
     document.title = "Consultar Posteo | Amigos Peludos";
@@ -134,7 +83,7 @@ const ConsultPosts = () => {
                             {/* Fila 1 titulo */}
                             <Row>
                                 <Col className=" d-flex justify-content-center titulo-consult-pest ">
-                                    <h1>{titulo}</h1>
+                                    <h1>Detalle de la Mascota en Adopción</h1>
                                 </Col>
                             </Row>
 
@@ -269,51 +218,29 @@ const ConsultPosts = () => {
                                             <Card className="card-consult-post ">
                                                 <CardHeader>
                                                     <h4 className="card-title card-title-post mb-0">
-                                                        Ubicacion
-                                                    </h4>
-                                                </CardHeader>
-                                                <CardBody>
-                                                    <LeafletMaps
-                                                        latitud={
-                                                            datosPublicacion &&
-                                                            datosPublicacion.latitud
-                                                        }
-                                                        longitud={
-                                                            datosPublicacion &&
-                                                            datosPublicacion.longitud
-                                                        }
-                                                        isClickeable={false}
-                                                    ></LeafletMaps>
-                                                </CardBody>
-                                            </Card>
-                                        </Col>
-
-                                        <Col lg={12} sm={12} className="col">
-                                            <Card className="card-consult-post ">
-                                                <CardHeader>
-                                                    <h4 className="card-title card-title-post mb-0">
-                                                        Datos de Contacto
+                                                        Postulacion para Adoptar
                                                     </h4>
                                                 </CardHeader>
                                                 <CardBody>
                                                     <div className="container-button-contact">
                                                         <button
-                                                            class="social-button whatsapp"
-                                                            onClick={
-                                                                openWhatsApp
+                                                            color="info"
+                                                            onClick={() =>
+                                                                setIsModalOpen(true)
                                                             }
                                                         >
-                                                            <i class="ri-whatsapp-line"></i>
                                                             <span>
-                                                                WhatsApp
+                                                                Formulario de
+                                                                Adopcion
                                                             </span>
                                                         </button>
-
-                                                        <button class="social-button mail">
-                                                            <i class=" ri-mail-fill"></i>
-                                                            <span>Mail</span>
-                                                        </button>
                                                     </div>
+                                                    <FormAdoptPets
+                                                        isOpen={isModalOpen}
+                                                        toggle={()=> setIsModalOpen(!isModalOpen)}
+
+                                                    />
+
                                                 </CardBody>
                                             </Card>
                                         </Col>
@@ -332,4 +259,4 @@ const ConsultPosts = () => {
     );
 };
 
-export default ConsultPosts;
+export default ConsultAdoptPets;

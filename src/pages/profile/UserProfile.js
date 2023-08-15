@@ -23,6 +23,7 @@ import Footer from "../landing/Footer";
 import Mascota from "../profile/pet/Mascotas";
 import AsideLeft from "./AsideLeft";
 import MyPosts from "./post/MyPosts";
+import GenerateQr from "./qr/GenerateQr";
 //Images
 
 const Profile = () => {
@@ -94,6 +95,22 @@ const Profile = () => {
                                             </span>
                                         </NavLink>
                                     </NavItem>
+                                    <NavItem>
+                                        <NavLink
+                                            href="#mi-qr"
+                                            className={classnames({
+                                                active: activeTab === "3",
+                                            })}
+                                            onClick={() => {
+                                                toggleTab("3");
+                                            }}
+                                        >
+                                            <i className="ri-list-unordered d-inline-block d-md-none"></i>{" "}
+                                            <span className="d-none d-md-inline-block">
+                                                Mi QR
+                                            </span>
+                                        </NavLink>
+                                    </NavItem>
                                 </Nav>
                             </CardHeader>
                             <CardBody>
@@ -105,6 +122,10 @@ const Profile = () => {
 
                                     <TabPane tabId="2">
                                         <MyPosts></MyPosts>
+                                    </TabPane>
+
+                                    <TabPane tabId="3">
+                                        <GenerateQr></GenerateQr>
                                     </TabPane>
                                 </TabContent>
                             </CardBody>

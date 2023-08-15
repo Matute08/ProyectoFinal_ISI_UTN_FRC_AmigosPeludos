@@ -1,4 +1,5 @@
 import axios from "axios";
+//const url = "https://localhost:7253/api";
 const url = "http://www.amigospeludos.somee.com/api";
 
 //GET USUARIO
@@ -329,6 +330,8 @@ export const deletePet = async (petId) => {
 
 
 
+
+
 //PUBLICACIONES
 //GET  PUBLICACIONES
 export async function getPublicaciones() {
@@ -366,6 +369,20 @@ export async function getPublicacionesUser(mail) {
         console.log(error);
     }
 }
+
+//GET TIPO DE PUBLICACIONES MASCOTAS PERDIDAS
+export async function getMascotasPublicadas(tipoPublicacion) {
+    try {
+        const response = await axios({
+            url: `${url}/publicacionMascota/tipo/${tipoPublicacion}`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 
 //POST PUBLICACIONES
 export async function postPublicacion(userData) {

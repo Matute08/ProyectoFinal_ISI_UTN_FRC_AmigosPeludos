@@ -30,7 +30,6 @@ export const FormLogin = ({mensaje}) => {
 
 
     const onSubmit = async(data)=>{
-        console.log(data)
         
         try {
             await login(data.mail, data.password);

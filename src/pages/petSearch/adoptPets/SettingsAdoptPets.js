@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { useParams } from "react-router-dom";
 import {
     Col,
     Form,
@@ -14,23 +15,43 @@ import {
     NavItem,
     NavLink,
 } from "reactstrap";
-import { useAuth } from "../../../../services/AuthContext";
+import { useAuth } from "../../../services/AuthContext";
 import {
     getTipoMascota,
     getSexoMascota,
     getAllEdadMascota,
-    postMascota,
+    getRaza,
     getUserMail,
-    updateUser,
+    getCiudad,
     getAllRazaId,
-} from "../../../../services/api";
+    getAllBarrio,
+    posteoPublicacion,
+    getPublicacionesId,
+    updatePost,
+} from "../../../services/api";
 import classnames from "classnames";
-import { uploadFilePetsUser } from "../../../../services/Firebase";
-import Loading from "../../../components/Loading";
+import {
+    uploadFilesPetsLost,
+    deleteFileStorage,
+} from "../../../services/Firebase";
+import Loading from "../../components/Loading";
 
-import userRandom from "../../../../assets/images/user/user-random.jpg";
+import Navbar from "../../landing/Navbar";
+import Footer from "../../landing/Footer";
+// Import React FilePond
+import { FilePond, registerPlugin } from "react-filepond";
+// Import FilePond styles
+import "filepond/dist/filepond.min.css";
+import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+import { format } from "date-fns";
 
-const FormAddPets = () => {
+// Register the plugins
+registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
+
+const SettingsAdoptPets = () => {
+    const { posteoId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
     const [userData, setUserData] = useState();
@@ -40,6 +61,17 @@ const FormAddPets = () => {
     const [raza, setRaza] = useState();
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("1");
+    const [files, setFiles] = useState([]);
+    const [latitud, setLatitud] = useState();
+    const [longitud, setLongitud] = useState();
+    const [url, setUrl] = useState([]);
+    const [errorUbi, setErrorUbi] = useState("");
+    const [errorFile, setErrorFile] = useState("");
+    const [ciudad, setCiudad] = useState();
+    const [barrio, setBarrio] = useState();
+    const [posteo, setPosteo] = useState([]);
+    const [labelFecha, setLabelFecha] = useState();
+
 
     const tabChange = (tab) => {
         if (activeTab !== tab) setActiveTab(tab);
@@ -52,11 +84,18 @@ const FormAddPets = () => {
         setIsLoading(false);
     };
 
-    const handleAsyncTask = async () => {
-        showLoadingOverlay();
-    };
+   
+
+   
 
     useEffect(() => {
+        const publicacion = async () => {
+            const post = await getPublicacionesId(posteoId);
+
+            setPosteo(post)
+            setIsLoading(false);
+        };
+
         const usuario = async () => {
             const dataUsuario = await getUserMail(user.email);
             if (dataUsuario) {
@@ -82,113 +121,173 @@ const FormAddPets = () => {
                 setEdadMascota(dataEdadMascota);
             }
         };
+        const ciudadMascota = async () => {
+            const dataCiudad = await getCiudad();
+            if (dataCiudad) {
+                setCiudad(dataCiudad);
+            }
+        };
+        const barrioMascota = async () => {
+            const dataBarrio = await getAllBarrio();
+            if (dataBarrio) {
+                setBarrio(dataBarrio);
+            }
+        };
+        publicacion();
         usuario();
         tipoMascotas();
         tipoSexo();
         edadMascota();
+        ciudadMascota();
+        barrioMascota();
     }, []);
 
-    const getRaza = async (e) => {
-        const op = e.target.value;
-        setRaza(await getAllRazaId(op));
-        if (raza) {
-            console.log(raza);
-        }
-    };
 
+
+    //formulario Hook
     const {
         register,
         handleSubmit,
+        setValue,
         formState: { errors },
     } = useForm();
+    useEffect(() => {
+        const fetchData = async () => {
+            if (posteo) {
+                const valor = await obtenerRazas(posteo.razaId);
+                obtenerRazasPorTipo(valor);
+                setValue("nombre", posteo.nombre);
+                setValue("tipoId", valor);
+                setValue("edadId", posteo.edadId);
+                setValue("sexoId", posteo.sexoId);
+                const castrado = posteo.castracion ? "1" : "0";
+                setValue("castracion", castrado);
+                setValue("descripcion", posteo.descripcion);
+                setValue("razaId", posteo.razaId);
+                setValue("ciudadId", posteo.ciudadId);
+                setValue("barrioId", posteo.barrioId);
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [posteo, setValue]);
+
+    const obtenerRazas = async (razaId) => {
+        const razas = await getRaza();
+        if (razas) {
+            const raza = razas.find((raza) => raza.id === razaId);
+            if (raza) {
+                const valor = raza.tipoMascotaId;
+                return valor;
+            }
+        }
+        return null;
+    };
+
+    const obtenerRazasPorTipo = async (tipoId) => {
+        const razas = await getAllRazaId(tipoId);
+        setRaza(razas);
+        setValue("razaId", posteo.razaId);
+    };
+    const handleGetRazaChange = async (e) => {
+        const tipoId = e.target.value;
+        obtenerRazasPorTipo(tipoId);
+    };
+
+    //funcion para obtener las urls de las fotos
+    const obtenerUrls = async () => {
+        const uploadFile = async (file) => {
+            const uploadedUrl = await uploadFilesPetsLost(file);
+            return { foto: uploadedUrl }; // Guarda la URL en un objeto con la propiedad "link"
+        };
+        console.log(files);
+        if (files.length > 0) {
+            const urls = [];
+            for (let i = 0; i < files.length; i++) {
+                const uploadedUrl = await uploadFile(files[i].file);
+                urls.push(uploadedUrl);
+            }
+            console.log(urls);
+            setUrl(urls);
+            return urls; // Retorna las URLs obtenidas
+        }
+        return []; // Retorna un arreglo vacío si no hay archivos
+    };
 
     const onSubmit = async (data) => {
         showLoadingOverlay();
-        data.idUsuario = `${userData.id}`;
-        userData.tieneMascota = true;
-
+        setErrorFile("");
         if (data.castracion === "1") {
             data.castracion = true;
-        } else {
+        } else{
             data.castracion = false;
         }
 
-        try {
-            if (data.foto) {
-                const url = await uploadFilePetsUser(data.foto[0]);
-                data.foto = url;
-            }
-            await postMascota(data);
-            await updateUser(userData.id, userData);
+        if (files.length === 0) {
+            await updatePost(posteoId, data);
+
             hideLoadingOverlay();
             navigate("/perfil");
-        } catch (error) {
-            // Maneja cualquier error de la actualización
-            console.error("Error al actualizar el usuario:", error);
+        } else {
+            try {
+                posteo.fotos.forEach((foto) => {
+                    deleteFileStorage(foto.foto);
+                });
+                const urls = await obtenerUrls(); // Espera a obtener las URLs
+                data.fotos = urls;
+                data.tipoPublicacionId = posteo.tipoPublicacionId;
+                data.usuarioId = userData.id;
+                data.mailUsuario = user.email;
+                await updatePost(posteoId, data);
+
+                hideLoadingOverlay();
+                navigate("/perfil");
+            } catch (error) {
+                // Maneja cualquier error de la actualización
+                console.error("Error al realizar la publicacion:", error);
+            }
         }
     };
-
+    document.title = "Modificar posteo | Amigos Peludos";
     return (
         <React.Fragment>
             {!isLoading ? (
                 <>
+                    <Navbar></Navbar>
                     <Container fluid className="page-content perfil-fondo">
                         <Row>
+                            {/* fotos */}
                             <Col xl={3}>
                                 <Card className="mt-n5">
                                     <CardBody className="p-4">
                                         <div className="text-center">
-                                            <div className="profile-user position-relative d-inline-block mx-auto  mb-4">
-                                                <img
-                                                    src={userRandom}
-                                                    className="rounded-circle avatar-xl img-thumbnail user-profile-image"
-                                                    alt="user-profile"
-                                                />
-                                                <div className="avatar-xs p-0 rounded-circle profile-photo-edit">
-                                                    <input
-                                                        id="profile-img-file-input"
-                                                        type="file"
-                                                        className="profile-img-file-input"
-                                                        {...register("foto", {
-                                                            required: {
-                                                                value: true,
-                                                                message:
-                                                                    "La foto de la mascota es obligatoria",
-                                                            },
-                                                        })}
-                                                    />
-
-                                                    {errors.foto && (
-                                                        <span className="text-danger">
-                                                            {
-                                                                errors.foto
-                                                                    .message
-                                                            }
-                                                        </span>
-                                                    )}
-                                                    <Label
-                                                        htmlFor="profile-img-file-input"
-                                                        className="profile-photo-edit avatar-xs"
-                                                    >
-                                                        <span className="avatar-title rounded-circle bg-light text-body">
-                                                            <i className="ri-camera-fill"></i>
-                                                        </span>
-                                                    </Label>
-                                                </div>
-                                            </div>
                                             {/* NOMBRE MASCOTA */}
                                             <h5 className="fs-16 mb-1">
-                                                Foto de la mascota{" "}
+                                                Fotos de la mascota{" "}
                                                 <span className="text-danger">
                                                     *
                                                 </span>
                                             </h5>
+                                            {/* FOTO DE LA MASCOTA */}
+                                            <FilePond
+                                                files={files}
+                                                onupdatefiles={setFiles}
+                                                allowMultiple={true}
+                                                maxFiles={4}
+                                                name="files"
+                                                className="filepond filepond-input-multiple"
+                                                labelIdle="Arrastra y suelta tus archivos o buscalos "
+                                            />
+                                            <p className="text-danger">
+                                                {errorFile}
+                                            </p>
                                         </div>
                                     </CardBody>
                                 </Card>
                             </Col>
 
-                            <Col xl={9} >
+                            <Col xl={9}>
                                 <Card className="mt-n5">
                                     <CardHeader>
                                         <Nav
@@ -207,7 +306,7 @@ const FormAddPets = () => {
                                                     }}
                                                     type="button"
                                                 >
-                                                    Agregar Mascota
+                                                    Actualizar Datos Publicación
                                                 </NavLink>
                                             </NavItem>
                                         </Nav>
@@ -216,13 +315,12 @@ const FormAddPets = () => {
                                         {/* FORMULARIO */}
                                         <Form onSubmit={handleSubmit(onSubmit)}>
                                             <Row>
+                                                {/* nombre mascota */}
                                                 <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Nombre de la mascota
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
+                                                            
                                                         </Label>
                                                         <input
                                                             type="text"
@@ -231,27 +329,13 @@ const FormAddPets = () => {
                                                             placeholder="Nombre de la mascota"
                                                             {...register(
                                                                 "nombre",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El nombre de la mascota es requerido",
-                                                                    },
-                                                                }
+                                                                
                                                             )}
                                                         />
-                                                        {errors.nombre && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .nombre
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
+                                                        
                                                     </div>
                                                 </Col>
-
+                                                {/* tipo de mascota */}
                                                 <Col lg={3}>
                                                     <div className="mb-3">
                                                         <label className="form-label">
@@ -269,15 +353,16 @@ const FormAddPets = () => {
                                                                     required: {
                                                                         value: true,
                                                                         message:
-                                                                            "El tipo de la mascota es requerido.",
+                                                                            "El campo es requerido",
                                                                     },
                                                                 }
                                                             )}
-                                                            onChange={getRaza}
+                                                            onChange={
+                                                                handleGetRazaChange
+                                                            }
                                                         >
                                                             <option value="">
-                                                                Seleccione un
-                                                                tipo de mascota
+                                                                Seleccione...
                                                             </option>
                                                             {tipoMascota &&
                                                                 tipoMascota.map(
@@ -311,6 +396,7 @@ const FormAddPets = () => {
                                                         )}
                                                     </div>
                                                 </Col>
+                                                {/* raza */}
                                                 <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
@@ -320,7 +406,7 @@ const FormAddPets = () => {
                                                             </span>
                                                         </Label>
                                                         <select
-                                                            name="raza"
+                                                            name="razaId"
                                                             className="form-select "
                                                             {...register(
                                                                 "razaId",
@@ -328,7 +414,7 @@ const FormAddPets = () => {
                                                                     required: {
                                                                         value: true,
                                                                         message:
-                                                                            "La raza de la mascota es requerida.",
+                                                                            "El campo es requerido",
                                                                     },
                                                                 }
                                                             )}
@@ -367,7 +453,7 @@ const FormAddPets = () => {
                                                         )}
                                                     </div>
                                                 </Col>
-
+                                                {/* edad */}
                                                 <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
@@ -385,7 +471,7 @@ const FormAddPets = () => {
                                                                     required: {
                                                                         value: true,
                                                                         message:
-                                                                            "La edad de la mascota es requerida.",
+                                                                            "El campo es requerido",
                                                                     },
                                                                 }
                                                             )}
@@ -426,61 +512,19 @@ const FormAddPets = () => {
                                                     </div>
                                                 </Col>
 
-                                                <Col lg={2}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Peso
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            name="peso"
-                                                            placeholder="Peso aproximado"
-                                                            {...register(
-                                                                "peso",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El peso de la mascota es requerido",
-                                                                    },
-                                                                }
-                                                            )}
-                                                        />
-                                                        {errors.peso && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors.peso
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-
-                                                <Col lg={2}>
+                                                {/* castrado */}
+                                                <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Castrada/o
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
+                                                           
                                                         </Label>
                                                         <select
                                                             name="castracion"
                                                             className="form-select "
                                                             {...register(
                                                                 "castracion",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "Debe seleccionar si se encuentra castrada/o.",
-                                                                    },
-                                                                }
+                                                               
                                                             )}
                                                         >
                                                             <option value="">
@@ -492,19 +536,15 @@ const FormAddPets = () => {
                                                             <option value="0">
                                                                 No
                                                             </option>
+                                                            <option value="null">
+                                                                No se
+                                                            </option>
                                                         </select>
-                                                        {errors.castracion && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .castracion
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
+                                                        
                                                     </div>
                                                 </Col>
-                                                <Col lg={2}>
+                                                {/* sexo */}
+                                                <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Sexo Mascota
@@ -521,7 +561,7 @@ const FormAddPets = () => {
                                                                     required: {
                                                                         value: true,
                                                                         message:
-                                                                            "El sexo de la mascota es requerido.",
+                                                                            "El campo es requerido",
                                                                     },
                                                                 }
                                                             )}
@@ -562,34 +602,116 @@ const FormAddPets = () => {
                                                     </div>
                                                 </Col>
 
+                                                {/* ciudad */}
                                                 <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
-                                                            Color
+                                                            Ciudad
                                                             <span className="text-danger">
                                                                 *
                                                             </span>
                                                         </Label>
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            name="color"
-                                                            placeholder="Color"
+                                                        <select
+                                                            name="ciudadId"
+                                                            className="form-select "
                                                             {...register(
-                                                                "color",
+                                                                "ciudadId",
                                                                 {
                                                                     required: {
                                                                         value: true,
                                                                         message:
-                                                                            "El color de la mascota es requerido",
+                                                                            "El campo es requerido",
                                                                     },
                                                                 }
                                                             )}
-                                                        />
-                                                        {errors.color && (
+                                                        >
+                                                            <option value="">
+                                                                Seleccione...
+                                                            </option>
+                                                            {ciudad &&
+                                                                ciudad.map(
+                                                                    (
+                                                                        elemento
+                                                                    ) => (
+                                                                        <option
+                                                                            className="form-control"
+                                                                            key={
+                                                                                elemento.id
+                                                                            }
+                                                                            value={
+                                                                                elemento.id
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                elemento.nombre
+                                                                            }
+                                                                        </option>
+                                                                    )
+                                                                )}
+                                                        </select>
+                                                        {errors.ciudad && (
                                                             <span className="text-danger">
                                                                 {
-                                                                    errors.color
+                                                                    errors
+                                                                        .ciudad
+                                                                        .message
+                                                                }
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </Col>
+                                                {/* barrio */}
+                                                <Col lg={3}>
+                                                    <div className="mb-3">
+                                                        <Label className="form-label">
+                                                            Barrio
+                                                            <span className="text-danger">
+                                                                *
+                                                            </span>
+                                                        </Label>
+                                                        <select
+                                                            name="barrioId"
+                                                            className="form-select "
+                                                            {...register(
+                                                                "barrioId",
+                                                                {
+                                                                    required: {
+                                                                        value: true,
+                                                                        message:
+                                                                            "El campo es requerido",
+                                                                    },
+                                                                }
+                                                            )}
+                                                        >
+                                                            <option value="">
+                                                                Seleccione...
+                                                            </option>
+                                                            {barrio &&
+                                                                barrio.map(
+                                                                    (
+                                                                        elemento
+                                                                    ) => (
+                                                                        <option
+                                                                            className="form-control"
+                                                                            key={
+                                                                                elemento.id
+                                                                            }
+                                                                            value={
+                                                                                elemento.id
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                elemento.nombre
+                                                                            }
+                                                                        </option>
+                                                                    )
+                                                                )}
+                                                        </select>
+                                                        {errors.barrioId && (
+                                                            <span className="text-danger">
+                                                                {
+                                                                    errors
+                                                                        .barrioId
                                                                         .message
                                                                 }
                                                             </span>
@@ -597,11 +719,11 @@ const FormAddPets = () => {
                                                     </div>
                                                 </Col>
 
+                                                {/* descripcion */}
                                                 <Col lg={12}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
-                                                            Descripcion de la
-                                                            mascota
+                                                            Aclaraciones
                                                         </Label>
                                                         <textarea
                                                             type="text"
@@ -611,7 +733,7 @@ const FormAddPets = () => {
                                                                 "descripcion",
                                                                 {
                                                                     maxLength: {
-                                                                        value: 400,
+                                                                        value: 600,
                                                                         message:
                                                                             "El maximo de caracteres es 400",
                                                                     },
@@ -629,6 +751,8 @@ const FormAddPets = () => {
                                                         )}
                                                     </div>
                                                 </Col>
+                                                
+
                                                 <Col lg={12}>
                                                     <div className="hstack gap-2 justify-content-end">
                                                         <button
@@ -636,7 +760,7 @@ const FormAddPets = () => {
                                                             type="submit"
                                                         >
                                                             <span class="span-pz text-pz">
-                                                                Agregar Mascota
+                                                                Actualizar
                                                             </span>
                                                             <span class="span-pz icon-pz">
                                                                 <svg
@@ -718,6 +842,7 @@ const FormAddPets = () => {
                             </Col>
                         </Row>
                     </Container>
+                    <Footer></Footer>
                 </>
             ) : (
                 <>
@@ -728,4 +853,4 @@ const FormAddPets = () => {
     );
 };
 
-export default FormAddPets;
+export default SettingsAdoptPets;

@@ -1,12 +1,19 @@
 // navbar
+.navbar-color-home {
+    background-color: #ECB666;
 
+}
+
+.navbar-color {
+    background-color: #e9d29f;
+
+}
 
 .navbar-landing {
     padding: 10px 0px;
     transition: all 0.5s ease;
 
     @media (max-width: 991.98px) {
-        background-color: #e9d29f;
         padding: 10px 8px;
 
 
@@ -43,14 +50,6 @@
         }
     }
 
-    &.is-sticky {
-        background-color: #e9d29f;
-        box-shadow: 0 1px 16px -2px rgba(56, 65, 74, 0.15);
-
-        @media (max-width: 991.98px) {
-            box-shadow: none;
-        }
-    }
 }
 
 // hero section
@@ -68,7 +67,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: calc(100vh - 135px);
     background: url("../../images/landing/img-perro-landing.jpg") no-repeat;
     background-size: cover;
     background-position: center;
@@ -76,22 +75,23 @@
     opacity: 0.9;
 
     @media (max-width: 768px) {
-        background-image: url("../../images/landing/gatito-landing.jpg");
-        opacity: 0.3;
+        background-image: url("../../images/landing/img-landing.png");
+        height: calc(100vh - 120px);
+        opacity: 1;
 
     }
 }
 
 .container-row {
     position: absolute;
-    height: 100vh;
+    height: calc(100vh - 125px);
     align-content: center;
     top: 0;
 }
 
 .container-home {
     width: 100%;
-    margin-top: 50px;
+    //margin-top: 50px;
     display: flex;
     justify-content: end;
     padding: 0;
@@ -99,10 +99,11 @@
 
     .div-contenido {
         width: 40%;
+        height: 80vh;
         margin-right: 100px;
 
         .text-title {
-            font-size: 2em;
+            font-size: 1.5em;
         }
 
         .span-title {
@@ -129,11 +130,21 @@
             font-size: 1.25em;
         }
 
-        @media (min-width: 769px) and (max-width: 1440px) {
+        @media (min-width: 426px) and (max-width: 768px) {
             margin-right: 50px;
 
             .text-title {
-                font-size: 2.4em;
+                font-size: 2em;
+            }
+
+        }
+
+        @media (min-width: 769px) and (max-width: 1440px) {
+            margin-right: 50px;
+
+            .text-home {
+                font-size: 1.1em;
+
             }
         }
 
@@ -145,7 +156,7 @@
     }
 
     @media (max-width: 768px) {
-        height: 70%;
+        height: 90%;
         justify-content: center !important;
 
         .div-contenido {
@@ -232,7 +243,10 @@
 .button-navbar {
     @media (max-width: 991.98px) {
         display: flex;
-        justify-content: flex-end;
+        justify-content: flex-start;
+        align-items: center;
+        width: min-content;
+        height: 60px;
     }
 }
 

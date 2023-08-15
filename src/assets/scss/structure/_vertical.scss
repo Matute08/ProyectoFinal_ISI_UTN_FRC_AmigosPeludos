@@ -21,13 +21,13 @@
 }
 
 .page-content {
-    padding: calc(#{$header-height} + #{$grid-gutter-width}*4) calc(#{$grid-gutter-width} * 0.5) $footer-height calc(#{$grid-gutter-width} * 0.5);
+    padding-top: 5%;
+    //padding: calc(#{$header-height} + #{$grid-gutter-width}*4) calc(#{$grid-gutter-width} * 0.5) $footer-height calc(#{$grid-gutter-width} * 0.5);
     min-height: 100vh;
 
-
-
-
-
+    @media (max-width: 1024px) {
+        padding-top: 10%;
+    }
 
 }
 

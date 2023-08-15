@@ -14,7 +14,7 @@ import {
     NavItem,
     NavLink,
 } from "reactstrap";
-import { useAuth } from "../../services/AuthContext";
+import { useAuth } from "../../../services/AuthContext";
 import {
     getTipoMascota,
     getSexoMascota,
@@ -26,13 +26,15 @@ import {
     getAllRazaId,
     getAllBarrio,
     postPublicacion,
-} from "../../services/api";
+    
+
+} from "../../../services/api";
 import classnames from "classnames";
-import { uploadFilesPetsLost } from "../../services/Firebase";
-import Loading from "../components/Loading";
-import Navbar from "../landing/Navbar";
-import Maps from "../components/maps/Maps";
-import Footer from "../landing/Footer";
+import { uploadFilesPetsLost } from "../../../services/Firebase";
+import Loading from "../../components/Loading";
+import Navbar from "../../landing/Navbar";
+import Maps from "../../components/maps/Maps";
+import Footer from "../../landing/Footer";
 // Import React FilePond
 import { FilePond, registerPlugin } from "react-filepond";
 // Import FilePond styles
@@ -44,7 +46,7 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 // Register the plugins
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
-const FormAddPets = () => {
+const AddFoundPets = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [userData, setUserData] = useState();
@@ -62,6 +64,7 @@ const FormAddPets = () => {
     const [errorFile, setErrorFile] = useState("");
     const [ciudad, setCiudad] = useState();
     const [barrio, setBarrio] = useState();
+    
 
     const tabChange = (tab) => {
         if (activeTab !== tab) setActiveTab(tab);
@@ -121,6 +124,7 @@ const FormAddPets = () => {
                 setBarrio(dataBarrio);
             }
         };
+
        
         usuario();
         tipoMascotas();
@@ -128,6 +132,7 @@ const FormAddPets = () => {
         edadMascota();
         ciudadMascota();
         barrioMascota();
+      
     }, []);
 
     const getRaza = async (e) => {
@@ -165,7 +170,6 @@ const FormAddPets = () => {
     };
 
     const onSubmit = async (data) => {
-        console.log(data);
         showLoadingOverlay();
         setErrorUbi("");
         setErrorFile("");
@@ -181,24 +185,20 @@ const FormAddPets = () => {
                     data.latitud = latitud;
                     data.longitud = longitud;
                     data.fotos = urls;
-                    data.tipoPublicacionId = 1;
                     data.usuarioId = userData.id;
+                    data.tipoPublicacionId = 2
                     data.mailUsuario = user.email;
                     
-
-                    console.log(data)
-                    console.log(urls); // Utiliza las URLs obtenidas
-
                     if (data.castracion === "1") {
                         data.castracion = true;
-                    } else {
+                    } else{
                         data.castracion = false;
                     }
 
                     await postPublicacion(data);
 
                     hideLoadingOverlay();
-                    navigate("/mascotas-perdidas");
+                    navigate("/mascotas-encontradas");
                 } catch (error) {
                     // Maneja cualquier error de la actualización
                     console.error("Error al realizar la publicacion:", error);
@@ -214,7 +214,7 @@ const FormAddPets = () => {
                     <Navbar></Navbar>
                     <Container fluid className="page-content perfil-fondo">
                         <Row>
-                            <Col xxl={3}>
+                            <Col xl={3}>
                                 <Card className="mt-n5">
                                     <CardBody className="p-4">
                                         <div className="text-center">
@@ -247,7 +247,7 @@ const FormAddPets = () => {
                                 </Card>
                             </Col>
 
-                            <Col xxl={9}>
+                            <Col xl={9}>
                                 <Card className="mt-n5">
                                     <CardHeader>
                                         <Nav
@@ -266,10 +266,11 @@ const FormAddPets = () => {
                                                     }}
                                                     type="button"
                                                 >
-                                                    Publicar Mascota Perdida
+                                                    Agregar Mascota Encontrada
                                                 </NavLink>
                                             </NavItem>
                                         </Nav>
+
                                     </CardHeader>
                                     <CardBody>
                                         {/* FORMULARIO */}
@@ -280,9 +281,7 @@ const FormAddPets = () => {
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Nombre de la mascota
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
+                                                           
                                                         </Label>
                                                         <input
                                                             type="text"
@@ -291,26 +290,13 @@ const FormAddPets = () => {
                                                             placeholder="Nombre de la mascota"
                                                             {...register(
                                                                 "nombre",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
-                                                                }
+                                                                
                                                             )}
                                                         />
-                                                        {errors.nombre && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .nombre
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
+                                                        
                                                     </div>
                                                 </Col>
+                                                
                                                 {/* tipo de mascota */}
                                                 <Col lg={3}>
                                                     <div className="mb-3">
@@ -336,8 +322,7 @@ const FormAddPets = () => {
                                                             onChange={getRaza}
                                                         >
                                                             <option value="">
-                                                                Seleccione un
-                                                                tipo de mascota
+                                                                Seleccione...
                                                             </option>
                                                             {tipoMascota &&
                                                                 tipoMascota.map(
@@ -492,22 +477,14 @@ const FormAddPets = () => {
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Castrada/o
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
+                                                            
                                                         </Label>
                                                         <select
                                                             name="castracion"
                                                             className="form-select "
                                                             {...register(
                                                                 "castracion",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
-                                                                }
+                                                                
                                                             )}
                                                         >
                                                             <option value="">
@@ -519,16 +496,9 @@ const FormAddPets = () => {
                                                             <option value="0">
                                                                 No
                                                             </option>
+                                                          
                                                         </select>
-                                                        {errors.castracion && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .castracion
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
+                                                        
                                                     </div>
                                                 </Col>
                                                 {/* sexo */}
@@ -589,11 +559,11 @@ const FormAddPets = () => {
                                                         )}
                                                     </div>
                                                 </Col>
-                                                {/* fecha de perdida */}
+                                                {/* fecha de encontrada */}
                                                 <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
-                                                            Fecha de Perdida
+                                                            Fecha de Encuentro
                                                             <span className="text-danger">
                                                                 *
                                                             </span>
@@ -815,13 +785,24 @@ const FormAddPets = () => {
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Numero de Celular:
+                                                            <span className="text-danger">
+                                                                *
+                                                            </span>
                                                         </Label>
+
                                                         <input
                                                             type="number"
                                                             className="form-control"
                                                             name="telefono"
                                                             {...register(
-                                                                "telefono"
+                                                                "telefono",
+                                                                {
+                                                                    required: {
+                                                                        value: true,
+                                                                        message:
+                                                                            "El campo es requerido",
+                                                                    },
+                                                                }
                                                             )}
                                                         />
                                                         {errors.telefono && (
@@ -897,7 +878,7 @@ const FormAddPets = () => {
                                                             type="submit"
                                                         >
                                                             <span class="span-pz text-pz">
-                                                                Agregar Mascota
+                                                                Publicar
                                                             </span>
                                                             <span class="span-pz icon-pz">
                                                                 <svg
@@ -940,7 +921,7 @@ const FormAddPets = () => {
                                                             class="button-pz btn-pz-secondary"
                                                             onClick={() => {
                                                                 navigate(
-                                                                    "/mascotas-perdidas"
+                                                                    "/mascotas-encontradas"
                                                                 );
                                                             }}
                                                         >
@@ -990,4 +971,4 @@ const FormAddPets = () => {
     );
 };
 
-export default FormAddPets;
+export default AddFoundPets;

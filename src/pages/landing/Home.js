@@ -14,7 +14,7 @@ const Home = () => {
         <React.Fragment>
             <section className="section pb-0 hero-section" id="hero">
                 <div className="bg-overlay bg-overlay-pattern"></div>
-                    <Row className="w-100 container-row">
+                    <Row className="w-100 container-row ">
                         <Col  className="container-home ">
                             <div className=" mt-lg-5   div-contenido">
                                 <h1 className="fw-semibold mb-3 lh-base text-title text-center">
