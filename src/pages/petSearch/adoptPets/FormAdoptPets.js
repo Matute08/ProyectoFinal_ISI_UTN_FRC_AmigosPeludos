@@ -45,7 +45,7 @@ const FormAdoptPets = ({ isOpen, toggle }) => {
     return (
         <React.Fragment>
             {/* Extra Large Modal */}
-            <Modal size="l" isOpen={isOpen} toggle={toggle}>
+            <Modal size="xl" isOpen={isOpen} toggle={toggle}>
                 <ModalHeader
                     className="modal-title "
                     id="myExtraLargeModalLabel"

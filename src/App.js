@@ -34,6 +34,9 @@ import AddAdoptPets from './pages/petSearch/adoptPets/AddAdoptPets';
 import ConsultAdoptPets from './pages/petSearch/adoptPets/ConsultAdoptPets';
 import SettingsAdoptPets from './pages/petSearch/adoptPets/SettingsAdoptPets';
 
+//preguntas frecuentes
+import Questions from './pages/frequentQuestions/Questions';
+
 //qr
 import GenerateQr from './pages/profile/qr/GenerateQr';
 function App() {
@@ -68,6 +71,9 @@ function App() {
             <Route path='/publicacion-mascota-adopcion' element={<AddAdoptPets></AddAdoptPets>}></Route>
             <Route path="/consultar-posteo-adopcion/:posteoId" element={<ProtectedRoute><ConsultAdoptPets /></ProtectedRoute>}></Route>
             <Route path="/modificar-posteo-adopcion/:posteoId" element={<ProtectedRoute><SettingsAdoptPets /></ProtectedRoute>}></Route>
+
+            <Route path='/preguntas-frecuentes' element={<Questions></Questions>}></Route>
+            
 
 
 

@@ -1,0 +1,26 @@
+.title-questions{
+    padding-bottom: 8px;
+}
+.container-questions{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    //height: 80vh; /* Ajusta el tamaño del acordeón al 80% de la altura de la ventana */
+}
+.frequent-questions{
+    width: 50%;
+}
+
+.item-questions{
+    margin-bottom: 16px;
+}
+
+.custom-header {
+    background-color: #e2992b; /* Cambia el color de fondo del encabezado */
+    color: #fff; /* Cambia el color del texto en el encabezado */
+  }
+  .custom-body {
+    background-color: #f8f9fa; /* Cambia el color de fondo del cuerpo */
+  }
+  

@@ -178,8 +178,8 @@ const Navbar = ({isHomePage, direction, ...args}) => {
                                     </li>
 
                                     <li className="nav-item">
-                                        <NavLink href="#trabajaconnosotros">
-                                            Trabaja con nosotros
+                                        <NavLink href="/preguntas-frecuentes">
+                                            Preguntas Frecuentes
                                         </NavLink>
                                     </li>
                                     <li className="nav-item">
