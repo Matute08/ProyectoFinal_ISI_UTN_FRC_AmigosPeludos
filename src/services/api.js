@@ -1,6 +1,12 @@
 import axios from "axios";
-//const url = "https://localhost:7253/api";
-const url = "http://www.amigospeludos.somee.com/api";
+//LOCAL HOST
+//const url = "https://localhost:7253/api"; 
+
+//SOMEE
+//const url = "http://www.amigospeludos.somee.com/api";
+
+//AZURE
+const url = "https://amigospeludos.azurewebsites.net/api"
 
 //GET USUARIO
 export async function getUser() {
