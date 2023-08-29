@@ -79,7 +79,7 @@ const LostPets = () => {
                         {publicaciones.length !== 0 ? (
                             <>
                                 <Row>
-                                    <Col className="d-flex justify-content-center mb-5">
+                                    <Col className="d-flex justify-content-center text-center mb-5">
                                         <h1>
                                             Publicaciones de Mascotas Perdidas
                                         </h1>

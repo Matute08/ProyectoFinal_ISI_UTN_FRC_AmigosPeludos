@@ -11,6 +11,7 @@ import {
     updateUser,
     getGenero,
     getGeneroId,
+    getRol
 } from "../../services/api";
 //Images
 import avatar1 from "../../assets/images/user/user-random.jpg";
@@ -24,6 +25,7 @@ const AsideLeft = () => {
     const [userData, setUserData] = useState(null);
     const [barrioData, setBarrioData] = useState(null);
     const [generoData, setGeneroData] = useState(null);
+    const [nombreRol, setNombreRol] = useState(null);
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -37,6 +39,15 @@ const AsideLeft = () => {
         console.log(userData);
         fetchUserData();
     }, [user]);
+
+    useEffect(() => {
+        const fetchRol = async () => {
+            const roles = await getRol();
+            setNombreRol(roles);
+        };
+
+        fetchRol();
+    }, []);
 
 
     const keyMap = {
@@ -110,7 +121,15 @@ const AsideLeft = () => {
                                             <>{userData.nombreCompleto}</>
                                         )}
                                     </h5>
-                                    <p className="text-muted mb-0">Usuario</p>
+                                    <p className="text-muted mb-0">{userData &&
+                                                                nombreRol &&
+                                                                userData.rolId &&
+                                                                // Encuentra el objeto de rol con el mismo id en nombreRol
+                                                                nombreRol.data.find(
+                                                                    (rol) =>
+                                                                        rol.id ===
+                                                                        userData.rolId
+                                                                )?.nombre}</p>
                                 </div>
                             </CardBody>
                         </Card>

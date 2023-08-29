@@ -12,13 +12,13 @@ import {
 import Scrollspy from "react-scrollspy";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../services/AuthContext";
-import { getUserMail } from "../../services/api";
+import { getUserMail, getRol } from "../../services/api";
 
 import logo from "../../assets/images/logo/LogoAP.png";
 import userRandom from "../../assets/images/user/user-random.jpg";
 import Loading from "../components/Loading";
 
-const Navbar = ({isHomePage, direction, ...args}) => {
+const Navbar = ({ isHomePage, direction, ...args }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
@@ -43,6 +43,7 @@ const Navbar = ({isHomePage, direction, ...args}) => {
     const [isOpenMenu, setisOpenMenu] = useState(false);
     const [navClass, setnavClass] = useState("");
     const [userData, setUserData] = useState(null);
+    const [nombreRol, setNombreRol] = useState(null);
     const toggle = () => setisOpenMenu(!isOpenMenu);
 
     useEffect(() => {
@@ -55,16 +56,29 @@ const Navbar = ({isHomePage, direction, ...args}) => {
         };
 
         fetchUserData();
+
         setIsLoading(false);
     }, [user]);
+
+    useEffect(() => {
+        const fetchRol = async () => {
+            const roles = await getRol();
+            setNombreRol(roles);
+        };
+
+        fetchRol();
+    }, []);
 
     return (
         <React.Fragment>
             {!isLoading ? (
                 <>
                     <nav
-                        className={(isHomePage ? "navbar-color-home" : "navbar-color") +
-                            " navbar navbar-expand-lg navbar-landing  " 
+                        className={
+                            (isHomePage
+                                ? "navbar-color-home"
+                                : "navbar-color") +
+                            " navbar navbar-expand-lg navbar-landing  "
                         }
                         id="navbar"
                     >
@@ -115,25 +129,29 @@ const Navbar = ({isHomePage, direction, ...args}) => {
                                                 className="dropdownmenu"
                                                 caret
                                             >
-                                                Busqueda
+                                                Mascotas
                                             </DropdownToggle>
                                             <DropdownMenu {...args}>
                                                 <DropdownItem>
                                                     <NavLink href="/mascotas-encontradas">
                                                         {" "}
-                                                        Mascotas Encontradas
+                                                        Encontradas
                                                     </NavLink>
                                                 </DropdownItem>
                                                 <DropdownItem>
-                                                    <NavLink href={"/mascotas-perdidas"}>
+                                                    <NavLink
+                                                        href={
+                                                            "/mascotas-perdidas"
+                                                        }
+                                                    >
                                                         {" "}
-                                                        Mascotas Perdidas
+                                                        Perdidas
                                                     </NavLink>
                                                 </DropdownItem>
                                                 <DropdownItem>
                                                     <NavLink href="/mascotas-adopcion">
                                                         {" "}
-                                                        Mascotas en Adopción
+                                                        En Adopción
                                                     </NavLink>
                                                 </DropdownItem>
                                             </DropdownMenu>
@@ -154,7 +172,7 @@ const Navbar = ({isHomePage, direction, ...args}) => {
                                             </DropdownToggle>
                                             <DropdownMenu {...args}>
                                                 <DropdownItem>
-                                                    <NavLink href="#paseadores">
+                                                    <NavLink href="/paseadores">
                                                         Paseadores
                                                     </NavLink>
                                                 </DropdownItem>
@@ -221,7 +239,15 @@ const Navbar = ({isHomePage, direction, ...args}) => {
                                                                 user.email}
                                                         </span>
                                                         <span className="d-none d-xl-block ms-1 fs-12 text-muted user-name-sub-text">
-                                                            Usuario
+                                                            {userData &&
+                                                                nombreRol &&
+                                                                userData.rolId &&
+                                                                // Encuentra el objeto de rol con el mismo id en nombreRol
+                                                                nombreRol.data.find(
+                                                                    (rol) =>
+                                                                        rol.id ===
+                                                                        userData.rolId
+                                                                )?.nombre}
                                                         </span>
                                                     </span>
                                                 </span>
@@ -240,6 +266,24 @@ const Navbar = ({isHomePage, direction, ...args}) => {
                                                         Mensajes
                                                     </span>
                                                 </DropdownItem>
+                                                <DropdownItem href="/formularios">
+                                                    <i className="mdi mdi-form-select text-muted fs-16 align-middle me-1"></i>
+                                                    <span className="align-middle">
+                                                        Formularios
+                                                    </span>
+                                                </DropdownItem>
+
+                                                {/* SOLO ADMIN */}
+                                                {userData &&
+                                                    userData.rolId === 1 && (
+                                                        <DropdownItem href="/formularios">
+                                                            <i className="mdi mdi-form-select text-muted fs-16 align-middle me-1"></i>
+                                                            <span className="align-middle">
+                                                                Solicitudes
+                                                            </span>
+                                                        </DropdownItem>
+                                                    )}
+
                                                 <div className="dropdown-divider"></div>
                                                 <DropdownItem
                                                     onClick={handleLogout}
@@ -260,9 +304,9 @@ const Navbar = ({isHomePage, direction, ...args}) => {
                                                 to="/iniciar-sesion"
                                                 className="btn btn-link fw-medium text-decoration-none text-dark btn-login"
                                             >
-                                                Inicia Sesion
+                                                Iniciar Sesion
                                             </Link>
-                                            
+
                                             <Link
                                                 to="/registrar"
                                                 className="btn btn-secondary btn-register"

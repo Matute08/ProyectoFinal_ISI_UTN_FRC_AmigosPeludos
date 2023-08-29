@@ -39,6 +39,15 @@ import Questions from './pages/frequentQuestions/Questions';
 
 //qr
 import GenerateQr from './pages/profile/qr/GenerateQr';
+
+//consultar formularios
+import ConsultAdoptForm from './pages/formAdopt/ConsultAdoptForm';
+
+//PASEADORES
+import Paseadores from './pages/paseadores/Paseadores';
+import AddPaseador from './pages/paseadores/AddPaseador';
+
+
 function App() {
   return (
     <>
@@ -65,14 +74,22 @@ function App() {
             <Route path="/modificar-posteo/:posteoId" element={<ProtectedRoute><SettingsLostPets /></ProtectedRoute>}></Route>
             
             <Route path='/mascotas-encontradas' element={<FoundPets></FoundPets>}></Route>
-            <Route path='/publicacion-mascota-encontrada' element={<AddFoundPets></AddFoundPets>}></Route>
+            <Route path='/publicacion-mascota-encontrada' element={<ProtectedRoute><AddFoundPets></AddFoundPets></ProtectedRoute>}></Route>
            
             <Route path='/mascotas-adopcion' element={<AdoptPets></AdoptPets>}></Route>
-            <Route path='/publicacion-mascota-adopcion' element={<AddAdoptPets></AddAdoptPets>}></Route>
+            <Route path='/publicacion-mascota-adopcion' element={<ProtectedRoute><AddAdoptPets></AddAdoptPets></ProtectedRoute>}></Route>
             <Route path="/consultar-posteo-adopcion/:posteoId" element={<ProtectedRoute><ConsultAdoptPets /></ProtectedRoute>}></Route>
             <Route path="/modificar-posteo-adopcion/:posteoId" element={<ProtectedRoute><SettingsAdoptPets /></ProtectedRoute>}></Route>
 
             <Route path='/preguntas-frecuentes' element={<Questions></Questions>}></Route>
+
+            <Route path='/formularios' element={<ConsultAdoptForm></ConsultAdoptForm>}></Route>
+
+            <Route path='/paseadores' element={<Paseadores></Paseadores>}></Route>
+            <Route path="/agregar-paseador" element={<ProtectedRoute><AddPaseador /></ProtectedRoute>}></Route>
+
+
+
             
 
 

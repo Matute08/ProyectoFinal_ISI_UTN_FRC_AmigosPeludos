@@ -21,6 +21,19 @@ export async function getUser() {
         console.log(error);
     }
 }
+//GET ROL
+export async function getRol() {
+    try {
+        const response = await axios({
+            url: `${url}/rols`,
+            method: "GET",
+        });
+
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
 export async function getUserId(id) {
     try {
         const response = await axios({
@@ -434,3 +447,98 @@ export const deletePost = async (petId) => {
         console.error(error);
     }
 };
+
+
+//POST FORMULARIO
+export async function postFormularioAdopcion(userData) {
+    try {
+        const response = await axios.post(`${url}/formularioAdopcions`, userData);
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+
+
+
+
+//GET FORMULARIOS dueño del posteo
+export async function getFormulariosDuenoPosteo(id) {
+    try {
+        const response = await axios({
+            url: `${url}/formularioAdopcions/usuarioSolicitado/${id}`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//GET FORMULARIOS persona que quiere adoptar
+export async function getFormulariosPosibleAdoptante(id) {
+    try {
+        const response = await axios({
+            url: `${url}/formularioAdopcions/usuarioSolicitante/${id}`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//GET FORMULARIOS con ID
+export async function getFormulariosId(id) {
+    try {
+        const response = await axios({
+            url: `${url}/formularioAdopcions/${id}`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//GET estados FORMULARIOS 
+export async function getEstadosFormularios() {
+    try {
+        const response = await axios({
+            url: `${url}/estadoFormularios`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+
+
+
+//UPDATE ESTADO FORMULARIO
+export async function updateForm(id, userData) {
+    try {
+        console.log(userData);
+        const existingUserData = await getFormulariosId(id); // Obtener los datos existentes del usuario desde la API
+        console.log(existingUserData);
+        
+        const updatedUserData = Object.assign(
+            {},
+            existingUserData,
+            userData
+        ); // Combinar los datos existentes y los datos actualizados
+
+        const response = await axios.put(
+            `${url}/formularioAdopcions/${id}`,
+            updatedUserData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}

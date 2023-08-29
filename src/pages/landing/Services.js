@@ -9,9 +9,12 @@ const Services = () => {
                 <Container>
                     <Row className="justify-content-center">
                         <Col lg={8}>
-                            <div className="text-center mb-5" data-aos="flip-up"
+                            <div
+                                className="text-center mb-5"
+                                data-aos="flip-up"
                                 data-aos-duration="500"
-                                data-aos-easing="ease-in-sine">
+                                data-aos-easing="ease-in-sine"
+                            >
                                 <h1 className="mb-3 ff-secondary fw-semibold lh-base">
                                     Ofrecemos multiples servicios para ayudarte
                                     con tu mascota
@@ -302,17 +305,27 @@ const Services = () => {
                                 <div className="flex-shrink-0 me-3">
                                     <div className="avatar-sm icon-effect">
                                         <div className="avatar-title bg-transparent text-success rounded-circle">
-                                            <i className="ri-notification-line fs-36"></i>
+                                            <i className=" ri-car-line fs-36"></i>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex-grow-1">
-                                    <h5 className="fs-18">Notificaciones</h5>
+                                    <h5 className="fs-18">Traslados</h5>
                                     <p className="text-muted my-3 ff-secondary">
-                                        Te enviaremos notificaciones cuando
-                                        alguna mascota encontrada se adapte a tu
-                                        mascota perdida.
+                                        Nos encargamos de ponerte en contacto
+                                        con usuarios disponibles para trasladar
+                                        mascotas a veterinarias en situaciones
+                                        de urgencia.
                                     </p>
+                                    <div>
+                                        <Link
+                                            to="#"
+                                            className="fs-13 fw-medium"
+                                        >
+                                            Acceder
+                                            <i className="ri-arrow-right-s-line align-bottom"></i>
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         </Col>

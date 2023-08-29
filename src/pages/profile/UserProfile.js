@@ -73,8 +73,9 @@ const Profile = () => {
                                                 toggleTab("1");
                                             }}
                                         >
-                                            <i className="ri-airplay-fill d-inline-block d-md-none"></i>{" "}
-                                            <span className="d-none d-md-inline-block">
+                                            {/* <i className="ri-airplay-fill d-inline-block d-md-none"></i>{" "} */}
+                                            {/* el span tenia una clase = d-none */}
+                                            <span className=" d-md-inline-block">
                                                 Mis Mascotas
                                             </span>
                                         </NavLink>
@@ -89,8 +90,8 @@ const Profile = () => {
                                                 toggleTab("2");
                                             }}
                                         >
-                                            <i className="ri-list-unordered d-inline-block d-md-none"></i>{" "}
-                                            <span className="d-none d-md-inline-block">
+                                            {/* <i className="ri-list-unordered d-inline-block d-md-none"></i>{" "} */}
+                                            <span className=" d-md-inline-block">
                                                 Mis Publicaciones
                                             </span>
                                         </NavLink>
@@ -105,8 +106,8 @@ const Profile = () => {
                                                 toggleTab("3");
                                             }}
                                         >
-                                            <i className="ri-list-unordered d-inline-block d-md-none"></i>{" "}
-                                            <span className="d-none d-md-inline-block">
+                                            {/* <i className="ri-list-unordered d-inline-block d-md-none"></i>{" "} */}
+                                            <span className=" d-md-inline-block">
                                                 Mi QR
                                             </span>
                                         </NavLink>

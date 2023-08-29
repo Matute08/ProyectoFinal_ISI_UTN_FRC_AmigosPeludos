@@ -1,28 +1,66 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+
 import {
-    Alert,
-    Button,
     Form,
     Label,
-    Card,
-    CardBody,
     Col,
-    Container,
-    Input,
     Modal,
     ModalBody,
     ModalHeader,
-    PopoverBody,
-    PopoverHeader,
     Row,
-    UncontrolledPopover,
-    UncontrolledTooltip,
 } from "reactstrap";
+import {
+    getUserMail,
+    getCiudad,
+    getAllBarrio,
+    postFormularioAdopcion,
+    getPublicacionesId
+} from "../../../services/api";
+import { useAuth } from "../../../services/AuthContext";
 import { useForm } from "react-hook-form";
 
-const FormAdoptPets = ({ isOpen, toggle }) => {
+const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
+    const { user } = useAuth();
+    const [userData, setUserData] = useState();
     const [isLoading, setIsLoading] = useState();
+    const [ciudad, setCiudad] = useState();
+    const [barrio, setBarrio] = useState();
+    const [publi, setPubli] = useState();
+
+    useEffect(() => {
+        const usuario = async () => {
+            const dataUsuario = await getUserMail(user.email);
+            if (dataUsuario) {
+                setUserData(dataUsuario);
+            }
+            console.log(posteoId);
+            console.log(userData)
+            setIsLoading(false);
+        };
+        const ciudadMascota = async () => {
+            const dataCiudad = await getCiudad();
+            if (dataCiudad) {
+                setCiudad(dataCiudad);
+            }
+        };
+        const barrioMascota = async () => {
+            const dataBarrio = await getAllBarrio();
+            if (dataBarrio) {
+                setBarrio(dataBarrio);
+            }
+        };
+        const publicacion = async () =>{
+            const publiData = await getPublicacionesId(posteoId);
+            if (publiData) {
+                setPubli(publiData)
+            }
+        }
+
+        usuario();
+        ciudadMascota();
+        barrioMascota();
+        publicacion();
+    }, []);
 
     const {
         register,
@@ -32,8 +70,21 @@ const FormAdoptPets = ({ isOpen, toggle }) => {
 
     const onSubmit = async (data) => {
         try {
+            //data.tipoViviendaId = data.tipoViviendaId === "1";
+            data.estadoResidencia = data.estadoResidencia === "1";
+            data.aceptaMascota = data.aceptaMascota === "1";
+            data.viviendaCerrada = data.viviendaCerrada === "1";
+            data.estadoFormularioId = 1;
+            data.usuarioIdSolicitante = userData.id
+            data.usuarioIdSolicitado = publi.usuarioId
+            data.publicacionMascotaId = parseInt(posteoId, 10);
+
+
             console.log("Formulario enviar");
-            //await postPublicacion(data);
+            console.log(data);
+            await postFormularioAdopcion(data);
+
+            window.location.reload()
             //navigate("/mascotas-adopcion");
         } catch (error) {
             // Maneja cualquier error de la actualización
@@ -64,140 +115,319 @@ const FormAdoptPets = ({ isOpen, toggle }) => {
                     {/* FORMULARIO */}
                     <Form onSubmit={handleSubmit(onSubmit)}>
                         <Row className="form-adopt ">
-                            {/* nombre y apellido */}
-                            <Col lg={6}>
+                            {/* nombre  */}
+                            <Col lg={3}>
                                 <div className="mb-3">
                                     <Label className="form-label">
-                                        Nombre y Apellido
+                                        Nombre{" "}
+                                        <span className="text-danger">*</span>
                                     </Label>
                                     <input
                                         type="text"
                                         className="form-control"
                                         name="nombre"
-                                        placeholder="Nombre y Apellido"
-                                        {...register("nombre")}
+                                        placeholder=" Apellido"
+                                        {...register("nombre", {
+                                            required: {
+                                                value: true,
+                                                message:
+                                                    "El campo es requerido",
+                                            },
+                                        })}
                                     />
+                                    {errors.nombre && (
+                                        <span className="text-danger">
+                                            {errors.nombre.message}
+                                        </span>
+                                    )}
+                                </div>
+                            </Col>
+
+                            {/*  apellido */}
+                            <Col lg={3}>
+                                <div className="mb-3">
+                                    <Label className="form-label">
+                                        Apellido
+                                        <span className="text-danger">*</span>
+                                    </Label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        name="apeliido"
+                                        placeholder="Apellido"
+                                        {...register("apellido", {
+                                            required: {
+                                                value: true,
+                                                message:
+                                                    "El campo es requerido",
+                                            },
+                                        })}
+                                    />
+                                    {errors.apellido && (
+                                        <span className="text-danger">
+                                            {errors.apellido.message}
+                                        </span>
+                                    )}
                                 </div>
                             </Col>
 
                             {/* dni */}
-                            <Col lg={6}>
+                            <Col lg={3}>
                                 <div className="mb-3">
-                                    <Label className="form-label">DNI</Label>
+                                    <Label className="form-label">
+                                        DNI{" "}
+                                        <span className="text-danger">*</span>
+                                    </Label>
                                     <input
-                                        type="text"
+                                        type="number"
                                         className="form-control"
-                                        name="nombre"
+                                        name="dni"
                                         placeholder="DNI"
-                                        {...register("nombre")}
+                                        {...register("dni", {
+                                            required: {
+                                                value: true,
+                                                message:
+                                                    "El campo es requerido",
+                                            },
+                                        })}
                                     />
+                                    {errors.dni && (
+                                        <span className="text-danger">
+                                            {errors.dni.message}
+                                        </span>
+                                    )}
                                 </div>
                             </Col>
 
                             {/* telefono de contacto */}
-                            <Col lg={6}>
+                            <Col lg={3}>
                                 <div className="mb-3">
                                     <Label className="form-label">
-                                        Telefono de Contacto
+                                        Telefono de Contacto{" "}
+                                        <span className="text-danger">*</span>
                                     </Label>
                                     <input
-                                        type="text"
+                                        type="number"
                                         className="form-control"
-                                        name="nombre"
+                                        name="celular"
                                         placeholder="Telefono de Contacto"
-                                        {...register("nombre")}
+                                        {...register("celular", {
+                                            required: {
+                                                value: true,
+                                                message:
+                                                    "El campo es requerido",
+                                            },
+                                        })}
                                     />
+                                    {errors.celular && (
+                                        <span className="text-danger">
+                                            {errors.celular.message}
+                                        </span>
+                                    )}
                                 </div>
                             </Col>
 
-                            {/* direccion */}
-                            <Col lg={6}>
+                            {/* calle */}
+                            <Col lg={4}>
                                 <div className="mb-3">
                                     <Label className="form-label">
-                                        Dirección (Calle y Altura)
+                                        Dirección{" "}
+                                        <span className="text-danger">*</span>
                                     </Label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        name="nombre"
+                                        name="calle"
                                         placeholder="Dirección"
-                                        {...register("nombre")}
+                                        {...register("calle", {
+                                            required: {
+                                                value: true,
+                                                message:
+                                                    "El campo es requerido",
+                                            },
+                                        })}
                                     />
+                                    {errors.calle && (
+                                        <span className="text-danger">
+                                            {errors.calle.message}
+                                        </span>
+                                    )}
+                                </div>
+                            </Col>
+                            {/* altura */}
+                            <Col lg={2}>
+                                <div className="mb-3">
+                                    <Label className="form-label">
+                                        Altura de Direccion{" "}
+                                        <span className="text-danger">*</span>
+                                    </Label>
+                                    <input
+                                        type="number"
+                                        className="form-control"
+                                        name="nroCalle"
+                                        placeholder="Dirección"
+                                        {...register("nroCalle", {
+                                            required: {
+                                                value: true,
+                                                message:
+                                                    "El campo es requerido",
+                                            },
+                                        })}
+                                    />
+                                    {errors.nroCalle && (
+                                        <span className="text-danger">
+                                            {errors.nroCalle.message}
+                                        </span>
+                                    )}
                                 </div>
                             </Col>
 
                             {/* ciudad */}
-                            <Col lg={6}>
+                            <Col lg={3}>
                                 <div className="mb-3">
-                                    <Label className="form-label">Ciudad</Label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        name="nombre"
-                                        placeholder="Ciudad"
-                                        {...register("nombre")}
-                                    />
+                                    <Label className="form-label">
+                                        Ciudad
+                                        <span className="text-danger">*</span>
+                                    </Label>
+                                    <select
+                                        name="ciudadId"
+                                        className="form-select "
+                                        {...register("ciudadId", {
+                                            required: {
+                                                value: true,
+                                                message:
+                                                    "El campo es requerido",
+                                            },
+                                        })}
+                                    >
+                                        <option value="">Seleccione...</option>
+                                        {ciudad &&
+                                            ciudad.map((elemento) => (
+                                                <option
+                                                    className="form-control"
+                                                    key={elemento.id}
+                                                    value={elemento.id}
+                                                >
+                                                    {elemento.nombre}
+                                                </option>
+                                            ))}
+                                    </select>
+                                    {errors.ciudad && (
+                                        <span className="text-danger">
+                                            {errors.ciudad.message}
+                                        </span>
+                                    )}
                                 </div>
                             </Col>
-
                             {/* barrio */}
-                            <Col lg={6}>
+                            <Col lg={3}>
                                 <div className="mb-3">
-                                    <Label className="form-label">Barrio</Label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        name="nombre"
-                                        placeholder="Barrio"
-                                        {...register("nombre")}
-                                    />
+                                    <Label className="form-label">
+                                        Barrio
+                                        <span className="text-danger">*</span>
+                                    </Label>
+                                    <select
+                                        name="barrio"
+                                        className="form-select "
+                                        {...register("barrio", {
+                                            required: {
+                                                value: true,
+                                                message:
+                                                    "El campo es requerido",
+                                            },
+                                        })}
+                                    >
+                                        <option value="">Seleccione...</option>
+                                        {barrio &&
+                                            barrio.map((elemento) => (
+                                                <option
+                                                    className="form-control"
+                                                    key={elemento.id}
+                                                    value={elemento.id}
+                                                >
+                                                    {elemento.nombre}
+                                                </option>
+                                            ))}
+                                    </select>
+                                    {errors.barrio && (
+                                        <span className="text-danger">
+                                            {errors.barrio.message}
+                                        </span>
+                                    )}
                                 </div>
                             </Col>
 
                             {/* vivienda */}
                             <Col lg={6}>
                                 <Label className="form-label">
-                                    ¿En qué tipo de vivienda habitás?
+                                    ¿En qué tipo de vivienda habitás?{" "}
+                                    <span className="text-danger">*</span>
                                 </Label>
                                 <div className="form-control radio-options">
                                     <label className="radio-label">
                                         <input
-                                            {...register("Developer", {
-                                                required: true,
+                                            name="tipoViviendaId"
+                                            {...register("tipoViviendaId", {
+                                                required: {
+                                                    value: true,
+                                                    message:
+                                                        "El campo es requerido",
+                                                },
                                             })}
                                             type="radio"
-                                            value="No"
+                                            value="0"
                                         />
+
                                         <span className="radio-text">Casa</span>
                                     </label>
 
                                     <label className="radio-label">
                                         <input
-                                            {...register("Developer", {
-                                                required: true,
+                                            name="tipoViviendaId"
+                                            {...register("tipoViviendaId", {
+                                                required: {
+                                                    value: true,
+                                                    message:
+                                                        "El campo es requerido",
+                                                },
                                             })}
                                             type="radio"
-                                            value="Yes"
+                                            value="1"
                                         />
+
                                         <span className="radio-text">
                                             Departamento
                                         </span>
                                     </label>
                                 </div>
+                                {errors.tipoViviendaId && (
+                                    <span className="text-danger">
+                                        {errors.tipoViviendaId.message}
+                                    </span>
+                                )}
                             </Col>
 
                             {/* propietario o inquilino */}
                             <Col lg={6}>
-                                <Label className="form-label">Es usted..</Label>
+                                <Label className="form-label">
+                                    Es usted..{" "}
+                                    <span className="text-danger">*</span>
+                                </Label>
                                 <div className="form-control radio-options">
                                     <label className="radio-label">
                                         <input
-                                            {...register("Developer", {
-                                                required: true,
+                                            name="estadoResidencia"
+                                            {...register("estadoResidencia", {
+                                                required: {
+                                                    value: true,
+                                                    message:
+                                                        "El campo es requerido",
+                                                },
                                             })}
                                             type="radio"
-                                            value="No"
+                                            value="0"
                                         />
+
                                         <span className="radio-text">
                                             Propietario
                                         </span>
@@ -205,141 +435,125 @@ const FormAdoptPets = ({ isOpen, toggle }) => {
 
                                     <label className="radio-label">
                                         <input
-                                            {...register("Developer", {
-                                                required: true,
+                                            name="estadoResidencia"
+                                            {...register("estadoResidencia", {
+                                                required: {
+                                                    value: true,
+                                                    message:
+                                                        "El campo es requerido",
+                                                },
                                             })}
                                             type="radio"
-                                            value="Yes"
+                                            value="1"
                                         />
+
                                         <span className="radio-text">
                                             Inquilino
                                         </span>
                                     </label>
                                 </div>
+                                {errors.estadoResidencia && (
+                                    <span className="text-danger">
+                                        {errors.estadoResidencia.message}
+                                    </span>
+                                )}
                             </Col>
 
                             {/* podes tener mascotas */}
-                            <Col lg={12}>
+                            <Col lg={6}>
                                 <Label className="form-label">
-                                    En caso de alquilar, ¿se puede tener
-                                    mascotas?
+                                    ¿Podes tener mascotas donde habitas?{" "}
+                                    <span className="text-danger">*</span>
                                 </Label>
                                 <div className="form-control radio-options">
                                     <label className="radio-label">
                                         <input
-                                            {...register("Developer", {
-                                                required: true,
+                                            name="aceptaMascota"
+                                            {...register("aceptaMascota", {
+                                                required: {
+                                                    value: true,
+                                                    message:
+                                                        "El campo es requerido",
+                                                },
                                             })}
                                             type="radio"
-                                            value="Si"
+                                            value="1"
                                         />
-                                        <span className="radio-text">
-                                            Si. Pregunte y se puede tener
-                                            mascotas
-                                        </span>
+
+                                        <span className="radio-text">Si.</span>
                                     </label>
 
                                     <label className="radio-label">
                                         <input
-                                            {...register("Developer", {
-                                                required: true,
+                                            name="aceptaMascota"
+                                            {...register("aceptaMascota", {
+                                                required: {
+                                                    value: true,
+                                                    message:
+                                                        "El campo es requerido",
+                                                },
                                             })}
                                             type="radio"
-                                            value="NoEdificio"
+                                            value="0"
                                         />
-                                        <span className="radio-text">
-                                            No pregunte, pero en el edificio hay
-                                            mascotas
-                                        </span>
-                                    </label>
 
-                                    <label className="radio-label">
-                                        <input
-                                            {...register("Developer", {
-                                                required: true,
-                                            })}
-                                            type="radio"
-                                            value="NoPregunte"
-                                        />
-                                        <span className="radio-text">
-                                            No pregunte
-                                        </span>
-                                    </label>
-
-                                    <label className="radio-label">
-                                        <input
-                                            {...register("Developer", {
-                                                required: true,
-                                            })}
-                                            type="radio"
-                                            value="NoAlquilo"
-                                        />
-                                        <span className="radio-text">
-                                            No alquilo
-                                        </span>
+                                        <span className="radio-text">No</span>
                                     </label>
                                 </div>
+                                {errors.aceptaMascota && (
+                                    <span className="text-danger">
+                                        {errors.aceptaMascota.message}
+                                    </span>
+                                )}
                             </Col>
 
                             {/* tenes red */}
-                            <Col lg={12}>
+                            <Col lg={6}>
                                 <Label className="form-label">
                                     ¿Tenés cerramientos en los balcones y/o
-                                    ventanas? (red o rejas)
+                                    ventanas? (red o rejas){" "}
+                                    <span className="text-danger">*</span>
                                 </Label>
                                 <div className="form-control radio-options">
                                     <label className="radio-label">
                                         <input
-                                            {...register("Developer", {
-                                                required: true,
+                                            name="viviendaCerrada"
+                                            {...register("viviendaCerrada", {
+                                                required: {
+                                                    value: true,
+                                                    message:
+                                                        "El campo es requerido",
+                                                },
                                             })}
                                             type="radio"
-                                            value="Si"
+                                            value="1"
                                         />
-                                        <span className="radio-text">
-                                            Si, tengo red
-                                        </span>
+
+                                        <span className="radio-text">Si.</span>
                                     </label>
 
                                     <label className="radio-label">
                                         <input
-                                            {...register("Developer", {
-                                                required: true,
+                                            name="viviendaCerrada"
+                                            {...register("viviendaCerrada", {
+                                                required: {
+                                                    value: true,
+                                                    message:
+                                                        "El campo es requerido",
+                                                },
                                             })}
                                             type="radio"
-                                            value="NoEdificio"
+                                            value="0"
                                         />
-                                        <span className="radio-text">
-                                            Si, tengo rejas
-                                        </span>
-                                    </label>
 
-                                    <label className="radio-label">
-                                        <input
-                                            {...register("Developer", {
-                                                required: true,
-                                            })}
-                                            type="radio"
-                                            value="NoPregunte"
-                                        />
-                                        <span className="radio-text">
-                                            No, pero voy a colocar.
-                                        </span>
-                                    </label>
-
-                                    <label className="radio-label">
-                                        <input
-                                            {...register("Developer", {
-                                                required: true,
-                                            })}
-                                            type="radio"
-                                            value="NoAlquilo"
-                                        />
-                                        <span className="radio-text">
-                                            No pensé en colocarlo.
-                                        </span>
+                                        <span className="radio-text">No.</span>
                                     </label>
                                 </div>
+                                {errors.viviendaCerrada && (
+                                    <span className="text-danger">
+                                        {errors.viviendaCerrada.message}
+                                    </span>
+                                )}
                             </Col>
 
                             {/* tenes mascotas */}
@@ -347,173 +561,51 @@ const FormAdoptPets = ({ isOpen, toggle }) => {
                                 <div className="mb-3">
                                     <Label className="form-label">
                                         ¿Tenés otras mascotas? Si es afirmativo,
-                                        cuales
+                                        cuales{" "}
+                                        <span className="text-danger">*</span>
                                     </Label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        name="nombre"
+                                        name="otrasMascotas"
                                         placeholder="No/Si"
-                                        {...register("nombre")}
+                                        {...register("otrasMascotas", {
+                                            required: {
+                                                value: true,
+                                                message:
+                                                    "El campo es requerido",
+                                            },
+                                        })}
                                     />
+                                    {errors.otrasMascotas && (
+                                        <span className="text-danger">
+                                            {errors.otrasMascotas.message}
+                                        </span>
+                                    )}
                                 </div>
                             </Col>
 
-                            {/* estan castrados */}
                             <Col lg={12}>
-                                <Label className="form-label">
-                                    En caso de tener otros animales, ¿están
-                                    castrados?
-                                </Label>
-                                <div className="form-control radio-options">
-                                    <label className="radio-label">
-                                        <input
-                                            {...register("Developer", {
-                                                required: true,
-                                            })}
-                                            type="radio"
-                                            value="Si"
-                                        />
-                                        <span className="radio-text">
-                                            Si, todos castrados.
+                                <div className="hstack gap-2 justify-content-end">
+                                    <button
+                                        class="button-pz btn-pz-success"
+                                        type="submit"
+                                    >
+                                        <span class="span-pz text-pz">
+                                            Enviar
                                         </span>
-                                    </label>
-
-                                    <label className="radio-label">
-                                        <input
-                                            {...register("Developer", {
-                                                required: true,
-                                            })}
-                                            type="radio"
-                                            value="NoEdificio"
-                                        />
-                                        <span className="radio-text">
-                                            Algunos si y otras no.
-                                        </span>
-                                    </label>
-
-                                    <label className="radio-label">
-                                        <input
-                                            {...register("Developer", {
-                                                required: true,
-                                            })}
-                                            type="radio"
-                                            value="NoPregunte"
-                                        />
-                                        <span className="radio-text">
-                                            No castré aun, pero voy a hacerlo.
-                                        </span>
-                                    </label>
-
-                                    <label className="radio-label">
-                                        <input
-                                            {...register("Developer", {
-                                                required: true,
-                                            })}
-                                            type="radio"
-                                            value="NoAlquilo"
-                                        />
-                                        <span className="radio-text">
-                                            No estan castradas
-                                        </span>
-                                    </label>
-
-                                    <label className="radio-label">
-                                        <input
-                                            {...register("Developer", {
-                                                required: true,
-                                            })}
-                                            type="radio"
-                                            value="NoAlquilo"
-                                        />
-                                        <span className="radio-text">
-                                            No tengo otros animales
-                                        </span>
-                                    </label>
-                                </div>
-                            </Col>
-
-                            {/* en vacaciones.. */}
-                            <Col lg={12}>
-                                <div className="mb-3">
-                                    <Label className="form-label">
-                                        ¿Qué harías con el animal en caso de
-                                        vacaciones?
-                                    </Label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        name="nombre"
-                                        placeholder="¿Qué harías con el animal en caso de vacaciones?"
-                                        {...register("nombre")}
-                                    />
-                                </div>
-                            </Col>
-
-                            {/* en mudanza.. */}
-                            <Col lg={12}>
-                                <div className="mb-3">
-                                    <Label className="form-label">
-                                        ¿Qué harías con el animal en caso de
-                                        mudanza?
-                                    </Label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        name="nombre"
-                                        placeholder="¿Qué harías con el animal en caso de mudanza?"
-                                        {...register("nombre")}
-                                    />
-                                </div>
-                            </Col>
-
-                            {/* adopcion */}
-                            <Col lg={12}>
-                                <Label className="form-label">
-                                    ¿Estás dispuesto a adoptar al animal de por
-                                    vida con compromiso de vacunación anual,
-                                    deparacitación y castración?
-                                </Label>
-                                <div className="form-control radio-options">
-                                    <label className="radio-label">
-                                        <input
-                                            {...register("Developer", {
-                                                required: true,
-                                            })}
-                                            type="radio"
-                                            value="Si"
-                                        />
-                                        <span className="radio-text">Si.</span>
-                                    </label>
-
-                                    <label className="radio-label">
-                                        <input
-                                            {...register("Developer", {
-                                                required: true,
-                                            })}
-                                            type="radio"
-                                            value="NoEdificio"
-                                        />
-                                        <span className="radio-text">No.</span>
-                                    </label>
-                                </div>
-                            </Col>
-                        </Row>
-                    </Form>
-                </ModalBody>
-
-                <div className="hstack gap-2 justify-content-end modal-footer">
-                    <button class="button-pz btn-pz-success" type="submit">
-                        <span class="span-pz text-pz">Enviar</span>
-                        <span class="span-pz icon-pz">
-                            <svg viewBox="0 0 920 922" className="svg-pz">
-                                <g
-                                    transform="translate(0,922) scale(0.1,-0.1)"
-                                    fill="#ffff"
-                                    stroke="none"
-                                >
-                                    <path
-                                        d="M1350 9199 c-373 -6 -423 -9 -492 -27 -119 -32 -218 -78 -331 
+                                        <span class="span-pz icon-pz">
+                                            <svg
+                                                viewBox="0 0 920 922"
+                                                className="svg-pz"
+                                            >
+                                                <g
+                                                    transform="translate(0,922) scale(0.1,-0.1)"
+                                                    fill="#ffff"
+                                                    stroke="none"
+                                                >
+                                                    <path
+                                                        d="M1350 9199 c-373 -6 -423 -9 -492 -27 -119 -32 -218 -78 -331 
                                                                                     -152 -184 -121 -321 -279 -422 -484 -54 -108 -70 -184 -86 -403 -14 -190 -21 -6170 -8 
                                                                                     -6733 11 -490 26 -592 111 -750 154 -284 398 -492 688 -585 80 -26 102 -28 380 -38 403 
                                                                                     -15 6439 -14 6830 0 267 10 290 12 370 38 297 95 551 318 698 611 79 157 91 246 101 724 4 
@@ -533,35 +625,47 @@ const FormAdoptPets = ({ isOpen, toggle }) => {
                                                                                        -53 40 -129 48 -102 10 -2597 19 -2849 10z M3160 2010 c-121 -7 -150 -19 -208 -85 -49 -56 -72 -119
                                                                                         -72 -199 0 -99 63 -195 162 -248 l43 -23 1460 2 c872 1 1494 5 1543 11 76 9 88 13 130 50 69 58
                                                                                          95 116 96 210 1 51 -5 93 -17 124 -19 49 -87 120 -135 140 -16 7 -131 14 -292 18 -350 8 -2576 9 -2710 0z"
-                                    />
-                                </g>
-                            </svg>
-                        </span>
-                    </button>
+                                                    />
+                                                </g>
+                                            </svg>
+                                        </span>
+                                    </button>
 
-                    <button class="button-pz btn-pz-secondary" onClick={toggle}>
-                        <span class="span-pz text-pz">Atras</span>
-                        <span class="span-pz icon-pz">
-                            <svg viewBox="0 0 232 217" className="svg-pz">
-                                <g
-                                    transform="translate(0,210) scale(0.1,-0.1)"
-                                    fill="#ffff"
-                                    stroke="none"
-                                >
-                                    <path
-                                        d="M740 2163 c-27 -11 -705 -486 -717 -502 -7 -9 -15 -31 -19 -48 -13
+                                    <button
+                                        class="button-pz btn-pz-secondary"
+                                        onClick={toggle}
+                                    >
+                                        <span class="span-pz text-pz">
+                                            Volver
+                                        </span>
+                                        <span class="span-pz icon-pz">
+                                            <svg
+                                                viewBox="0 0 232 217"
+                                                className="svg-pz"
+                                            >
+                                                <g
+                                                    transform="translate(0,210) scale(0.1,-0.1)"
+                                                    fill="#ffff"
+                                                    stroke="none"
+                                                >
+                                                    <path
+                                                        d="M740 2163 c-27 -11 -705 -486 -717 -502 -7 -9 -15 -31 -19 -48 -13
                                                                                             -65 5 -79 399 -319 319 -195 373 -224 408 -224 31 0 47 7 70 29 42 42 38 79
                                                                                             -21 205 l-49 106 510 0 509 0 38 -34 37 -34 3 -404 c2 -441 3 -435 -57 -475
                                                                                             l-34 -23 -571 0 -572 0 -44 -22 c-55 -28 -86 -73 -95 -138 -14 -101 16 -180
                                                                                             83 -222 l37 -23 575 -3 c389 -2 597 1 642 8 187 32 350 169 417 353 l26 72 3
                                                                                             425 c3 350 0 439 -12 498 -39 187 -161 330 -342 400 l-69 27 -552 5 -552 5 45
                                                                                             108 c24 59 44 121 44 137 0 60 -85 116 -140 93z"
-                                    />
-                                </g>
-                            </svg>
-                        </span>
-                    </button>
-                </div>
+                                                    />
+                                                </g>
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </div>
+                            </Col>
+                        </Row>
+                    </Form>
+                </ModalBody>
             </Modal>
         </React.Fragment>
     );

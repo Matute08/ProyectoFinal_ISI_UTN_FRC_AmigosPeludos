@@ -54,6 +54,7 @@ export const FormRegister = () => {
                 }else{
                     console.log("entro a usuario nuevo");
                     data.tipoAutenticacionId = "1";
+                    data.rolId = "2";
                     await postUser(data);
                 }
             }

@@ -1,0 +1,90 @@
+.progress-bar {
+    --btn-margin-x: 0.5rem;
+    --btn-width: 60px;
+    --btn-right-shift: calc(var(--btn-margin-x) + var(--btn-width) / 2);
+  
+    .stages {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      width: 600px;
+      max-width: 90vw;
+  
+      /* Progress line unactive */
+      &:before {
+        content: "";
+        position: absolute;
+        background: #e0e0e0;
+        top: 50%;
+        z-index: -1;
+        height: 4px;
+        width: 100%;
+        transform: translateY(-50%);
+      }
+  
+      .progress-line {
+        position: absolute;
+        background: #3498db;
+        top: 50%;
+        z-index: -1;
+        height: 4px;
+        width: 0%;
+        transform: translateY(-50%);
+        transition: width ease 1s;
+      }
+  
+      .stage {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 30px;
+        width: 30px;
+        background: #fff;
+        border: 3px solid #e0e0e0;
+        border-radius: 50%;
+        color: #999;
+        user-select: none;
+        transition: border-color ease 1s;
+  
+        &.selected {
+          border-color: #3498db;
+          color: #111;
+        }
+      }
+    }
+  
+    .ctrl {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  
+      .btn {
+        position: relative;
+        padding: /*Y*/ 0.2rem /*X*/ 0.4rem;
+        margin: /*Y*/ 0.2rem /*X*/ var(--btn-margin-x);
+        width: var(--btn-width);
+        background: #ddd;
+        border-radius: 100rem;
+        user-select: none;
+        cursor: pointer;
+        text-align: center;
+        /* opacity: 1; */
+        transition: opacity ease 1s;
+        :hover {
+          background: #ccc;
+        }
+        &.hidden {
+          visibility: hidden;
+          opacity: 0;
+        }
+        &#next {
+          position: relative;
+          right: var(--btn-right-shift);
+          transition: right ease-out 1s;
+        }
+      }
+    }
+  }
+  
