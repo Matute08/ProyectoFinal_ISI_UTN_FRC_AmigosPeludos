@@ -1,97 +1,95 @@
-import React, {useRef, useState, useEffect} from "react";
-import { Form } from "reactstrap";
- 
-  
-  const AddPaseador = () => {
-    const stagesRef = useRef(null);
-    const progressLineRef = useRef(null);
-    const buttonNextRef = useRef(null);
-    const buttonPrevRef = useRef(null);
-    const [progressIncrement, setProgressIncrement] = useState(0);
-    const [progressPercent, setProgressPercent] = useState(0);
-    const [activeStage, setActiveStage] = useState(0);
-  
-    useEffect(() => {
-      const stageElements = stagesRef.current.querySelectorAll(".stage");
-      const increment = Math.floor(100 / (stageElements.length - 1));
-      setProgressIncrement(increment);
-    }, []);
-  
-    const handleButtonNextClick = (ev) => {
-      if (activeStage >= stagesRef.current.querySelectorAll(".stage").length - 1)
-        return;
-      if (activeStage === 0) {
-        buttonPrevRef.current.classList.remove("hidden");
-        buttonNextRef.current.style.right = "0";
+import React, { useState } from "react";
+import Step1 from "./Step1";
+import Step2 from "./Step2";
+import Step3 from "./Step3";
+import Step4 from "./Step4";
+import Step5 from "./Step5";
+import Navbar from "../landing/Navbar";
+import { Card, CardBody, CardHeader, Col, Container, Row } from "reactstrap";
+import Footer from "../landing/Footer";
+import { FormProvider, useForm } from "react-hook-form";
+
+const steps = [Step1, Step2, Step3, Step4, Step5];
+
+const AddPaseador = ({ methods }) => {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [formData, setFormData] = useState({});
+  const [step1Data, setStep1Data] = useState({});
+  const [step2Data, setStep2Data] = useState({});
+  const [step3Data, setStep3Data] = useState({});
+  const [step4Data, setStep4Data] = useState({});
+
+  const handleNext = (data) => {
+    setFormData((prevData) => ({ ...prevData, ...data }));
+    if (currentStep === steps.length - 1) {
+      console.log("Datos finales:", formData);
+    } else {
+      if (currentStep === 0) {
+        setStep1Data(data);
+      } else if (currentStep === 1) {
+        setStep2Data(data);
+      } else if (currentStep === 2) {
+        setStep3Data(data);
+      }else if (currentStep === 3) {
+        setStep4Data(data);
       }
-      progressLineRef.current.style.width = `${
-        progressPercent + progressIncrement
-      }%`;
-      setProgressPercent(progressPercent + progressIncrement);
-      stagesRef.current
-        .querySelectorAll(".stage")
-        .forEach((stageElement, key) => {
-          if (key <= activeStage + 1) {
-            stageElement.classList.add("selected");
-          }
-        });
-      setActiveStage(activeStage + 1);
-    };
-  
-    const handleButtonPrevClick = (ev) => {
-      if (activeStage <= 0) return;
-      if (activeStage === 1) {
-        buttonPrevRef.current.classList.add("hidden");
-        buttonNextRef.current.style.right = "var(--btn-right-shift)";
-      }
-      progressLineRef.current.style.width = `${
-        progressPercent - progressIncrement
-      }%`;
-      setProgressPercent(progressPercent - progressIncrement);
-      stagesRef.current
-        .querySelectorAll(".stage")
-        .forEach((stageElement, key) => {
-          if (key > activeStage - 1) {
-            stageElement.classList.remove("selected");
-          }
-        });
-      setActiveStage(activeStage - 1);
-    };
-  
-    return (
-      <div className="progress-bar">
-        <div ref={stagesRef} className="stages">
-          <div ref={progressLineRef} className="progress-line"></div>
-          <div className="stage selected">1</div>
-          <div className="stage">2</div>
-          <div className="stage">3</div>
-          <div className="stage">4</div>
-        </div>
-        
-        <Form>
-            <label htmlFor="">nombnre</label>
-            <input type="text" />
-        </Form>
-        <div className="ctrl">
-          <div
-            ref={buttonPrevRef}
-            className="btn hidden"
-            id="prev"
-            onClick={handleButtonPrevClick}
-          >
-            Prev
-          </div>
-          <div
-            ref={buttonNextRef}
-            className="btn"
-            id="next"
-            onClick={handleButtonNextClick}
-          >
-            Next
-          </div>
-        </div>
-      </div>
-    );
+      setCurrentStep((prevStep) => prevStep + 1);
+    }
   };
-  export default AddPaseador;
-  
+
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep((prevStep) => prevStep - 1);
+    }
+  };
+
+  const StepComponent = steps[currentStep];
+
+  return (
+    <React.Fragment>
+      <FormProvider {...methods}>
+        <>
+          <Navbar />
+          <Container fluid className="page-content perfil-fondo">
+            <Row>
+              <Col className="text-center mb-4">
+                <h1>REGISTRO DE PASEADORES</h1>
+              </Col>
+            </Row>
+            <Row>
+              <Col className="d-flex justify-content-center">
+                <Card className="w-50">
+                  <CardHeader className="d-flex justify-content-center">
+                    <div
+                      className="progress w-50 m-0"
+                      style={{
+                        "--progress-width": `${
+                          (currentStep + 1) * (100 / steps.length)
+                        }%`,
+                      }}
+                    />
+                  </CardHeader>
+
+                  <CardBody className="card-paseador">
+                    <StepComponent
+                      onNext={handleNext}
+                      onPrevious={handlePrevious}
+                      step1Data={step1Data}
+                      step2Data={step2Data}
+                      step3Data={step3Data}
+                      step4Data={step4Data}
+                      methods={methods}
+                    />
+                  </CardBody>
+                </Card>
+              </Col>
+            </Row>
+          </Container>
+          <Footer />
+        </>
+      </FormProvider>
+    </React.Fragment>
+  );
+};
+
+export default AddPaseador;

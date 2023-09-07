@@ -174,7 +174,7 @@ const Modal = () => {
                 ) {
                     swalWithBootstrapButtons.fire({
                         title: "Cancelado",
-                        text: nombre + " seguira siendo tu mascota :)",
+                        text: nombre + " seguirá siendo tu mascota :)",
                         icon: "error",
                         confirmButtonText: "Aceptar",
                     });
@@ -193,8 +193,8 @@ const Modal = () => {
         });
         swalWithBootstrapButtons
             .fire({
-                title: "¿Estas seguro que deseas eliminar la publicacion?",
-                text: "Se borrara toda la informacion sobre la publicación!",
+                title: "¿Estás seguro que deseas eliminar la publicación?",
+                text: "Se borrara toda la información sobre la publicación!",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonText: "Eliminar",
@@ -207,8 +207,8 @@ const Modal = () => {
                     if (deletePet) {
                         swalWithBootstrapButtons
                             .fire({
-                                title: " Publicacion eliminada con exito!",
-                                text: "Ya no aparecera en su perfil.",
+                                title: " Publicación eliminada con éxito!",
+                                text: "Ya no aparecerá en su perfil.",
                                 icon: "success",
                                 confirmButtonText: "Aceptar",
                             })

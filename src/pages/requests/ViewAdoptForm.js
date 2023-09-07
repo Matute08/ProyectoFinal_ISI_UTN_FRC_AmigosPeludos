@@ -9,13 +9,13 @@ const ViewAdoptForm = ({ isOpen, toggle, selectedFormData }) => {
     useEffect(() => {
         const fetchForm = async () => {
             if (selectedFormData) {
-                const data = await getFormulariosId(selectedFormData);
+                const data = await getFormulariosId(selectedFormData)
                 setDataForm(data);
                 setIsLoading(false);
             }
         };
         console.log("====================================");
-        console.log(dataForm);
+        console.log(dataForm)
         console.log("====================================");
 
         if (selectedFormData) {
@@ -77,7 +77,7 @@ const ViewAdoptForm = ({ isOpen, toggle, selectedFormData }) => {
                     <div>
                         <div className="d-flex">
                             <p className="label">Barrio:</p>
-                            <p>{dataForm ? dataForm.barrio : ""}</p>
+                            <p>{dataForm ? "Nueva Cordoba" : ""}</p>
                         </div>
                     </div>
 

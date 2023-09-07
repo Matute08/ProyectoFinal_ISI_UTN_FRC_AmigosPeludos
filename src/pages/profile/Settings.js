@@ -135,7 +135,7 @@ const UserProfileSetting = () => {
             }
             await updateUser(userId, data); // Llama a la función de la API para actualizar los datos del usuario
             hideLoadingOverlay();
-            navigate("/perfil");
+            navigate(`/perfil/${userData.mail}`);
         } catch (error) {
             // Manejar cualquier error de la actualización
             console.error("Error al actualizar el usuario:", error);
@@ -542,7 +542,7 @@ const UserProfileSetting = () => {
                                                                     <button
                                                                         class="button-pz btn-pz-secondary"
                                                                         to={
-                                                                            "/perfil"
+                                                                            `/perfil/${userData.mail}`
                                                                         }
                                                                     >
                                                                         <span class="span-pz text-pz">

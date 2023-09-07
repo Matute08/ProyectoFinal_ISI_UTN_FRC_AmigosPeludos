@@ -112,6 +112,23 @@ const Profile = () => {
                                             </span>
                                         </NavLink>
                                     </NavItem>
+                                    <NavItem>
+                                        <NavLink
+                                            //href="#mis-mascotas"
+                                            className={classnames({
+                                                active: activeTab === "4",
+                                            })}
+                                            onClick={() => {
+                                                toggleTab("4");
+                                            }}
+                                        >
+                                            {/* <i className="ri-airplay-fill d-inline-block d-md-none"></i>{" "} */}
+                                            {/* el span tenia una clase = d-none */}
+                                            <span className=" d-md-inline-block">
+                                                Mis Servicios
+                                            </span>
+                                        </NavLink>
+                                    </NavItem>
                                 </Nav>
                             </CardHeader>
                             <CardBody>
@@ -127,6 +144,9 @@ const Profile = () => {
 
                                     <TabPane tabId="3">
                                         <GenerateQr></GenerateQr>
+                                    </TabPane>
+
+                                    <TabPane tabId="4">
                                     </TabPane>
                                 </TabContent>
                             </CardBody>

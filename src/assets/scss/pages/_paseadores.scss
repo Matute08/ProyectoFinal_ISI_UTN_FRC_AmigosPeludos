@@ -1,90 +1,153 @@
-.progress-bar {
-    --btn-margin-x: 0.5rem;
-    --btn-width: 60px;
-    --btn-right-shift: calc(var(--btn-margin-x) + var(--btn-width) / 2);
+// PROGRESS 
+
+.progress {
+  width: 100%;
+  background-color: #ccc;
+  height: 20px;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.progress::after {
+  content: '';
+  display: block;
+  width: var(--progress-width, 0);
+  background-color: #4caf50;
+  height: 100%;
+  transition: width 0.3s;
+}
+
+
+
+
+//botones siguiente y back
+
+.btn-next-paseador {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 17px;
+  padding: 1em 2.7em;
+  font-weight: 500;
+  background: #1F2937;
+  color: white ;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.6em;
+}
+
+.gradient {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  border-radius: 0.6em;
+  margin-top: -0.25em;
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.3));
+}
+
+.label {
+  position: relative;
+  top: -1px;
+}
+
+.transition {
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  transition-duration: 500ms;
+  background-color: rgba(16, 185, 129, 0.6);
+  border-radius: 9999px;
+  width: 0;
+
+  height: 0;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.transition-back{
+  background-color: rgba(235, 51, 106, 0.6);
+
+}
+
+.btn-next-paseador:hover .transition {
+  width: 14em;
+  height: 14em;
   
-    .stages {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 30px;
-      width: 600px;
-      max-width: 90vw;
+}
+
+.btn-next-paseador:active {
+  transform: scale(0.97);
+}
+
+
+
+//ESTILOS
+
+.img-paseador{
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+.precio-paseador{
+  padding: 10px;
+  font-size: 1.5em;
+
+}
+.presentacion-paseador{
+  color: black !important;
+}
+
+.button-container {
   
-      /* Progress line unactive */
-      &:before {
-        content: "";
-        position: absolute;
-        background: #e0e0e0;
-        top: 50%;
-        z-index: -1;
-        height: 4px;
-        width: 100%;
-        transform: translateY(-50%);
-      }
-  
-      .progress-line {
-        position: absolute;
-        background: #3498db;
-        top: 50%;
-        z-index: -1;
-        height: 4px;
-        width: 0%;
-        transform: translateY(-50%);
-        transition: width ease 1s;
-      }
-  
-      .stage {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 30px;
-        width: 30px;
-        background: #fff;
-        border: 3px solid #e0e0e0;
-        border-radius: 50%;
-        color: #999;
-        user-select: none;
-        transition: border-color ease 1s;
-  
-        &.selected {
-          border-color: #3498db;
-          color: #111;
-        }
-      }
-    }
-  
-    .ctrl {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-  
-      .btn {
-        position: relative;
-        padding: /*Y*/ 0.2rem /*X*/ 0.4rem;
-        margin: /*Y*/ 0.2rem /*X*/ var(--btn-margin-x);
-        width: var(--btn-width);
-        background: #ddd;
-        border-radius: 100rem;
-        user-select: none;
-        cursor: pointer;
-        text-align: center;
-        /* opacity: 1; */
-        transition: opacity ease 1s;
-        :hover {
-          background: #ccc;
-        }
-        &.hidden {
-          visibility: hidden;
-          opacity: 0;
-        }
-        &#next {
-          position: relative;
-          right: var(--btn-right-shift);
-          transition: right ease-out 1s;
-        }
-      }
-    }
-  }
-  
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 10px;
+  bottom: 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.checkbox-cell {
+  text-align: center;
+  /* Centra el contenido verticalmente */
+}
+
+.checkbox-cell .custom-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  /* Hace que la celda ocupe la totalidad de la altura */
+  margin: 0;
+}
+
+.checkbox-cell input[type="checkbox"] {
+  margin: 0;
+  /* Elimina cualquier margen del checkbox */
+  width: 20px;
+  /* Ajusta el ancho del checkbox según tus preferencias */
+  height: 20px;
+  /* Ajusta la altura del checkbox según tus preferencias */
+}
+
+
+
+.img-paseo-perfil{
+  width: 100%;
+  height: 600px;
+  object-fit: cover;
+}

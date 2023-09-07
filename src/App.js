@@ -40,14 +40,15 @@ import Questions from './pages/frequentQuestions/Questions';
 //qr
 import GenerateQr from './pages/profile/qr/GenerateQr';
 
-//consultar formularios
-import ConsultAdoptForm from './pages/formAdopt/ConsultAdoptForm';
-
+//FORMULARIOS Y SOLICITUDES
+import ConsultAdoptForm from './pages/requests/ConsultAdoptForm';
 //PASEADORES
 import Paseadores from './pages/paseadores/Paseadores';
 import AddPaseador from './pages/paseadores/AddPaseador';
 
 
+//PERFIL PUBLICO
+import PublicProfile from './pages/publicProfile/PublicProfile';
 function App() {
   return (
     <>
@@ -61,7 +62,7 @@ function App() {
             <Route path="/registrar" element={<Register />}/>
             <Route path="/iniciar-sesion" element={<Login />}/>
             <Route path="/modificar-perfil" element={<ProtectedRoute><UserProfileSetting /></ProtectedRoute>}/>
-            <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
+            <Route path="/perfil/:mail" element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
             
             <Route path="/agregar-mascota" element={<ProtectedRoute><AddPets /></ProtectedRoute>}/>
             <Route path="/modificar-mascota/:mascotaId" element={<ProtectedRoute><SettingsPet /></ProtectedRoute>}/>
@@ -85,9 +86,11 @@ function App() {
 
             <Route path='/formularios' element={<ConsultAdoptForm></ConsultAdoptForm>}></Route>
 
+
             <Route path='/paseadores' element={<Paseadores></Paseadores>}></Route>
             <Route path="/agregar-paseador" element={<ProtectedRoute><AddPaseador /></ProtectedRoute>}></Route>
 
+            <Route path="/perfilPublico/:correoElectronico" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>}></Route>
 
 
             

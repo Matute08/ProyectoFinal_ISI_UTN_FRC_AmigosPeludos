@@ -11,14 +11,14 @@ import {
     updateUser,
     getGenero,
     getGeneroId,
-    getRol
+    getRol,
 } from "../../services/api";
 //Images
 import avatar1 from "../../assets/images/user/user-random.jpg";
 import Loading from "../components/Loading";
 import Modal from "../components/Modal";
 
-const AsideLeft = () => {
+const PublicAsideLeft = ({correoElectronico}) => {
     const { handleSweetAlertDeleteUser } = Modal();
     const navigate = useNavigate();
     const { user, deleteAccount } = useAuth();
@@ -31,12 +31,12 @@ const AsideLeft = () => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const userData = await getUserMail(user.email);
-            userData.calle = `${userData.calle + " " + userData.nroCalle}`
+            const userData = correoElectronico && await getUserMail(correoElectronico);
+            userData.calle = `${userData.calle + " " + userData.nroCalle}`;
             setUserData(userData);
             setIsLoading(false);
         };
-        console.log(userData);
+        console.log(correoElectronico)
         fetchUserData();
     }, [user]);
 
@@ -48,7 +48,6 @@ const AsideLeft = () => {
 
         fetchRol();
     }, []);
-
 
     const keyMap = {
         nombreCompleto: "Nombre Completo",
@@ -76,22 +75,9 @@ const AsideLeft = () => {
         "username",
         "barrioId",
         "nroCalle",
-        "rolUsuario"
-
+        "rolUsuario",
     ];
-  
 
-    //funcion para eliminar al usuario
-    const handleDeleteUser = async () => {
-        const deleteResponse = await deleteAccount();
-        if (deleteResponse.success.success) {
-            userData.habilitada = false;
-            await updateUser(userData.id, userData);
-        } else {
-            //console.log(deleteResponse.error.code);
-        }
-        return deleteResponse.success;
-    };
 
     return (
         <React.Fragment>
@@ -122,15 +108,16 @@ const AsideLeft = () => {
                                             <>{userData.nombreCompleto}</>
                                         )}
                                     </h5>
-                                    <p className="text-muted mb-0">{userData &&
-                                                                nombreRol &&
-                                                                userData.rolId &&
-                                                                // Encuentra el objeto de rol con el mismo id en nombreRol
-                                                                nombreRol.data.find(
-                                                                    (rol) =>
-                                                                        rol.id ===
-                                                                        userData.rolId
-                                                                )?.nombre}</p>
+                                    <p className="text-muted mb-0">
+                                        {userData &&
+                                            nombreRol &&
+                                            userData.rolId &&
+                                            // Encuentra el objeto de rol con el mismo id en nombreRol
+                                            nombreRol.data.find(
+                                                (rol) =>
+                                                    rol.id === userData.rolId
+                                            )?.nombre}
+                                    </p>
                                 </div>
                             </CardBody>
                         </Card>
@@ -172,75 +159,7 @@ const AsideLeft = () => {
                                                     );
                                                 }
                                             )}
-                                    
                                     </Table>
-                                </div>
-                                <div className="d-flex button-profile">
-                                    <Link
-                                        class="button-pz btn-pz-success"
-                                        to={"/modificar-perfil"}
-                                    >
-                                        <span class="span-pz text-pz">
-                                            Modificar Perfil
-                                        </span>
-                                        <span class="span-pz icon-pz">
-                                            <svg
-                                                viewBox="0 0 490 490"
-                                                className="svg-pz-modificar"
-                                            >
-                                                <g
-                                                    transform="translate(0,490) scale(0.1,-0.1)"
-                                                    fill="#ffff"
-                                                >
-                                                    <path
-                                                        d="M4107 4670 c-32 -12 -77 -32 -100 -47 -23 -14 -181 -164 -352 -334
-                                                            l-310 -309 318 -317 318 -318 313 315 c293 295 315 320 352 394 38 79 39 82
-                                                            39 190 -1 91 -5 121 -23 166 -44 111 -142 209 -252 252 -81 31 -226 35 -303 8z"
-                                                    />
-                                                    <path
-                                                        d="M2442 3077 c-424 -424 -772 -777 -772 -782 0 -13 612 -625 625 -625
-                                                            3 0 1555 1542 1555 1555 0 13 -612 625 -625 625 -6 0 -358 -348 -783 -773z"
-                                                    />
-                                                    <path
-                                                        d="M743 3765 c-124 -34 -213 -108 -270 -223 l-38 -76 0 -1360 0 -1361
-                                                            23 -58 c34 -82 125 -178 211 -220 l66 -32 1366 0 1365 0 76 38 c121 59 204
-                                                            167 228 296 6 34 10 387 10 953 l0 900 -29 29 c-38 37 -82 39 -116 4 l-25 -24
-                                                            0 -904 c0 -991 2 -965 -60 -1039 -16 -20 -53 -48 -82 -62 l-52 -26 -1305 0
-                                                            c-908 0 -1318 3 -1345 11 -53 15 -138 100 -154 155 -9 32 -12 350 -12 1345 l0
-                                                            1304 24 51 c13 28 41 65 62 82 78 65 36 62 1034 62 l907 0 27 26 c35 36 34 77
-                                                            -3 115 l-29 29 -914 -1 c-754 0 -922 -3 -965 -14z"
-                                                    />
-                                                    <path
-                                                        d="M1432 1773 c-73 -208 -133 -386 -132 -396 0 -25 54 -77 79 -77 16 0
-                                                            759 255 768 264 1 1 -129 133 -290 294 l-292 292 -133 -377z"
-                                                    />
-                                                </g>
-                                            </svg>
-                                        </span>
-                                    </Link>
-
-                                    <Link
-                                        class="button-pz btn-pz-danger"
-                                        onClick={() =>
-                                            handleSweetAlertDeleteUser(
-                                                handleDeleteUser
-                                            )
-                                        }
-                                    >
-                                        <span class="span-pz text-pz">
-                                            Eliminar Perfil
-                                        </span>
-                                        <span class="span-pz icon-pz">
-                                            <svg
-                                                width="24"
-                                                height="24"
-                                                viewBox="0 0 24 24"
-                                                className="svg-pz"
-                                            >
-                                                <path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z"></path>
-                                            </svg>
-                                        </span>
-                                    </Link>
                                 </div>
                             </CardBody>
                         </Card>
@@ -255,4 +174,4 @@ const AsideLeft = () => {
     );
 };
 
-export default AsideLeft;
+export default PublicAsideLeft;

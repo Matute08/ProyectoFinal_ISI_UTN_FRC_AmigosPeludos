@@ -182,7 +182,7 @@ const FormAddLostPets = () => {
                     data.longitud = longitud;
                     data.fotos = urls;
                     data.usuarioId = userData.id;
-                    data.tipoPublicacionId = 2
+                    data.tipoPublicacionId = 1
                     data.mailUsuario = user.email;
                     
                     if (data.castracion === "1") {

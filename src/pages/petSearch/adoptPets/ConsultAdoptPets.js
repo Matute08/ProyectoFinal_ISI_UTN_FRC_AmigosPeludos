@@ -227,7 +227,7 @@ const ConsultAdoptPets = () => {
                                                         onClick={() =>
                                                             setIsModalOpen(
                                                                 true
-                                                            )
+                                                          )
                                                         }>
                                                             Formulario
                                                             <svg

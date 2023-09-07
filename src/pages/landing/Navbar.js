@@ -254,7 +254,7 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
                                             </DropdownToggle>
 
                                             <DropdownMenu className="dropdown-menu-end">
-                                                <DropdownItem href="/perfil">
+                                                <DropdownItem href={userData && `/perfil/${userData.mail}`}>
                                                     <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                                                     <span className="align-middle">
                                                         Perfil
@@ -273,16 +273,16 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
                                                     </span>
                                                 </DropdownItem>
 
-                                                {/* SOLO ADMIN */}
+                                                {/* SOLO ADMIN
                                                 {userData &&
                                                     userData.rolId === 1 && (
-                                                        <DropdownItem href="/formularios">
+                                                        <DropdownItem href="/solicitudes">
                                                             <i className="mdi mdi-form-select text-muted fs-16 align-middle me-1"></i>
                                                             <span className="align-middle">
                                                                 Solicitudes
                                                             </span>
                                                         </DropdownItem>
-                                                    )}
+                                                    )} */}
 
                                                 <div className="dropdown-divider"></div>
                                                 <DropdownItem

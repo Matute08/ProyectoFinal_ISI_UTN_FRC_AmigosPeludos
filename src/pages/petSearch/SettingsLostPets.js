@@ -999,7 +999,7 @@ const SettingsLostPets = () => {
                                                             class="button-pz btn-pz-secondary"
                                                             onClick={() => {
                                                                 navigate(
-                                                                    "/perfil"
+                                                                    `/perfil/${userData.mail}`
                                                                 );
                                                             }}
                                                         >

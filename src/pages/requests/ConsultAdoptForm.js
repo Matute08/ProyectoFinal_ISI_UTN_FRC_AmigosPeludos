@@ -82,6 +82,7 @@ const ConsultAdoptForm = () => {
                 setFormularioSolicitado(publicData);
             }
         };
+        console.log(formularioSolicitado);
 
         if (userData && userData.id) {
             fetchFormDataSolicitado();
@@ -197,7 +198,7 @@ const ConsultAdoptForm = () => {
                             {/* Fila 1 titulo */}
                             <Row>
                                 <Col className=" d-flex justify-content-center titulo-consult-pest ">
-                                    <h1>Solicitudes de Adopción</h1>
+                                    <h1>Formularios de Adopción</h1>
                                 </Col>
                             </Row>
                             <Row>
@@ -277,6 +278,10 @@ const ConsultAdoptForm = () => {
                                                                                         Solicitante
                                                                                     </th>
                                                                                     <th scope="col">
+                                                                                        URL
+                                                                                        Publicación
+                                                                                    </th>
+                                                                                    <th scope="col">
                                                                                         Estado
                                                                                         de
                                                                                         Adopción
@@ -291,6 +296,8 @@ const ConsultAdoptForm = () => {
                                                                             {/* MAPEO DE DATOS */}
                                                                             <tbody>
                                                                                 {formularioSolicitado &&
+                                                                                formularioSolicitado.length >
+                                                                                    0 ? (
                                                                                     formularioSolicitado.map(
                                                                                         (
                                                                                             item
@@ -324,6 +331,16 @@ const ConsultAdoptForm = () => {
                                                                                                     }
                                                                                                 </td>
                                                                                                 <td>
+                                                                                                    <Link
+                                                                                                        to={`/consultar-posteo-adopcion/${item.publicacionMascotaId}`}
+                                                                                                        target="_blank"
+                                                                                                        rel="noopener noreferrer"
+                                                                                                    >
+                                                                                                        Ver
+                                                                                                        Mascota
+                                                                                                    </Link>
+                                                                                                </td>
+                                                                                                <td>
                                                                                                     {
                                                                                                         item.estadoFormulario
                                                                                                     }
@@ -336,11 +353,10 @@ const ConsultAdoptForm = () => {
                                                                                                                 handleUpdateState(
                                                                                                                     item.id
                                                                                                                 )
-                                                                                                            } // Llama a la función handleUpdateState
+                                                                                                            }
                                                                                                         >
-                                                                                                            <i className=" ri-edit-2-fill"></i>
+                                                                                                            <i className="ri-edit-2-fill"></i>
                                                                                                         </button>
-                                                                                                       
 
                                                                                                         <button
                                                                                                             className="btn btn-primary btn-formulario btn-form"
@@ -350,14 +366,29 @@ const ConsultAdoptForm = () => {
                                                                                                                 )
                                                                                                             }
                                                                                                         >
-                                                                                                            <i className="  ri-eye-fill"></i>
+                                                                                                            <i className="ri-eye-fill"></i>
                                                                                                         </button>
                                                                                                     </div>
                                                                                                 </td>
                                                                                             </tr>
                                                                                         )
-                                                                                    )}
+                                                                                    )
+                                                                                ) : (
+                                                                                    <tr>
+                                                                                        <td
+                                                                                            colSpan="7"
+                                                                                            className="text-center "
+                                                                                        >
+                                                                                            <h1>
+                                                                                                No
+                                                                                                tienes
+                                                                                                solicitudes
+                                                                                            </h1>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                )}
                                                                             </tbody>
+
                                                                             {/* Agrega el modal de ver formulario */}
                                                                             <ViewAdoptForm
                                                                                 isOpen={
@@ -407,7 +438,11 @@ const ConsultAdoptForm = () => {
                                                                                     <th scope="col">
                                                                                         Telefono
                                                                                         del
-                                                                                        Solicitado
+                                                                                        Dueño
+                                                                                    </th>
+                                                                                    <th scope="col">
+                                                                                        URL
+                                                                                        Publicación
                                                                                     </th>
                                                                                     <th scope="col">
                                                                                         Estado
@@ -423,6 +458,8 @@ const ConsultAdoptForm = () => {
                                                                             {/* MAPEO DE DATOS */}
                                                                             <tbody>
                                                                                 {formularioSolicitante &&
+                                                                                formularioSolicitante.length >
+                                                                                    0 ? (
                                                                                     formularioSolicitante.map(
                                                                                         (
                                                                                             item
@@ -453,13 +490,22 @@ const ConsultAdoptForm = () => {
                                                                                                     }
                                                                                                 </td>
                                                                                                 <td>
+                                                                                                    <Link
+                                                                                                        to={`/consultar-posteo-adopcion/${item.publicacionMascotaId}`}
+                                                                                                        target="_blank"
+                                                                                                        rel="noopener noreferrer"
+                                                                                                    >
+                                                                                                        Ver
+                                                                                                        Mascota
+                                                                                                    </Link>
+                                                                                                </td>
+                                                                                                <td>
                                                                                                     {
                                                                                                         item.estadoFormulario
                                                                                                     }
                                                                                                 </td>
                                                                                                 <td>
                                                                                                     <div className="d-flex justify-content-center">
-                                                                                                        
                                                                                                         <button
                                                                                                             className="btn btn-primary btn-formulario btn-form"
                                                                                                             onClick={() =>
@@ -468,14 +514,27 @@ const ConsultAdoptForm = () => {
                                                                                                                 )
                                                                                                             }
                                                                                                         >
-                                                                                                            <i className="  ri-eye-fill"></i>
+                                                                                                            <i className="ri-eye-fill"></i>
                                                                                                         </button>
                                                                                                     </div>
                                                                                                 </td>
                                                                                             </tr>
                                                                                         )
-                                                                                    )}
+                                                                                    )
+                                                                                ) : (
+                                                                                    <tr>
+                                                                                        <td colSpan="7" className="text-center">
+                                                                                            {" "}
+                                                                                            <h1>
+                                                                                                No
+                                                                                                tienes
+                                                                                                solicitudes
+                                                                                            </h1>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                )}
                                                                             </tbody>
+
                                                                             {/* Agrega el modal de ver formulario */}
                                                                             <ViewAdoptForm
                                                                                 isOpen={
