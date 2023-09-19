@@ -233,7 +233,7 @@ const FormAddLostPets = () => {
                                                 maxFiles={4}
                                                 name="files"
                                                 className="filepond filepond-input-multiple"
-                                                labelIdle="Arrastra y suelta tus archivos o buscalos "
+                                                labelIdle="Arrastra y suelta tus archivos o búscalos "
                                             />
                                             <p className="text-danger">
                                                 {errorFile}
@@ -590,7 +590,7 @@ const FormAddLostPets = () => {
                                                 <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
-                                                            Fecha de Perdida
+                                                            Fecha de Pérdida
                                                             <span className="text-danger">
                                                                 *
                                                             </span>
@@ -811,7 +811,7 @@ const FormAddLostPets = () => {
                                                 <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
-                                                            Numero de Celular:
+                                                            Número de Celular:
                                                         </Label>
                                                         <input
                                                             type="number"

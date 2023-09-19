@@ -150,7 +150,7 @@ const Services = () => {
                                     </p>
                                     <div>
                                         <Link
-                                            to="#"
+                                            to="/paseadores"
                                             className="fs-13 fw-medium"
                                         >
                                             Acceder{" "}
@@ -250,7 +250,7 @@ const Services = () => {
                                     </p>
                                     <div>
                                         <Link
-                                            to="#"
+                                            to="/veterinarias"
                                             className="fs-13 fw-medium"
                                         >
                                             Acceder{" "}

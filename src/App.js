@@ -49,6 +49,9 @@ import AddPaseador from './pages/paseadores/AddPaseador';
 
 //PERFIL PUBLICO
 import PublicProfile from './pages/publicProfile/PublicProfile';
+
+import Veterinarias from './pages/components/veterinarias/Veterinarias';
+
 function App() {
   return (
     <>
@@ -90,7 +93,9 @@ function App() {
             <Route path='/paseadores' element={<Paseadores></Paseadores>}></Route>
             <Route path="/agregar-paseador" element={<ProtectedRoute><AddPaseador /></ProtectedRoute>}></Route>
 
-            <Route path="/perfilPublico/:correoElectronico" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>}></Route>
+            <Route path="/perfilPublico/:correoElectronico/:id" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>}></Route>
+
+            <Route path='/veterinarias' element={<Veterinarias></Veterinarias>}></Route>
 
 
             

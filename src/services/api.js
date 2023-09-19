@@ -542,3 +542,68 @@ export async function updateForm(id, userData) {
         console.log(error);
     }
 }
+
+
+
+
+
+
+
+
+//GET EXPERIENCIA PASEADOR
+
+export async function getExperiencia() {
+    try {
+        const response = await axios({
+            url: `${url}/experiencia`,
+            method: "GET",
+        });
+
+        return response.data; // Devuelve solo los datos (response.data)
+    } catch (error) {
+        console.error("Error al obtener experiencia:", error);
+        throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}
+
+
+//POST PASEADOR
+export async function postPaseador(userData) {
+    try {
+        const response = await axios.post(`${url}/paseador`, userData);
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+//GET  PASEADOR
+
+export async function getPaseador() {
+    try {
+        const response = await axios({
+            url: `${url}/paseador`,
+            method: "GET",
+        });
+        return response.data; // Devuelve solo los datos (response.data)
+    } catch (error) {
+        console.error("Error al obtener paseadores:", error);
+        throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}
+
+//GET  PASEADOR POR ID
+
+export async function getPaseadorPorId(id) {
+    try {
+        const response = await axios({
+            url: `${url}/paseador/${id}`,
+            method: "GET",
+        });
+        return response.data; // Devuelve solo los datos (response.data)
+    } catch (error) {
+        console.error("Error al obtener paseadores:", error);
+        throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}

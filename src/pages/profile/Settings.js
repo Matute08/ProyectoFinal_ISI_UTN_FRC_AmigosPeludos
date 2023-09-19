@@ -96,8 +96,9 @@ const UserProfileSetting = () => {
         }
     }, [userData]);
 
-    const { register, handleSubmit, setValue } = useForm();
-
+    const { register, handleSubmit, setValue, formState:{errors} } = useForm();
+    // Definir reglas de validación para el campo de nombre
+    const nameValidation = /^[A-Za-z\s]+$/; // Acepta letras y espacios
     useEffect(() => {
         if (userData) {
             setValue("nombreCompleto", `${userData.nombreCompleto}`);
@@ -261,21 +262,43 @@ const UserProfileSetting = () => {
                                                         <Row>
                                                             <Col lg={3}>
                                                                 <div className="mb-3">
-                                                                    <Label
+                                                                    <label
                                                                         htmlFor="firstnameInput"
                                                                         className="form-label"
                                                                     >
                                                                         Nombre
                                                                         Completo
-                                                                    </Label>
+                                                                    </label>
                                                                     <input
                                                                         type="text"
-                                                                        className="form-control"
-                                                                        name="nombre"
+                                                                        className={`form-control ${
+                                                                            errors.nombreCompleto
+                                                                                ? "is-invalid"
+                                                                                : ""
+                                                                        }`}
+                                                                        name="nombreCompleto"
                                                                         {...register(
-                                                                            "nombreCompleto"
+                                                                            "nombreCompleto",
+                                                                            {
+                                                                                required: true,
+                                                                                pattern:
+                                                                                    {
+                                                                                        value: nameValidation,
+                                                                                        message:
+                                                                                            "El nombre solo debe contener letras y espacios.",
+                                                                                    },
+                                                                            }
                                                                         )}
                                                                     />
+                                                                    {errors.nombreCompleto && (
+                                                                        <div className="invalid-feedback">
+                                                                            {
+                                                                                errors
+                                                                                    .nombreCompleto
+                                                                                    .message
+                                                                            }
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </Col>
 
@@ -325,7 +348,7 @@ const UserProfileSetting = () => {
                                                                         htmlFor="phonenumberInput"
                                                                         className="form-label"
                                                                     >
-                                                                        Numero
+                                                                        Número
                                                                         de
                                                                         Celular
                                                                     </Label>
@@ -541,9 +564,7 @@ const UserProfileSetting = () => {
 
                                                                     <button
                                                                         class="button-pz btn-pz-secondary"
-                                                                        to={
-                                                                            `/perfil/${userData.mail}`
-                                                                        }
+                                                                        to={`/perfil/${userData.mail}`}
                                                                     >
                                                                         <span class="span-pz text-pz">
                                                                             Volver

@@ -1,27 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Col, Form, Row,Label } from "reactstrap";
+import { Col, Form, Row } from "reactstrap";
 
 const Step3 = ({ onNext, onPrevious, step1Data, step2Data }) => {
   const daysOfWeek = [
-    "Lunes",
-    "Martes",
-    "Miércoles",
-    "Jueves",
-    "Viernes",
-    "Sábado",
-    "Domingo",
+    "lunes",
+    "martes",
+    "miercoles",
+    "jueves",
+    "viernes",
+    "sabado",
+    "domingo",
   ];
-  const timePeriods = ["Mañana", "Tarde", "Noche"];
-
+  const timePeriods = ["manana", "tarde", "noche"];
   const [scheduleData, setScheduleData] = useState({});
+  const [isAtLeastOneSelected, setIsAtLeastOneSelected] = useState(false);
+
+  useEffect(() => {
+    const initialScheduleData = {};
+    for (const day of daysOfWeek) {
+      initialScheduleData[day.toLowerCase()] = {};
+      for (const period of timePeriods) {
+        initialScheduleData[day.toLowerCase()][period.toLowerCase()] = false;
+      }
+    }
+    setScheduleData(initialScheduleData);
+  }, []);
+
+  useEffect(() => {
+    const isOneSelected = Object.values(scheduleData).some((dayData) =>
+      Object.values(dayData).some((isSelected) => isSelected)
+    );
+    setIsAtLeastOneSelected(isOneSelected);
+  }, [scheduleData]);
 
   const handleCheckboxChange = (day, period, isChecked) => {
     setScheduleData((prevData) => ({
       ...prevData,
-      [day]: {
-        ...(prevData[day] || {}),
-        [period]: isChecked,
+      [day.toLowerCase()]: {
+        ...prevData[day.toLowerCase()],
+        [period.toLowerCase()]: isChecked,
       },
     }));
   };
@@ -33,85 +51,92 @@ const Step3 = ({ onNext, onPrevious, step1Data, step2Data }) => {
   } = useForm();
 
   const onSubmit = (data) => {
-    const selectedData = {};
-    for (const day in scheduleData) {
-      selectedData[day] = {};
-      for (const period in scheduleData[day]) {
-        if (scheduleData[day][period]) {
-          selectedData[day][period] = true;
-        }
-      }
+    if (!isAtLeastOneSelected) {
+      // Mostrar el mensaje de error si no hay horarios seleccionados
+      setIsAtLeastOneSelected(false);
+      return;
     }
 
-    const combinedData = { ...data, scheduleData: selectedData };
+    const combinedData = {
+      ...data,
+      grilla: {
+        scheduleData: { ...scheduleData },
+      },
+    };
 
     onNext({ ...step1Data, ...step2Data, ...combinedData });
   };
 
-    return (
-        <Form onSubmit={handleSubmit(onSubmit)}>
-            <Row>
-                {/* DIAS DE TRABAJO */}
-                <h3 className="form-label text-center">Horarios de Paseo</h3>
-                <Col lg={12} className="d-flex justify-content-center">
-                    <div className="mb-3 w-100">
-                        <table className="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    {daysOfWeek.map((day) => (
-                                        <th key={day}>{day}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {timePeriods.map((period) => (
-                                    <tr key={period}>
-                                        <td>{period}</td>
-                                        {daysOfWeek.map((day) => (
-                                            <td
-                                                key={day}
-                                                className="checkbox-cell"
-                                            >
-                                                <div className="custom-checkbox">
-                                                    <input
-                                                        type="checkbox"
-                                                        onChange={(e) =>
-                                                            handleCheckboxChange(
-                                                                day,
-                                                                period,
-                                                                e.target.checked
-                                                            )
-                                                        }
-                                                    />
-                                                </div>
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </Col>
-            </Row>
+  return (
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      <Row>
+        <h3 className="form-label text-center">Horarios de Paseo</h3>
+        <Col lg={12} className="d-flex justify-content-center">
+          <div className="mb-3 w-100">
+            <table className="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th></th>
+                  {daysOfWeek.map((day) => (
+                    <th key={day}>{day}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {timePeriods.map((period) => (
+                  <tr key={period}>
+                    <td>{period}</td>
+                    {daysOfWeek.map((day) => (
+                      <td key={day} className="checkbox-cell">
+                        <div className="custom-checkbox">
+                          <input
+                            type="checkbox"
+                            onChange={(e) =>
+                              handleCheckboxChange(
+                                day,
+                                period,
+                                e.target.checked
+                              )
+                            }
+                          />
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Col>
+      </Row>
 
-            <Col className="button-container">
-                {onPrevious && (
-                    <button className="btn-next-paseador" onClick={onPrevious}>
-                        <span class="transition transition-back"></span>
-                        <span class="gradient"></span>
-                        <span class="label">Atras</span>
-                    </button>
-                )}
+      {!isAtLeastOneSelected && (
+        <div className="text-danger text-center mb-3">
+          Debe seleccionar al menos un horario.
+        </div>
+      )}
 
-                <button className="btn-next-paseador" type="submit">
-                    <span class="transition"></span>
-                    <span class="gradient"></span>
-                    <span class="label">Siguiente</span>
-                </button>
-            </Col>
-        </Form>
-    );
+      <Col className="button-container">
+        {onPrevious && (
+          <button className="btn-next-paseador" onClick={onPrevious}>
+            <span className="transition transition-back"></span>
+            <span className="gradient"></span>
+            <span className="label">Atrás</span>
+          </button>
+        )}
+
+        <button
+          className="btn-next-paseador"
+          type="submit"
+          disabled={!isAtLeastOneSelected}
+        >
+          <span className="transition"></span>
+          <span className="gradient"></span>
+          <span className="label">Siguiente</span>
+        </button>
+      </Col>
+    </Form>
+  );
 };
 
 export default Step3;

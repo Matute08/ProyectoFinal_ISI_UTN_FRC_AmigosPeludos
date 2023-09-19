@@ -182,7 +182,7 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
                                                     </NavLink>
                                                 </DropdownItem>
                                                 <DropdownItem>
-                                                    <NavLink href="#veterinarias">
+                                                    <NavLink href="/veterinarias">
                                                         Veterinarias
                                                     </NavLink>
                                                 </DropdownItem>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
@@ -8,6 +8,7 @@ import Navbar from "../landing/Navbar";
 import { Card, CardBody, CardHeader, Col, Container, Row } from "reactstrap";
 import Footer from "../landing/Footer";
 import { FormProvider, useForm } from "react-hook-form";
+
 
 const steps = [Step1, Step2, Step3, Step4, Step5];
 
@@ -19,10 +20,28 @@ const AddPaseador = ({ methods }) => {
   const [step3Data, setStep3Data] = useState({});
   const [step4Data, setStep4Data] = useState({});
 
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 600);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 600);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+
   const handleNext = (data) => {
     setFormData((prevData) => ({ ...prevData, ...data }));
     if (currentStep === steps.length - 1) {
       console.log("Datos finales:", formData);
+
+
+
     } else {
       if (currentStep === 0) {
         setStep1Data(data);
@@ -58,7 +77,7 @@ const AddPaseador = ({ methods }) => {
             </Row>
             <Row>
               <Col className="d-flex justify-content-center">
-                <Card className="w-50">
+                <Card className={`${window.innerWidth < 600 ? 'w-75' : 'w-50'}`}>
                   <CardHeader className="d-flex justify-content-center">
                     <div
                       className="progress w-50 m-0"

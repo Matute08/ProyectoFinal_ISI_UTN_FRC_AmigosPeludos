@@ -13,23 +13,29 @@ const Step4 = ({ onNext, onPrevious, step1Data, step2Data, step3Data }) => {
     } = useForm();
 
     const onSubmit = (data) => {
+        data.precioPaseo = parseInt(data.precioPaseo, 10); 
         onNext({ ...step1Data, ...step2Data, ...step3Data, ...data });
     };
 
     return (
         <Form onSubmit={handleSubmit(onSubmit)}>
             <Row>
-                {/* RPECIO */}
+                {/* PRECIO */}
                 <Col lg={12} className="d-flex justify-content-center">
                     <div className="mb-3 w-50">
                         <Label className="form-label">Precio por paseo</Label>
                         <input
                             type="number"
-                            className="form-control"
-                            name="precio"
+                            className={`form-control ${errors.precioPaseo ? 'is-invalid' : ''}`}
+                            name="precioPaseo"
                             placeholder="Precio por paseo"
-                            {...register("precio")}
+                            {...register("precioPaseo", { required: "Este campo es obligatorio" })}
                         />
+                        {errors.precioPaseo && (
+                            <div className="invalid-feedback">
+                                {errors.precioPaseo.message}
+                            </div>
+                        )}
                     </div>
                 </Col>
 
@@ -38,16 +44,16 @@ const Step4 = ({ onNext, onPrevious, step1Data, step2Data, step3Data }) => {
             <Col className="button-container">
                 {onPrevious && (
                     <button className="btn-next-paseador" onClick={onPrevious}>
-                        <span class="transition transition-back"></span>
-                        <span class="gradient"></span>
-                        <span class="label">Atras</span>
+                        <span className="transition transition-back"></span>
+                        <span className="gradient"></span>
+                        <span className="label">Atras</span>
                     </button>
                 )}
 
                 <button className="btn-next-paseador" type="submit">
-                    <span class="transition"></span>
-                    <span class="gradient"></span>
-                    <span class="label">Siguiente</span>
+                    <span className="transition"></span>
+                    <span className="gradient"></span>
+                    <span className="label">Siguiente</span>
                 </button>
             </Col>
         </Form>

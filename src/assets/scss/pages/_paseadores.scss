@@ -147,7 +147,18 @@
 
 
 .img-paseo-perfil{
-  width: 100%;
+  width: 80%;
   height: 600px;
-  object-fit: cover;
+  object-fit: contain;
+}
+
+
+
+
+.green-text {
+  color: green;
+}
+
+.red-text {
+  color: red;
 }

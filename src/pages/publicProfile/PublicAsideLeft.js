@@ -37,6 +37,7 @@ const PublicAsideLeft = ({correoElectronico}) => {
             setIsLoading(false);
         };
         console.log(correoElectronico)
+        console.log(userData);
         fetchUserData();
     }, [user]);
 

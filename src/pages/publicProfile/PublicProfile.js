@@ -21,22 +21,63 @@ import SwiperCore, { Autoplay } from "swiper";
 import Navbar from "../landing/Navbar";
 import Footer from "../landing/Footer";
 import PublicAsideLeft from "./PublicAsideLeft";
+import { getPaseadorPorId } from "../../services/api";
 //Images
 import img1 from "../../assets/images/paseos/paseo1.jpeg";
 import img2 from "../../assets/images/paseos/paseo2.jpg";
 import img3 from "../../assets/images/paseos/paseo3.jpg";
 
 const PublicProfile = () => {
+    const { correoElectronico, id } = useParams();
+    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState("1");
+    const [activityTab, setActivityTab] = useState("1");
+    const [userData, setUserData] = useState();
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDataPaseador = async () => {
+            try {
+                const dataPaseador = await getPaseadorPorId(id);
+                if (dataPaseador) {
+                    setUserData(dataPaseador);
+                    setIsLoading(false);
+                }
+            } catch (error) {
+                console.error("Error al cargar datos:", error);
+                setIsLoading(false);
+            }
+        };
+        console.log(userData);
+        fetchDataPaseador();
+    }, [id]);
+
+    const openWhatsApp = () => {
+        // Número de teléfono al que enviar el mensaje
+        const phoneNumber = userData && userData.datosUsuario.celular;
+
+        // Mensaje predeterminado
+        const message = "¡Hola! Necesito tu servicio de paseador! ";
+
+        // Crear la URL de WhatsApp con el número de teléfono y el mensaje
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+            message
+        )}`;
+
+        // Redireccionar al usuario a la URL de WhatsApp
+        window.open(whatsappUrl, "_blank");
+    };
+
     const daysOfWeek = [
-        "Lunes",
-        "Martes",
-        "Miércoles",
-        "Jueves",
-        "Viernes",
-        "Sábado",
-        "Domingo",
+        "lunes",
+        "martes",
+        "miercoles",
+        "jueves",
+        "viernes",
+        "sabado",
+        "domingo",
     ];
-    const timePeriods = ["Mañana", "Tarde", "Noche"];
+    const timePeriods = ["manana", "tarde", "noche"];
 
     // Estado para almacenar los días seleccionados
     const [selectedDays, setSelectedDays] = useState({
@@ -49,11 +90,6 @@ const PublicProfile = () => {
         // No permitimos cambiar el estado de las celdas
         return;
     };
-
-    const { correoElectronico } = useParams();
-    const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState("1");
-    const [activityTab, setActivityTab] = useState("1");
 
     const toggleTab = (tab) => {
         if (activeTab !== tab) {
@@ -69,11 +105,7 @@ const PublicProfile = () => {
 
     SwiperCore.use([Autoplay]);
 
-    document.title = "Perfil | Amigos Peludos";
-
-    useEffect(() => {
-        console.log(correoElectronico);
-    }, []);
+    document.title = "Perfil Paseador| Amigos Peludos";
 
     return (
         <React.Fragment>
@@ -151,34 +183,62 @@ const PublicProfile = () => {
                             <CardBody>
                                 <TabContent activeTab={activeTab}>
                                     <TabPane tabId="1">
-                                        {/* aca va la info de los servicios */}
-                                        <div className="text-center">
-                                            <h2>AMO LOS ANIMALES</h2>
-                                        </div>
-                                        <div className="m-4">
-                                            <h5>
-                                                ¡Hola! Soy un apasionado de los
-                                                perros y un amante de las
-                                                caminatas al aire libre. Como
-                                                paseador de perros, mi objetivo
-                                                es brindar a tus peludos amigos
-                                                la mejor experiencia posible
-                                                mientras están fuera de casa.
-                                            </h5>
-                                        </div>
-                                        <div>
-                                            <h3>
-                                                Realizo paseos en: Nueva Cordoba
-                                            </h3>
-                                        </div>
-                                        <div className="mt-5">
-                                            <h3>2500 por paseo</h3>
-                                        </div>
+                                        <Row>
+                                            <div className="text-center">
+                                                <h2>
+                                                    {userData &&
+                                                        userData.titulo}
+                                                </h2>
+                                            </div>
+                                        </Row>
+
+                                        <Row>
+                                            <div className="m-4">
+                                                <h5>
+                                                    {" "}
+                                                    <strong>
+                                                        {" "}
+                                                        Descripción del
+                                                        paseador:{" "}
+                                                    </strong>
+                                                    {userData &&
+                                                        userData.presentacion}
+                                                </h5>
+                                            </div>
+                                        </Row>
+
+                                        <Row>
+                                            <div className="m-4">
+                                                <h5>
+                                                    <strong>
+                                                        Realizo paseos en el
+                                                        barrio:{" "}
+                                                    </strong>
+                                                    {userData &&
+                                                        userData.barrioTrabajo}
+                                                </h5>
+                                            </div>
+                                        </Row>
+                                        <Row>
+                                            <div className="m-4">
+                                                <h5>
+                                                    <strong>
+                                                        El precio por paseo es
+                                                        de:{" "}
+                                                    </strong>
+                                                    {userData &&
+                                                        userData.precioPaseo}{" "}
+                                                </h5>
+                                            </div>
+                                        </Row>
 
                                         <div className="d-flex justify-content-end">
                                             <button
-                                                className="btn-next-paseador button-container "
+                                                className="btn-next-paseador button-container"
                                                 type="submit"
+                                                onClick={
+                                                    openWhatsApp
+                                                }
                                             >
                                                 <span class="transition"></span>
                                                 <span class="gradient"></span>
@@ -192,60 +252,73 @@ const PublicProfile = () => {
                                     <TabPane tabId="2">
                                         <div
                                             id="carouselExampleControls"
-                                            class="carousel slide"
+                                            className="carousel slide"
                                             data-bs-ride="carousel"
                                         >
+                                            <style>
+                                                {`
+                                          
+                                          .carousel-control-prev-icon,
+                                          .carousel-control-next-icon {
+                                            background-color: black;
+                                            border-radius:50%
+                                          }
+                                        `}
+                                            </style>
                                             <div
-                                                class="carousel-inner"
+                                                className="carousel-inner"
                                                 role="listbox"
                                             >
-                                                <div class="carousel-item active">
-                                                    <img
-                                                        class="d-block img-fluid mx-auto  img-paseo-perfil"
-                                                        src={img1}
-                                                        alt="First slide"
-                                                    />
-                                                </div>
-                                                <div class="carousel-item">
-                                                    <img
-                                                        class="d-block img-fluid mx-auto  img-paseo-perfil"
-                                                        src={img2}
-                                                        alt="Second slide"
-                                                    />
-                                                </div>
-                                                <div class="carousel-item">
-                                                    <img
-                                                        class="d-block img-fluid mx-auto  img-paseo-perfil"
-                                                        src={img3}
-                                                        alt="Third slide"
-                                                    />
-                                                </div>
+                                                {userData &&
+                                                    userData.fotos.map(
+                                                        (foto, index) => (
+                                                            <div
+                                                                className={`carousel-item ${
+                                                                    index === 0
+                                                                        ? "active"
+                                                                        : ""
+                                                                }`}
+                                                                key={foto.id}
+                                                            >
+                                                                <img
+                                                                    className="d-block img-fluid mx-auto img-paseo-perfil"
+                                                                    src={
+                                                                        foto.foto
+                                                                    }
+                                                                    alt={`Slide ${
+                                                                        index +
+                                                                        1
+                                                                    }`}
+                                                                />
+                                                            </div>
+                                                        )
+                                                    )}
                                             </div>
                                             <a
-                                                class="carousel-control-prev"
+                                                className="carousel-control-prev"
                                                 href="#carouselExampleControls"
                                                 role="button"
                                                 data-bs-slide="prev"
                                             >
                                                 <span
-                                                    class="carousel-control-prev-icon"
+                                                    className="carousel-control-prev-icon"
                                                     aria-hidden="true"
                                                 ></span>
-                                                <span class="sr-only">
+                                                <span className="sr-only">
                                                     Previous
                                                 </span>
                                             </a>
                                             <a
-                                                class="carousel-control-next"
+                                                className="carousel-control-next"
                                                 href="#carouselExampleControls"
                                                 role="button"
                                                 data-bs-slide="next"
                                             >
                                                 <span
-                                                    class="carousel-control-next-icon"
+                                                    className="carousel-control-next-icon"
                                                     aria-hidden="true"
                                                 ></span>
-                                                <span class="sr-only">
+                                                <span className="sr-only">
                                                     Next
                                                 </span>
                                             </a>
@@ -295,39 +368,50 @@ const PublicProfile = () => {
                                                                         {daysOfWeek.map(
                                                                             (
                                                                                 day
-                                                                            ) => (
-                                                                                <td
-                                                                                    key={
-                                                                                        day
-                                                                                    }
-                                                                                    className="checkbox-cell"
-                                                                                >
-                                                                                    <div className="custom-checkbox">
-                                                                                        <input
-                                                                                            type="checkbox"
-                                                                                            onChange={(
-                                                                                                e
-                                                                                            ) =>
-                                                                                                handleCheckboxChange(
-                                                                                                    day,
-                                                                                                    period,
-                                                                                                    e
-                                                                                                        .target
-                                                                                                        .checked
-                                                                                                )
+                                                                            ) => {
+                                                                                const isAvailable =
+                                                                                    userData &&
+                                                                                    userData.grilla &&
+                                                                                    userData
+                                                                                        .grilla
+                                                                                        .scheduleData &&
+                                                                                    userData
+                                                                                        .grilla
+                                                                                        .scheduleData[
+                                                                                        day.toLowerCase()
+                                                                                    ] &&
+                                                                                    userData
+                                                                                        .grilla
+                                                                                        .scheduleData[
+                                                                                        day.toLowerCase()
+                                                                                    ][
+                                                                                        period
+                                                                                    ];
+
+                                                                                const symbolStyle =
+                                                                                    isAvailable
+                                                                                        ? "green-text"
+                                                                                        : "red-text";
+
+                                                                                return (
+                                                                                    <td
+                                                                                        key={
+                                                                                            day
+                                                                                        }
+                                                                                        className="checkbox-cell"
+                                                                                    >
+                                                                                        <span
+                                                                                            className={
+                                                                                                symbolStyle
                                                                                             }
-                                                                                            checked={
-                                                                                                selectedDays[
-                                                                                                    day
-                                                                                                ]?.[
-                                                                                                    period
-                                                                                                ]
-                                                                                            }
-                                                                                            disabled
-                                                                                        />
-                                                                                    </div>
-                                                                                </td>
-                                                                            )
+                                                                                        >
+                                                                                            {isAvailable
+                                                                                                ? "✓"
+                                                                                                : "✗"}
+                                                                                        </span>
+                                                                                    </td>
+                                                                                );
+                                                                            }
                                                                         )}
                                                                     </tr>
                                                                 )
@@ -343,27 +427,6 @@ const PublicProfile = () => {
                         </Card>
                     </Col>
                 </Row>
-
-                {/* <div
-                    style={{
-                        position: "fixed",
-                        bottom: "20px",
-                        right: "20px",
-                        zIndex: "9999",
-                    }}
-                    className="floating-button-container"
-                >
-                    <button
-                        class="Btn"
-                        onClick={() => {
-                            navigate("/agregar-mascota");
-                        }}
-                    >
-                        <div class="sign">+</div>
-
-                        <div class="text">Agregar Mascota</div>
-                    </button>
-                </div> */}
             </Container>
 
             <Footer />

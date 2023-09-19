@@ -20,20 +20,36 @@ export const auth = getAuth(firebaseApp);
 export const storage = getStorage(firebaseApp)
 
 //funciones de firebase
+
+//cargar fotos usuario
 export async function uploadFileUser(file) {
     const storageRef =  ref(storage, `avatarUser/${v4()}`)
     await uploadBytes(storageRef, file)
     const url = await getDownloadURL(storageRef)
     return url
 }
+
+//cargar fotos mascotas del usuario
 export async function uploadFilePetsUser(file) {
     const storageRef =  ref(storage, `petsUser/${v4()}`)
     await uploadBytes(storageRef, file)
     const url = await getDownloadURL(storageRef)
     return url
 }
+
+
+//cargar fotos mascotas perdidas
 export async function uploadFilesPetsLost(file) {
     const storageRef =  ref(storage, `petsLost/${v4()}`)
+    await uploadBytes(storageRef, file)
+    const url = await getDownloadURL(storageRef)
+    return url
+}
+
+
+//cargar fotos paseadores
+export async function uploadFilesPaseador(file) {
+    const storageRef =  ref(storage, `paseador/${v4()}`)
     await uploadBytes(storageRef, file)
     const url = await getDownloadURL(storageRef)
     return url
