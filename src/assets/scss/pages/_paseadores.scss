@@ -49,12 +49,14 @@
 .label {
   position: relative;
   top: -1px;
+  color: #ffff;
+
 }
 
 .transition {
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   transition-duration: 500ms;
-  background-color: rgba(16, 185, 129, 0.6);
+  background-color: rgba(236, 107, 118,0.9);
   border-radius: 9999px;
   width: 0;
 
@@ -65,7 +67,7 @@
   transform: translate(-50%, -50%);
 }
 .transition-back{
-  background-color: rgba(235, 51, 106, 0.6);
+  background-color: rgba(236, 107, 118,0.9);
 
 }
 
@@ -78,6 +80,7 @@
 .btn-next-paseador:active {
   transform: scale(0.97);
 }
+
 
 
 
@@ -104,6 +107,7 @@
   align-items: flex-end;
   margin-top: 10px;
   bottom: 0;
+
 }
 
 
@@ -162,3 +166,9 @@
 .red-text {
   color: red;
 }
+
+
+.icono-reloj{
+  width: 40px;
+  height: 60px;
+  }

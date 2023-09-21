@@ -67,7 +67,7 @@ const UserProfileSetting = () => {
 
     useEffect(() => {
         usuario();
-    }, [user]);
+    }, []);
 
     useEffect(() => {
         const getGeneros = async () => {
@@ -96,7 +96,12 @@ const UserProfileSetting = () => {
         }
     }, [userData]);
 
-    const { register, handleSubmit, setValue, formState:{errors} } = useForm();
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        formState: { errors },
+    } = useForm();
     // Definir reglas de validación para el campo de nombre
     const nameValidation = /^[A-Za-z\s]+$/; // Acepta letras y espacios
     useEffect(() => {
@@ -145,7 +150,18 @@ const UserProfileSetting = () => {
 
     //----OBTENER DATOS
     const usuario = async () => {
-        setUserData(await getUserMail(user.email));
+        // Obtener los datos del usuario desde el localStorage
+        const cachedUserData = localStorage.getItem("userData");
+
+        if (cachedUserData) {
+            // Parsear los datos almacenados en el localStorage
+            const dataLocalStorage = JSON.parse(cachedUserData);
+
+            // Acceder al correo electrónico del usuario
+            const userEmail = dataLocalStorage.email;
+
+            setUserData(await getUserMail(userEmail));
+        }
     };
     const obtenerId = (datos) => {
         setUserId(datos.id);

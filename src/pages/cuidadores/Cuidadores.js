@@ -16,7 +16,7 @@ import Loading from "../components/Loading";
 import { getPaseador } from "../../services/api";
 import img from "../../assets/images/user/user-random.jpg"
 
-const Paseadores = () => {
+const Cuidadores = () => {
     const navigate = useNavigate();
     const [paseadores, setPaseadores] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -45,7 +45,7 @@ const Paseadores = () => {
                     <Container fluid className="page-content buscador-fondo">
                         <Row>
                             <Col className="d-flex justify-content-center mb-5 text-center">
-                                <h1>Publicaciones de Paseadores</h1>
+                                <h1>Publicaciones de Cuidadores</h1>
                             </Col>
                         </Row>
 
@@ -138,12 +138,12 @@ const Paseadores = () => {
                                     </Col>
                                 ))
                             ) : (
-                                // Mostrar un mensaje si no hay paseadores
+                                // Mostrar un mensaje si no hay cuidadores
                                 <div
                                     className="alert alert-primary w-75"
                                     role="alert"
                                 >
-                                    <h5>No Hay Paseadores Registrados.</h5>
+                                    <h5>No Hay Cuidadores Registrados.</h5>
                                 </div>
                             )}
                         </Row>
@@ -161,7 +161,7 @@ const Paseadores = () => {
                             <Link className="Btn" to="/agregar-paseador">
                                 <div className="sign">+</div>
                                 <div className="text text-center">
-                                    Soy Paseador
+                                    Soy Cuidador
                                 </div>
                             </Link>
                         </div>
@@ -175,4 +175,4 @@ const Paseadores = () => {
     );
 };
 
-export default Paseadores;
+export default Cuidadores;

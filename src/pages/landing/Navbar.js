@@ -48,17 +48,27 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            if (user && user.email) {
-                const userData = await getUserMail(user.email);
+            // Obtener los datos del usuario desde el localStorage
+            const cachedUserData = localStorage.getItem("userData");
+
+            if (cachedUserData) {
+                // Parsear los datos almacenados en el localStorage
+                const dataLocalStorage = JSON.parse(cachedUserData);
+
+                // Acceder al correo electrónico del usuario
+                const userEmail = dataLocalStorage.email;
+
+                const userData = await getUserMail(userEmail);
                 setUserData(userData);
                 setIsLoading(false);
             }
         };
+        setIsLoading(false);
 
         fetchUserData();
+    }, []);
 
-        setIsLoading(false);
-    }, [user]);
+
 
     useEffect(() => {
         const fetchRol = async () => {
@@ -177,7 +187,7 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
                                                     </NavLink>
                                                 </DropdownItem>
                                                 <DropdownItem>
-                                                    <NavLink href="#cuidadores">
+                                                    <NavLink href="/cuidadores">
                                                         Cuidadores
                                                     </NavLink>
                                                 </DropdownItem>

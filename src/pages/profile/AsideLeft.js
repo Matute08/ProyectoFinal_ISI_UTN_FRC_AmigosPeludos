@@ -11,7 +11,7 @@ import {
     updateUser,
     getGenero,
     getGeneroId,
-    getRol
+    getRol,
 } from "../../services/api";
 //Images
 import avatar1 from "../../assets/images/user/user-random.jpg";
@@ -31,14 +31,25 @@ const AsideLeft = () => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const userData = await getUserMail(user.email);
-            userData.calle = `${userData.calle + " " + userData.nroCalle}`
-            setUserData(userData);
-            setIsLoading(false);
+            // Obtener los datos del usuario desde el localStorage
+            const cachedUserData = localStorage.getItem("userData");
+
+            if (cachedUserData) {
+                // Parsear los datos almacenados en el localStorage
+                const dataLocalStorage = JSON.parse(cachedUserData);
+
+                // Acceder al correo electrónico del usuario
+                const userEmail = dataLocalStorage.email;
+
+                const datosUsuario = await getUserMail(userEmail);
+                datosUsuario.calle = `${datosUsuario.calle + " " + datosUsuario.nroCalle}`;
+                setUserData(datosUsuario);
+                setIsLoading(false);
+            }
         };
-        console.log(userData);
+
         fetchUserData();
-    }, [user]);
+    }, []);
 
     useEffect(() => {
         const fetchRol = async () => {
@@ -48,7 +59,6 @@ const AsideLeft = () => {
 
         fetchRol();
     }, []);
-
 
     const keyMap = {
         nombreCompleto: "Nombre Completo",
@@ -76,10 +86,8 @@ const AsideLeft = () => {
         "username",
         "barrioId",
         "nroCalle",
-        "rolUsuario"
-
+        "rolUsuario",
     ];
-  
 
     //funcion para eliminar al usuario
     const handleDeleteUser = async () => {
@@ -122,15 +130,16 @@ const AsideLeft = () => {
                                             <>{userData.nombreCompleto}</>
                                         )}
                                     </h5>
-                                    <p className="text-muted mb-0">{userData &&
-                                                                nombreRol &&
-                                                                userData.rolId &&
-                                                                // Encuentra el objeto de rol con el mismo id en nombreRol
-                                                                nombreRol.data.find(
-                                                                    (rol) =>
-                                                                        rol.id ===
-                                                                        userData.rolId
-                                                                )?.nombre}</p>
+                                    <p className="text-muted mb-0">
+                                        {userData &&
+                                            nombreRol &&
+                                            userData.rolId &&
+                                            // Encuentra el objeto de rol con el mismo id en nombreRol
+                                            nombreRol.data.find(
+                                                (rol) =>
+                                                    rol.id === userData.rolId
+                                            )?.nombre}
+                                    </p>
                                 </div>
                             </CardBody>
                         </Card>
@@ -172,7 +181,6 @@ const AsideLeft = () => {
                                                     );
                                                 }
                                             )}
-                                    
                                     </Table>
                                 </div>
                                 <div className="d-flex button-profile">

@@ -61,19 +61,29 @@ const ConsultAdoptForm = () => {
         }
     };
 
+
+
     useEffect(() => {
         const fetchUserData = async () => {
-            if (user) {
-                const userData = await getUserMail(user.email);
-                setUserData(userData);
+            // Obtener los datos del usuario desde el localStorage
+            const cachedUserData = localStorage.getItem("userData");
+
+            if (cachedUserData) {
+                // Parsear los datos almacenados en el localStorage
+                const dataLocalStorage = JSON.parse(cachedUserData);
+
+                // Acceder al correo electrónico del usuario
+                const userEmail = dataLocalStorage.email;
+
+                const datosUsuario = await getUserMail(userEmail);
+                datosUsuario.calle = `${datosUsuario.calle + " " + datosUsuario.nroCalle}`;
+                setUserData(datosUsuario);
                 setIsLoading(false);
             }
         };
 
-        if (user) {
-            fetchUserData();
-        }
-    }, [user]);
+        fetchUserData();
+    }, []);
 
     useEffect(() => {
         const fetchFormDataSolicitado = async () => {

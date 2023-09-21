@@ -87,12 +87,22 @@ const FormAddAdoptPets = () => {
     };
 
     useEffect(() => {
-        const usuario = async () => {
-            const dataUsuario = await getUserMail(user.email);
-            if (dataUsuario) {
-                setUserData(dataUsuario);
+        const fetchUserData = async () => {
+            // Obtener los datos del usuario desde el localStorage
+            const cachedUserData = localStorage.getItem("userData");
+
+            if (cachedUserData) {
+                // Parsear los datos almacenados en el localStorage
+                const dataLocalStorage = JSON.parse(cachedUserData);
+
+                // Acceder al correo electrónico del usuario
+                const userEmail = dataLocalStorage.email;
+
+                const datosUsuario = await getUserMail(userEmail);
+                datosUsuario.calle = `${datosUsuario.calle + " " + datosUsuario.nroCalle}`;
+                setUserData(datosUsuario);
+                setIsLoading(false);
             }
-            setIsLoading(false);
         };
         const tipoMascotas = async () => {
             const dataTipoMascota = await getTipoMascota();
@@ -126,7 +136,7 @@ const FormAddAdoptPets = () => {
         };
 
        
-        usuario();
+        fetchUserData();
         tipoMascotas();
         tipoSexo();
         edadMascota();

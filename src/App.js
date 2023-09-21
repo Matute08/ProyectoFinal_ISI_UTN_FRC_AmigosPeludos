@@ -1,120 +1,92 @@
-//import logo from './logo.svg';
 import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
 import '../src/assets/scss/themes.scss';
-import Landing from './pages/landing/Index';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Register from './pages/autheticationInner/register/Register';
-import Login from "./pages/autheticationInner/login/Login"
 import { AuthProvider } from './services/AuthContext';
 import { ProtectedRoute } from './pages/autheticationInner/ProtectedRoute';
 
-//perfil
+// Importa tus componentes aquí
+
+import Landing from './pages/landing/Index';
+import Register from './pages/autheticationInner/register/Register';
+import Login from "./pages/autheticationInner/login/Login";
 import UserProfileSetting from './pages/profile/Settings';
 import Profile from './pages/profile/UserProfile';
 import PasswordReset from './pages/autheticationInner/passwordReset/PasswordReset';
-
-//mascotas usuario
 import AddPets from './pages/profile/pet/addPet/AddPets';
 import SettingsPet from './pages/profile/pet/settingsPet/SettingsPet';
-
-//mascota perdida
 import LostPets from './pages/petSearch/lostPets/LostPets';
 import AddLostPets from './pages/petSearch/lostPets/AddLostPets';
 import ConsultPosts from './pages/petSearch/ConsultPosts';
 import SettingsLostPets from './pages/petSearch/SettingsLostPets';
-
-//mascotas encontradas
 import FoundPets from './pages/petSearch/foundPets/FoundPets';
 import AddFoundPets from './pages/petSearch/foundPets/AddFoundPets';
-
-//mascotas en adopcion
 import AdoptPets from './pages/petSearch/adoptPets/AdoptPets';
 import AddAdoptPets from './pages/petSearch/adoptPets/AddAdoptPets';
 import ConsultAdoptPets from './pages/petSearch/adoptPets/ConsultAdoptPets';
 import SettingsAdoptPets from './pages/petSearch/adoptPets/SettingsAdoptPets';
-
-//preguntas frecuentes
 import Questions from './pages/frequentQuestions/Questions';
-
-//qr
 import GenerateQr from './pages/profile/qr/GenerateQr';
-
-//FORMULARIOS Y SOLICITUDES
 import ConsultAdoptForm from './pages/requests/ConsultAdoptForm';
-//PASEADORES
 import Paseadores from './pages/paseadores/Paseadores';
 import AddPaseador from './pages/paseadores/AddPaseador';
-
-
-//PERFIL PUBLICO
 import PublicProfile from './pages/publicProfile/PublicProfile';
-
-import Veterinarias from './pages/components/veterinarias/Veterinarias';
-
+import Veterinarias from './pages/veterinarias/Veterinarias';
+import Cuidadores from './pages/cuidadores/Cuidadores';
+import AddCuidador from './pages/cuidadores/AddCuidador';
 function App() {
   return (
-    <>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path='/' element={<Landing />} />
 
-        <AuthProvider>
-          <Routes>
+          {/* Autenticación */}
+          <Route path="/registrar" element={<Register />} />
+          <Route path="/iniciar-sesion" element={<Login />} />
+          <Route path="/modificar-perfil" element={<ProtectedRoute><UserProfileSetting /></ProtectedRoute>} />
+          <Route path="/perfil/:mail" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path='/restablecer-contraseña' element={<PasswordReset />} />
 
-            {/* SI EL COMPONENTE ESTA DENTRO DE PROTECTED ROUTE, NO SE MOSTRARA EL CONTENIDO A MENOS DE QUE ESTE LOGUEADO */}
-            <Route path='/' element={<Landing/>}/>
-            <Route path="/registrar" element={<Register />}/>
-            <Route path="/iniciar-sesion" element={<Login />}/>
-            <Route path="/modificar-perfil" element={<ProtectedRoute><UserProfileSetting /></ProtectedRoute>}/>
-            <Route path="/perfil/:mail" element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
-            
-            <Route path="/agregar-mascota" element={<ProtectedRoute><AddPets /></ProtectedRoute>}/>
-            <Route path="/modificar-mascota/:mascotaId" element={<ProtectedRoute><SettingsPet /></ProtectedRoute>}/>
-           
-            <Route path='/restablecer-contraseña' element={<PasswordReset></PasswordReset>}></Route>
-            
-            <Route path='/mascotas-perdidas' element={<LostPets></LostPets>}></Route>
-            <Route path='/publicacion-mascota-perdida' element={<ProtectedRoute><AddLostPets /></ProtectedRoute>}></Route>
-            <Route path="/consultar-posteo/:posteoId" element={<ProtectedRoute><ConsultPosts /></ProtectedRoute>}></Route>
-            <Route path="/modificar-posteo/:posteoId" element={<ProtectedRoute><SettingsLostPets /></ProtectedRoute>}></Route>
-            
-            <Route path='/mascotas-encontradas' element={<FoundPets></FoundPets>}></Route>
-            <Route path='/publicacion-mascota-encontrada' element={<ProtectedRoute><AddFoundPets></AddFoundPets></ProtectedRoute>}></Route>
-           
-            <Route path='/mascotas-adopcion' element={<AdoptPets></AdoptPets>}></Route>
-            <Route path='/publicacion-mascota-adopcion' element={<ProtectedRoute><AddAdoptPets></AddAdoptPets></ProtectedRoute>}></Route>
-            <Route path="/consultar-posteo-adopcion/:posteoId" element={<ProtectedRoute><ConsultAdoptPets /></ProtectedRoute>}></Route>
-            <Route path="/modificar-posteo-adopcion/:posteoId" element={<ProtectedRoute><SettingsAdoptPets /></ProtectedRoute>}></Route>
+          {/* Mascotas */}
+          <Route path="/agregar-mascota" element={<ProtectedRoute><AddPets /></ProtectedRoute>} />
+          <Route path="/modificar-mascota/:mascotaId" element={<ProtectedRoute><SettingsPet /></ProtectedRoute>} />
 
-            <Route path='/preguntas-frecuentes' element={<Questions></Questions>}></Route>
+          {/* Mascotas perdidas */}
+          <Route path='/mascotas-perdidas' element={<LostPets />} />
+          <Route path='/publicacion-mascota-perdida' element={<ProtectedRoute><AddLostPets /></ProtectedRoute>} />
+          <Route path="/consultar-posteo/:posteoId" element={<ProtectedRoute><ConsultPosts /></ProtectedRoute>} />
+          <Route path="/modificar-posteo/:posteoId" element={<ProtectedRoute><SettingsLostPets /></ProtectedRoute>} />
 
-            <Route path='/formularios' element={<ConsultAdoptForm></ConsultAdoptForm>}></Route>
+          {/* Mascotas encontradas */}
+          <Route path='/mascotas-encontradas' element={<FoundPets />} />
+          <Route path='/publicacion-mascota-encontrada' element={<ProtectedRoute><AddFoundPets /></ProtectedRoute>} />
 
+          {/* Mascotas en adopcion */}
+          <Route path='/mascotas-adopcion' element={<AdoptPets />} />
+          <Route path='/publicacion-mascota-adopcion' element={<ProtectedRoute><AddAdoptPets /></ProtectedRoute>} />
+          <Route path="/consultar-posteo-adopcion/:posteoId" element={<ProtectedRoute><ConsultAdoptPets /></ProtectedRoute>} />
+          <Route path="/modificar-posteo-adopcion/:posteoId" element={<ProtectedRoute><SettingsAdoptPets /></ProtectedRoute>} />
 
-            <Route path='/paseadores' element={<Paseadores></Paseadores>}></Route>
-            <Route path="/agregar-paseador" element={<ProtectedRoute><AddPaseador /></ProtectedRoute>}></Route>
+          <Route path='/preguntas-frecuentes' element={<Questions />} />
+          <Route path='/formularios' element={<ConsultAdoptForm />} />
 
-            <Route path="/perfilPublico/:correoElectronico/:id" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>}></Route>
+          {/* Paseadores */}
+          <Route path='/paseadores' element={<Paseadores />} />
+          <Route path="/agregar-paseador" element={<ProtectedRoute><AddPaseador /></ProtectedRoute>} />
 
-            <Route path='/veterinarias' element={<Veterinarias></Veterinarias>}></Route>
+          {/* Perfil público */}
+          <Route path="/perfilPublico/:correoElectronico/:id" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} />
 
+          {/* Veterinarias */}
+          <Route path='/veterinarias' element={<Veterinarias />} />
 
-            
-
-
-
-
-            
-            
-            
-
-            
-
-
-          </Routes>
-        </AuthProvider>
-
-      </BrowserRouter>
-    </>
+          {/* Cuidadores */}
+          <Route path='/cuidadores' element={<Cuidadores />} />
+          <Route path="/agregar-cuidador" element={<ProtectedRoute><AddCuidador /></ProtectedRoute>} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

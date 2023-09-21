@@ -28,14 +28,22 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
     const [publi, setPubli] = useState();
 
     useEffect(() => {
-        const usuario = async () => {
-            const dataUsuario = await getUserMail(user.email);
-            if (dataUsuario) {
-                setUserData(dataUsuario);
+        const fetchUserData = async () => {
+            // Obtener los datos del usuario desde el localStorage
+            const cachedUserData = localStorage.getItem("userData");
+
+            if (cachedUserData) {
+                // Parsear los datos almacenados en el localStorage
+                const dataLocalStorage = JSON.parse(cachedUserData);
+
+                // Acceder al correo electrónico del usuario
+                const userEmail = dataLocalStorage.email;
+
+                const datosUsuario = await getUserMail(userEmail);
+                datosUsuario.calle = `${datosUsuario.calle + " " + datosUsuario.nroCalle}`;
+                setUserData(datosUsuario);
+                setIsLoading(false);
             }
-            console.log(posteoId);
-            console.log(userData)
-            setIsLoading(false);
         };
         const ciudadMascota = async () => {
             const dataCiudad = await getCiudad();
@@ -56,7 +64,7 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
             }
         }
 
-        usuario();
+        fetchUserData();
         ciudadMascota();
         barrioMascota();
         publicacion();

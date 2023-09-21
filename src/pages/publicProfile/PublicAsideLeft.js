@@ -39,7 +39,8 @@ const PublicAsideLeft = ({correoElectronico}) => {
         console.log(correoElectronico)
         console.log(userData);
         fetchUserData();
-    }, [user]);
+    }, []);
+    
 
     useEffect(() => {
         const fetchRol = async () => {

@@ -14,9 +14,6 @@ const ViewAdoptForm = ({ isOpen, toggle, selectedFormData }) => {
                 setIsLoading(false);
             }
         };
-        console.log("====================================");
-        console.log(dataForm)
-        console.log("====================================");
 
         if (selectedFormData) {
             fetchForm();

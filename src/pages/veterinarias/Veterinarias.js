@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { Container, Row, Col } from "reactstrap";
 import { Link } from "react-router-dom";
-import Navbar from "../../landing/Navbar";
-import Footer from "../../landing/Footer";
-import Loading from "../Loading";
-import MapaVeterinarias from "./MapaVeterinarias";
-
+import Navbar from "../landing/Navbar";
+import Footer from "../landing/Footer";
+import Loading from "../components/Loading";
+import MapaVeterinarias from "../veterinarias/MapaVeterinarias"
 const Veterinarias = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [cityQuery, setCityQuery] = useState("");

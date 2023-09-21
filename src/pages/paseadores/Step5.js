@@ -13,7 +13,7 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import Loading from "../components/Loading";
 import { useAuth } from "../../services/AuthContext";
 
-import { postPaseador,getUserMail } from "../../services/api";
+import { postPaseador,getUserMail,updateUser } from "../../services/api";
 import { uploadFilesPaseador } from "../../services/Firebase";
 
 // Register the plugins
@@ -42,18 +42,27 @@ const Step5 = ({
         formState: { errors },
     } = useForm();
 
+
     useEffect(() => {
-        const usuario = async () => {
-            const dataUsuario = await getUserMail(user.email);
-            if (dataUsuario) {
-                setUserData(dataUsuario);
+        const fetchUserData = async () => {
+            // Obtener los datos del usuario desde el localStorage
+            const cachedUserData = localStorage.getItem("userData");
+
+            if (cachedUserData) {
+                // Parsear los datos almacenados en el localStorage
+                const dataLocalStorage = JSON.parse(cachedUserData);
+
+                // Acceder al correo electrónico del usuario
+                const userEmail = dataLocalStorage.email;
+
+                const userData = await getUserMail(userEmail);
+                setUserData(userData);
+                setIsLoading(false);
             }
-            setIsLoading(false);
         };
-        
-        usuario()
-      
-    }, [])
+
+        fetchUserData();
+    }, []);
     
 
     //funcion para obtener las urls de las fotos
@@ -91,14 +100,14 @@ const Step5 = ({
             setErrorFile("El campo es obligatorio");
         } else {
             try {
+                setIsLoading(true); // Activar isLoading antes de redirigir
                 const urls = await obtenerUrls(); // Espera a obtener las URLs
-
                 allData.fotos = urls;
                 allData.idUsuario = userData.id
                 console.log(allData);
                 await postPaseador(allData);
 
-                setIsLoading(true); // Activar isLoading antes de redirigir
+            
 
                 setTimeout(() => {
                     setIsLoading(false); // Desactivar isLoading después de 3 segundos
@@ -108,6 +117,8 @@ const Step5 = ({
             } catch (error) {
                 // Maneja cualquier error de la actualización
                 console.error("Error al realizar la publicacion:", error);
+                setIsLoading(false); // Desactivar isLoading después de 3 segundos
+                
             }
         }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Step1 from "./Step1";
+import Step1 from "./Step1"
 import Step2 from "./Step2";
 import Step3 from "./Step3";
 import Step4 from "./Step4";
@@ -11,7 +11,7 @@ import { FormProvider, useForm } from "react-hook-form";
 
 const steps = [Step1, Step2, Step3, Step4, Step5];
 
-const AddPaseador = ({ methods }) => {
+const AddCuidador = ({ methods }) => {
     const [currentStep, setCurrentStep] = useState(0);
     const [formData, setFormData] = useState({});
     const [step1Data, setStep1Data] = useState({});
@@ -67,7 +67,7 @@ const AddPaseador = ({ methods }) => {
                     <Container fluid className="page-content perfil-fondo">
                         <Row>
                             <Col className="text-center mb-4">
-                                <h1>REGISTRO DE PASEADORES</h1>
+                                <h1>REGISTRO DE CUIDADORES</h1>
                             </Col>
                         </Row>
                         <Row>
@@ -113,4 +113,4 @@ const AddPaseador = ({ methods }) => {
     );
 };
 
-export default AddPaseador;
+export default AddCuidador;

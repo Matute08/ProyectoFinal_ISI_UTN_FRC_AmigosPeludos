@@ -73,7 +73,6 @@ const SettingsLostPets = () => {
     const [post, setPost] = useState([]);
     const [labelFecha, setLabelFecha] = useState();
 
-
     const tabChange = (tab) => {
         if (activeTab !== tab) setActiveTab(tab);
     };
@@ -106,9 +105,9 @@ const SettingsLostPets = () => {
                 updatedPost.fechaPerdida = fechaPerdida;
 
                 if (updatedPost.tipoPublicacionId === 1) {
-                    setLabelFecha("Fecha de Perdida")
-                }else{
-                    setLabelFecha("Fecha de Encuentro")
+                    setLabelFecha("Fecha de Perdida");
+                } else {
+                    setLabelFecha("Fecha de Encuentro");
                 }
 
                 setPost(updatedPost);
@@ -117,13 +116,23 @@ const SettingsLostPets = () => {
             setIsLoading(false);
         };
 
-        const usuario = async () => {
-            const dataUsuario = await getUserMail(user.email);
-            if (dataUsuario) {
-                setUserData(dataUsuario);
+        const fetchUserData = async () => {
+            // Obtener los datos del usuario desde el localStorage
+            const cachedUserData = localStorage.getItem("userData");
+
+            if (cachedUserData) {
+                // Parsear los datos almacenados en el localStorage
+                const dataLocalStorage = JSON.parse(cachedUserData);
+
+                // Acceder al correo electrónico del usuario
+                const userEmail = dataLocalStorage.email;
+
+                const datosUsuario = await getUserMail(userEmail);
+                setUserData(datosUsuario);
+                setIsLoading(false);
             }
-            setIsLoading(false);
         };
+
         const tipoMascotas = async () => {
             const dataTipoMascota = await getTipoMascota();
             if (dataTipoMascota) {
@@ -155,17 +164,13 @@ const SettingsLostPets = () => {
             }
         };
         posteos();
-        usuario();
+        fetchUserData();
         tipoMascotas();
         tipoSexo();
         edadMascota();
         ciudadMascota();
         barrioMascota();
-        console.log(post);
-        console.log(posteoId);
     }, []);
-
-
 
     //formulario Hook
     const {
@@ -361,7 +366,6 @@ const SettingsLostPets = () => {
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Nombre de la mascota
-                                                            
                                                         </Label>
                                                         <input
                                                             type="text"
@@ -369,11 +373,9 @@ const SettingsLostPets = () => {
                                                             name="nombre"
                                                             placeholder="Nombre de la mascota"
                                                             {...register(
-                                                                "nombre",
-                                                                
+                                                                "nombre"
                                                             )}
                                                         />
-                                                        
                                                     </div>
                                                 </Col>
                                                 {/* tipo de mascota */}
@@ -558,14 +560,12 @@ const SettingsLostPets = () => {
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Castrada/o
-                                                           
                                                         </Label>
                                                         <select
                                                             name="castracion"
                                                             className="form-select "
                                                             {...register(
-                                                                "castracion",
-                                                               
+                                                                "castracion"
                                                             )}
                                                         >
                                                             <option value="">
@@ -581,7 +581,6 @@ const SettingsLostPets = () => {
                                                                 No se
                                                             </option>
                                                         </select>
-                                                        
                                                     </div>
                                                 </Col>
                                                 {/* sexo */}

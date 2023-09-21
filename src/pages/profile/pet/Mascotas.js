@@ -58,11 +58,27 @@ const Mascota = () => {
     };
 
     useEffect(() => {
-        const usuario = async () => {
-            setUserData(await getUserMail(user.email));
+        const fetchUserData = async () => {
+            // Obtener los datos del usuario desde el localStorage
+            const cachedUserData = localStorage.getItem("userData");
+
+            if (cachedUserData) {
+                // Parsear los datos almacenados en el localStorage
+                const dataLocalStorage = JSON.parse(cachedUserData);
+
+                // Acceder al correo electrónico del usuario
+                const userEmail = dataLocalStorage.email;
+
+                const datosUsuario = await getUserMail(userEmail);
+                datosUsuario.calle = `${
+                    datosUsuario.calle + " " + datosUsuario.nroCalle
+                }`;
+                setUserData(datosUsuario);
+            }
         };
-        usuario();
-    }, [user]);
+
+        fetchUserData();
+    }, []);
 
     useEffect(() => {
         if (userData) {
@@ -98,7 +114,8 @@ const Mascota = () => {
                                 {userMascota.map((elemento) => (
                                     <Col sm={4} xl={3} key={elemento.id}>
                                         <Card>
-                                            <a className="button-consultar"
+                                            <a
+                                                className="button-consultar"
                                                 onClick={() =>
                                                     handleMostrarComponenteConsultarMascota(
                                                         elemento.id
@@ -117,7 +134,6 @@ const Mascota = () => {
                                                 </h4>
 
                                                 <div className="d-flex justify-content-center ">
-
                                                     <Link
                                                         className="button-pets"
                                                         to={`/modificar-mascota/${elemento.id}`}

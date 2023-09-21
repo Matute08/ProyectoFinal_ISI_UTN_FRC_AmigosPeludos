@@ -19,7 +19,7 @@ export const FormLogin = ({mensaje}) => {
     } = useForm();
 
     const [alertText, setAlertText] = useState(
-        "Incia sesion para continuar en Amigos Peludos"
+        "Inicia sesion para continuar en Amigos Peludos"
     );
     const [alertClass, setAlertClass] = useState("text-dark alert-dark");
 
@@ -160,7 +160,7 @@ export const FormLogin = ({mensaje}) => {
                 </Button>
             </div>
 
-            <div className="mt-4 text-center">
+            {/* <div className="mt-4 text-center">
                 <div className="signin-other-title">
                     <h5 className="fs-13 mb-4 title">Iniciar sesión con: </h5>
                 </div>
@@ -169,7 +169,7 @@ export const FormLogin = ({mensaje}) => {
                         <i className="ri-google-fill fs-16"></i>
                     </Button>{" "}
                 </div>
-            </div>
+            </div> */}
         </Form>
     );
 };
