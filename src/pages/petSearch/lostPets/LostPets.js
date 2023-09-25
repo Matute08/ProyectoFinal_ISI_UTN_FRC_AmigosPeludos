@@ -194,7 +194,7 @@ const LostPets = () => {
                                                                             </span>
                                                                             <span class="button-text">
                                                                                 Ver
-                                                                                Mas
+                                                                                Más
                                                                             </span>
                                                                         </Link>
                                                                     </div>

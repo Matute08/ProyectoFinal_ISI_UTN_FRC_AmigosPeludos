@@ -610,7 +610,7 @@ const FormAddPets = () => {
                                                 <Col lg={12}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
-                                                            Descripcion de la
+                                                            Descripción de la
                                                             mascota
                                                         </Label>
                                                         <textarea
