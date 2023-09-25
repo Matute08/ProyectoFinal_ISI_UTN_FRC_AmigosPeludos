@@ -158,7 +158,7 @@ const Cuidadores = () => {
                             }}
                             className="floating-button-container"
                         >
-                            <Link className="Btn" to="/agregar-paseador">
+                            <Link className="Btn" to="/agregar-cuidador">
                                 <div className="sign">+</div>
                                 <div className="text text-center">
                                     Soy Cuidador

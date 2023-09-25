@@ -54,6 +54,16 @@ export async function uploadFilesPaseador(file) {
     const url = await getDownloadURL(storageRef)
     return url
 }
+
+//cargar fotos paseadores
+export async function uploadFilesCuidador(file) {
+    const storageRef =  ref(storage, `cuidador/${v4()}`)
+    await uploadBytes(storageRef, file)
+    const url = await getDownloadURL(storageRef)
+    return url
+}
+
+
 export async function deleteFileStorage(file){
     const storageRef = ref(storage, file)
     await deleteObject(storageRef)

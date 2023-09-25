@@ -211,8 +211,8 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
                                         </NavLink>
                                     </li>
                                     <li className="nav-item">
-                                        <NavLink href="#contacto">
-                                            Contacto
+                                        <NavLink href="/manualusuario">
+                                            Manual de Usuario
                                         </NavLink>
                                     </li>
                                 </Scrollspy>

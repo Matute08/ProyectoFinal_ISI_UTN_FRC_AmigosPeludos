@@ -67,7 +67,7 @@ const Veterinarias = () => {
                             }}
                             className="floating-button-container"
                         >
-                            <Link className="Btn" to={"/agregar-paseador"}>
+                            <Link className="Btn" to={"/agregar-veterinaria"}>
                                 <div className="sign">+</div>
                                 <div className="text text-center">
                                     Registrar

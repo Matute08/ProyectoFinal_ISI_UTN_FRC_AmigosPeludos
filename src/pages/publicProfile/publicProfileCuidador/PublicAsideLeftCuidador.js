@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import UiContent from "../../assets/scss/components/Common/UiContent";
+import UiContent from "../../../assets/scss/components/Common/UiContent";
 import Swal from "sweetalert2";
 import { Card, Table, CardBody, Col } from "reactstrap";
-import { useAuth } from "../../services/AuthContext";
+import { useAuth } from "../../../services/AuthContext";
 import {
     getUserMail,
     getBarrioUser,
@@ -12,13 +12,13 @@ import {
     getGenero,
     getGeneroId,
     getRol,
-} from "../../services/api";
+} from "../../../services/api";
 //Images
-import avatar1 from "../../assets/images/user/user-random.jpg";
-import Loading from "../components/Loading";
-import Modal from "../components/Modal";
+import avatar1 from "../../../assets/images/user/user-random.jpg";
+import Loading from "../../components/Loading";
+import Modal from "../../components/Modal";
 
-const PublicAsideLeft = ({correoElectronico}) => {
+const PublicAsideLeftCuidador = ({correoElectronico}) => {
     const { handleSweetAlertDeleteUser } = Modal();
     const navigate = useNavigate();
     const { user, deleteAccount } = useAuth();
@@ -176,4 +176,4 @@ const PublicAsideLeft = ({correoElectronico}) => {
     );
 };
 
-export default PublicAsideLeft;
+export default PublicAsideLeftCuidador;

@@ -30,10 +30,13 @@ import GenerateQr from './pages/profile/qr/GenerateQr';
 import ConsultAdoptForm from './pages/requests/ConsultAdoptForm';
 import Paseadores from './pages/paseadores/Paseadores';
 import AddPaseador from './pages/paseadores/AddPaseador';
-import PublicProfile from './pages/publicProfile/PublicProfile';
+import PublicProfilePaseador from './pages/publicProfile/publicProfilePaseador/PublicProfilePaseador';
 import Veterinarias from './pages/veterinarias/Veterinarias';
 import Cuidadores from './pages/cuidadores/Cuidadores';
 import AddCuidador from './pages/cuidadores/AddCuidador';
+import UserManual from './pages/userManual/UserManual';
+import AddVeterinaria from './pages/veterinarias/registrarVeterinaria/AddVeterinaria';
+
 function App() {
   return (
     <BrowserRouter>
@@ -76,14 +79,20 @@ function App() {
           <Route path="/agregar-paseador" element={<ProtectedRoute><AddPaseador /></ProtectedRoute>} />
 
           {/* Perfil público */}
-          <Route path="/perfilPublico/:correoElectronico/:id" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} />
+          <Route path="/perfilPublico/:correoElectronico/:id" element={<ProtectedRoute><PublicProfilePaseador /></ProtectedRoute>} />
 
           {/* Veterinarias */}
           <Route path='/veterinarias' element={<Veterinarias />} />
+          <Route path="/agregar-veterinaria" element={<ProtectedRoute><AddVeterinaria /></ProtectedRoute>} />
+
 
           {/* Cuidadores */}
           <Route path='/cuidadores' element={<Cuidadores />} />
           <Route path="/agregar-cuidador" element={<ProtectedRoute><AddCuidador /></ProtectedRoute>} />
+
+          {/* Manual de usuario */}
+          <Route path='/manualusuario' element={<UserManual />} />
+
         </Routes>
       </AuthProvider>
     </BrowserRouter>

@@ -55,7 +55,7 @@ div[style="position: absolute; width: 100%; height: 100%;"] {
     position: relative;
   }
   
-  button {
+  .close-button {
     background-color: #e53935;
     color: #fff;
     border: none;
@@ -63,7 +63,7 @@ div[style="position: absolute; width: 100%; height: 100%;"] {
     cursor: pointer;
   }
   
-  button:hover {
+  .close-button:hover {
     background-color: #c62828;
   }
   

@@ -607,3 +607,33 @@ export async function getPaseadorPorId(id) {
         throw error; // Lanza el error para que pueda ser manejado en el componente.
     }
 }
+
+
+
+
+
+
+// GET TIPO VIVIENDA
+
+export async function getTipoVivienda() {
+    try {
+        const response = await axios({
+            url: `${url}/tipoViviendas`,
+            method: "GET",
+        });
+        return response.data; // Devuelve solo los datos (response.data)
+    } catch (error) {
+        console.error("Error al obtener tipo de vivienda:", error);
+        throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}
+
+//POST CUIDADOR
+export async function postCuidador(userData) {
+    try {
+        const response = await axios.post(`${url}/cuidadors`, userData);
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}

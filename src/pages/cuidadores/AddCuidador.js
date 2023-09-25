@@ -4,12 +4,13 @@ import Step2 from "./Step2";
 import Step3 from "./Step3";
 import Step4 from "./Step4";
 import Step5 from "./Step5";
+import Step6 from "./Step6"
 import Navbar from "../landing/Navbar";
 import { Card, CardBody, CardHeader, Col, Container, Row } from "reactstrap";
 import Footer from "../landing/Footer";
 import { FormProvider, useForm } from "react-hook-form";
 
-const steps = [Step1, Step2, Step3, Step4, Step5];
+const steps = [Step1, Step2, Step3, Step4, Step5, Step6];
 
 const AddCuidador = ({ methods }) => {
     const [currentStep, setCurrentStep] = useState(0);
@@ -18,6 +19,7 @@ const AddCuidador = ({ methods }) => {
     const [step2Data, setStep2Data] = useState({});
     const [step3Data, setStep3Data] = useState({});
     const [step4Data, setStep4Data] = useState({});
+    const [step5Data, setStep5Data] = useState({});
 
     const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 600);
 
@@ -46,6 +48,8 @@ const AddCuidador = ({ methods }) => {
                 setStep3Data(data);
             } else if (currentStep === 3) {
                 setStep4Data(data);
+            }else if (currentStep === 4) {
+                setStep5Data(data);
             }
             setCurrentStep((prevStep) => prevStep + 1);
         }
@@ -99,6 +103,7 @@ const AddCuidador = ({ methods }) => {
                                             step2Data={step2Data}
                                             step3Data={step3Data}
                                             step4Data={step4Data}
+                                            step5Data={step5Data}
                                             methods={methods}
                                         />
                                     </CardBody>

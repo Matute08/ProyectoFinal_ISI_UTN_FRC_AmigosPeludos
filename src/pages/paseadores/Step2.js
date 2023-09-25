@@ -12,8 +12,8 @@ const Step2 = ({ onNext, onPrevious, step1Data }) => {
 
     // Función para manejar cambios en el campo de texto
     const handleTextareaChange = (e) => {
-      const charCount = e.target.value.length;
-      setCharCount(charCount); // Actualiza el estado con la cantidad de caracteres
+        const charCount = e.target.value.length;
+        setCharCount(charCount); // Actualiza el estado con la cantidad de caracteres
     };
 
     const {
@@ -57,43 +57,56 @@ const Step2 = ({ onNext, onPrevious, step1Data }) => {
                         <Label className="form-label">Titulo Breve</Label>
                         <input
                             type="text"
-                            className={`form-control ${errors.titulo ? "is-invalid" : ""}`}
+                            className={`form-control ${
+                                errors.titulo ? "is-invalid" : ""
+                            }`}
                             name="titulo"
                             placeholder="Titulo breve que capte la atención"
-                            {...register("titulo", { required: "Este campo es obligatorio" })}
+                            {...register("titulo", {
+                                required: "Este campo es obligatorio",
+                            })}
                         />
                         {errors.titulo && (
-                            <div className="invalid-feedback">{errors.titulo.message}</div>
+                            <div className="invalid-feedback">
+                                {errors.titulo.message}
+                            </div>
                         )}
                     </div>
                 </Col>
                 {/* PRESENTACION PERSONAL */}
                 <Col lg={12} className="d-flex justify-content-center">
-      <div className="mb-3 w-100">
-        <label className="form-label">Presentación Personal</label>
-        <textarea
-          className={`form-control ${errors.presentacion ? "is-invalid" : ""}`}
-          name="presentacion"
-          placeholder="Texto donde habla de su experiencia."
-          {...register("presentacion", {
-            required: "Este campo es obligatorio",
-            maxLength: {
-              value: 500,
-              message: "El máximo de caracteres permitidos es 500.",
-            },
-          })}
-          onChange={handleTextareaChange} // Agregar el manejador de cambios
-        />
-        {errors.presentacion && (
-          <div className="invalid-feedback">{errors.presentacion.message}</div>
-        )}
+                    <div className="mb-3 w-100">
+                        <label className="form-label">
+                            Presentación Personal
+                        </label>
+                        <textarea
+                            className={`form-control ${
+                                errors.presentacion ? "is-invalid" : ""
+                            }`}
+                            name="presentacion"
+                            placeholder="Texto donde habla de su experiencia."
+                            {...register("presentacion", {
+                                required: "Este campo es obligatorio",
+                                maxLength: {
+                                    value: 500,
+                                    message:
+                                        "El máximo de caracteres permitidos es 500.",
+                                },
+                            })}
+                            onChange={handleTextareaChange} // Agregar el manejador de cambios
+                        />
+                        {errors.presentacion && (
+                            <div className="invalid-feedback">
+                                {errors.presentacion.message}
+                            </div>
+                        )}
 
-        {/* Contador de caracteres restantes */}
-        <div className="text-muted">
-          Caracteres restantes: {500 - charCount}
-        </div>
-      </div>
-    </Col>
+                        {/* Contador de caracteres restantes */}
+                        <div className="text-muted">
+                            Caracteres restantes: {500 - charCount}
+                        </div>
+                    </div>
+                </Col>
 
                 {/* EXPERIENCIA */}
                 <Col lg={6} className="d-flex justify-content-center">
@@ -103,8 +116,12 @@ const Step2 = ({ onNext, onPrevious, step1Data }) => {
                         </Label>
                         <select
                             name="experienciaId"
-                            className={`form-select ${errors.experienciaId ? "is-invalid" : ""}`}
-                            {...register("experienciaId", { required: "Seleccione una opción" })}
+                            className={`form-select ${
+                                errors.experienciaId ? "is-invalid" : ""
+                            }`}
+                            {...register("experienciaId", {
+                                required: "Seleccione una opción",
+                            })}
                         >
                             <option value="">Seleccione...</option>
                             {experiencia.map((elemento) => (
@@ -117,7 +134,9 @@ const Step2 = ({ onNext, onPrevious, step1Data }) => {
                             ))}
                         </select>
                         {errors.experienciaId && (
-                            <div className="invalid-feedback">{errors.experienciaId.message}</div>
+                            <div className="invalid-feedback">
+                                {errors.experienciaId.message}
+                            </div>
                         )}
                     </div>
                 </Col>
@@ -127,8 +146,12 @@ const Step2 = ({ onNext, onPrevious, step1Data }) => {
                         <Label className="form-label">Barrio de trabajo</Label>
                         <select
                             name="barrioTrabajoId"
-                            className={`form-select ${errors.barrioTrabajoId ? "is-invalid" : ""}`}
-                            {...register("barrioTrabajoId", { required: "Seleccione una opción" })}
+                            className={`form-select ${
+                                errors.barrioTrabajoId ? "is-invalid" : ""
+                            }`}
+                            {...register("barrioTrabajoId", {
+                                required: "Seleccione una opción",
+                            })}
                         >
                             <option value="">Seleccione...</option>
                             {barrio.map((elemento) => (
@@ -141,7 +164,9 @@ const Step2 = ({ onNext, onPrevious, step1Data }) => {
                             ))}
                         </select>
                         {errors.barrioTrabajoId && (
-                            <div className="invalid-feedback">{errors.barrioTrabajoId.message}</div>
+                            <div className="invalid-feedback">
+                                {errors.barrioTrabajoId.message}
+                            </div>
                         )}
                     </div>
                 </Col>
@@ -155,7 +180,11 @@ const Step2 = ({ onNext, onPrevious, step1Data }) => {
                     </button>
                 )}
 
-                <button className="btn-next-paseador" type="button" onClick={handleSubmit(onSubmit)}>
+                <button
+                    className="btn-next-paseador"
+                    type="button"
+                    onClick={handleSubmit(onSubmit)}
+                >
                     <span className="transition"></span>
                     <span className="gradient"></span>
                     <span className="label">Siguiente</span>

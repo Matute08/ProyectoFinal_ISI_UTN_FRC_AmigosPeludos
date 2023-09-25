@@ -1,0 +1,100 @@
+.btn-manual-container {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los botones se envuelvan en múltiples líneas */
+    justify-content: center; /* Centra horizontalmente los botones */
+    width: 100%;
+}
+// .btn-row{
+//     @media screen and (max-width: 1505px) {
+//        width: 60%;
+    
+//     }
+// }
+
+.beautiful-button {
+    position: relative;
+    display: inline-block;
+    background: linear-gradient(to bottom, #9c434a, #EC6B76);
+    /* Gradient background */
+    color: white;
+    /* White text color */
+    margin: 10px;
+    font-weight: bold;
+    font-size: 18px;
+    /* Large font size */
+    border: none;
+    /* No border */
+    border-radius: 30px;
+    /* Rounded corners */
+    padding: 14px 28px;
+    /* Large padding */
+    cursor: pointer;
+    /* Cursor on hover */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    /* Subtle shadow */
+    animation: button-shimmer 2s infinite;
+    transition: all 0.3s ease-in-out;
+    white-space: nowrap; /* Evitar que el texto se rompa en varias líneas */
+    flex-grow: 1; /* Permite que los botones crezcan automáticamente en anchura */
+
+    &:hover{
+        color: black;
+    }
+
+    @media screen and (max-width: 768px) {
+       
+            width: 100%; /* Cada botón ocupa el 100% del ancho en pantallas pequeñas */
+            margin: 2px;
+        
+    }
+}
+
+
+
+
+
+// Estilos para las secciones
+.contenedor-manual{
+    margin-top: 30px;
+}
+.user-manual-section {
+    margin-bottom: 20px;
+  }
+  
+  // Estilos para los títulos
+  .user-manual-heading {
+    font-weight: bold;
+  }
+  
+  // Estilos para los párrafos
+  .user-manual-paragraph {
+    margin-bottom: 20px;
+  }
+  .user-manual-title{
+    font-size: 2.5em;
+    margin: 20px;
+    text-decoration: underline;
+    a{
+        color: black !important;
+
+    }
+  }
+/* Estilos para las imágenes específicas del UserManual */
+.user-manual-image {
+    border-radius: 8px;
+    border: 1px solid #f4f2f7;
+    max-width: 600px; /* Esto permite que la imagen se ajuste automáticamente al contenedor */
+    height: auto; /* Esto mantiene la proporción original de la imagen */
+
+    @media (max-width: 600px){
+        width: 100%;
+    }    
+}
+.user-manual-subtitle{
+    font-size: 2.1em;
+}
+.user-manual-paragraph{
+    font-size: 1.2em;
+}
+
+  

@@ -1,5 +1,6 @@
 .title-questions{
     padding-bottom: 8px;
+    font-size: 1.3em;
 }
 .container-questions{
     display: flex;
@@ -9,7 +10,11 @@
     //height: 80vh; /* Ajusta el tamaño del acordeón al 80% de la altura de la ventana */
 }
 .frequent-questions{
+    font-size: 1.2em;
     width: 50%;
+    @media (max-width: 768px ){
+        width: 80%;
+    }
 }
 
 .item-questions{
@@ -17,10 +22,14 @@
 }
 
 .custom-header {
-    background-color: #e2992b; /* Cambia el color de fondo del encabezado */
-    color: #fff; /* Cambia el color del texto en el encabezado */
+    background-color: #EC6B76; /* Cambia el color de fondo del encabezado */
+    color: #fff !important; /* Cambia el color del texto en el encabezado */
   }
+.accordion-button:not(.collapsed){
+    color: white !important;
+}
   .custom-body {
     background-color: #f8f9fa; /* Cambia el color de fondo del cuerpo */
+    color: black !important;
   }
   

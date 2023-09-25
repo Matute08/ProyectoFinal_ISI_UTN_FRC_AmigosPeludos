@@ -18,14 +18,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import classnames from "classnames";
 import SwiperCore, { Autoplay } from "swiper";
-import Navbar from "../landing/Navbar";
-import Footer from "../landing/Footer";
-import Loading from "../components/Loading";
-import PublicAsideLeft from "./PublicAsideLeft";
-import { getPaseadorPorId } from "../../services/api";
 
+import Navbar from "../../landing/Navbar";
+import Footer from "../../landing/Footer";
+import Loading from "../../components/Loading";
+import { getPaseadorPorId } from "../../../services/api";
+import PublicAsideLeft from "./PublicAsideLeftPaseador";
 
-const PublicProfile = () => {
+const PublicProfilePaseador = () => {
     const { correoElectronico, id } = useParams();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("1");
@@ -461,4 +461,4 @@ const PublicProfile = () => {
     );
 };
 
-export default PublicProfile;
+export default PublicProfilePaseador;
