@@ -23,6 +23,7 @@ const Paseadores = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [userData, setUserData] = useState();
     const [idUser, setIdUser] = useState();
+    const [boton, setBoton] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -38,8 +39,7 @@ const Paseadores = () => {
 
                 const userData = await getUserMail(userEmail);
                 setUserData(userData);
-                setIdUser(userData.id)
-
+                setIdUser(userData.id);
             }
         };
 
@@ -50,32 +50,41 @@ const Paseadores = () => {
         const fetchPaseadores = async () => {
             try {
                 const dataPaseador = await getPaseador();
-
-                // Obtener todos los paseadores
                 setPaseadores(dataPaseador);
-                console.log(idUser);
-                // Filtrar paseadores según el userData.id
-                const paseadoresFiltrados = dataPaseador.filter(
-                    (paseador) => paseador.idUsuario === idUser
-                );
-                setUserPaseador(paseadoresFiltrados);
-                setIsLoading(false); 
-                
-                
+                setIsLoading(false);
             } catch (error) {
                 console.error("Error al obtener paseadores:", error);
             }
-            
         };
-        if (idUser) {
-            fetchPaseadores();
-            
-        }
 
-    }, [idUser]);
+        fetchPaseadores();
+    }, []);
+    const fetchPaseadoresUser = async () => {
+        // Filtrar paseadores según el userData.id
+        const paseadoresFiltrados = paseadores.filter(
+           (paseador) => paseador.idUsuario === idUser
+        );
+        setUserPaseador(paseadoresFiltrados);
+     
+        // Validar si el usuario puede crear una nueva publicación
+        const puedeCrearPublicacion = paseadoresFiltrados.length === 0;
+     
+        // Actualizar el estado del botón
+        if (puedeCrearPublicacion !== "") {
+            
+            setBoton(true);
+        }
+     };
+     
+     useEffect(() => {
+        if (userData && idUser && paseadores) {
+           fetchPaseadoresUser()
+        }
+     }, [idUser, paseadores, userData]);
+     
 
     const handleClick = () => {
-        if ((userPaseador&& userPaseador.length == 0)) {
+        if (userPaseador && userPaseador.length == 0) {
             // Redirigir a la página correspondiente si no es paseador
             navigate("/agregar-paseador");
         } else {
@@ -191,7 +200,7 @@ const Paseadores = () => {
                                     </Col>
                                 ))
                             ) : (
-                                // Mostrar un mensaje si no hay paseadores
+                                // Mostrar un mensaje si no hay paseadore
                                 <div
                                     className="alert alert-primary w-75"
                                     role="alert"
@@ -201,23 +210,24 @@ const Paseadores = () => {
                             )}
                         </Row>
 
-                        {/* Botón agregar paseador */}
-                        <div
-                            style={{
-                                position: "fixed",
-                                bottom: "20px",
-                                right: "20px",
-                                zIndex: "9999",
-                            }}
-                            className="floating-button-container"
-                        >
-                            <button className="Btn" onClick={handleClick}>
-                                <div className="sign">+</div>
-                                <div className="text text-center">
-                                    Soy Paseador
-                                </div>
-                            </button>
-                        </div>
+                        {boton && (
+                            <div
+                                style={{
+                                    position: "fixed",
+                                    bottom: "20px",
+                                    right: "20px",
+                                    zIndex: "9999",
+                                }}
+                                className="floating-button-container"
+                            >
+                                <button className="Btn" onClick={handleClick}>
+                                    <div className="sign">+</div>
+                                    <div className="text text-center">
+                                        Soy Paseador
+                                    </div>
+                                </button>
+                            </div>
+                        )}
                     </Container>
                     <Footer />
                 </>

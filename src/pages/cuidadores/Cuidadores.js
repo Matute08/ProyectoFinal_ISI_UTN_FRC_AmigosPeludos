@@ -23,8 +23,8 @@ const Cuidadores = () => {
     const [userCuidador, setUserCuidador] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [userData, setUserData] = useState();
-    const [idUser, setIdUser] = useState();
-
+    const [idUser, setIdUser] = useState("");
+    const [boton, setBoton] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -40,54 +40,47 @@ const Cuidadores = () => {
 
                 const userData = await getUserMail(userEmail);
                 setUserData(userData);
-                setIdUser(userData.id)
-
+                setIdUser(userData.id);
             }
         };
 
         fetchUserData();
     }, []);
-
-    // useEffect(() => {
-    //     const fetchCuidador = async () => {
-    //         try {
-    //             const dataCuidadores = await getCuidadores();
-    //             setCuidadores(dataCuidadores);
-    //             setIsLoading(false);
-    //         } catch (error) {
-    //             console.error("Error al obtener cuidadores:", error);
-    //         }
-
-    //         console.log(cuidadores);
-    //     };
-
-    //     fetchCuidador();
-    // }, []);
-
     useEffect(() => {
         const fetchCuidador = async () => {
             try {
                 const dataCuidadores = await getCuidadores();
-                // Obtener todos los cuidadores
                 setCuidadores(dataCuidadores);
-                // Filtrar cuidadores según el userData.id
-                const cuidadoresFiltrados = dataCuidadores.filter(
-                    (cuidador) => cuidador.idUsuario === idUser
-                );
-
-                setUserCuidador(cuidadoresFiltrados);
-
                 setIsLoading(false);
             } catch (error) {
                 console.error("Error al obtener cuidadores:", error);
             }
         };
 
-        if (idUser) {
-            fetchCuidador();
-            
+        fetchCuidador();
+    }, []);
+
+    const fetchCuidadoresUser = async () => {
+        // Filtrar paseadores según el userData.id
+        const cuidadoresFiltrados = cuidadores.filter(
+            (cuidador) => cuidador.idUsuario === idUser
+        );
+        setUserCuidador(cuidadoresFiltrados);
+
+        // Validar si el usuario puede crear una nueva publicación
+        const puedeCrearPublicacion = cuidadoresFiltrados.length === 0;
+
+        // Actualizar el estado del botón
+        if (puedeCrearPublicacion !== "") {
+            setBoton(true);
         }
-    }, [idUser]);
+    };
+
+    useEffect(() => {
+        if (userData && idUser && cuidadores) {
+            fetchCuidadoresUser();
+        }
+    }, [idUser, cuidadores, userData]);
 
     const handleClick = () => {
         if (userCuidador && userCuidador.length == 0) {
@@ -216,22 +209,24 @@ const Cuidadores = () => {
                         </Row>
 
                         {/* Botón agregar paseador */}
-                        <div
-                            style={{
-                                position: "fixed",
-                                bottom: "20px",
-                                right: "20px",
-                                zIndex: "9999",
-                            }}
-                            className="floating-button-container"
-                        >
-                            <button className="Btn" onClick={handleClick}>
-                                <div className="sign">+</div>
-                                <div className="text text-center">
-                                    Soy Cuidador
-                                </div>
-                            </button>
-                        </div>
+                        {boton && (
+                            <div
+                                style={{
+                                    position: "fixed",
+                                    bottom: "20px",
+                                    right: "20px",
+                                    zIndex: "9999",
+                                }}
+                                className="floating-button-container"
+                            >
+                                <button className="Btn" onClick={handleClick}>
+                                    <div className="sign">+</div>
+                                    <div className="text text-center">
+                                        Soy Cuidador
+                                    </div>
+                                </button>
+                            </div>
+                        )}
                     </Container>
                     <Footer />
                 </>
