@@ -55,7 +55,7 @@ export async function uploadFilesPaseador(file) {
     return url
 }
 
-//cargar fotos paseadores
+//cargar fotos cuidadores
 export async function uploadFilesCuidador(file) {
     const storageRef =  ref(storage, `cuidador/${v4()}`)
     await uploadBytes(storageRef, file)

@@ -27,6 +27,8 @@ const Step2 = ({ onNext, onPrevious, step1Data }) => {
         // Validar antes de continuar
         const isValid = await trigger();
         if (isValid) {
+            data.experienciaId = parseInt(data.experienciaId,10)
+            data.barrioTrabajoId = parseInt(data.barrioTrabajoId,10)
             onNext({ ...step1Data, ...data });
         }
     };

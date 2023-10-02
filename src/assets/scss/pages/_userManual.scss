@@ -69,6 +69,7 @@
   // Estilos para los párrafos
   .user-manual-paragraph {
     margin-bottom: 20px;
+    font-size: 1.5em;
   }
   .user-manual-title{
     font-size: 2.5em;
@@ -93,8 +94,12 @@
 .user-manual-subtitle{
     font-size: 2.1em;
 }
-.user-manual-paragraph{
-    font-size: 1.2em;
-}
 
-  
+
+  .user-manual-lista{
+    width: 60%;
+
+    @media (max-width: 600px){
+        width: 100%;
+    }
+  }

@@ -131,7 +131,7 @@ const FormAddPets = () => {
             await postMascota(data);
             await updateUser(userData.id, userData);
             hideLoadingOverlay();
-            navigate("/perfil");
+            navigate(`/perfil/${userData&& userData.mail}`);
         } catch (error) {
             // Maneja cualquier error de la actualización
             console.error("Error al actualizar el usuario:", error);

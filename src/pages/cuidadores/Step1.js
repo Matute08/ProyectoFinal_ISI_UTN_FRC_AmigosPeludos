@@ -44,6 +44,7 @@ const Step1 = ({ onNext }) => {
         fetchBarrio()
     }, []);
 
+    
     const calculateAge = (dateOfBirth) => {
         const today = new Date();
         const birthDate = parse(dateOfBirth, "yyyy-MM-dd", new Date());
@@ -67,11 +68,10 @@ const Step1 = ({ onNext }) => {
     } = useForm();
 
     const onSubmit = (data) => {
-        data.celular = parseInt(data.celular, 10);
+        //data.celular = parseInt(data.celular, 10);
         data.barrioId = parseInt(data.barrioId,10)
         data.nroCalle = parseInt(data.nroCalle, 10);
 
-        data.nombreCompleto = userData && userData.nombreCompleto;
         onNext(data);
     };
 
@@ -81,7 +81,7 @@ const Step1 = ({ onNext }) => {
                 <>
                     <Row className="d-flex justify-content-center">
                         {/* nombre completo */}
-                        <Col lg={9} className="d-flex justify-content-center">
+                        {/* <Col lg={9} className="d-flex justify-content-center">
                             <div className="mb-3 w-100">
                                 <Label className="form-label">
                                     Nombre Completo
@@ -119,10 +119,10 @@ const Step1 = ({ onNext }) => {
                                         </p>
                                     )}
                             </div>
-                        </Col>
+                        </Col> */}
 
                         {/* Celular */}
-                        <Col lg={9} className="d-flex justify-content-center">
+                        {/* <Col lg={9} className="d-flex justify-content-center">
                             <div className="mb-3 w-100">
                                 <Label className="form-label">Celular</Label>
                                 <input
@@ -142,7 +142,7 @@ const Step1 = ({ onNext }) => {
                                     </p>
                                 )}
                             </div>
-                        </Col>
+                        </Col> */}
 
                         {/* EDAD */}
                         <Col lg={9} className="d-flex justify-content-center">

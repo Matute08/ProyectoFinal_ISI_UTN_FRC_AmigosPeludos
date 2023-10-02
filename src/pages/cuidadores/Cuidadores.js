@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import {
     Card,
     Col,
@@ -13,30 +14,96 @@ import {
 import Navbar from "../landing/Navbar";
 import Footer from "../landing/Footer";
 import Loading from "../components/Loading";
-import { getPaseador } from "../../services/api";
-import img from "../../assets/images/user/user-random.jpg"
+import { getCuidadores, getUserMail } from "../../services/api";
+import img from "../../assets/images/user/user-random.jpg";
 
 const Cuidadores = () => {
     const navigate = useNavigate();
-    const [paseadores, setPaseadores] = useState([]);
+    const [cuidadores, setCuidadores] = useState([]);
+    const [userCuidador, setUserCuidador] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [userData, setUserData] = useState();
+    const [idUser, setIdUser] = useState();
+
 
     useEffect(() => {
-        const fetchPaseadores = async () => {
-            try {
-                const dataPaseador = await getPaseador();
-                setPaseadores(dataPaseador);
-                setIsLoading(false);
-            } catch (error) {
-                console.error("Error al obtener paseadores:", error);
-            }
+        const fetchUserData = async () => {
+            // Obtener los datos del usuario desde el localStorage
+            const cachedUserData = localStorage.getItem("userData");
 
-            console.log(paseadores);
+            if (cachedUserData) {
+                // Parsear los datos almacenados en el localStorage
+                const dataLocalStorage = JSON.parse(cachedUserData);
+
+                // Acceder al correo electrónico del usuario
+                const userEmail = dataLocalStorage.email;
+
+                const userData = await getUserMail(userEmail);
+                setUserData(userData);
+                setIdUser(userData.id)
+
+            }
         };
 
-        fetchPaseadores();
+        fetchUserData();
     }, []);
 
+    // useEffect(() => {
+    //     const fetchCuidador = async () => {
+    //         try {
+    //             const dataCuidadores = await getCuidadores();
+    //             setCuidadores(dataCuidadores);
+    //             setIsLoading(false);
+    //         } catch (error) {
+    //             console.error("Error al obtener cuidadores:", error);
+    //         }
+
+    //         console.log(cuidadores);
+    //     };
+
+    //     fetchCuidador();
+    // }, []);
+
+    useEffect(() => {
+        const fetchCuidador = async () => {
+            try {
+                const dataCuidadores = await getCuidadores();
+                // Obtener todos los cuidadores
+                setCuidadores(dataCuidadores);
+                // Filtrar cuidadores según el userData.id
+                const cuidadoresFiltrados = dataCuidadores.filter(
+                    (cuidador) => cuidador.idUsuario === idUser
+                );
+
+                setUserCuidador(cuidadoresFiltrados);
+
+                setIsLoading(false);
+            } catch (error) {
+                console.error("Error al obtener cuidadores:", error);
+            }
+        };
+
+        if (idUser) {
+            fetchCuidador();
+            
+        }
+    }, [idUser]);
+
+    const handleClick = () => {
+        if (userCuidador && userCuidador.length == 0) {
+            // Redirigir a la página correspondiente si no es paseador
+            navigate("/agregar-cuidador");
+        } else {
+            // Mostrar el Swal si ya es paseador
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Usted ya es un cuidador, no puede registrarse nuevamente",
+                footer: "",
+                confirmButtonText: "Aceptar",
+            });
+        }
+    };
     return (
         <React.Fragment>
             {!isLoading ? (
@@ -50,24 +117,24 @@ const Cuidadores = () => {
                         </Row>
 
                         <Row className="d-flex justify-content-center align-items-center">
-                            {paseadores.length > 0 ? (
+                            {cuidadores.length > 0 ? (
                                 // Renderizar la lista de paseadores si hay al menos uno
-                                paseadores.map((paseador) => (
+                                cuidadores.map((cuidador) => (
                                     <Col
                                         lg={8}
                                         className="mb-4"
-                                        key={paseador.id}
+                                        key={cuidador.id}
                                     >
                                         <Card className="card-paseador">
                                             <Row className="g-0">
                                                 <Col md={4}>
-                                                    {paseador.datosUsuario &&
-                                                    paseador.datosUsuario
+                                                    {cuidador.datosUsuario &&
+                                                    cuidador.datosUsuario
                                                         .foto ? (
                                                         <img
                                                             className="img-paseador rounded-start img-fluid h-90 object-cover"
                                                             src={
-                                                                paseador
+                                                                cuidador
                                                                     .datosUsuario
                                                                     .foto
                                                             }
@@ -81,7 +148,7 @@ const Cuidadores = () => {
                                                         />
                                                     )}
                                                     <h5 className="precio-paseador">
-                                                        ${paseador.precioPaseo}{" "}
+                                                        ${cuidador.precioPaseo}{" "}
                                                         / Paseo
                                                     </h5>
                                                 </Col>
@@ -89,14 +156,14 @@ const Cuidadores = () => {
                                                 <Col md={8}>
                                                     <CardBody>
                                                         <h2 className="mb-3">
-                                                            {paseador.titulo}
+                                                            {cuidador.titulo}
                                                         </h2>
                                                         <h5 className="mb-2">
-                                                            {paseador.datosUsuario &&
-                                                            paseador
+                                                            {cuidador.datosUsuario &&
+                                                            cuidador
                                                                 .datosUsuario
                                                                 .nombreCompleto
-                                                                ? paseador
+                                                                ? cuidador
                                                                       .datosUsuario
                                                                       .nombreCompleto
                                                                 : "Nombre no disponible"}
@@ -106,16 +173,16 @@ const Cuidadores = () => {
                                                     <CardFooter className="card-footer">
                                                         <p className="presentacion-paseador card-text text-muted mb-0">
                                                             {
-                                                                paseador.presentacion
+                                                                cuidador.presentacion
                                                             }
                                                         </p>
                                                     </CardFooter>
                                                     <Col className="button-container d-flex justify-content-end">
-                                                        {paseador.datosUsuario &&
-                                                        paseador.datosUsuario
+                                                        {cuidador.datosUsuario &&
+                                                        cuidador.datosUsuario
                                                             .mail ? (
                                                             <Link
-                                                                to={`/perfilpublico/${paseador.datosUsuario.mail}/${paseador.id}`}
+                                                                to={`/perfilPublicoCuidador/${cuidador.datosUsuario.mail}/${cuidador.id}`}
                                                                 className="btn-next-paseador button-container m-3"
                                                             >
                                                                 <span className="transition"></span>
@@ -158,12 +225,12 @@ const Cuidadores = () => {
                             }}
                             className="floating-button-container"
                         >
-                            <Link className="Btn" to="/agregar-cuidador">
+                            <button className="Btn" onClick={handleClick}>
                                 <div className="sign">+</div>
                                 <div className="text text-center">
                                     Soy Cuidador
                                 </div>
-                            </Link>
+                            </button>
                         </div>
                     </Container>
                     <Footer />

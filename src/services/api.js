@@ -610,6 +610,35 @@ export async function getPaseadorPorId(id) {
 
 
 
+//GET  cuidadores
+
+export async function getCuidadores() {
+    try {
+        const response = await axios({
+            url: `${url}/cuidadors`,
+            method: "GET",
+        });
+        return response.data; // Devuelve solo los datos (response.data)
+    } catch (error) {
+        console.error("Error al obtener cuidadores:", error);
+        throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}
+
+//GET  cuidadores id
+
+export async function getCuidadoresId(id) {
+    try {
+        const response = await axios({
+            url: `${url}/cuidadors/${id}`,
+            method: "GET",
+        });
+        return response.data; // Devuelve solo los datos (response.data)
+    } catch (error) {
+        console.error("Error al obtener cuidadores:", error);
+        throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}
 
 
 
@@ -632,6 +661,108 @@ export async function getTipoVivienda() {
 export async function postCuidador(userData) {
     try {
         const response = await axios.post(`${url}/cuidadors`, userData);
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+//POST vewterinaria
+export async function postVeterinaria(userData) {
+    try {
+        const response = await axios.post(`${url}/veterinaria`, userData);
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+// GET veterinaria
+
+export async function getVeterinarias() {
+    try {
+        const response = await axios({
+            url: `${url}/veterinaria`,
+            method: "GET",
+        });
+        return response.data; // Devuelve solo los datos (response.data)
+    } catch (error) {
+        console.error("Error al obtener veterinarias:", error);
+        throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}
+
+//GET  VETERINARIA POR ID
+
+export async function getVeterinariaId(id) {
+    try {
+        const response = await axios({
+            url: `${url}/veterinaria/${id}`,
+            method: "GET",
+        });
+        return response.data; // Devuelve solo los datos (response.data)
+    } catch (error) {
+        console.error("Error al obtener veterinaria:", error);
+        throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}
+
+
+// update paseador
+export async function updatePaseador(id, data) {
+    try {
+        // Obtener los datos existentes de la mascota desde la API
+        const existingPaseadorData = await getPaseadorPorId(id);
+
+        // Combinar los datos existentes y los datos actualizados
+        const updatedPaseadorData = {
+            ...existingPaseadorData,
+            ...data,
+        };
+
+        // Realizar la solicitud PUT para actualizar la mascota
+        const response = await axios.put(
+            `${url}/paseador/${id}`,
+            updatedPaseadorData
+        );
+
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+//POST foto paseador
+export async function postPaseadorFoto(userData) {
+    try {
+        const response = await axios.post(`${url}/paseadorFoto`, userData);
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+// update cuidador
+export async function updateCuidador(id, data) {
+    try {
+        // Obtener los datos existentes de la mascota desde la API
+        const existingCuidadorData = await getCuidadoresId(id);
+
+        // Combinar los datos existentes y los datos actualizados
+        const updatedCuidadorData = {
+            ...existingCuidadorData,
+            ...data,
+        };
+
+        // Realizar la solicitud PUT para actualizar la mascota
+        const response = await axios.put(
+            `${url}/cuidadors/${id}`,
+            updatedCuidadorData
+        );
+
         return response;
     } catch (error) {
         console.log(error);

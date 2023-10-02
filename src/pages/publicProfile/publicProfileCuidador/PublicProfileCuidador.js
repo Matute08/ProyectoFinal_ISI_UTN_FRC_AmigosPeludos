@@ -22,8 +22,8 @@ import SwiperCore, { Autoplay } from "swiper";
 import Navbar from "../../landing/Navbar";
 import Footer from "../../landing/Footer";
 import Loading from "../../components/Loading";
-import { getPaseadorPorId } from "../../../services/api";
-import PublicAsideLeft from "./PublicAsideLeftPaseador";
+import { getCuidadoresId } from "../../../services/api";
+import PublicAsideLeft from "./PublicAsideLeftCuidador";
 
 const PublicProfileCuidador = () => {
     const { correoElectronico, id } = useParams();
@@ -34,11 +34,11 @@ const PublicProfileCuidador = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchDataPaseador = async () => {
+        const fetchDataCuidador = async () => {
             try {
-                const dataPaseador = await getPaseadorPorId(id);
-                if (dataPaseador) {
-                    setUserData(dataPaseador);
+                const dataCuidador = await getCuidadoresId(id);
+                if (dataCuidador) {
+                    setUserData(dataCuidador);
                     setIsLoading(false);
                 }
             } catch (error) {
@@ -47,7 +47,7 @@ const PublicProfileCuidador = () => {
             }
         };
         console.log(userData);
-        fetchDataPaseador();
+        fetchDataCuidador();
     }, [id]);
 
     const openWhatsApp = () => {
@@ -55,7 +55,7 @@ const PublicProfileCuidador = () => {
         const phoneNumber = userData && userData.datosUsuario.celular;
 
         // Mensaje predeterminado
-        const message = "¡Hola! Necesito tu servicio de paseador! ";
+        const message = "¡Hola! Necesito tu servicio de cuidador! ";
 
         // Crear la URL de WhatsApp con el número de teléfono y el mensaje
         const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
@@ -77,8 +77,6 @@ const PublicProfileCuidador = () => {
     ];
     const timePeriods = ["manana", "tarde", "noche"];
 
-    
-
     const toggleTab = (tab) => {
         if (activeTab !== tab) {
             setActiveTab(tab);
@@ -93,7 +91,7 @@ const PublicProfileCuidador = () => {
 
     SwiperCore.use([Autoplay]);
 
-    document.title = "Perfil Paseador| Amigos Peludos";
+    document.title = "Perfil Cuidador| Amigos Peludos";
 
     return (
         <React.Fragment>
@@ -129,7 +127,7 @@ const PublicProfileCuidador = () => {
                                                     {/* <i className="ri-airplay-fill d-inline-block d-md-none"></i>{" "} */}
                                                     {/* el span tenia una clase = d-none */}
                                                     <span className=" d-md-inline-block">
-                                                        Datos Paseador
+                                                        Datos Cuidador
                                                     </span>
                                                 </NavLink>
                                             </NavItem>
@@ -177,52 +175,154 @@ const PublicProfileCuidador = () => {
                                         <TabContent activeTab={activeTab}>
                                             <TabPane tabId="1">
                                                 <Row>
-                                                    <div className="text-center">
-                                                        <h2>
-                                                            {userData &&
-                                                                userData.titulo}
-                                                        </h2>
-                                                    </div>
-                                                </Row>
+                                                    <Row>
+                                                        <div className="text-center">
+                                                            <h2>
+                                                                {userData &&
+                                                                    userData.titulo}
+                                                            </h2>
+                                                        </div>
+                                                    </Row>
 
-                                                <Row>
-                                                    <div className="m-4">
-                                                        <h5>
-                                                            {" "}
-                                                            <strong>
+                                                    <Row>
+                                                        <div className="m-2">
+                                                            <h5>
                                                                 {" "}
-                                                                Descripción del
-                                                                paseador:{" "}
-                                                            </strong>
-                                                            {userData &&
-                                                                userData.presentacion}
-                                                        </h5>
-                                                    </div>
-                                                </Row>
+                                                                <strong>
+                                                                    {" "}
+                                                                    Descripción
+                                                                    del
+                                                                    cuidador:{" "}
+                                                                </strong>
+                                                                {userData &&
+                                                                    userData.presentacion}
+                                                            </h5>
+                                                        </div>
+                                                    </Row>
 
-                                                <Row>
-                                                    <div className="m-4">
+                                                    {/* <Row>
+                                                    <div className="m-2">
                                                         <h5>
                                                             <strong>
-                                                                Realizo paseos
+                                                                Realizo 
                                                                 en el barrio:{" "}
                                                             </strong>
                                                             {userData &&
                                                                 userData.barrioTrabajo}
                                                         </h5>
                                                     </div>
+                                                </Row> */}
+                                                    <Row>
+                                                        <div className="m-2">
+                                                            <h5>
+                                                                <strong>
+                                                                    El precio
+                                                                    por hora de
+                                                                    cuidado:{" "}
+                                                                </strong>
+                                                                {userData &&
+                                                                    userData.precioCuidado}{" "}
+                                                            </h5>
+                                                        </div>
+                                                    </Row>
                                                 </Row>
+
                                                 <Row>
-                                                    <div className="m-4">
-                                                        <h5>
-                                                            <strong>
-                                                                El precio por
-                                                                paseo es de:{" "}
-                                                            </strong>
-                                                            {userData &&
-                                                                userData.precioPaseo}{" "}
-                                                        </h5>
-                                                    </div>
+                                                    <Row className="mt-4">
+                                                        <h3 className="">
+                                                            Donde cuido
+                                                        </h3>
+                                                    </Row>
+                                                    <Row>
+                                                        <div className="m-2">
+                                                            <h5>
+                                                                <strong>
+                                                                    Realizo
+                                                                    cuidados en
+                                                                    mi:{" "}
+                                                                </strong>
+                                                                {userData &&
+                                                                    userData.tipoVivienda}{" "}
+                                                            </h5>
+                                                        </div>
+                                                    </Row>
+
+                                                    <Row>
+                                                        <div className="m-2">
+                                                            <h5>
+                                                                <strong>
+                                                                    La dirección
+                                                                    es:{" "}
+                                                                </strong>
+                                                                {userData &&
+                                                                    userData.calle}{" "}
+                                                                {userData &&
+                                                                    userData.nroCalle}
+                                                                {userData.tipoVivienda ===
+                                                                "Departamento"
+                                                                    ? `${" - "}Piso/Depto: ${
+                                                                          userData &&
+                                                                          userData.piso
+                                                                      }`
+                                                                    : ""}
+                                                            </h5>
+                                                        </div>
+                                                    </Row>
+                                                    <Row>
+                                                        <div className="m-2">
+                                                            <h5>
+                                                                <strong>
+                                                                    Barrio:{" "}
+                                                                </strong>
+                                                                {userData &&
+                                                                    userData.barrio}{" "}
+                                                            </h5>
+                                                        </div>
+                                                    </Row>
+
+                                                    <Row>
+                                                        <div className="m-2">
+                                                            <h5>
+                                                                <strong>
+                                                                    Cuido
+                                                                    mascotas
+                                                                    hace:{" "}
+                                                                </strong>
+                                                                {userData &&
+                                                                    userData.experiencia}{" "}
+                                                            </h5>
+                                                        </div>
+                                                    </Row>
+                                                    <Row>
+                                                        <div className="m-2">
+                                                            <h5>
+                                                                <strong>
+                                                                    Patio o
+                                                                    Balcon:{" "}
+                                                                </strong>
+                                                                {userData &&
+                                                                userData.patioBalcon ===
+                                                                    1
+                                                                    ? "Si"
+                                                                    : "No"}{" "}
+                                                            </h5>
+                                                        </div>
+                                                    </Row>
+                                                    <Row>
+                                                        <div className="m-2">
+                                                            <h5>
+                                                                <strong>
+                                                                    Transporte
+                                                                    propio:{" "}
+                                                                </strong>
+                                                                {userData &&
+                                                                userData.transportePropio ===
+                                                                    1
+                                                                    ? "Si"
+                                                                    : "No"}{" "}
+                                                            </h5>
+                                                        </div>
+                                                    </Row>
                                                 </Row>
 
                                                 <div className="d-flex justify-content-end">
@@ -241,27 +341,28 @@ const PublicProfileCuidador = () => {
                                             </TabPane>
 
                                             <TabPane tabId="2">
-                                                <div
-                                                    id="carouselExampleControls"
-                                                    className="carousel slide"
-                                                    data-bs-ride="carousel"
-                                                >
-                                                    <style>
-                                                        {`
-                                          
-                                          .carousel-control-prev-icon,
-                                          .carousel-control-next-icon {
-                                            background-color: black;
-                                            border-radius:50%
-                                          }
-                                        `}
-                                                    </style>
+                                                {userData &&
+                                                userData.fotos &&
+                                                userData.fotos.length > 0 ? (
                                                     <div
-                                                        className="carousel-inner"
-                                                        role="listbox"
+                                                        id="carouselExampleControls"
+                                                        className="carousel slide"
+                                                        data-bs-ride="carousel"
                                                     >
-                                                        {userData &&
-                                                            userData.fotos.map(
+                                                        <style>
+                                                            {`
+                .carousel-control-prev-icon,
+                .carousel-control-next-icon {
+                    background-color: black;
+                    border-radius: 50%;
+                }
+                `}
+                                                        </style>
+                                                        <div
+                                                            className="carousel-inner"
+                                                            role="listbox"
+                                                        >
+                                                            {userData.fotos.map(
                                                                 (
                                                                     foto,
                                                                     index
@@ -290,36 +391,42 @@ const PublicProfileCuidador = () => {
                                                                     </div>
                                                                 )
                                                             )}
+                                                        </div>
+                                                        <a
+                                                            className="carousel-control-prev"
+                                                            href="#carouselExampleControls"
+                                                            role="button"
+                                                            data-bs-slide="prev"
+                                                        >
+                                                            <span
+                                                                className="carousel-control-prev-icon"
+                                                                aria-hidden="true"
+                                                            ></span>
+                                                            <span className="sr-only">
+                                                                Previous
+                                                            </span>
+                                                        </a>
+                                                        <a
+                                                            className="carousel-control-next"
+                                                            href="#carouselExampleControls"
+                                                            role="button"
+                                                            data-bs-slide="next"
+                                                        >
+                                                            <span
+                                                                className="carousel-control-next-icon"
+                                                                aria-hidden="true"
+                                                            ></span>
+                                                            <span className="sr-only">
+                                                                Next
+                                                            </span>
+                                                        </a>
                                                     </div>
-                                                    <a
-                                                        className="carousel-control-prev"
-                                                        href="#carouselExampleControls"
-                                                        role="button"
-                                                        data-bs-slide="prev"
-                                                    >
-                                                        <span
-                                                            className="carousel-control-prev-icon"
-                                                            aria-hidden="true"
-                                                        ></span>
-                                                        <span className="sr-only">
-                                                            Previous
-                                                        </span>
-                                                    </a>
-                                                    <a
-                                                        className="carousel-control-next"
-                                                        href="#carouselExampleControls"
-                                                        role="button"
-                                                        data-bs-slide="next"
-                                                    >
-                                                        <span
-                                                            className="carousel-control-next-icon"
-                                                            aria-hidden="true"
-                                                        ></span>
-                                                        <span className="sr-only">
-                                                            Next
-                                                        </span>
-                                                    </a>
-                                                </div>
+                                                ) : (
+                                                    <h3>
+                                                        No hay fotos
+                                                        disponibles.
+                                                    </h3>
+                                                )}
                                             </TabPane>
 
                                             <TabPane tabId="3">

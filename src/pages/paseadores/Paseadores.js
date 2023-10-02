@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import {
     Card,
     Col,
@@ -13,29 +13,82 @@ import {
 import Navbar from "../landing/Navbar";
 import Footer from "../landing/Footer";
 import Loading from "../components/Loading";
-import { getPaseador } from "../../services/api";
-import img from "../../assets/images/user/user-random.jpg"
+import { getPaseador, getUserMail } from "../../services/api";
+import img from "../../assets/images/user/user-random.jpg";
 
 const Paseadores = () => {
     const navigate = useNavigate();
     const [paseadores, setPaseadores] = useState([]);
+    const [userPaseador, setUserPaseador] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [userData, setUserData] = useState();
+    const [idUser, setIdUser] = useState();
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            // Obtener los datos del usuario desde el localStorage
+            const cachedUserData = localStorage.getItem("userData");
+
+            if (cachedUserData) {
+                // Parsear los datos almacenados en el localStorage
+                const dataLocalStorage = JSON.parse(cachedUserData);
+
+                // Acceder al correo electrónico del usuario
+                const userEmail = dataLocalStorage.email;
+
+                const userData = await getUserMail(userEmail);
+                setUserData(userData);
+                setIdUser(userData.id)
+
+            }
+        };
+
+        fetchUserData();
+    }, []);
 
     useEffect(() => {
         const fetchPaseadores = async () => {
             try {
                 const dataPaseador = await getPaseador();
+
+                // Obtener todos los paseadores
                 setPaseadores(dataPaseador);
-                setIsLoading(false);
+                console.log(idUser);
+                // Filtrar paseadores según el userData.id
+                const paseadoresFiltrados = dataPaseador.filter(
+                    (paseador) => paseador.idUsuario === idUser
+                );
+                setUserPaseador(paseadoresFiltrados);
+                setIsLoading(false); 
+                
+                
             } catch (error) {
                 console.error("Error al obtener paseadores:", error);
             }
-
-            console.log(paseadores);
+            
         };
+        if (idUser) {
+            fetchPaseadores();
+            
+        }
 
-        fetchPaseadores();
-    }, []);
+    }, [idUser]);
+
+    const handleClick = () => {
+        if ((userPaseador&& userPaseador.length == 0)) {
+            // Redirigir a la página correspondiente si no es paseador
+            navigate("/agregar-paseador");
+        } else {
+            // Mostrar el Swal si ya es paseador
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Usted ya es un paseador, no puede registrarse nuevamente",
+                footer: "",
+                confirmButtonText: "Aceptar",
+            });
+        }
+    };
 
     return (
         <React.Fragment>
@@ -115,7 +168,7 @@ const Paseadores = () => {
                                                         paseador.datosUsuario
                                                             .mail ? (
                                                             <Link
-                                                                to={`/perfilpublico/${paseador.datosUsuario.mail}/${paseador.id}`}
+                                                                to={`/perfilPublicoPaseador/${paseador.datosUsuario.mail}/${paseador.id}`}
                                                                 className="btn-next-paseador button-container m-3"
                                                             >
                                                                 <span className="transition"></span>
@@ -158,12 +211,12 @@ const Paseadores = () => {
                             }}
                             className="floating-button-container"
                         >
-                            <Link className="Btn" to="/agregar-paseador">
+                            <button className="Btn" onClick={handleClick}>
                                 <div className="sign">+</div>
                                 <div className="text text-center">
                                     Soy Paseador
                                 </div>
-                            </Link>
+                            </button>
                         </div>
                     </Container>
                     <Footer />

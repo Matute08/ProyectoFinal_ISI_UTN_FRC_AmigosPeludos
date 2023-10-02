@@ -129,80 +129,79 @@ const UserManual = () => {
                                     </h2>
                                 </div>
 
-                                <div className="text-center">
-                                    <h3 className="user-manual-subtitle">
-                                        1. Registrate
+                                <div className="text-center m-5">
+                                    <h3 className="user-manual-subtitle m-3">
+                                        1. Hacer clic en el botón "Regístrate"
+                                        en la página principal de la aplicación.
                                     </h3>
-                                    <p className="user-manual-paragraph">
-                                        Haz clic en el botón 'Regístrate' para
-                                        acceder al formulario de registro.
-                                    </p>
+
                                     <img
                                         className="user-manual-image"
-                                        src="https://images.tango.us/workflows/237f66e0-0921-4081-b3a0-5cd731751727/steps/ff803eca-4674-427b-9a00-e512ae862eff/08fbfaec-fcff-486d-bf10-5839ae7ad6d2.png?fm=png&crop=focalpoint&fit=crop&fp-x=0.8924&fp-y=0.0923&fp-z=2.6749&w=1200&border=2%2CF4F2F7&border-radius=8%2C8%2C8%2C8&border-radius-inner=8%2C8%2C8%2C8&blend-align=bottom&blend-mode=normal&blend-x=0&blend-w=1200&blend64=aHR0cHM6Ly9pbWFnZXMudGFuZ28udXMvc3RhdGljL21hZGUtd2l0aC10YW5nby13YXRlcm1hcmstdjIucG5n&mark-x=696&mark-y=110&m64=aHR0cHM6Ly9pbWFnZXMudGFuZ28udXMvc3RhdGljL2JsYW5rLnBuZz9tYXNrPWNvcm5lcnMmYm9yZGVyPTQlMkNGRjc0NDImdz0zMTgmaD0xNDcmZml0PWNyb3AmY29ybmVyLXJhZGl1cz0xMA%3D%3D"
-                                        alt="Registrate"
+                                        src="https://images.tango.us/workflows/237f66e0-0921-4081-b3a0-5cd731751727/steps/ea92f0ed-712c-44e9-9d37-605a252ebfce/099c273e-7281-4c17-a852-294abab45690.png?fm=png&crop=focalpoint&fit=crop&fp-x=0.7232&fp-y=0.1962&fp-z=2.0000&w=1200&border=2%2CF4F2F7&border-radius=8%2C8%2C8%2C8&border-radius-inner=8%2C8%2C8%2C8&blend-align=bottom&blend-mode=normal&blend-x=0&blend-w=1200&blend64=aHR0cHM6Ly9pbWFnZXMudGFuZ28udXMvc3RhdGljL21hZGUtd2l0aC10YW5nby13YXRlcm1hcmstdjIucG5n&mark-x=887&mark-y=82&m64=aHR0cHM6Ly9pbWFnZXMudGFuZ28udXMvc3RhdGljL2JsYW5rLnBuZz9tYXNrPWNvcm5lcnMmYm9yZGVyPTQlMkNGRjc0NDImdz0yMzgmaD0xMTAmZml0PWNyb3AmY29ybmVyLXJhZGl1cz0xMA%3D%3D"
+                                        width="600"
+                                        alt='Hacer clic en el botón "Regístrate" en la página principal de la aplicación.'
                                     />
                                 </div>
 
-                                <div className="text-center">
-                                    <h3 className="user-manual-subtitle">
-                                        2. Email
+                                <div className="text-center m-5">
+                                    <h3 className="user-manual-subtitle m-3">
+                                        2. Ingresar información de registro y
+                                        hacer clic en 'Registrarse'
                                     </h3>
-                                    <p className="user-manual-paragraph">
-                                        Ingresa tu dirección de correo
-                                        electrónico. Se utilizará como nombre de
-                                        usuario.
-                                    </p>
                                     <img
-                                        src="https://images.tango.us/workflows/237f66e0-0921-4081-b3a0-5cd731751727/steps/20ebe8ed-7065-4ea3-978b-f5cc0b955cf9/88f1c605-548c-412c-9af1-72c06fd23536.png?fm=png&crop=focalpoint&fit=crop&fp-x=0.4924&fp-y=0.4400&fp-z=1.4685&w=1200&border=2%2CF4F2F7&border-radius=8%2C8%2C8%2C8&border-radius-inner=8%2C8%2C8%2C8&blend-align=bottom&blend-mode=normal&blend-x=0&blend-w=1200&blend64=aHR0cHM6Ly9pbWFnZXMudGFuZ28udXMvc3RhdGljL2JsYW5rLnBuZz9tYXNrPWNvcm5lcnMmYm9yZGVyPTQlMkNGRjc0NDImdz02NzEmaD04MSZmaXQ9Y3JvcCZjb3JuZXItcmFkaXVzPTEw"
-                                        alt="Email"
                                         className="user-manual-image"
+                                        src="https://images.tango.us/workflows/237f66e0-0921-4081-b3a0-5cd731751727/steps/9091db70-66a0-4231-90a5-82f06e77f243/10280200-652d-4ccd-9e0e-4442ce67cadb.png?fm=png&crop=focalpoint&fit=crop&fp-x=0.4924&fp-y=0.6338&fp-z=1.3771&w=1200&border=2%2CF4F2F7&border-radius=8%2C8%2C8%2C8&border-radius-inner=8%2C8%2C8%2C8&blend-align=bottom&blend-mode=normal&blend-x=0&blend-w=1200&blend64=aHR0cHM6Ly9pbWFnZXMudGFuZ28udXMvc3RhdGljL21hZGUtd2l0aC10YW5nby13YXRlcm1hcmstdjIucG5n&mark-x=285&mark-y=3&m64=aHR0cHM6Ly9pbWFnZXMudGFuZ28udXMvc3RhdGljL2JsYW5rLnBuZz9tYXNrPWNvcm5lcnMmYm9yZGVyPTQlMkNGRjc0NDImdz02MzAmaD03MzcmZml0PWNyb3AmY29ybmVyLXJhZGl1cz0xMA%3D%3D"
+                                        width="600"
+                                        alt="Ingresar información de registro y hacer clic en &#039;Registrarse&#039;"
                                     />
-                                </div>
-
-                                <div className="text-center">
-                                    <h3 className="user-manual-subtitle">
-                                        3. Nombre Completo *
-                                    </h3>
-                                    <p className="user-manual-paragraph">
-                                        Proporciona tu nombre completo
+                                    <p className="m-3 user-manual-paragraph">
+                                        Asegúrate de proporcionar la siguiente
+                                        información:
                                     </p>
-                                    <img
-                                        src="https://images.tango.us/workflows/237f66e0-0921-4081-b3a0-5cd731751727/steps/978b07c2-d351-4ff4-9a1f-c25ecf377633/7a7ad4a4-a8c5-4ed6-8019-7293b6bef30a.png?fm=png&crop=focalpoint&fit=crop&fp-x=0.4924&fp-y=0.5723&fp-z=1.4685&w=1200&border=2%2CF4F2F7&border-radius=8%2C8%2C8%2C8&border-radius-inner=8%2C8%2C8%2C8&blend-align=bottom&blend-mode=normal&blend-x=0&blend-w=1200&blend64=aHR0cHM6Ly9pbWFnZXMudGFuZ28udXMvc3RhdGljL2JsYW5rLnBuZz9tYXNrPWNvcm5lcnMmYm9yZGVyPTQlMkNGRjc0NDImdz02NzEmaD04MSZmaXQ9Y3JvcCZjb3JuZXItcmFkaXVzPTEw"
-                                        alt="Nombre Completo *"
-                                        className="user-manual-image"
-                                    />
-                                </div>
-
-                                <div className="text-center">
-                                    <h3 className="user-manual-subtitle">
-                                        4. Contraseña
-                                    </h3>
-                                    <p className="user-manual-paragraph">
-                                        Elige una contraseña segura. Debe
-                                        contener al menos ocho caracteres
-                                    </p>
-                                    <img
-                                        src="https://images.tango.us/workflows/237f66e0-0921-4081-b3a0-5cd731751727/steps/d0664ec6-5464-4e89-a118-cd43525fb811/628fc9f0-a4c8-429c-8690-110596281448.png?fm=png&crop=focalpoint&fit=crop&fp-x=0.4924&fp-y=0.7031&fp-z=1.4685&w=1200&border=2%2CF4F2F7&border-radius=8%2C8%2C8%2C8&border-radius-inner=8%2C8%2C8%2C8&blend-align=bottom&blend-mode=normal&blend-x=0&blend-w=1200&blend64=aHR0cHM6Ly9pbWFnZXMudGFuZ28udXMvc3RhdGljL2JsYW5rLnBuZz9tYXNrPWNvcm5lcnMmYm9yZGVyPTQlMkNGRjc0NDImdz02NzEmaD04MSZmaXQ9Y3JvcCZjb3JuZXItcmFkaXVzPTEw"
-                                        alt="Contraseña"
-                                        className="user-manual-image"
-                                    />
-                                </div>
-
-                                <div className="text-center">
-                                    <h3 className="user-manual-subtitle text-center">
-                                        5. Registrarse
-                                    </h3>
-                                    <p className="user-manual-paragraph">
-                                        Haz clic en el botón 'Registrarse' para
-                                        completar el proceso de registro y crear
-                                        tu cuenta
-                                    </p>
-                                    <img
-                                        src="https://images.tango.us/workflows/237f66e0-0921-4081-b3a0-5cd731751727/steps/363c53f0-9143-4f40-b699-da099e5da639/d5c61d9a-c2af-458a-95c6-23a7a7bd0c3d.png?fm=png&crop=focalpoint&fit=crop&fp-x=0.4924&fp-y=0.8800&fp-z=1.4685&w=1200&border=2%2CF4F2F7&border-radius=8%2C8%2C8%2C8&border-radius-inner=8%2C8%2C8%2C8&blend-align=bottom&blend-mode=normal&blend-x=0&blend-w=1200&blend64=aHR0cHM6Ly9pbWFnZXMudGFuZ28udXMvc3RhdGljL2JsYW5rLnBuZz9tYXNrPWNvcm5lcnMmYm9yZGVyPTQlMkNGRjc0NDImdz02NzEmaD04MSZmaXQ9Y3JvcCZjb3JuZXItcmFkaXVzPTEw"
-                                        alt="Registrarse"
-                                        className="user-manual-image"
-                                    />
+                                    <div className="text-start w-100 d-flex justify-content-center">
+                                        <ul className="user-manual-lista">
+                                            <li class="">
+                                                <p className="user-manual-paragraph">
+                                                    <strong>Email:</strong>{" "}
+                                                    ingresa la dirección de tu
+                                                    correo electrónico. Este
+                                                    será tu nombre de usuario
+                                                    para iniciar sesión en la
+                                                    aplicación.
+                                                </p>
+                                            </li>
+                                            <li class="">
+                                                <p className="user-manual-paragraph">
+                                                    <strong>
+                                                        Nombre Completo:
+                                                    </strong>{" "}
+                                                    Proporciona tu nombre y
+                                                    apellido separados por un
+                                                    espacio.
+                                                </p>
+                                            </li>
+                                            <li class="">
+                                                <p className="user-manual-paragraph">
+                                                    <strong>Contraseña:</strong>{" "}
+                                                    Elige una contraseña segura
+                                                    que contenga al menos 8
+                                                    caracteres. Debe combinar
+                                                    letras mayúsculas,
+                                                    minúsculas, números y
+                                                    caracteres especiales.
+                                                </p>
+                                            </li>
+                                            <p className="user-manual-paragraph">
+                                                Todos los campos son
+                                                obligatorios para continuar. Una
+                                                vez que hayas ingresado la
+                                                información requerida, haz clic
+                                                en el botón 'Registrarse' para
+                                                completar el proceso de
+                                                registro.
+                                            </p>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         )}

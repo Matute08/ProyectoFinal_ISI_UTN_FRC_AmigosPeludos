@@ -30,12 +30,16 @@ import GenerateQr from './pages/profile/qr/GenerateQr';
 import ConsultAdoptForm from './pages/requests/ConsultAdoptForm';
 import Paseadores from './pages/paseadores/Paseadores';
 import AddPaseador from './pages/paseadores/AddPaseador';
+import SettingsPaseador from './pages/profile/misServicios/settingsServices/SettingsPaseador';
 import PublicProfilePaseador from './pages/publicProfile/publicProfilePaseador/PublicProfilePaseador';
+import PublicProfileCuidador from './pages/publicProfile/publicProfileCuidador/PublicProfileCuidador';
 import Veterinarias from './pages/veterinarias/Veterinarias';
 import Cuidadores from './pages/cuidadores/Cuidadores';
 import AddCuidador from './pages/cuidadores/AddCuidador';
+import SettingsCuidador from './pages/profile/misServicios/settingsServices/SettingsCuidador';
 import UserManual from './pages/userManual/UserManual';
 import AddVeterinaria from './pages/veterinarias/registrarVeterinaria/AddVeterinaria';
+import PerfilVeterinaria from './pages/veterinarias/perfilVeterinaria/PerfilVeterinaria';
 
 function App() {
   return (
@@ -77,18 +81,22 @@ function App() {
           {/* Paseadores */}
           <Route path='/paseadores' element={<Paseadores />} />
           <Route path="/agregar-paseador" element={<ProtectedRoute><AddPaseador /></ProtectedRoute>} />
+          <Route path="/modificar-paseador/:paseadorId" element={<ProtectedRoute><SettingsPaseador /></ProtectedRoute>} />
 
           {/* Perfil público */}
-          <Route path="/perfilPublico/:correoElectronico/:id" element={<ProtectedRoute><PublicProfilePaseador /></ProtectedRoute>} />
+          <Route path="/perfilPublicoPaseador/:correoElectronico/:id" element={<ProtectedRoute><PublicProfilePaseador /></ProtectedRoute>} />
+          <Route path="/perfilPublicoCuidador/:correoElectronico/:id" element={<ProtectedRoute><PublicProfileCuidador /></ProtectedRoute>} />
 
           {/* Veterinarias */}
           <Route path='/veterinarias' element={<Veterinarias />} />
           <Route path="/agregar-veterinaria" element={<ProtectedRoute><AddVeterinaria /></ProtectedRoute>} />
+          <Route path="/veterinarias/perfil-veterinaria/:id" element={<ProtectedRoute><PerfilVeterinaria /></ProtectedRoute>} />
 
 
           {/* Cuidadores */}
           <Route path='/cuidadores' element={<Cuidadores />} />
           <Route path="/agregar-cuidador" element={<ProtectedRoute><AddCuidador /></ProtectedRoute>} />
+          <Route path="/modificar-cuidador/:cuidadorId" element={<ProtectedRoute><SettingsCuidador /></ProtectedRoute>} />
 
           {/* Manual de usuario */}
           <Route path='/manualusuario' element={<UserManual />} />

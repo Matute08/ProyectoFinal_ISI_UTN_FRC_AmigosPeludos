@@ -3,10 +3,12 @@ import { useForm } from "react-hook-form";
 import { Col, Form, Row, Label } from "reactstrap";
 import { getUserMail, getAllBarrio } from "../../../services/api";
 import Loading from "../../components/Loading";
-import { format, parse } from "date-fns";
-import { Link } from "react-router-dom";
+import { parse } from "date-fns";
 import GoogleMap from "../../components/mapaGoogle/GoogleMap";
-
+//import LeafletMap from "../../components/maps/MapaUbicacionParticular";
+import LeafletMaps from "../../components/maps/LeafletMaps";
+import Maps from "../../components/maps/Maps";
+import Map from "../../components/maps/MapaUbicacionParticular";
 const Step1 = ({ onNext }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [userData, setUserData] = useState();
@@ -17,37 +19,21 @@ const Step1 = ({ onNext }) => {
     const [selectedBarrio, setSelectedBarrio] = useState("");
     const [direccionCompleta, setDireccionCompleta] = useState("");
     const [longitud, setLongitud] = useState();
+    const [isGeocoding, setIsGeocoding] = useState(false); // Nuevo estado para rastrear la geocodificación
+
     const [location, setLocation] = useState({
         lat: -31.41894,
         lng: -64.19353,
-    }); // Coordenadas iniciales
+    });
 
-    const handleLocationChange = (newLocation) => {
-        // Aquí puedes hacer algo con las coordenadas seleccionadas, como guardarlas en el estado local o enviarlas a través de una función de devolución de llamada.
-        setLocation(newLocation);
-
-        // Obtener la latitud y longitud
-        setLatitud(newLocation.lat);
-        setLongitud(newLocation.lng);
-
-        // Hacer algo con lat y lng, por ejemplo, guardarlos en el estado local.
-        // Puedes usar lat y lng como necesites en tu aplicación.
-
-        // Calcula la dirección completa en función de los valores actuales
-        const nuevaDireccionCompleta = `${direccion}, ${altura}, Barrio ${selectedBarrio}`;
-        setDireccionCompleta(nuevaDireccionCompleta);
-    };
+   
 
     useEffect(() => {
         const fetchUserData = async () => {
-            // Obtener los datos del usuario desde el localStorage
             const cachedUserData = localStorage.getItem("userData");
 
             if (cachedUserData) {
-                // Parsear los datos almacenados en el localStorage
                 const dataLocalStorage = JSON.parse(cachedUserData);
-
-                // Acceder al correo electrónico del usuario
                 const userEmail = dataLocalStorage.email;
 
                 const userData = await getUserMail(userEmail);
@@ -59,7 +45,6 @@ const Step1 = ({ onNext }) => {
         const fetchBarrio = async () => {
             try {
                 const barrioData = await getAllBarrio();
-
                 setBarrio(barrioData);
                 setIsLoading(false);
             } catch (error) {
@@ -72,42 +57,45 @@ const Step1 = ({ onNext }) => {
         fetchBarrio();
     }, []);
 
-    const calculateAge = (dateOfBirth) => {
-        const today = new Date();
-        const birthDate = parse(dateOfBirth, "yyyy-MM-dd", new Date());
-
-        const age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-
-        if (
-            monthDiff < 0 ||
-            (monthDiff === 0 && today.getDate() < birthDate.getDate())
-        ) {
-            return age - 1;
-        }
-
-        return age;
-    };
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm();
+    const handleMapClick = (lat, lng) => {
+        setLatitud(lat);
+        setLongitud(lng);
 
-    const onSubmit = (data) => {
-        data.nombreCompleto = userData && userData.nombreCompleto;
-        onNext(); // Llama a la función onNext para avanzar al siguiente paso
     };
+    const handleLocationChange = (location) => {
+        setLatitud(location.lat);
+        setLongitud(location.lon);
+      };
+    const onSubmit = (data) => {
+        if (isGeocoding) {
+            // Evita enviar el formulario si la geocodificación está en curso
+            return;
+          }
+          
+          setIsGeocoding(true); // Indica que la geocodificación está en curso
 
-    return (
+
+        data.latitud = Number(latitud.toFixed(5));
+        data.longitud =Number(longitud.toFixed(5));
+        data.barrioId= parseInt(data.barrioId,10)
+        data.cuil= parseInt(data.cuil,10)
+        data.numeroCalle= parseInt(data.numeroCalle,10)
+        onNext(data); // Llama a la función onNext para avanzar al siguiente paso
+    };
+    return(
         <Form onSubmit={handleSubmit(onSubmit)} className="form-step">
             {isLoading ? (
                 <Loading />
             ) : (
-                <>
-                    <Row className="d-flex justify-content-center">
+                <div className="d-flex justify-content-center">
+                    <Row className="w-100">
                         {/* nombre completo */}
-                        <Col lg={8} className="d-flex justify-content-center">
+                        <Col lg={6} className="d-flex justify-content-center">
                             <div className="mb-3 w-100">
                                 <Label className="form-label">
                                     Nombre Veterinaria
@@ -136,7 +124,7 @@ const Step1 = ({ onNext }) => {
                         </Col>
 
                         {/* BARRIO */}
-                        <Col lg={9} className="d-flex justify-content-center">
+                        <Col lg={6} className="d-flex justify-content-center">
                             <div className="mb-3 w-100">
                                 <Label className="form-label">Barrio</Label>
                                 <select
@@ -148,7 +136,6 @@ const Step1 = ({ onNext }) => {
                                         required: "Seleccione una opción",
                                     })}
                                     onChange={(e) => {
-                                        // Actualiza el barrio seleccionado en el estado
                                         setSelectedBarrio(e.target.value);
                                     }}
                                 >
@@ -170,82 +157,60 @@ const Step1 = ({ onNext }) => {
                             </div>
                         </Col>
 
-                        <Col lg={9}>
-                            <Row>
-                                {/* direccion */}
-                                <Col
-                                    lg={6}
-                                    className="d-flex justify-content-center"
-                                >
-                                    <div className="mb-3 w-100">
-                                        <Label className="form-label">
-                                            Dirección:
-                                        </Label>
-                                        <input
-                                            type="text"
-                                            className={`form-control ${
-                                                errors.direccion
-                                                    ? "is-invalid"
-                                                    : ""
-                                            }`}
-                                            name="direccion"
-                                            placeholder="Dirección"
-                                            {...register("direccion", {
-                                                required:
-                                                    "Este campo es obligatorio",
-                                            })}
-                                            onBlur={(e) => {
-                                                // Actualiza la dirección en el estado
-                                                setDireccion(e.target.value);
-                                            }}
-                                        />
-                                        {errors.direccion && (
-                                            <p className="invalid-feedback">
-                                                {errors.direccion.message}
-                                            </p>
-                                        )}
-                                    </div>
-                                </Col>
+                        {/* direccion */}
+                        <Col lg={4} className="d-flex justify-content-center">
+                            <div className="mb-3 w-100">
+                                <Label className="form-label">Dirección:</Label>
+                                <input
+                                    type="text"
+                                    className={`form-control ${
+                                        errors.direccion ? "is-invalid" : ""
+                                    }`}
+                                    name="direccion"
+                                    placeholder="Dirección"
+                                    {...register("direccion", {
+                                        required: "Este campo es obligatorio",
+                                    })}
+                                    onBlur={(e) => {
+                                        setDireccion(e.target.value);
+                                    }}
+                                />
+                                {errors.direccion && (
+                                    <p className="invalid-feedback">
+                                        {errors.direccion.message}
+                                    </p>
+                                )}
+                            </div>
+                        </Col>
 
-                                {/* numero */}
-                                <Col
-                                    lg={3}
-                                    className="d-flex justify-content-center"
-                                >
-                                    <div className="mb-3 w-100">
-                                        <Label className="form-label">
-                                            Altura:
-                                        </Label>
-                                        <input
-                                            type="number"
-                                            className={`form-control ${
-                                                errors.numeroCalle
-                                                    ? "is-invalid"
-                                                    : ""
-                                            }`}
-                                            name="numeroCalle"
-                                            placeholder="Altura"
-                                            {...register("numeroCalle", {
-                                                required:
-                                                    "Este campo es obligatorio",
-                                            })}
-                                            onBlur={(e) => {
-                                                // Actualiza la altura en el estado
-                                                setAltura(e.target.value);
-                                            }}
-                                        />
-                                        {errors.numeroCalle && (
-                                            <p className="invalid-feedback">
-                                                {errors.numeroCalle.message}
-                                            </p>
-                                        )}
-                                    </div>
-                                </Col>
-                            </Row>
+                        {/* numero */}
+                        <Col lg={2} className="d-flex justify-content-center">
+                            <div className="mb-3 w-100">
+                                <Label className="form-label">Altura:</Label>
+                                <input
+                                    type="number"
+                                    className={`form-control ${
+                                        errors.numeroCalle ? "is-invalid" : ""
+                                    }`}
+                                    name="numeroCalle"
+                                    placeholder="Altura"
+                                    {...register("numeroCalle", {
+                                        required: "Este campo es obligatorio",
+                                    })}
+                                    onBlur={(e) => {
+                                        setAltura(e.target.value);
+                                    }}
+                                />
+                                {errors.numeroCalle && (
+                                    <p className="invalid-feedback">
+                                        {errors.numeroCalle.message}
+                                    </p>
+                                )}
+                            </div>
                         </Col>
 
                         {/* Celular */}
-                        <Col lg={8} className="d-flex justify-content-center">
+                        <Col lg={3} className="d-flex justify-content-center">
                             <div className="mb-3 w-100">
                                 <Label className="form-label">
                                     Celular de Contácto
@@ -272,7 +237,7 @@ const Step1 = ({ onNext }) => {
                         </Col>
 
                         {/* Cuit */}
-                        <Col lg={8} className="d-flex justify-content-center">
+                        <Col lg={3} className="d-flex justify-content-center">
                             <div className="mb-3 w-100">
                                 <Label className="form-label">CUIT</Label>
                                 <input
@@ -293,27 +258,30 @@ const Step1 = ({ onNext }) => {
                                 )}
                             </div>
                         </Col>
-                        <Row className="d-flex justify-content-center">
-                            <Col lg={12}>
-                                <Label className="form-label">
-                                    Selecciona una ubicación:
-                                </Label>
-                                <Label>
-                                    {" "}
-                                    LAT: {latitud} LONG: {longitud}
-                                </Label>
-                                <GoogleMap
-                                    initialLocation={location}
-                                    onLocationChange={handleLocationChange}
-                                    direccion={direccion}
-                                    altura={altura}
-                                    selectedBarrio={selectedBarrio}
-                                    selectedCiudad={"Cordoba"}
-                                />
-                            </Col>
-                        </Row>
+
+                        <Col lg={12}>
+                            <Map
+                                onMapClick={handleMapClick}
+                                direccion={direccion}
+                                altura={altura}
+                                ciudad={"Cordoba"}
+                                pais={"Argentina"}
+                                barrio={selectedBarrio}
+                                onLocationChange={handleLocationChange}
+                            />
+                        </Col>
+                        <Col className="button-container d-flex justify-content-end">
+                        <button
+                            className="btn-next-paseador btn-next "
+                            type="submit"
+                        >
+                            <span class="transition"></span>
+                            <span class="gradient"></span>
+                            <span class="label">Siguiente</span>
+                        </button>
+                    </Col>
                     </Row>
-                </>
+                </div>
             )}
         </Form>
     );

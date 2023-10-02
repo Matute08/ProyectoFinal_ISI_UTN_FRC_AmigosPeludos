@@ -108,7 +108,7 @@ const Step1 = ({ onNext }) => {
                             </div>
                         </Col>
 
-                        {/* Celular */}
+                        {/* Celular
                         <Col lg={8} className="d-flex justify-content-center">
                             <div className="mb-3 w-100">
                                 <Label className="form-label">Celular</Label>
@@ -129,7 +129,7 @@ const Step1 = ({ onNext }) => {
                                     </p>
                                 )}
                             </div>
-                        </Col>
+                        </Col> */}
 
                         {/* EDAD */}
                         <Col lg={8} className="d-flex justify-content-center">

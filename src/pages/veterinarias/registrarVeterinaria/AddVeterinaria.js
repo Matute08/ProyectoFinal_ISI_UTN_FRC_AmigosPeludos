@@ -1,115 +1,109 @@
-import React, { useState } from "react";
-import { Button, message, Steps, theme } from "antd";
+import React, { useState, useEffect } from "react";
+import Step1 from "./Step1";
+import Step2 from "./Step2";
+import Step3 from "./Step3";
+import Step4 from "./Step4";
 import Navbar from "../../landing/Navbar";
 import Footer from "../../landing/Footer";
-import { Container, Col } from "reactstrap";
-import Step1 from "./Step1";
+import { Card, CardBody, CardHeader, Col, Container, Row } from "reactstrap";
+import { FormProvider, useForm } from "react-hook-form";
 
-const { Step } = Steps;
+const steps = [Step1, Step2, Step3, Step4];
 
-const AddVeterinaria = () => {
-    const { token } = theme.useToken();
-    const [current, setCurrent] = useState(0);
+const AddVeterinaria = ({ methods }) => {
+    const [currentStep, setCurrentStep] = useState(0);
+    const [formData, setFormData] = useState({});
+    const [step1Data, setStep1Data] = useState({});
+    const [step2Data, setStep2Data] = useState({});
+    const [step3Data, setStep3Data] = useState({});
 
-    const handleNext = () => {
-        setCurrent(current + 1);
+    const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 600);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsSmallScreen(window.innerWidth < 600);
+        };
+
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
+
+    const handleNext = (data) => {
+        setFormData((prevData) => ({ ...prevData, ...data }));
+        if (currentStep === steps.length - 1) {
+            console.log("Datos finales:", formData);
+        } else {
+            if (currentStep === 0) {
+                setStep1Data(data);
+            } else if (currentStep === 1) {
+                setStep2Data(data);
+            } else if (currentStep === 2) {
+                setStep3Data(data);
+            }
+            setCurrentStep((prevStep) => prevStep + 1);
+        }
     };
 
-    const handlePrev = () => {
-        setCurrent(current - 1);
+    const handlePrevious = () => {
+        if (currentStep > 0) {
+            setCurrentStep((prevStep) => prevStep - 1);
+        }
     };
 
-    const steps = [
-        {
-            title: "Datos Básicos",
-            content: <Step1 onNext={handleNext} />,
-        },
-        {
-            title: "Segundo Paso",
-            content: "Contenido del segundo paso",
-        },
-        {
-            title: "Último Paso",
-            content: "Contenido del último paso",
-        },
-    ];
+    const StepComponent = steps[currentStep];
 
     return (
         <React.Fragment>
-            <Navbar />
-            <Container fluid className="page-content perfil-fondo">
-                <div className=" w-100">
-                    <div className="d-flex justify-content-center">
-                        <Steps current={current} className="w-75">
-                            {steps.map((item) => (
-                                <Step key={item.title} title={item.title} />
-                            ))}
-                        </Steps>
-                    </div>
-
-                    <div
-                        style={{
-                            marginTop: 24,
-                        }}
-                    >
-                        {steps[current].content}
-
-                        <div className="d-flex justify-content-end">
-                            <Col className="button-container d-flex justify-content-end">
-                                {current < steps.length - 1 && (
-                                    <Button
-                                        className="btn-next-paseador btn-next "
-                                        type="submit"
-                                        onClick={handleNext}
-                                    >
-                                        <span class="transition"></span>
-                                        <span class="gradient"></span>
-                                        <span class="label">Siguiente</span>
-                                    </Button>
-                                    // <Button type="primary" onClick={handleNext}>
-                                    //     Siguiente
-                                    // </Button>
-                                )}
-                                {current === steps.length - 1 && (
-                                    <Button
-                                        className="btn-next-paseador btn-next "
-                                        type="submit"
-                                        onClick={() =>
-                                            message.success(
-                                                "¡Registro completo!"
-                                            )
-                                        }
-                                    >
-                                        <span class="transition"></span>
-                                        <span class="gradient"></span>
-                                        <span class="label">Finalizar</span>
-                                    </Button>
-                                )}
-                                {current > 0 && (
-                                    <Button
-                                        className="btn-next-paseador"
-                                        onClick={handlePrev}
-                                    >
-                                        <span className="transition transition-back"></span>
-                                        <span className="gradient"></span>
-                                        <span className="label">Atras</span>
-                                    </Button>
-
-                                    // <Button
-                                    //     style={{
-                                    //         margin: "0 8px",
-                                    //     }}
-                                    //     onClick={handlePrev}
-                                    // >
-                                    //     Anterior
-                                    // </Button>
-                                )}
+            <FormProvider {...methods}>
+                <>
+                    <Navbar />
+                    <Container fluid className="page-content perfil-fondo">
+                        <Row>
+                            <Col className="text-center mb-4">
+                                <h1>REGISTRO DE VETERINARIAS</h1>
                             </Col>
-                        </div>
-                    </div>
-                </div>
-            </Container>
-            <Footer />
+                        </Row>
+                        <Row>
+                            <Col className="d-flex justify-content-center">
+                                <Card
+                                    className={`${
+                                        window.innerWidth < 600
+                                            ? "w-100"
+                                            : "w-75"
+                                    }`}
+                                >
+                                    <CardHeader className="d-flex justify-content-center">
+                                        <div
+                                            className="progress w-50 m-0"
+                                            style={{
+                                                "--progress-width": `${
+                                                    (currentStep + 1) *
+                                                    (100 / steps.length)
+                                                }%`,
+                                            }}
+                                        />
+                                    </CardHeader>
+
+                                    <CardBody className="card-paseador">
+                                        <StepComponent
+                                            onNext={handleNext}
+                                            onPrev={handlePrevious}
+                                            step1Data={step1Data}
+                                            step2Data={step2Data}
+                                            step3Data={step3Data}
+                                            methods={methods}
+                                        />
+                                    </CardBody>
+                                </Card>
+                            </Col>
+                        </Row>
+                    </Container>
+                    <Footer />
+                </>
+            </FormProvider>
         </React.Fragment>
     );
 };

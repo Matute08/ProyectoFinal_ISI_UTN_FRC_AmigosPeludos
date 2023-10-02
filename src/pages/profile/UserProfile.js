@@ -24,6 +24,7 @@ import Mascota from "../profile/pet/Mascotas";
 import AsideLeft from "./AsideLeft";
 import MyPosts from "./post/MyPosts";
 import GenerateQr from "./qr/GenerateQr";
+import MisServicios from "./misServicios/MisServicios";
 //Images
 
 const Profile = () => {
@@ -66,15 +67,14 @@ const Profile = () => {
                                     <NavItem>
                                         <NavLink
                                             href="#mis-mascotas"
-                                            className={classnames({
-                                                active: activeTab === "1",
-                                            })}
+                                            className={`d-md-inline-block ${
+                                                activeTab === "1" ? "active" : ""
+                                            }`}
                                             onClick={() => {
                                                 toggleTab("1");
                                             }}
                                         >
-                                            {/* <i className="ri-airplay-fill d-inline-block d-md-none"></i>{" "} */}
-                                            {/* el span tenia una clase = d-none */}
+                                           
                                             <span className=" d-md-inline-block">
                                                 Mis Mascotas
                                             </span>
@@ -83,20 +83,19 @@ const Profile = () => {
                                     <NavItem>
                                         <NavLink
                                             href="#mis-publicaciones"
-                                            className={classnames({
-                                                active: activeTab === "2",
-                                            })}
+                                            className={`d-md-inline-block ${
+                                                activeTab === "2" ? "active" : ""
+                                            }`}
                                             onClick={() => {
                                                 toggleTab("2");
                                             }}
                                         >
-                                            {/* <i className="ri-list-unordered d-inline-block d-md-none"></i>{" "} */}
                                             <span className=" d-md-inline-block">
                                                 Mis Publicaciones
                                             </span>
                                         </NavLink>
                                     </NavItem>
-                                    <NavItem>
+                                    {/* <NavItem>
                                         <NavLink
                                             href="#mi-qr"
                                             className={classnames({
@@ -106,24 +105,21 @@ const Profile = () => {
                                                 toggleTab("3");
                                             }}
                                         >
-                                            {/* <i className="ri-list-unordered d-inline-block d-md-none"></i>{" "} */}
                                             <span className=" d-md-inline-block">
                                                 Mi QR
                                             </span>
                                         </NavLink>
-                                    </NavItem>
+                                    </NavItem> */}
                                     <NavItem>
                                         <NavLink
                                             //href="#mis-mascotas"
-                                            className={classnames({
-                                                active: activeTab === "4",
-                                            })}
+                                            className={`d-md-inline-block ${
+                                                activeTab === "3" ? "active" : ""
+                                            }`}
                                             onClick={() => {
                                                 toggleTab("4");
                                             }}
                                         >
-                                            {/* <i className="ri-airplay-fill d-inline-block d-md-none"></i>{" "} */}
-                                            {/* el span tenia una clase = d-none */}
                                             <span className=" d-md-inline-block">
                                                 Mis Servicios
                                             </span>
@@ -145,8 +141,9 @@ const Profile = () => {
                                     <TabPane tabId="3">
                                         <GenerateQr></GenerateQr>
                                     </TabPane>
-
                                     <TabPane tabId="4">
+                                            <MisServicios></MisServicios>
+
                                     </TabPane>
                                 </TabContent>
                             </CardBody>

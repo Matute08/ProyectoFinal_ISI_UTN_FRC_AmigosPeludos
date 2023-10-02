@@ -44,8 +44,8 @@ const Step2 = ({ onNext, onPrevious, step1Data }) => {
         if (isValid) {
             data.tipoViviendaId =  parseInt(data.tipoViviendaId, 10);
             // Convierte los valores de cadena a booleano
-            data.patioBalcon = data.patioBalcon === "true";
-            data.transportePropio = data.transportePropio === "true";
+            data.patioBalcon = data.patioBalcon === "true" ? true : false;
+            data.transportePropio = data.transportePropio === "true" ? true:false;
             onNext({ ...step1Data, ...data });
         }
     };

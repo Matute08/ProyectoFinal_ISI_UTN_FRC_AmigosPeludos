@@ -580,7 +580,10 @@ const UserProfileSetting = () => {
 
                                                                     <button
                                                                         class="button-pz btn-pz-secondary"
-                                                                        to={`/perfil/${userData.mail}`}
+                                                                        // to={`/perfil/${userData.mail}`}
+                                                                        onClick={() => {
+                                                                            navigate(`/perfil/${userData.mail}`)
+                                                                          }}
                                                                     >
                                                                         <span class="span-pz text-pz">
                                                                             Volver
