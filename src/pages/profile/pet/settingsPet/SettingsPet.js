@@ -665,7 +665,7 @@ const SettingsPet = () => {
                                                             <Col lg={12}>
                                                                 <div className="mb-3">
                                                                     <Label className="form-label">
-                                                                        Descripcion
+                                                                        Descripción
                                                                         de la
                                                                         mascota
                                                                     </Label>

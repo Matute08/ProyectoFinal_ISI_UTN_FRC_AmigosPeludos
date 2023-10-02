@@ -794,7 +794,7 @@ const AddFoundPets = () => {
                                                 <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
-                                                            Numero de Celular:
+                                                            Número de Celular:
                                                             <span className="text-danger">
                                                                 *
                                                             </span>

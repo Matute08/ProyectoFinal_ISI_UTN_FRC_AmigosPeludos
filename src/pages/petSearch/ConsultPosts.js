@@ -269,7 +269,7 @@ const ConsultPosts = () => {
                                             <Card className="card-consult-post ">
                                                 <CardHeader>
                                                     <h4 className="card-title card-title-post mb-0">
-                                                        Ubicacion
+                                                        Ubicación
                                                     </h4>
                                                 </CardHeader>
                                                 <CardBody>

@@ -16,7 +16,7 @@ const Services = () => {
                                 data-aos-easing="ease-in-sine"
                             >
                                 <h1 className="mb-3 ff-secondary fw-semibold lh-base">
-                                    Ofrecemos multiples servicios para ayudarte
+                                    Ofrecemos múltiples servicios para ayudarte
                                     con tu mascota
                                 </h1>
                             </div>
@@ -41,8 +41,8 @@ const Services = () => {
                                     <h5 className="fs-18">Mascotas perdidas</h5>
                                     <p className="text-muted my-3 ff-secondary">
                                         ¿Perdiste a tu mascota?, no te
-                                        preocupes, chequea si alguien ya la
-                                        encontro
+                                        preocupes, chequeá si alguien ya la
+                                        encontró
                                     </p>
                                     <div>
                                         <Link
@@ -76,8 +76,8 @@ const Services = () => {
                                         Mascotas encontradas
                                     </h5>
                                     <p className="text-muted my-3 ff-secondary">
-                                        Publica esa mascota que encontraste,
-                                        seguramente su dueño esta buscandolo
+                                        Publicá esa mascota que encontraste,
+                                        seguramente su dueño está buscándolo
                                     </p>
                                     <div>
                                         <Link
@@ -111,7 +111,7 @@ const Services = () => {
                                         Mascotas en adopción
                                     </h5>
                                     <p className="text-muted my-3 ff-secondary">
-                                        No lo dudes mas! Adopta a esa mascota
+                                        No lo dudes más! Adopta a esa mascota
                                         que tanto anhelas y dale un hogar .
                                     </p>
                                     <div>
@@ -144,8 +144,8 @@ const Services = () => {
                                 <div className="flex-grow-1">
                                     <h5 className="fs-18">Paseadores</h5>
                                     <p className="text-muted my-3 ff-secondary">
-                                        ¿Necesitas pasear a tu perro?, encontra
-                                        aqui al paseador que mas se ajuste a tus
+                                        ¿Necesitás pasear a tu perro?, encontrá
+                                        aquí al paseador que más se ajuste a tus
                                         necesidades
                                     </p>
                                     <div>
@@ -178,8 +178,8 @@ const Services = () => {
                                 <div className="flex-grow-1">
                                     <h5 className="fs-18">Cuidadores</h5>
                                     <p className="text-muted my-3 ff-secondary">
-                                        ¿No sabes con quien dejas tu mascota?,
-                                        aqui podras encontrar a cuidadores que
+                                        ¿No sabés con quien dejas tu mascota?,
+                                        aquí podras encontrar a cuidadores que
                                         se encargaran de ello.{" "}
                                     </p>
                                     <div>
@@ -212,7 +212,7 @@ const Services = () => {
                                 <div className="flex-grow-1">
                                     <h5 className="fs-18">Donaciones</h5>
                                     <p className="text-muted my-3 ff-secondary">
-                                        Realiza donaciones a veterinarias o
+                                        Realizá donaciones a veterinarias o
                                         fundaciones de manera segura{" "}
                                     </p>
                                     <div>
@@ -245,8 +245,8 @@ const Services = () => {
                                 <div className="flex-grow-1">
                                     <h5 className="fs-18">Veterinarias</h5>
                                     <p className="text-muted my-3 ff-secondary">
-                                        Encontra aqui a las veterinarias de tu
-                                        zona y que realicen atencion gratuita
+                                        Encontrá aquí a las veterinarias de tu
+                                        zona y que realicen atención gratuita
                                     </p>
                                     <div>
                                         <Link
@@ -278,7 +278,7 @@ const Services = () => {
                                 <div className="flex-grow-1">
                                     <h5 className="fs-18">Fundaciones</h5>
                                     <p className="text-muted my-3 ff-secondary">
-                                        Encontra aqui a las fundaciones de
+                                        Encontrá aquí a las fundaciones de
                                         animales que se encuentren cerca de tu
                                         zona
                                     </p>
