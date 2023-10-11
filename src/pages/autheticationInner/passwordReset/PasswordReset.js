@@ -18,34 +18,41 @@ import logoLight from "../../../assets/images/logo/LogoAP.png";
 
 const PasswordReset = () => {
     document.title = "Restablecer contraseña | Amigos Peludos";
-    
-    
+
+    const [showCountdown, setShowCountdown] = useState(false);
     const navigate = useNavigate();
     const { resetPassword } = useAuth();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
 
     const [redirectTo, setRedirectTo] = useState(false);
     const [seconds, setSeconds] = useState(5);
     const [user, setUser] = useState({ email: "" });
     const [alertText, setAlertText] = useState(
         "¡Ingresa tu correo electrónico y se te enviarán las instrucciones!"
-        );
-        
+    );
+
     //tiempo restante para volver al login despues de enviar el mail
     useEffect(() => {
         let timer;
+
         if (redirectTo && seconds > 0) {
             timer = setTimeout(() => {
                 setSeconds((prevSeconds) => prevSeconds - 1);
             }, 1000);
-        } else if (seconds === 0) {
-            navigate("/iniciar-sesion");
 
-            return () => {
-                clearInterval(timer);
-            };
+            // Mostrar el contador después de 1 segundo
+            setTimeout(() => {
+                setShowCountdown(true);
+            }, 1000);
+        } else if (seconds === 0) {
+            // Hacer la redirección solo cuando el temporizador llega a cero
+            navigate("/iniciar-sesion");
         }
+
+        // Limpiar el temporizador cuando el componente se desmonta
+        return () => {
+            clearInterval(timer);
+        };
     }, [redirectTo, seconds, navigate]);
 
     //actualizar/cambiar de estados
@@ -57,13 +64,26 @@ const PasswordReset = () => {
         e.preventDefault();
 
         if (!user.email || !emailRegex.test(user.email)) {
-            setAlertText("Por favor Ingresa un Email");
+            setAlertText("Por favor ingresa un email válido.");
         } else {
-            await resetPassword(user.email);
-            setRedirectTo(true);
-            setAlertText(
-                "Se envio a su casilla de correo el link para restablecer la contraseña"
-            );
+            try {
+                await resetPassword(user.email);
+                setRedirectTo(true);
+                setAlertText(
+                    "Se envió a su casilla de correo el enlace para restablecer la contraseña."
+                );
+            } catch (error) {
+                if (error.code === "auth/user-not-found") {
+                    setAlertText(
+                        "Correo electrónico incorrecto. Por favor, verifícalo."
+                    );
+                } else {
+                    // Otros errores, manejar según sea necesario
+                    setAlertText(
+                        "Ocurrió un error al restablecer la contraseña. Por favor, inténtalo de nuevo."
+                    );
+                }
+            }
         }
     };
 
@@ -117,9 +137,11 @@ const PasswordReset = () => {
                                         role="alert"
                                     >
                                         {alertText ===
-                                        "Se envio a su casilla de correo el link para restablecer la contraseña"
-                                            ? `${alertText}. Seras redirigido al Login en ${seconds} segundos`
-                                            : `${alertText}`}
+                                        "Se envió a su casilla de correo el enlace para restablecer la contraseña."
+                                            ? showCountdown
+                                                ? `${alertText}. Serás redirigido al Login en ${seconds} segundos`
+                                                : alertText
+                                            : alertText}
                                     </Alert>
                                     <div className="p-2">
                                         <Form>

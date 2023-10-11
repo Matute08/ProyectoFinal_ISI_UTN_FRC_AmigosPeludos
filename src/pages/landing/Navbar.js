@@ -283,7 +283,7 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
                                                     </span>
                                                 </DropdownItem>
 
-                                                {/* SOLO ADMIN
+                                                {/* SOLO ADMIN */}
                                                 {userData &&
                                                     userData.rolId === 1 && (
                                                         <DropdownItem href="/solicitudes">
@@ -292,7 +292,7 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
                                                                 Solicitudes
                                                             </span>
                                                         </DropdownItem>
-                                                    )} */}
+                                                    )}
 
                                                 <div className="dropdown-divider"></div>
                                                 <DropdownItem

@@ -74,7 +74,7 @@ const Step2 = ({ onNext, onPrev, step1Data }) => {
                 <thead>
                     <tr>
                         <th>Día</th>
-                        <th>Trabaja</th>
+                        <th>Horario de <br /> Corrido</th>
                         <th>Desde Turno Mañana</th>
                         <th>Hasta Turno Mañana</th>
                         <th>Desde Turno Tarde</th>

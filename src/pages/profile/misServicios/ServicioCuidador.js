@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 const ServicioCuidador = () => {
     const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [cuidadores, setCuidadores] = useState([]);
+    const [cuidadores, setCuidadores] = useState()
 
     const daysOfWeek = [
         "lunes",
@@ -77,7 +77,7 @@ const ServicioCuidador = () => {
                                 {cuidadores.map((cuidador) => (
                                     <div key={cuidador.id}>
                                         <Row>
-                                            <Row>
+                                            <Col lg={6}>
                                                 <div className="m-3">
                                                     <h2>
                                                         Título:
@@ -85,9 +85,7 @@ const ServicioCuidador = () => {
                                                             cuidador.titulo}
                                                     </h2>
                                                 </div>
-                                            </Row>
 
-                                            <Row>
                                                 <div className="m-3">
                                                     <h5>
                                                         {" "}
@@ -100,46 +98,118 @@ const ServicioCuidador = () => {
                                                             cuidador.presentacion}
                                                     </h5>
                                                 </div>
-                                            </Row>
-                                            <Col lg={4}>
-                                                <Row>
-                                                    <Row className="mt-4">
-                                                        <h3 className="m-3">
-                                                            Donde cuido
-                                                        </h3>
-                                                    </Row>
+
+                                                <Col lg={12}>
                                                     <Row>
-                                                        <div className="m-3">
-                                                            <h5>
-                                                                <strong>
-                                                                    Realizo
-                                                                    cuidados en
-                                                                    mi:{" "}
-                                                                </strong>
-                                                                {cuidador &&
-                                                                    cuidador.tipoVivienda}{" "}
-                                                            </h5>
-                                                        </div>
+                                                        <Row className="mt-4">
+                                                            <h3 className="m-3">
+                                                                Donde cuido
+                                                            </h3>
+                                                        </Row>
+                                                        <Row>
+                                                            <div className="m-3">
+                                                                <h5>
+                                                                    <strong>
+                                                                        Realizo
+                                                                        cuidados
+                                                                        en mi:{" "}
+                                                                    </strong>
+                                                                    {cuidador &&
+                                                                        cuidador.tipoVivienda}{" "}
+                                                                </h5>
+                                                            </div>
+                                                        </Row>
+
+                                                        <Row>
+                                                            <div className="m-3">
+                                                                <h5>
+                                                                    <strong>
+                                                                        La
+                                                                        dirección
+                                                                        es:{" "}
+                                                                    </strong>
+                                                                    {cuidador &&
+                                                                        cuidador.calle}{" "}
+                                                                    {cuidador &&
+                                                                        cuidador.nroCalle}
+                                                                    {cuidador.tipoVivienda ===
+                                                                    "Departamento"
+                                                                        ? `${" - "}Piso/Depto: ${
+                                                                              cuidador &&
+                                                                              cuidador.piso
+                                                                          }`
+                                                                        : ""}
+                                                                </h5>
+                                                            </div>
+                                                        </Row>
+                                                        <Row>
+                                                            <div className="m-3">
+                                                                <h5>
+                                                                    <strong>
+                                                                        Barrio:{" "}
+                                                                    </strong>
+                                                                    {cuidador &&
+                                                                        cuidador.barrio}{" "}
+                                                                </h5>
+                                                            </div>
+                                                        </Row>
+
+                                                        <Row>
+                                                            <div className="m-3">
+                                                                <h5>
+                                                                    <strong>
+                                                                        Cuido
+                                                                        mascotas
+                                                                        hace:{" "}
+                                                                    </strong>
+                                                                    {cuidador &&
+                                                                        cuidador.experiencia}{" "}
+                                                                </h5>
+                                                            </div>
+                                                        </Row>
+                                                        <Row>
+                                                            <div className="m-3">
+                                                                <h5>
+                                                                    <strong>
+                                                                        Patio o
+                                                                        Balcon:{" "}
+                                                                    </strong>
+                                                                    {cuidador &&
+                                                                    cuidador.patioBalcon ===
+                                                                        1
+                                                                        ? "Si"
+                                                                        : "No"}{" "}
+                                                                </h5>
+                                                            </div>
+                                                        </Row>
+                                                        <Row>
+                                                            <div className="m-3">
+                                                                <h5>
+                                                                    <strong>
+                                                                        Transporte
+                                                                        propio:{" "}
+                                                                    </strong>
+                                                                    {cuidador &&
+                                                                    cuidador.transportePropio ===
+                                                                        1
+                                                                        ? "Si"
+                                                                        : "No"}{" "}
+                                                                </h5>
+                                                            </div>
+                                                        </Row>
                                                     </Row>
 
                                                     <Row>
                                                         <div className="m-3">
                                                             <h5>
                                                                 <strong>
-                                                                    La dirección
-                                                                    es:{" "}
+                                                                    Teléfono de
+                                                                    contácto:{" "}
                                                                 </strong>
                                                                 {cuidador &&
-                                                                    cuidador.calle}{" "}
-                                                                {cuidador &&
-                                                                    cuidador.nroCalle}
-                                                                {cuidador.tipoVivienda ===
-                                                                "Departamento"
-                                                                    ? `${" - "}Piso/Depto: ${
-                                                                          cuidador &&
-                                                                          cuidador.piso
-                                                                      }`
-                                                                    : ""}
+                                                                    cuidador
+                                                                        .datosUsuario
+                                                                        .celular}{" "}
                                                             </h5>
                                                         </div>
                                                     </Row>
@@ -147,89 +217,20 @@ const ServicioCuidador = () => {
                                                         <div className="m-3">
                                                             <h5>
                                                                 <strong>
-                                                                    Barrio:{" "}
+                                                                    El precio
+                                                                    por hora de
+                                                                    cuidado es
+                                                                    de:{" $"}
                                                                 </strong>
                                                                 {cuidador &&
-                                                                    cuidador.barrio}{" "}
+                                                                    cuidador.precioCuidado}{" "}
                                                             </h5>
                                                         </div>
                                                     </Row>
-
-                                                    <Row>
-                                                        <div className="m-3">
-                                                            <h5>
-                                                                <strong>
-                                                                    Cuido
-                                                                    mascotas
-                                                                    hace:{" "}
-                                                                </strong>
-                                                                {cuidador &&
-                                                                    cuidador.experiencia}{" "}
-                                                            </h5>
-                                                        </div>
-                                                    </Row>
-                                                    <Row>
-                                                        <div className="m-3">
-                                                            <h5>
-                                                                <strong>
-                                                                    Patio o
-                                                                    Balcon:{" "}
-                                                                </strong>
-                                                                {cuidador &&
-                                                                cuidador.patioBalcon ===
-                                                                    1
-                                                                    ? "Si"
-                                                                    : "No"}{" "}
-                                                            </h5>
-                                                        </div>
-                                                    </Row>
-                                                    <Row>
-                                                        <div className="m-3">
-                                                            <h5>
-                                                                <strong>
-                                                                    Transporte
-                                                                    propio:{" "}
-                                                                </strong>
-                                                                {cuidador &&
-                                                                cuidador.transportePropio ===
-                                                                    1
-                                                                    ? "Si"
-                                                                    : "No"}{" "}
-                                                            </h5>
-                                                        </div>
-                                                    </Row>
-                                                </Row>
-
-                                                <Row>
-                                                    <div className="m-3">
-                                                        <h5>
-                                                            <strong>
-                                                                Teléfono de
-                                                                contácto:{" "}
-                                                            </strong>
-                                                            {cuidador &&
-                                                                cuidador
-                                                                    .datosUsuario
-                                                                    .celular}{" "}
-                                                        </h5>
-                                                    </div>
-                                                </Row>
-                                                <Row>
-                                                    <div className="m-3">
-                                                        <h5>
-                                                            <strong>
-                                                                El precio por
-                                                                hora de cuidado
-                                                                es de:{" $"}
-                                                            </strong>
-                                                            {cuidador &&
-                                                                cuidador.precioCuidado}{" "}
-                                                        </h5>
-                                                    </div>
-                                                </Row>
+                                                </Col>
                                             </Col>
 
-                                            <Col lg={7}>
+                                            <Col lg={6} className="">
                                                 <Row className="">
                                                     <div className="m-3 text-center">
                                                         <h4>
@@ -239,30 +240,25 @@ const ServicioCuidador = () => {
                                                         </h4>
 
                                                         <div
-                                                            id="carouselExampleControls"
+                                                            id="carouselExampleControlsCuidador"
                                                             className="carousel slide "
                                                             data-bs-ride="carousel"
                                                         >
                                                             <style>
                                                                 {`
                                               
-                                              .carousel-control-prev-icon,
-                                              .carousel-control-next-icon {
-                                                background-color: black;
-                                                border-radius:50%
-                                              }
-                                            `}
+                                                                        .carousel-control-prev-icon,
+                                                                        .carousel-control-next-icon {
+                                                                            background-color: black;
+                                                                            border-radius:50%
+                                                                        }
+                                                                        `}
                                                             </style>
                                                             <div
                                                                 className="carousel-inner"
                                                                 role="listbox"
                                                             >
-                                                                {cuidador &&
-                                                                    cuidador.fotos.map(
-                                                                        (
-                                                                            foto,
-                                                                            index
-                                                                        ) => (
+                                                                {cuidador&& cuidador.fotos.map((foto, index)  => (
                                                                             <div
                                                                                 className={`carousel-item ${
                                                                                     index ===
@@ -278,6 +274,7 @@ const ServicioCuidador = () => {
                                                                                     className="d-block img-fluid mx-auto  img-servicios-perfil"
                                                                                     src={
                                                                                         foto.foto
+
                                                                                     }
                                                                                     alt={`Slide ${
                                                                                         index +
@@ -290,7 +287,7 @@ const ServicioCuidador = () => {
                                                             </div>
                                                             <a
                                                                 className="carousel-control-prev"
-                                                                href="#carouselExampleControls"
+                                                                href="#carouselExampleControlsCuidador"
                                                                 role="button"
                                                                 data-bs-slide="prev"
                                                             >
@@ -304,7 +301,7 @@ const ServicioCuidador = () => {
                                                             </a>
                                                             <a
                                                                 className="carousel-control-next"
-                                                                href="#carouselExampleControls"
+                                                                href="#carouselExampleControlsCuidador"
                                                                 role="button"
                                                                 data-bs-slide="next"
                                                             >
@@ -318,6 +315,7 @@ const ServicioCuidador = () => {
                                                             </a>
                                                         </div>
                                                     </div>
+                                                    
                                                 </Row>
                                             </Col>
                                         </Row>

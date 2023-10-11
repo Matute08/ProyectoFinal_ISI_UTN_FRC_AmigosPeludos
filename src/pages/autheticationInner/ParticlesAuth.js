@@ -20,17 +20,17 @@ const ParticlesAuth = ({ children }) => {
 
                 </div>
 
-                <footer className="footer">
-                    <div className="container">
+                {/* <footer className="footer ">
+                    <div className="container ">
                         <div className="row">
                             <div className="col-lg-12">
-                                <div className="text-center">
-                                    <p className="mb-0 text-muted">&copy; {new Date().getFullYear()} Amigos Peludos <i className="mdi mdi-paw text-danger"></i></p>
+                                <div className="text-center ">
+                                    <p className="mb-0 text-muted footer-copy">&copy; {new Date().getFullYear()} Amigos Peludos <i className="mdi mdi-paw text-danger"></i></p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </footer>
+                </footer> */}
             </div>
         </React.Fragment>
     );

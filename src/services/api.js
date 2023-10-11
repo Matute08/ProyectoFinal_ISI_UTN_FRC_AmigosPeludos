@@ -1,12 +1,12 @@
 import axios from "axios";
 //LOCAL HOST
-//const url = "https://localhost:7253/api"; 
+//const url = "https://localhost:7253/api";
 
 //SOMEE
 //const url = "http://www.amigospeludos.somee.com/api";
 
 //AZURE
-const url = "https://amigospeludos.azurewebsites.net/api"
+const url = "https://amigospeludos.azurewebsites.net/api";
 
 //GET USUARIO
 export async function getUser() {
@@ -58,7 +58,7 @@ export async function getUserMail(mail) {
     }
 }
 
-export async function getUsuarioCompleto(){
+export async function getUsuarioCompleto() {
     try {
         const response = await axios({
             url: `${url}/usuario/mail`,
@@ -253,7 +253,7 @@ export async function getRazaId(id) {
         console.log(error);
     }
 }
-//GET DATOS DE RAZA 
+//GET DATOS DE RAZA
 export async function getRaza() {
     try {
         const response = await axios({
@@ -347,10 +347,6 @@ export const deletePet = async (petId) => {
     }
 };
 
-
-
-
-
 //PUBLICACIONES
 //GET  PUBLICACIONES
 export async function getPublicaciones() {
@@ -402,17 +398,18 @@ export async function getMascotasPublicadas(tipoPublicacion) {
     }
 }
 
-
 //POST PUBLICACIONES
 export async function postPublicacion(userData) {
     try {
-        const response = await axios.post(`${url}/publicacionMascota`, userData);
+        const response = await axios.post(
+            `${url}/publicacionMascota`,
+            userData
+        );
         return response;
     } catch (error) {
         console.log(error);
     }
 }
-
 
 //UPDATE PUBLICACIONES
 export async function updatePost(id, userData) {
@@ -420,12 +417,8 @@ export async function updatePost(id, userData) {
         console.log(userData);
         const existingUserData = await getPublicacionesId(id); // Obtener los datos existentes del usuario desde la API
         console.log(existingUserData);
-        
-        const updatedUserData = Object.assign(
-            {},
-            existingUserData,
-            userData
-        ); // Combinar los datos existentes y los datos actualizados
+
+        const updatedUserData = Object.assign({}, existingUserData, userData); // Combinar los datos existentes y los datos actualizados
 
         const response = await axios.put(
             `${url}/publicacionMascota/${id}`,
@@ -441,28 +434,27 @@ export async function updatePost(id, userData) {
 
 export const deletePost = async (petId) => {
     try {
-        const response = await axios.delete(`${url}/publicacionMascota/${petId}`);
+        const response = await axios.delete(
+            `${url}/publicacionMascota/${petId}`
+        );
         return response;
     } catch (error) {
         console.error(error);
     }
 };
 
-
 //POST FORMULARIO
 export async function postFormularioAdopcion(userData) {
     try {
-        const response = await axios.post(`${url}/formularioAdopcions`, userData);
+        const response = await axios.post(
+            `${url}/formularioAdopcions`,
+            userData
+        );
         return response;
     } catch (error) {
         console.log(error);
     }
 }
-
-
-
-
-
 
 //GET FORMULARIOS dueño del posteo
 export async function getFormulariosDuenoPosteo(id) {
@@ -503,7 +495,7 @@ export async function getFormulariosId(id) {
     }
 }
 
-//GET estados FORMULARIOS 
+//GET estados FORMULARIOS
 export async function getEstadosFormularios() {
     try {
         const response = await axios({
@@ -516,22 +508,14 @@ export async function getEstadosFormularios() {
     }
 }
 
-
-
-
-
 //UPDATE ESTADO FORMULARIO
 export async function updateForm(id, userData) {
     try {
         console.log(userData);
         const existingUserData = await getFormulariosId(id); // Obtener los datos existentes del usuario desde la API
         console.log(existingUserData);
-        
-        const updatedUserData = Object.assign(
-            {},
-            existingUserData,
-            userData
-        ); // Combinar los datos existentes y los datos actualizados
+
+        const updatedUserData = Object.assign({}, existingUserData, userData); // Combinar los datos existentes y los datos actualizados
 
         const response = await axios.put(
             `${url}/formularioAdopcions/${id}`,
@@ -542,13 +526,6 @@ export async function updateForm(id, userData) {
         console.log(error);
     }
 }
-
-
-
-
-
-
-
 
 //GET EXPERIENCIA PASEADOR
 
@@ -566,7 +543,6 @@ export async function getExperiencia() {
     }
 }
 
-
 //POST PASEADOR
 export async function postPaseador(userData) {
     try {
@@ -576,7 +552,6 @@ export async function postPaseador(userData) {
         console.log(error);
     }
 }
-
 
 //GET  PASEADOR
 
@@ -608,8 +583,6 @@ export async function getPaseadorPorId(id) {
     }
 }
 
-
-
 //GET  cuidadores
 
 export async function getCuidadores() {
@@ -640,8 +613,6 @@ export async function getCuidadoresId(id) {
     }
 }
 
-
-
 // GET TIPO VIVIENDA
 
 export async function getTipoVivienda() {
@@ -666,7 +637,6 @@ export async function postCuidador(userData) {
         console.log(error);
     }
 }
-
 
 //POST vewterinaria
 export async function postVeterinaria(userData) {
@@ -708,6 +678,33 @@ export async function getVeterinariaId(id) {
     }
 }
 
+//GET  grilla cuidador
+export async function getGrillaCuidador(id) {
+    try {
+        const response = await axios({
+            url: `${url}/cuidadors/grilla/${id}`,
+            method: "GET",
+        });
+        return response.data; // Devuelve solo los datos (response.data)
+    } catch (error) {
+        console.error("Error al obtener grilla:", error);
+        throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}
+
+//GET  grilla paseador
+export async function getGrillaPaseador(id) {
+    try {
+        const response = await axios({
+            url: `${url}/paseador/grilla/${id}`,
+            method: "GET",
+        });
+        return response.data; // Devuelve solo los datos (response.data)
+    } catch (error) {
+        console.error("Error al obtener grilla:", error);
+        throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}
 
 // update paseador
 export async function updatePaseador(id, data) {
@@ -733,7 +730,6 @@ export async function updatePaseador(id, data) {
     }
 }
 
-
 //POST foto paseador
 export async function postPaseadorFoto(userData) {
     try {
@@ -743,7 +739,6 @@ export async function postPaseadorFoto(userData) {
         console.log(error);
     }
 }
-
 
 // update cuidador
 export async function updateCuidador(id, data) {
@@ -764,6 +759,201 @@ export async function updateCuidador(id, data) {
         );
 
         return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//ELIMINAR foto paseador
+
+export const deleteFotoPaseador = async (id) => {
+    try {
+        const response = await axios.delete(`${url}/paseadorFoto/${id}`);
+        return response;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+//ELIMINAR foto cuidador
+
+export const deleteFotoCuidador = async (id) => {
+    try {
+        const response = await axios.delete(`${url}/cuidadorFoto/${id}`);
+        return response;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+//POST foto PASEADOR
+export async function postFotoPaseador(userData) {
+    console.log(userData);
+    try {
+        const response = await axios.post(`${url}/paseadorFoto`, userData);
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//POST foto cuidador
+export async function postFotoCuidador(userData) {
+    console.log(userData);
+    try {
+        const response = await axios.post(`${url}/cuidadorFoto`, userData);
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//UPDATE grilla cuidador
+export async function updateGrillaCuidador(id, userData) {
+    try {
+        const existingUserData = await getGrillaCuidador(id); // Obtener los datos existentes del usuario desde la API
+        const updatedUserData = Object.assign(
+            {},
+            existingUserData.data,
+            userData
+        ); // Combinar los datos existentes y los datos actualizados
+
+        const response = await axios.put(
+            `${url}/cuidadors/grilla/${id}`,
+            updatedUserData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//UPDATE grilla paseador
+export async function updateGrillaPaseador(id, userData) {
+    try {
+        const existingUserData = await getGrillaPaseador(id); // Obtener los datos existentes del usuario desde la API
+        const updatedUserData = Object.assign(
+            {},
+            existingUserData.data,
+            userData
+        ); // Combinar los datos existentes y los datos actualizados
+
+        const response = await axios.put(
+            `${url}/paseador/grilla/${id}`,
+            updatedUserData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//UPDATE veterinaria
+export async function updateVeterinaria(id, userData) {
+    try {
+        const existingUserData = await getVeterinariaId(id); // Obtener los datos existentes del usuario desde la API
+        const updatedUserData = Object.assign(
+            {},
+            existingUserData.data,
+            userData
+        ); // Combinar los datos existentes y los datos actualizados
+
+        const response = await axios.put(
+            `${url}/veterinaria/${id}`,
+            updatedUserData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//UPDATE estado veterinaraia
+export async function updateEstadoVeterinaria(id, userData) {
+    try {
+        const response = await axios.put(
+            `${url}/Veterinaria/estado/${id}`,
+            userData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+//GET  horario veterinaria
+export async function getHorarioVeterinaria(id) {
+    try {
+        const response = await axios({
+            url: `${url}/veterinaria/horario/${id}`,
+            method: "GET",
+        });
+        return response.data; // Devuelve solo los datos (response.data)
+    } catch (error) {
+        console.error("Error al obtener horarios:", error);
+        throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}
+//UPDATE horario veterinaria
+export async function updateHorarioVeterinaria(id, userData) {
+    try {
+        const existingUserData = await getHorarioVeterinaria(id); // Obtener los datos existentes del usuario desde la API
+        const updatedUserData = Object.assign(
+            {},
+            existingUserData.data,
+            userData
+        ); // Combinar los datos existentes y los datos actualizados
+
+        const response = await axios.put(
+            `${url}/veterinaria/horario/${id}`,
+            updatedUserData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//GET  servicios veterinaria
+export async function getServiciosVeterinaria(id) {
+    try {
+        const response = await axios({
+            url: `${url}/veterinaria/servicio/${id}`,
+            method: "GET",
+        });
+        return response.data; // Devuelve solo los datos (response.data)
+    } catch (error) {
+        console.error("Error al obtener servicios:", error);
+        throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}
+//UPDATE servicios veterinaria
+export async function updateServicioVeterinaria(id, userData) {
+    try {
+        const existingUserData = await getServiciosVeterinaria(id); // Obtener los datos existentes del usuario desde la API
+        const updatedUserData = Object.assign(
+            {},
+            existingUserData.data,
+            userData
+        ); // Combinar los datos existentes y los datos actualizados
+
+        const response = await axios.put(
+            `${url}/veterinaria/servicio/${id}`,
+            updatedUserData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//GET estados veterinaria
+export async function getEstadosVeterinaria() {
+    try {
+        const response = await axios({
+            url: `${url}/estadoveterinarias`,
+            method: "GET",
+        });
+        return response.data;
     } catch (error) {
         console.log(error);
     }

@@ -191,9 +191,13 @@ a.btn-card {
 }
 
 .card-pets .card-description {
-    padding: 0 15px 10px;
-    position: relative;
+    margin: 0px 10px 0 10px;
+    //position: relative;
     font-size: 14px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
 }
 
 .card-pets .card-actions {

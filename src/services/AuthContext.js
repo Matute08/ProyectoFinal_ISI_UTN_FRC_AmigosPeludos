@@ -67,10 +67,11 @@ export function AuthProvider({ children }) {
         localStorage.removeItem("userData");
     };
 
-    //RESTABLECER CONTRASEÑA
-    const resetPassword = (email) => {
-        sendPasswordResetEmail(auth, email);
-    };
+    // RESTABLECER CONTRASEÑA
+const resetPassword = (email) => {
+    return sendPasswordResetEmail(auth, email);
+};
+
 
     //ELIMINAR USUARIO
     const deleteAccount = async () => {

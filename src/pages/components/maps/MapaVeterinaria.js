@@ -46,20 +46,26 @@ const MapaVeterinaria = (props) => {
     // Utiliza la función getVeterinarias para obtener las veterinarias registradas
     getVeterinarias()
       .then((data) => {
+        // Filtrar las veterinarias con estado "aceptado"
+        const veterinariasAceptadas = data.filter(
+          (veterinaria) => veterinaria.estado === "Aceptado"
+        );
+  
         // Agregar la propiedad "fuente" para distinguir la fuente del marcador
-        const veterinariasRegistradas = data.map((veterinaria) => ({
-          ...veterinaria,
-          fuente: "registrada",
-        }));
+        const veterinariasRegistradas = veterinariasAceptadas.map(
+          (veterinaria) => ({
+            ...veterinaria,
+            fuente: "registrada",
+          })
+        );
+  
         setVeterinariasRegistradas(veterinariasRegistradas);
       })
       .catch((error) => {
-        console.error(
-          "Error al obtener las veterinarias registradas:",
-          error
-        );
+        console.error("Error al obtener las veterinarias registradas:", error);
       });
   };
+  
 
   // Maneja el evento de movimiento del mapa
   const handleMapMove = (e) => {

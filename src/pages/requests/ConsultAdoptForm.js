@@ -19,11 +19,12 @@ import {
 } from "reactstrap";
 import Swal from "sweetalert2"; // Importa SweetAlert2
 import classnames from "classnames";
+import { Link, useNavigate } from "react-router-dom";
 
-import { Link } from "react-router-dom";
+
 
 import Footer from "../landing/Footer";
-
+import { PDFViewer } from "@react-pdf/renderer";
 import Navbar from "../landing/Navbar";
 import ViewAdoptForm from "./ViewAdoptForm";
 import {
@@ -42,26 +43,22 @@ const ConsultAdoptForm = () => {
     const [activeTab, setActiveTab] = useState("1");
     const [formularioSolicitado, setFormularioSolicitado] = useState();
     const [formularioSolicitante, setFormularioSolicitante] = useState();
+    const [pdfItemId, setPDFItemId] = useState(null);
     const [userData, setUserData] = useState();
     const [estados, setEstados] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedFormDetails, setSelectedFormDetails] = useState(null);
+    const [showPDF, setShowPDF] = useState(false);
+    const navigate = useNavigate();
 
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedFormData, setSelectedFormData] = useState(null);
-
-    const handleViewFormClick = (id) => {
-        setSelectedFormData(id);
-        setIsViewModalOpen(true);
-    };
 
     const toggleTab = (tab) => {
         if (activeTab !== tab) {
             setActiveTab(tab);
         }
     };
-
-
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -76,7 +73,9 @@ const ConsultAdoptForm = () => {
                 const userEmail = dataLocalStorage.email;
 
                 const datosUsuario = await getUserMail(userEmail);
-                datosUsuario.calle = `${datosUsuario.calle + " " + datosUsuario.nroCalle}`;
+                datosUsuario.calle = `${
+                    datosUsuario.calle + " " + datosUsuario.nroCalle
+                }`;
                 setUserData(datosUsuario);
                 setIsLoading(false);
             }
@@ -194,6 +193,12 @@ const ConsultAdoptForm = () => {
             }
         }
     };
+    const handleViewPDF = (itemId) => {
+        const newTab = window.open(`/ver-formulario/${itemId}`, '_blank');
+        newTab.focus();
+    };
+    
+
 
     document.title = "Solicitudes de Adopcion | Amigos Peludos";
 
@@ -368,16 +373,21 @@ const ConsultAdoptForm = () => {
                                                                                                             <i className="ri-edit-2-fill"></i>
                                                                                                         </button>
 
-                                                                                                        <button
-                                                                                                            className="btn btn-primary btn-formulario btn-form"
-                                                                                                            onClick={() =>
-                                                                                                                handleViewFormClick(
-                                                                                                                    item.id
-                                                                                                                )
-                                                                                                            }
-                                                                                                        >
-                                                                                                            <i className="ri-eye-fill"></i>
-                                                                                                        </button>
+                                                                                                        {/* Botón para mostrar el PDF */}
+                                                                                                        <td>
+                                                                                                            <div className="d-flex justify-content-center">
+                                                                                                                <button
+                                                                                                                    className="btn btn-primary btn-formulario btn-form"
+                                                                                                                    onClick={() =>
+                                                                                                                        handleViewPDF(
+                                                                                                                           item.id
+                                                                                                                        )
+                                                                                                                    } 
+                                                                                                                >
+                                                                                                                    <i className="ri-eye-fill"></i>
+                                                                                                                </button>
+                                                                                                            </div>
+                                                                                                        </td>
                                                                                                     </div>
                                                                                                 </td>
                                                                                             </tr>
@@ -398,25 +408,11 @@ const ConsultAdoptForm = () => {
                                                                                     </tr>
                                                                                 )}
                                                                             </tbody>
-
-                                                                            {/* Agrega el modal de ver formulario */}
-                                                                            <ViewAdoptForm
-                                                                                isOpen={
-                                                                                    isViewModalOpen
-                                                                                }
-                                                                                toggle={() =>
-                                                                                    setIsViewModalOpen(
-                                                                                        !isViewModalOpen
-                                                                                    )
-                                                                                }
-                                                                                selectedFormData={
-                                                                                    selectedFormData
-                                                                                }
-                                                                            />
                                                                         </Table>
                                                                     </div>
                                                                 </div>
                                                             </CardBody>
+                                                            
                                                         </Card>
                                                     </Col>
                                                 </TabPane>
@@ -519,10 +515,10 @@ const ConsultAdoptForm = () => {
                                                                                                         <button
                                                                                                             className="btn btn-primary btn-formulario btn-form"
                                                                                                             onClick={() =>
-                                                                                                                handleViewFormClick(
-                                                                                                                    item.id
+                                                                                                                handleViewPDF(
+                                                                                                                   item.id
                                                                                                                 )
-                                                                                                            }
+                                                                                                            } 
                                                                                                         >
                                                                                                             <i className="ri-eye-fill"></i>
                                                                                                         </button>
@@ -533,7 +529,10 @@ const ConsultAdoptForm = () => {
                                                                                     )
                                                                                 ) : (
                                                                                     <tr>
-                                                                                        <td colSpan="7" className="text-center">
+                                                                                        <td
+                                                                                            colSpan="7"
+                                                                                            className="text-center"
+                                                                                        >
                                                                                             {" "}
                                                                                             <h1>
                                                                                                 No
@@ -545,20 +544,7 @@ const ConsultAdoptForm = () => {
                                                                                 )}
                                                                             </tbody>
 
-                                                                            {/* Agrega el modal de ver formulario */}
-                                                                            <ViewAdoptForm
-                                                                                isOpen={
-                                                                                    isViewModalOpen
-                                                                                }
-                                                                                toggle={() =>
-                                                                                    setIsViewModalOpen(
-                                                                                        !isViewModalOpen
-                                                                                    )
-                                                                                }
-                                                                                selectedFormData={
-                                                                                    selectedFormData
-                                                                                }
-                                                                            />
+                                                                            
                                                                         </Table>
                                                                     </div>
                                                                 </div>

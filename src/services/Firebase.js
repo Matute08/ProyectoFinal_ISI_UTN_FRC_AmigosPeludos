@@ -4,7 +4,6 @@ import { getAuth} from "firebase/auth";
 import {getStorage, ref, uploadBytes, getDownloadURL, deleteObject} from "firebase/storage"
 import { v4 } from "uuid";
 
-
 const firebaseConfig = {
     apiKey: "AIzaSyBAhPb1c3gWjDNeWxN2-1e3TD04Vkej5wk",
     authDomain: "amigospeludos-a7049.firebaseapp.com",
@@ -68,4 +67,3 @@ export async function deleteFileStorage(file){
     const storageRef = ref(storage, file)
     await deleteObject(storageRef)
 }
-

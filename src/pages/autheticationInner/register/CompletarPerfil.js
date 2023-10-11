@@ -20,9 +20,9 @@ import {
     Button,
 } from "reactstrap";
 import classnames from "classnames";
-import Navbar from "../landing/Navbar";
-import Footer from "../landing/Footer";
-import { useAuth } from "../../services/AuthContext";
+import Navbar from "../../landing/Navbar";
+import Footer from "../../landing/Footer";
+import { useAuth } from "../../../services/AuthContext";
 import {
     getUserMail,
     getBarrioUser,
@@ -30,9 +30,9 @@ import {
     updateUser,
     getGenero,
     getAllBarrio,
-} from "../../services/api";
-import { deleteFileStorage, uploadFileUser } from "../../services/Firebase";
-import Loading from "../components/Loading";
+} from "../../../services/api.js";
+import { deleteFileStorage, uploadFileUser } from "../../../services/Firebase";
+import Loading from "../../components/Loading";
 
 // Import React FilePond
 import { FilePond, registerPlugin } from "react-filepond";
@@ -46,9 +46,14 @@ import { format } from "date-fns";
 // Register the plugins
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
-const UserProfileSetting = () => {
+
+const CompletarPerfil = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
+    const [files, setFiles] = useState([]);
+    const [errorFile, setErrorFile] = useState("");
+    const [url, setUrl] = useState();
+    const [fotosTemporales, setFotosTemporales] = useState([]);
     const [userData, setUserData] = useState();
     const [userBarrio, setUserBarrio] = useState();
     const [userCiudad, setUserCiudad] = useState();
@@ -58,11 +63,6 @@ const UserProfileSetting = () => {
     const [activeTab, setActiveTab] = useState("1");
     const [genero, setGenero] = useState([]);
     const [allBarrio, setAllBarrio] = useState([]);
-
-    const [files, setFiles] = useState([]);
-    const [errorFile, setErrorFile] = useState("");
-    const [url, setUrl] = useState();
-    const [fotosTemporales, setFotosTemporales] = useState([]);
 
     const tabChange = (tab) => {
         if (activeTab !== tab) setActiveTab(tab);
@@ -117,6 +117,7 @@ const UserProfileSetting = () => {
     } = useForm();
     // Definir reglas de validación para el campo de nombre
     const nameValidation = /^[A-Za-z\s]+$/; // Acepta letras y espacios
+    
     useEffect(() => {
         if (userData) {
             setValue("nombreCompleto", `${userData.nombreCompleto}`);
@@ -132,91 +133,6 @@ const UserProfileSetting = () => {
             setValue("foto", userData.foto);
         }
     }, [userData, setValue]);
-
-    //EVENTO SUBMIT
-    const onSubmit = async (data) => {
-        showLoadingOverlay();
-        if (data.barrioId === "") {
-            data.barrioId = 0;
-        }
-        try {
-            // Verificar si hay fotos nuevas antes de obtener las URLs
-            if (files.length > 0) {
-                await deleteFileStorage(userData.foto);
-                // Obtener las URLs de las nuevas fotos
-                const urls = await obtenerUrls();
-
-                // Verificar si hay al menos una URL en el array
-                if (urls.length > 0) {
-                    // Acceder a la primera URL del array
-                    const primeraUrl = urls[0];
-
-                    // Verificar si la URL tiene la propiedad 'foto'
-                    if (primeraUrl.foto) {
-                        // Asignar la URL al campo 'foto' en data
-                        data.foto = primeraUrl.foto;
-
-                        // Opcional: Mostrar la URL en la consola para verificación
-                        console.log("URL de la foto:", data.foto);
-                    }
-                }
-            }
-            await updateUser(userId, data); // Llama a la función de la API para actualizar los datos del usuario
-            hideLoadingOverlay();
-            navigate(`/perfil/${userData.mail}`);
-        } catch (error) {
-            // Manejar cualquier error de la actualización
-            console.error("Error al actualizar el usuario:", error);
-        }
-    };
-
-    //----OBTENER DATOS
-    const usuario = async () => {
-        // Obtener los datos del usuario desde el localStorage
-        const cachedUserData = localStorage.getItem("userData");
-
-        if (cachedUserData) {
-            // Parsear los datos almacenados en el localStorage
-            const dataLocalStorage = JSON.parse(cachedUserData);
-
-            // Acceder al correo electrónico del usuario
-            const userEmail = dataLocalStorage.email;
-
-            const datosUsuario = await getUserMail(userEmail);
-            setUserData(datosUsuario);
-
-            const fotosConEstadoTemporal = [
-                {
-                    id: 1, // Asegúrate de que foto y foto.id no sean undefined
-                    url: (datosUsuario && datosUsuario.foto) || "", // Asegúrate de que foto y foto.url no sean undefined
-                    estadoTemporal: true,
-                },
-            ];
-            setFotosTemporales(fotosConEstadoTemporal);
-        }
-
-        console.log(fotosTemporales);
-    };
-
-    const obtenerId = (datos) => {
-        setUserId(datos.id);
-    };
-
-    const barrio = async () => {
-        setAllBarrio(await getAllBarrio());
-        if (userData.barrioId === 0) {
-            setUserBarrio(null);
-        } else {
-            setUserBarrio(await getBarrioUser(userData.barrioId));
-        }
-    };
-    const ciudad = async () => {
-        if (userBarrio === null) {
-            setUserCiudad(null);
-        } else {
-            setUserCiudad(await getCiudadUser(userBarrio.ciudadId));
-        }
-    };
 
     //funcion para obtener las urls de las fotos
     const obtenerUrls = async () => {
@@ -236,6 +152,79 @@ const UserProfileSetting = () => {
             return urls; // Retorna las URLs obtenidas
         }
         return []; // Retorna un arreglo vacío si no hay archivos
+    };
+
+    //EVENTO SUBMIT
+    const onSubmit = async (data) => {
+        setErrorFile("");
+
+        if (data.barrioId === "") {
+            data.barrioId = 0;
+        }
+        try {
+            // Verificar si hay fotos nuevas antes de obtener las URLs
+            if (files.length > 0) {
+                showLoadingOverlay();
+
+                // Obtener las URLs de las nuevas fotos
+                const urls = await obtenerUrls();
+
+                // Verificar si hay al menos una URL en el array
+                if (urls.length > 0) {
+                    // Acceder a la primera URL del array
+                    const primeraUrl = urls[0];
+
+                    // Verificar si la URL tiene la propiedad 'foto'
+                    if (primeraUrl.foto) {
+                        // Asignar la URL al campo 'foto' en data
+                        data.foto = primeraUrl.foto;
+                    }
+                }
+                await updateUser(userId, data); // Llama a la función de la API para actualizar los datos del usuario
+                hideLoadingOverlay();
+                navigate(`/perfil/${userData.mail}`);
+            } else {
+                setErrorFile("El campo es obligatorio");
+            }
+        } catch (error) {
+            // Manejar cualquier error de la actualización
+            console.error("Error al actualizar el usuario:", error);
+        }
+    };
+
+    //----OBTENER DATOS
+    const usuario = async () => {
+        // Obtener los datos del usuario desde el localStorage
+        const cachedUserData = localStorage.getItem("userData");
+
+        if (cachedUserData) {
+            // Parsear los datos almacenados en el localStorage
+            const dataLocalStorage = JSON.parse(cachedUserData);
+
+            // Acceder al correo electrónico del usuario
+            const userEmail = dataLocalStorage.email;
+
+            setUserData(await getUserMail(userEmail));
+        }
+    };
+    const obtenerId = (datos) => {
+        setUserId(datos.id);
+    };
+
+    const barrio = async () => {
+        setAllBarrio(await getAllBarrio());
+        if (userData.barrioId === 0) {
+            setUserBarrio(null);
+        } else {
+            setUserBarrio(await getBarrioUser(userData.barrioId));
+        }
+    };
+    const ciudad = async () => {
+        if (userBarrio === null) {
+            setUserCiudad(null);
+        } else {
+            setUserCiudad(await getCiudadUser(userBarrio.ciudadId));
+        }
     };
 
     document.title = "Modificar Perfil | Amigos Peludos";
@@ -260,29 +249,12 @@ const UserProfileSetting = () => {
                                                 <p className="text-muted mb-0">
                                                     Usuario
                                                 </p>
-                                                {/* FOTOS DEL SERVIDOR */}
-                                                {fotosTemporales
-                                                    .filter(
-                                                        (foto) =>
-                                                            foto.estadoTemporal
-                                                    ) // Filtrar según el estado
-                                                    .map((foto) => (
-                                                        <div
-                                                            key={foto.id}
-                                                            className="container-img-cargadas"
-                                                        >
-                                                            <img
-                                                                className="img-cargadas"
-                                                                src={foto.url}
-                                                                alt={`Foto ${foto.id}`}
-                                                            />
-                                                        </div>
-                                                    ))}
+
                                                 {/* FOTO DE LA MASCOTA */}
                                                 <FilePond
                                                     files={files}
                                                     onupdatefiles={setFiles}
-                                                    allowMultiple={true}
+                                                    allowMultiple={false}
                                                     maxFiles={4}
                                                     name="files"
                                                     className="filepond filepond-input-multiple"
@@ -292,6 +264,8 @@ const UserProfileSetting = () => {
                                                     {errorFile}
                                                 </p>
                                             </div>
+
+                                            
                                         </CardBody>
                                     </Card>
                                 </Col>
@@ -452,9 +426,6 @@ const UserProfileSetting = () => {
                                                                                 : ""
                                                                         }`}
                                                                         name="celular"
-                                                                        maxLength={
-                                                                            15
-                                                                        }
                                                                         {...register(
                                                                             "celular",
                                                                             {
@@ -716,7 +687,7 @@ const UserProfileSetting = () => {
                                                                         to={`/perfil/${userData.mail}`}
                                                                     >
                                                                         <span class="span-pz text-pz">
-                                                                            Actualizar
+                                                                            Guardar
                                                                         </span>
                                                                         <span class="span-pz icon-pz">
                                                                             <svg
@@ -754,42 +725,6 @@ const UserProfileSetting = () => {
                                                                             </svg>
                                                                         </span>
                                                                     </button>
-
-                                                                    <button
-                                                                        class="button-pz btn-pz-secondary"
-                                                                        // to={`/perfil/${userData.mail}`}
-                                                                        onClick={() => {
-                                                                            navigate(
-                                                                                `/perfil/${userData.mail}`
-                                                                            );
-                                                                        }}
-                                                                    >
-                                                                        <span class="span-pz text-pz">
-                                                                            Volver
-                                                                        </span>
-                                                                        <span class="span-pz icon-pz">
-                                                                            <svg
-                                                                                viewBox="0 0 232 217"
-                                                                                className="svg-pz"
-                                                                            >
-                                                                                <g
-                                                                                    transform="translate(0,210) scale(0.1,-0.1)"
-                                                                                    fill="#ffff"
-                                                                                    stroke="none"
-                                                                                >
-                                                                                    <path
-                                                                                        d="M740 2163 c-27 -11 -705 -486 -717 -502 -7 -9 -15 -31 -19 -48 -13
-                                                                                            -65 5 -79 399 -319 319 -195 373 -224 408 -224 31 0 47 7 70 29 42 42 38 79
-                                                                                            -21 205 l-49 106 510 0 509 0 38 -34 37 -34 3 -404 c2 -441 3 -435 -57 -475
-                                                                                            l-34 -23 -571 0 -572 0 -44 -22 c-55 -28 -86 -73 -95 -138 -14 -101 16 -180
-                                                                                            83 -222 l37 -23 575 -3 c389 -2 597 1 642 8 187 32 350 169 417 353 l26 72 3
-                                                                                            425 c3 350 0 439 -12 498 -39 187 -161 330 -342 400 l-69 27 -552 5 -552 5 45
-                                                                                            108 c24 59 44 121 44 137 0 60 -85 116 -140 93z"
-                                                                                    />
-                                                                                </g>
-                                                                            </svg>
-                                                                        </span>
-                                                                    </button>
                                                                 </div>
                                                             </Col>
                                                         </Row>
@@ -814,4 +749,4 @@ const UserProfileSetting = () => {
     );
 };
 
-export default UserProfileSetting;
+export default CompletarPerfil;

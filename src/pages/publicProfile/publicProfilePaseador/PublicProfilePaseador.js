@@ -205,7 +205,7 @@ const PublicProfilePaseador = () => {
                                                         <h5>
                                                             <strong>
                                                                 Realizo paseos
-                                                                en el barrio:{" "}
+                                                                en la zona:{" "}
                                                             </strong>
                                                             {userData &&
                                                                 userData.barrioTrabajo}

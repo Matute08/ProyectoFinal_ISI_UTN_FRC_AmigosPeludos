@@ -15,8 +15,15 @@
         left: 0;
         background-color: transparent;
         color: var(--#{$prefix}body-color);
+        
+    }
+    .footer-copy{
+        margin-top: 10%;
+        bottom: 0;
     }
 }
+
+
 
 .auth-one-bg-position{
     position: absolute;

@@ -70,7 +70,7 @@ const ConsultarMascota = ({ onCancel, mascotaId }) => {
                                     {Object.entries(mascotaData).map(
                                         ([key, value]) => {
                                             if (
-                                                key === "foto" ||
+                                                key === "foto" || key=== "descripcion" ||
                                                 excludedKeys.includes(key)
                                             ) {
                                                 return null; // Omitir el título y el valor "Foto" en el lado izquierdo
@@ -94,6 +94,16 @@ const ConsultarMascota = ({ onCancel, mascotaId }) => {
                                             );
                                         }
                                     )}
+                                     {/* Agregar el bloque de descripción al final */}
+    {mascotaData.descripcion && (
+        <div className="d-flex align-items-start container-datos-mascotas">
+            <div className="flex-column datos-mascotas">
+                <p className="p-2 m-0">
+                    <strong>{keyMap["descripcion"]}:</strong> {mascotaData.descripcion}
+                </p>
+            </div>
+        </div>
+    )}
                                 </Col>
                                 <Col
                                     lg={6}

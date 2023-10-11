@@ -2,8 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Alert } from "reactstrap";
 import { useAuth } from "../../../services/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { postUser, getGenero,getUserMail, updateUser } from "../../../services/api";
+import { useForm, Controller } from "react-hook-form";
+import {
+    postUser,
+    getGenero,
+    getUserMail,
+    updateUser,
+} from "../../../services/api";
 import Loading from "../../components/Loading";
 
 export const FormRegister = () => {
@@ -11,8 +16,8 @@ export const FormRegister = () => {
         register,
         handleSubmit,
         formState: { errors },
+        control,
     } = useForm();
-
 
     //ver contraseña
     const [passwordShow, setPasswordShow] = useState(false);
@@ -23,43 +28,45 @@ export const FormRegister = () => {
     const [alertClass, setAlertClass] = useState("text-dark alert-dark");
     const { signup, registerWithGoogle } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
+    const [mail, setMail] = useState();
 
     const navigate = useNavigate();
-    const showLoadingOverlay = () =>{
-        setIsLoading(true)
-    }
+    const showLoadingOverlay = () => {
+        setIsLoading(true);
+    };
     const hideLoadingOverlay = () => {
         setIsLoading(false);
-      };
-    
-      const handleAsyncTask = async () => {
-        showLoadingOverlay();}
+    };
 
-
-
+    const handleAsyncTask = async () => {
+        showLoadingOverlay();
+    };
 
     //funcion de registro por formulario
     const onSubmit = async (data) => {
-        showLoadingOverlay()
+        setMail(data.mail)
+        showLoadingOverlay();
         const isUser = await getUserMail(data.mail);
-        data.habilitada = true;        
+        data.habilitada = true;
         //registro de usuario
         try {
             //registro en firebase
             const signUp = await signup(data.mail, data.password);
-            if (signUp) { //si se registro en firebase, lo registro en la base de datos
-                if (isUser) { //corroboro si es un usuario que se dio de baja, o un usuario nuevo
+            if (signUp) {
+                //si se registro en firebase, lo registro en la base de datos
+                if (isUser) {
+                    //corroboro si es un usuario que se dio de baja, o un usuario nuevo
                     console.log("entro al es usuario");
-                    await updateUser(isUser.id, data)
-                }else{
+                    await updateUser(isUser.id, data);
+                } else {
                     console.log("entro a usuario nuevo");
                     data.tipoAutenticacionId = "1";
                     data.rolId = "2";
                     await postUser(data);
                 }
             }
-            navigate("/");
-            hideLoadingOverlay()
+            navigate(`/completar-perfil/${data.mail}`);
+            hideLoadingOverlay();
         } catch (error) {
             if (error.code === "auth/email-already-in-use") {
                 setAlertText(
@@ -75,10 +82,8 @@ export const FormRegister = () => {
 
     const handleGoogleSignIn = async () => {
         await registerWithGoogle();
-        navigate("/");
+        navigate(`/completar-perfil/${mail}`);
     };
-
-    
 
     return (
         <Form
@@ -134,12 +139,19 @@ export const FormRegister = () => {
                     {...register("nombreCompleto", {
                         required: {
                             value: true,
-                            message: "Debe indicar nombre y apellido separado por un espacio.",
+                            message:
+                                "Debe indicar nombre y apellido separado por un espacio.",
+                        },
+                        pattern: {
+                            value: /^[A-Za-z\s]+$/, // Expresión regular para permitir solo letras y espacios
+                            message: "Solo se permite letras y espacios en el campo.",
                         },
                     })}
                 />
                 {errors.nombreCompleto && (
-                    <span className="text-danger">{errors.nombreCompleto.message}</span>
+                    <span className="text-danger">
+                        {errors.nombreCompleto.message}
+                    </span>
                 )}
             </div>
 
@@ -221,5 +233,7 @@ export const FormRegister = () => {
                 </div>
             </div>
         </Form>
+
+        
     );
 };

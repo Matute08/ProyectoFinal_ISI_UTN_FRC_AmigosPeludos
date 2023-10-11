@@ -35,56 +35,12 @@ class MapaVeterinaria extends Component {
     }
   }
 
-  // Función para cargar las veterinarias de Google Places
-  cargarVeterinariasGoogle(ciudad, barrio) {
-    const { google } = this.props;
-    const geocoder = new google.maps.Geocoder();
-
-    // Combina la ciudad y el barrio para obtener la ubicación completa
-    const ubicacion = barrio ? `${ciudad} ${barrio}` : `${ciudad}`;
-
-    geocoder.geocode({ address: ubicacion }, (results, status) => {
-      if (status === "OK" && results[0]) {
-        const ubicacionLatLng = results[0].geometry.location;
-
-        const map = this.map.map; // Obtén el mapa de la referencia
-
-        const service = new google.maps.places.PlacesService(map);
-        service.nearbySearch(
-          {
-            location: ubicacionLatLng,
-            radius: 500,
-            types: ["veterinary_care"],
-          },
-          (results, status) => {
-            if (status === "OK") {
-              // Agregar la propiedad "fuente" para distinguir la fuente del marcador
-              const veterinariasGoogle = results.map((veterinaria) => ({
-                ...veterinaria,
-                fuente: "google",
-              }));
-
-              this.setState({
-                veterinarias: veterinariasGoogle,
-              });
-            } else {
-              console.error("Error al buscar veterinarias en Google:", status);
-            }
-          }
-        );
-
-        // Actualiza el centro del mapa con las coordenadas de la ubicación completa
-        map.setCenter(ubicacionLatLng);
-      } else {
-        console.error("Error al obtener las coordenadas de la ubicación:", status);
-      }
-    });
-  }
+  
 
   // Función para cargar las veterinarias registradas desde el servidor
-  cargarVeterinariasRegistradas(ciudad, barrio) {
+  cargarVeterinariasRegistradas() {
     // Llama a la función getVeterinarias para obtener las veterinarias registradas
-    getVeterinarias(ciudad, barrio)
+    getVeterinarias()
       .then((data) => {
         // Agregar la propiedad "fuente" para distinguir la fuente del marcador
         const veterinariasRegistradas = data.map((veterinaria) => ({

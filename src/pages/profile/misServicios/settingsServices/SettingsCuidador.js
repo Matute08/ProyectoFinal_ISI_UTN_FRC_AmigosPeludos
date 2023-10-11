@@ -24,7 +24,10 @@ import {
     getUserMail,
     updateCuidador,
     getTipoVivienda,
-    getCuidadoresId
+    getCuidadoresId,
+    deleteFotoCuidador,
+    postFotoCuidador,
+    updateGrillaCuidador,
 } from "../../../../services/api.js";
 import {
     uploadFilescuidador,
@@ -73,6 +76,7 @@ const SettingsCuidador = () => {
         "domingo",
     ];
     const timePeriods = ["manana", "tarde", "noche"];
+    const [fotosTemporales, setFotosTemporales] = useState([]);
 
     const [scheduleData, setScheduleData] = useState({});
     const [isAtLeastOneSelected, setIsAtLeastOneSelected] = useState(false);
@@ -82,6 +86,7 @@ const SettingsCuidador = () => {
         handleSubmit,
         setValue,
         formState: { errors },
+        trigger,
     } = useForm();
 
     // Función para manejar cambios en el campo de texto
@@ -156,13 +161,17 @@ const SettingsCuidador = () => {
             const barrioData = await getAllBarrio();
             const tipoVivienda = await getTipoVivienda();
 
-            
-            if (fetchedCuidador && experienciaData && barrioData &&tipoVivienda) {
+            if (
+                fetchedCuidador &&
+                experienciaData &&
+                barrioData &&
+                tipoVivienda
+            ) {
                 setExperiencia(experienciaData);
                 setBarrio(barrioData);
                 setCuidador(fetchedCuidador);
                 setTipoVivienda(tipoVivienda);
-                
+
                 // Actualiza scheduleData si los datos del cuidador están disponibles
                 if (
                     fetchedCuidador.grilla &&
@@ -171,6 +180,22 @@ const SettingsCuidador = () => {
                     setScheduleData(fetchedCuidador.grilla.scheduleData);
                 }
                 setOperationsCompleted((prev) => prev + 1);
+
+                // Obtener fotos y asignar estados temporales
+                if (
+                    fetchedCuidador.fotos &&
+                    Array.isArray(fetchedCuidador.fotos)
+                ) {
+                    const fotosConEstadoTemporal = fetchedCuidador.fotos.map(
+                        (foto) => ({
+                            id: foto && foto.id ? foto.id : "",
+                            url: foto && foto.foto ? foto.foto : "", // Asegúrate de que foto y foto.foto no sean undefined
+                            estadoTemporal: true,
+                        })
+                    );
+
+                    setFotosTemporales(fotosConEstadoTemporal);
+                }
             }
         };
 
@@ -180,6 +205,17 @@ const SettingsCuidador = () => {
         }
     }, [cuidadorId]);
 
+    const eliminarFotoTemporales = (id) => {
+        setFotosTemporales((prevFotos) => {
+            return prevFotos.map((foto) => {
+                if (foto.id === id) {
+                    return { ...foto, estadoTemporal: false };
+                }
+                return foto;
+            });
+        });
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             if (cuidador && experiencia && barrio) {
@@ -187,7 +223,7 @@ const SettingsCuidador = () => {
                 setValue("titulo", `${cuidador.titulo}`);
                 setValue("experienciaId", cuidador.experienciaId);
                 setValue("barrioId", cuidador.barrioId);
-                setValue("precioCuidado", cuidador.precioPaseo);
+                setValue("precioCuidado", cuidador.precioCuidado);
                 setValue("celular", userData && userData.celular);
 
                 setValue("calle", cuidador.calle);
@@ -196,7 +232,6 @@ const SettingsCuidador = () => {
                 setValue("tipoViviendaId", cuidador.tipoViviendaId);
                 setValue("patioBalcon", cuidador.patioBalcon);
                 setValue("transportePropio", cuidador.transportePropio);
-
 
                 setOperationsCompleted((prev) => prev + 1);
             }
@@ -232,41 +267,81 @@ const SettingsCuidador = () => {
     };
 
     const onSubmit = async (data) => {
-        data = {
-            ...data,
-            grilla: {
-                scheduleData: { ...scheduleData },
-            },
-        };
         setErrorFile("");
+        showLoadingOverlay();
+        // Validar antes de continuar
+        const isValid = await trigger();
+        if (isValid) {
+            data.tipoViviendaId = parseInt(data.tipoViviendaId, 10);
+            // Convierte los valores de cadena a booleano
+            data.patioBalcon = data.patioBalcon === "true" ? true : false;
+            data.transportePropio =
+                data.transportePropio === "true" ? true : false;
+        }
 
-        if (files.length === 0) {
-            setErrorFile("El campo es obligatorio");
-            //await updatePost(posteoId, data);
-            //hideLoadingOverlay();
-            // navigate("/perfil");
-        } else {
-            showLoadingOverlay();
+        try {
+            /// Guardar la grilla en data
+            const dataGrilla = {
+                idCuidador: parseInt(cuidadorId, 10),
 
-            try {
-                cuidador.fotos.forEach((foto) => {
-                    deleteFileStorage(foto.foto);
-                });
-                const urls = await obtenerUrls(); // Espera a obtener las URLs
-                console.log(urls); // Utiliza las URLs obtenidas
-                // Agrega las URLs a la propiedad data
-                data = {
-                    ...data,
-                    fotos: urls.map((url) => ({ foto: url.foto })),
-                };
-                console.log(data);
-                await updateCuidador(cuidadorId, data);
-                hideLoadingOverlay();
-                navigate(`/perfil/${userData.mail}`);
-            } catch (error) {
-                // Maneja cualquier error de la actualización
-                console.error("Error al realizar la publicacion:", error);
+                scheduleData: { ...scheduleData },
+            };
+            // Eliminar las fotos temporales con estadoTemporal igual a false
+            const fotosAEliminar = fotosTemporales.filter(
+                (foto) => !foto.estadoTemporal
+            );
+
+            // Si hay fotos para eliminar, realizar el deleteFileStorage y deleteFotoPaseador
+            if (fotosAEliminar.length > 0) {
+                for (const foto of fotosAEliminar) {
+                    try {
+                        console.log("Foto a eliminar:", foto);
+
+                        // Ajusta según cómo se almacena la URL de la foto y cómo se obtiene el ID
+                        await deleteFileStorage(foto.url);
+
+                        // Ajusta según cómo se obtiene el ID de la foto en tu servidor
+                        await deleteFotoCuidador(foto.id);
+                    } catch (error) {
+                        console.error(
+                            "Error al eliminar foto temporal:",
+                            error
+                        );
+                    }
+                }
             }
+            // Verificar si hay fotos nuevas antes de obtener las URLs
+            if (files.length > 0) {
+                // Obtener las URLs de las nuevas fotos
+                const urls = await obtenerUrls();
+
+                // Enviar las nuevas fotos a la API
+                try {
+                    console.log(urls);
+                    await Promise.all(
+                        urls.map((url) =>
+                            postFotoCuidador({
+                                foto: url.foto,
+                                cuidadorId: parseInt(cuidadorId, 10),
+                            })
+                        )
+                    );
+                } catch (error) {
+                    console.error(
+                        "Error al enviar nuevas fotos a la API:",
+                        error
+                    );
+                }
+            }
+            console.log(data);
+            console.log(dataGrilla);
+            await updateCuidador(cuidadorId, data);
+            await updateGrillaCuidador(cuidadorId, dataGrilla);
+            hideLoadingOverlay();
+            navigate(`/perfil/${userData.mail}`);
+        } catch (error) {
+            // Maneja cualquier error de la actualización
+            console.error("Error al realizar la publicación:", error);
         }
     };
     document.title = "Modificar cuidador | Amigos Peludos";
@@ -289,6 +364,34 @@ const SettingsCuidador = () => {
                                                     *
                                                 </span>
                                             </h5>
+                                            {/* FOTOS DEL SERVIDOR */}
+                                            {fotosTemporales
+                                                .filter(
+                                                    (foto) =>
+                                                        foto.estadoTemporal
+                                                ) // Filtrar según el estado
+                                                .map((foto) => (
+                                                    <div
+                                                        key={foto.id}
+                                                        className="container-img-cargadas"
+                                                    >
+                                                        <img
+                                                            className="img-cargadas"
+                                                            src={foto.url}
+                                                            alt={`Foto ${foto.id}`}
+                                                        />
+                                                        <button
+                                                            className="btn-eliminar-foto"
+                                                            onClick={() =>
+                                                                eliminarFotoTemporales(
+                                                                    foto.id
+                                                                )
+                                                            }
+                                                        >
+                                                            X
+                                                        </button>
+                                                    </div>
+                                                ))}
                                             {/* FOTO DE LA MASCOTA */}
                                             <FilePond
                                                 files={files}
@@ -753,7 +856,7 @@ const SettingsCuidador = () => {
                                                             ¿Contas con Patio o
                                                             Balcon?
                                                         </Label>
-                                                        
+
                                                         <select
                                                             name="patioBalcon"
                                                             className={`form-select ${
@@ -857,30 +960,30 @@ const SettingsCuidador = () => {
                                                 >
                                                     <div className="mb-3 w-100">
                                                         <label className="form-label">
-                                                            Precio por paseo
+                                                            Precio de cuidado
                                                         </label>
                                                         <input
                                                             type="number"
                                                             className={`form-control ${
-                                                                errors.precioPaseo
+                                                                errors.precioCuidado
                                                                     ? "is-invalid"
                                                                     : ""
                                                             }`}
-                                                            name="precioPaseo"
-                                                            placeholder="Precio por paseo"
+                                                            name="precioCuidado"
+                                                            placeholder="Precio por cuidado"
                                                             {...register(
-                                                                "precioPaseo",
+                                                                "precioCuidado",
                                                                 {
                                                                     required:
                                                                         "Este campo es obligatorio",
                                                                 }
                                                             )}
                                                         />
-                                                        {errors.precioPaseo && (
+                                                        {errors.precioCuidado && (
                                                             <div className="invalid-feedback">
                                                                 {
                                                                     errors
-                                                                        .precioPaseo
+                                                                        .precioCuidado
                                                                         .message
                                                                 }
                                                             </div>

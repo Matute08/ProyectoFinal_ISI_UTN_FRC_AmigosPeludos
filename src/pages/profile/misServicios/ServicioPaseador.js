@@ -57,9 +57,7 @@ const ServicioPaseador = () => {
                     const paseadoresFiltrados = dataPaseador.filter(
                         (paseador) => paseador.idUsuario === userData.id
                     );
-
                     setPaseadores(paseadoresFiltrados);
-                    console.log(paseadores);
                     setIsLoading(false);
                 } catch (error) {
                     console.error("Error al obtener datos:", error);
@@ -82,72 +80,73 @@ const ServicioPaseador = () => {
                                 {paseadores.map((paseador) => (
                                     <div key={paseador.id}>
                                         <Row>
-                                            <div className="m-3">
-                                                <h2>
-                                                    Título:
-                                                    {paseador &&
-                                                        paseador.titulo}
-                                                </h2>
-                                            </div>
-                                        </Row>
+                                            <Col lg={6}>
+                                                <div className="m-3">
+                                                    <h2>
+                                                        Título:
+                                                        {paseador &&
+                                                            paseador.titulo}
+                                                    </h2>
+                                                </div>
 
-                                        <Row>
-                                            <div className="m-3">
-                                                <h5>
-                                                    {" "}
-                                                    <strong>
+                                                <div className="m-3">
+                                                    <h5>
                                                         {" "}
-                                                        Descripción del
-                                                        paseador:{" "}
-                                                    </strong>
-                                                    {paseador &&
-                                                        paseador.presentacion}
-                                                </h5>
-                                            </div>
-                                        </Row>
+                                                        <strong>
+                                                            {" "}
+                                                            Descripción del
+                                                            paseador:{" "}
+                                                        </strong>
+                                                        {paseador &&
+                                                            paseador.presentacion}
+                                                    </h5>
+                                                </div>
 
-                                        <Row>
-                                            <Col lg={4}>
-                                                <Row>
-                                                    <div className="m-3">
-                                                        <h5>
-                                                            <strong>
-                                                                Realizo paseos
-                                                                en el barrio:{" "}
-                                                            </strong>
-                                                            {paseador &&
-                                                                paseador.barrioTrabajo}
-                                                        </h5>
-                                                    </div>
-                                                </Row>
-                                                <Row>
-                                                    <div className="m-3">
-                                                        <h5>
-                                                            <strong>
-                                                                Teléfono de
-                                                                contácto:{" "}
-                                                            </strong>
-                                                            {paseador &&
-                                                                paseador
-                                                                    .datosUsuario
-                                                                    .celular}{" "}
-                                                        </h5>
-                                                    </div>
-                                                </Row>
-                                                <Row>
-                                                    <div className="m-3">
-                                                        <h5>
-                                                            <strong>
-                                                                El precio por
-                                                                paseo es de:{" "}
-                                                            </strong>
-                                                            {paseador &&
-                                                                paseador.precioPaseo}{" "}
-                                                        </h5>
-                                                    </div>
-                                                </Row>
+                                                <Col lg={12}>
+                                                    <Row>
+                                                        <div className="m-3">
+                                                            <h5>
+                                                                <strong>
+                                                                    Realizo
+                                                                    paseos en la
+                                                                    zona :{" "}
+                                                                </strong>
+                                                                {paseador &&
+                                                                    paseador.barrioTrabajo}
+                                                            </h5>
+                                                        </div>
+                                                    </Row>
+                                                    <Row>
+                                                        <div className="m-3">
+                                                            <h5>
+                                                                <strong>
+                                                                    Teléfono de
+                                                                    contácto:{" "}
+                                                                </strong>
+                                                                {paseador &&
+                                                                    paseador
+                                                                        .datosUsuario
+                                                                        .celular}{" "}
+                                                            </h5>
+                                                        </div>
+                                                    </Row>
+                                                    <Row>
+                                                        <div className="m-3">
+                                                            <h5>
+                                                                <strong>
+                                                                    El precio
+                                                                    por paseo es
+                                                                    de:{" "}
+                                                                </strong>
+                                                                {paseador &&
+                                                                    paseador.precioPaseo}{" "}
+                                                            </h5>
+                                                        </div>
+                                                    </Row>
+                                                </Col>
                                             </Col>
-                                            <Col lg={7}>
+
+                                            <Col lg={6} className="">
                                                 <Row className="">
                                                     <div className="m-3 text-center">
                                                         <h4>

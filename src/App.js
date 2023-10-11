@@ -9,6 +9,7 @@ import { ProtectedRoute } from './pages/autheticationInner/ProtectedRoute';
 
 import Landing from './pages/landing/Index';
 import Register from './pages/autheticationInner/register/Register';
+import CompletarPerfil from './pages/autheticationInner/register/CompletarPerfil';
 import Login from "./pages/autheticationInner/login/Login";
 import UserProfileSetting from './pages/profile/Settings';
 import Profile from './pages/profile/UserProfile';
@@ -40,6 +41,10 @@ import SettingsCuidador from './pages/profile/misServicios/settingsServices/Sett
 import UserManual from './pages/userManual/UserManual';
 import AddVeterinaria from './pages/veterinarias/registrarVeterinaria/AddVeterinaria';
 import PerfilVeterinaria from './pages/veterinarias/perfilVeterinaria/PerfilVeterinaria';
+import ViewAdoptForm from './pages/requests/ViewAdoptForm';
+import Solicitudes from './pages/requests/Solicitudes';
+import ViewSolicitudes from './pages/requests/ViewSolicitudes';
+import SettingsVeterinaria from './pages/profile/misServicios/settingsServices/SettingsVeterinaria';
 
 function App() {
   return (
@@ -54,6 +59,7 @@ function App() {
           <Route path="/modificar-perfil" element={<ProtectedRoute><UserProfileSetting /></ProtectedRoute>} />
           <Route path="/perfil/:mail" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path='/restablecer-contraseña' element={<PasswordReset />} />
+          <Route path="/completar-perfil/:mail" element={<ProtectedRoute><CompletarPerfil /></ProtectedRoute>} />
 
           {/* Mascotas */}
           <Route path="/agregar-mascota" element={<ProtectedRoute><AddPets /></ProtectedRoute>} />
@@ -91,6 +97,7 @@ function App() {
           <Route path='/veterinarias' element={<Veterinarias />} />
           <Route path="/agregar-veterinaria" element={<ProtectedRoute><AddVeterinaria /></ProtectedRoute>} />
           <Route path="/veterinarias/perfil-veterinaria/:id" element={<ProtectedRoute><PerfilVeterinaria /></ProtectedRoute>} />
+          <Route path="/modificar-veterinaria/:veterinariaId" element={<ProtectedRoute><SettingsVeterinaria /></ProtectedRoute>} />
 
 
           {/* Cuidadores */}
@@ -100,6 +107,14 @@ function App() {
 
           {/* Manual de usuario */}
           <Route path='/manualusuario' element={<UserManual />} />
+          
+          {/* Pdf */}
+          <Route path='/ver-formulario/:id' element={<ViewAdoptForm />} />
+          <Route path='/ver-formulario-solicitud/:id' element={<ViewSolicitudes />} />
+
+          <Route path="/solicitudes" element={<ProtectedRoute><Solicitudes /></ProtectedRoute>} />
+
+
 
         </Routes>
       </AuthProvider>

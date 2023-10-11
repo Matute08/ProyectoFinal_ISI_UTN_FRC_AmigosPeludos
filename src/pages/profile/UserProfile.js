@@ -112,12 +112,12 @@ const Profile = () => {
                                     </NavItem> */}
                                     <NavItem>
                                         <NavLink
-                                            //href="#mis-mascotas"
+                                            href="#mis-servicios"
                                             className={`d-md-inline-block ${
                                                 activeTab === "3" ? "active" : ""
                                             }`}
                                             onClick={() => {
-                                                toggleTab("4");
+                                                toggleTab("3");
                                             }}
                                         >
                                             <span className=" d-md-inline-block">
@@ -138,10 +138,10 @@ const Profile = () => {
                                         <MyPosts></MyPosts>
                                     </TabPane>
 
-                                    <TabPane tabId="3">
+                                    {/* <TabPane tabId="3">
                                         <GenerateQr></GenerateQr>
-                                    </TabPane>
-                                    <TabPane tabId="4">
+                                    </TabPane> */}
+                                    <TabPane tabId="3">
                                             <MisServicios></MisServicios>
 
                                     </TabPane>

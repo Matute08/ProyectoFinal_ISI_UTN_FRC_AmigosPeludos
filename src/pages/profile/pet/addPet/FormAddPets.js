@@ -28,7 +28,17 @@ import classnames from "classnames";
 import { uploadFilePetsUser } from "../../../../services/Firebase";
 import Loading from "../../../components/Loading";
 
-import userRandom from "../../../../assets/images/user/user-random.jpg";
+// Import React FilePond
+import { FilePond, registerPlugin } from "react-filepond";
+// Import FilePond styles
+import "filepond/dist/filepond.min.css";
+import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+import { format } from "date-fns";
+
+// Register the plugins
+registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
 const FormAddPets = () => {
     const navigate = useNavigate();
@@ -40,6 +50,11 @@ const FormAddPets = () => {
     const [raza, setRaza] = useState();
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("1");
+
+    const [files, setFiles] = useState([]);
+    const [errorFile, setErrorFile] = useState("");
+    const [url, setUrl] = useState();
+    const [fotosTemporales, setFotosTemporales] = useState([]);
 
     const tabChange = (tab) => {
         if (activeTab !== tab) setActiveTab(tab);
@@ -55,6 +70,11 @@ const FormAddPets = () => {
     const handleAsyncTask = async () => {
         showLoadingOverlay();
     };
+
+// Definir reglas de validación para el campo texto
+const nameValidation = /^[A-Za-z\s]+$/; // Acepta letras y espacios
+const numberValidation = /^[0-9]+$/;
+
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -112,8 +132,30 @@ const FormAddPets = () => {
         formState: { errors },
     } = useForm();
 
+
+    //funcion para obtener las urls de las fotos
+    const obtenerUrls = async () => {
+        const uploadFile = async (file) => {
+            const uploadedUrl = await uploadFilePetsUser(file);
+            return { foto: uploadedUrl }; // Guarda la URL en un objeto con la propiedad "link"
+        };
+        console.log(files);
+        if (files.length > 0) {
+            const urls = [];
+            for (let i = 0; i < files.length; i++) {
+                const uploadedUrl = await uploadFile(files[i].file);
+                urls.push(uploadedUrl);
+            }
+            console.log(urls);
+            setUrl(urls);
+            return urls; // Retorna las URLs obtenidas
+        }
+        return []; // Retorna un arreglo vacío si no hay archivos
+    };
+
+
     const onSubmit = async (data) => {
-        showLoadingOverlay();
+        setErrorFile("");
         data.idUsuario = `${userData.id}`;
         userData.tieneMascota = true;
 
@@ -124,16 +166,33 @@ const FormAddPets = () => {
         }
 
         try {
-            if (data.foto) {
-                const url = await uploadFilePetsUser(data.foto[0]);
-                data.foto = url;
+            // Verificar si hay fotos nuevas antes de obtener las URLs
+            if (files.length > 0) {
+                showLoadingOverlay();
+
+                // Obtener las URLs de las nuevas fotos
+                const urls = await obtenerUrls();
+
+                // Verificar si hay al menos una URL en el array
+                if (urls.length > 0) {
+                    // Acceder a la primera URL del array
+                    const primeraUrl = urls[0];
+
+                    // Verificar si la URL tiene la propiedad 'foto'
+                    if (primeraUrl.foto) {
+                        // Asignar la URL al campo 'foto' en data
+                        data.foto = primeraUrl.foto;
+                    }
+                }
+                await postMascota(data);
+                await updateUser(userData.id, userData);
+                hideLoadingOverlay();
+                navigate(`/perfil/${userData&& userData.mail}`);
+            } else {
+                setErrorFile("El campo es obligatorio");
             }
-            await postMascota(data);
-            await updateUser(userData.id, userData);
-            hideLoadingOverlay();
-            navigate(`/perfil/${userData&& userData.mail}`);
         } catch (error) {
-            // Maneja cualquier error de la actualización
+            // Manejar cualquier error de la actualización
             console.error("Error al actualizar el usuario:", error);
         }
     };
@@ -147,53 +206,29 @@ const FormAddPets = () => {
                             <Col xl={3}>
                                 <Card className="mt-n5">
                                     <CardBody className="p-4">
-                                        <div className="text-center">
-                                            <div className="profile-user position-relative d-inline-block mx-auto  mb-4">
-                                                <img
-                                                    src={userRandom}
-                                                    className="rounded-circle avatar-xl img-thumbnail user-profile-image"
-                                                    alt="user-profile"
-                                                />
-                                                <div className="avatar-xs p-0 rounded-circle profile-photo-edit">
-                                                    <input
-                                                        id="profile-img-file-input"
-                                                        type="file"
-                                                        className="profile-img-file-input"
-                                                        {...register("foto", {
-                                                            required: {
-                                                                value: true,
-                                                                message:
-                                                                    "La foto de la mascota es obligatoria",
-                                                            },
-                                                        })}
-                                                    />
-
-                                                    {errors.foto && (
-                                                        <span className="text-danger">
-                                                            {
-                                                                errors.foto
-                                                                    .message
-                                                            }
-                                                        </span>
-                                                    )}
-                                                    <Label
-                                                        htmlFor="profile-img-file-input"
-                                                        className="profile-photo-edit avatar-xs"
-                                                    >
-                                                        <span className="avatar-title rounded-circle bg-light text-body">
-                                                            <i className="ri-camera-fill"></i>
-                                                        </span>
-                                                    </Label>
-                                                </div>
-                                            </div>
-                                            {/* NOMBRE MASCOTA */}
-                                            <h5 className="fs-16 mb-1">
+                                    <div className="text-center">
+                                    <h5 className="fs-16 mb-1">
                                                 Foto de la mascota{" "}
                                                 <span className="text-danger">
                                                     *
                                                 </span>
                                             </h5>
-                                        </div>
+
+                                                {/* FOTO DE LA MASCOTA */}
+                                                <FilePond
+                                                    files={files}
+                                                    onupdatefiles={setFiles}
+                                                    allowMultiple={false}
+                                                    maxFiles={4}
+                                                    name="files"
+                                                    className="filepond filepond-input-multiple"
+                                                    labelIdle="Arrastra y suelta tus archivos o buscalos "
+                                                />
+                                                <p className="text-danger">
+                                                    {errorFile}
+                                                </p>
+                                            </div>
+
                                     </CardBody>
                                 </Card>
                             </Col>
@@ -236,7 +271,9 @@ const FormAddPets = () => {
                                                         </Label>
                                                         <input
                                                             type="text"
-                                                            className="form-control"
+                                                            className={`form-control ${
+                                                                errors.nombre ? "is-invalid" : ""
+                                                            }`}
                                                             name="nombre"
                                                             placeholder="Nombre de la mascota"
                                                             {...register(
@@ -246,6 +283,12 @@ const FormAddPets = () => {
                                                                         value: true,
                                                                         message:
                                                                             "El nombre de la mascota es requerido",
+                                                                    },
+                                                                    pattern:
+                                                                    {
+                                                                        value: nameValidation,
+                                                                        message:
+                                                                            "El nombre solo debe contener letras y espacios.",
                                                                     },
                                                                 }
                                                             )}
@@ -272,7 +315,9 @@ const FormAddPets = () => {
                                                         </label>
                                                         <select
                                                             name="tipoId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.tipoId ? "is-invalid" : ""
+                                                            }`}
                                                             {...register(
                                                                 "tipoId",
                                                                 {
@@ -331,7 +376,9 @@ const FormAddPets = () => {
                                                         </Label>
                                                         <select
                                                             name="raza"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.razaId ? "is-invalid" : ""
+                                                            }`}
                                                             {...register(
                                                                 "razaId",
                                                                 {
@@ -367,10 +414,11 @@ const FormAddPets = () => {
                                                                     )
                                                                 )}
                                                         </select>
-                                                        {errors.raza && (
+                                                        {errors.razaId && (
                                                             <span className="text-danger">
                                                                 {
-                                                                    errors.raza
+                                                                    errors
+                                                                        .razaId
                                                                         .message
                                                                 }
                                                             </span>
@@ -388,7 +436,9 @@ const FormAddPets = () => {
                                                         </Label>
                                                         <select
                                                             name="edadId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.edadId ? "is-invalid" : ""
+                                                            }`}
                                                             {...register(
                                                                 "edadId",
                                                                 {
@@ -436,17 +486,20 @@ const FormAddPets = () => {
                                                     </div>
                                                 </Col>
 
-                                                <Col lg={2}>
+                                                <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
-                                                            Peso
+                                                            Peso Aproximado en KG
                                                             <span className="text-danger">
                                                                 *
                                                             </span>
                                                         </Label>
                                                         <input
                                                             type="text"
-                                                            className="form-control"
+                                                            className={`form-control ${
+                                                                errors.peso ? "is-invalid" : ""
+                                                            }`}
+                                                            maxLength={3}
                                                             name="peso"
                                                             placeholder="Peso aproximado"
                                                             {...register(
@@ -456,6 +509,12 @@ const FormAddPets = () => {
                                                                         value: true,
                                                                         message:
                                                                             "El peso de la mascota es requerido",
+                                                                    },
+                                                                    pattern:
+                                                                    {
+                                                                        value: numberValidation,
+                                                                        message:
+                                                                            "El peso solo debe contener numeros.",
                                                                     },
                                                                 }
                                                             )}
@@ -481,7 +540,9 @@ const FormAddPets = () => {
                                                         </Label>
                                                         <select
                                                             name="castracion"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.castracion ? "is-invalid" : ""
+                                                            }`}
                                                             {...register(
                                                                 "castracion",
                                                                 {
@@ -524,7 +585,9 @@ const FormAddPets = () => {
                                                         </Label>
                                                         <select
                                                             name="sexoId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.sexoId ? "is-invalid" : ""
+                                                            }`}
                                                             {...register(
                                                                 "sexoId",
                                                                 {
@@ -582,7 +645,9 @@ const FormAddPets = () => {
                                                         </Label>
                                                         <input
                                                             type="text"
-                                                            className="form-control"
+                                                            className={`form-control ${
+                                                                errors.color ? "is-invalid" : ""
+                                                            }`}
                                                             name="color"
                                                             placeholder="Color"
                                                             {...register(
@@ -592,6 +657,12 @@ const FormAddPets = () => {
                                                                         value: true,
                                                                         message:
                                                                             "El color de la mascota es requerido",
+                                                                    },
+                                                                    pattern:
+                                                                    {
+                                                                        value: nameValidation,
+                                                                        message:
+                                                                            "El color solo debe contener letras y espacios.",
                                                                     },
                                                                 }
                                                             )}
@@ -628,15 +699,7 @@ const FormAddPets = () => {
                                                                 }
                                                             )}
                                                         />
-                                                        {errors.descripcion && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .descripcion
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
+                                                    
                                                     </div>
                                                 </Col>
                                                 <Col lg={12}>

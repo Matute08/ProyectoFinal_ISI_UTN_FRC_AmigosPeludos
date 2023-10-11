@@ -36,17 +36,20 @@ const Step4 = ({ onNext, onPrev, step1Data, step2Data, step3Data }) => {
 
     const onSubmit = async (data) => {
         const cbu =
-            data.aceptaTransferencias === "Si" ? parseInt(data.trasnferencia, 10)  : null;
+            data.aceptaTransferencias === "Si" ? data.trasnferencia  : null;
 
         const allData = {
             ...step1Data,
             ...step2Data,
             ...step3Data,
             cbu: cbu,
+            estadoId: parseInt(1,10),
+            usuarioId: userData.id
         };
 
         try {
             setIsLoading(true);
+            console.log(allData);
             await postVeterinaria(allData);
 
             setTimeout(() => {
@@ -54,16 +57,25 @@ const Step4 = ({ onNext, onPrev, step1Data, step2Data, step3Data }) => {
                 onNext(allData);
             }, 4000);
             navigate("/veterinarias")
+
+           
+              
         } catch (error) {
             console.error("Error al realizar la publicación:", error);
             setIsLoading(false);
         }
 
-        console.log(allData);
+       
     };
 
     const aceptaTransferencias = watch("aceptaTransferencias");
-
+    const handleKeyPress = (e) => {
+        // Permitir solo números (0-9) y la tecla de retroceso
+        const regex = /^[0-9\b]+$/;
+        if (!regex.test(e.key)) {
+            e.preventDefault();
+        }
+    };
     return (
         <Form onSubmit={handleSubmit(onSubmit)} className="form-step">
             {isLoading ? (
@@ -116,7 +128,8 @@ const Step4 = ({ onNext, onPrev, step1Data, step2Data, step3Data }) => {
                                         transferencias
                                     </Label>
                                     <input
-                                        type="number"
+                                        type="text"
+                                        maxLength={15}
                                         {...register("trasnferencia", {
                                             required:
                                                 "Este campo es obligatorio",
@@ -127,6 +140,7 @@ const Step4 = ({ onNext, onPrev, step1Data, step2Data, step3Data }) => {
                                                 ? "is-invalid"
                                                 : ""
                                         }`}
+                                        onKeyPress={handleKeyPress}
                                     />
                                     {errors.trasnferencia && (
                                         <div className="invalid-feedback">

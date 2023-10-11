@@ -293,4 +293,15 @@ $value in $theme-colors {
 
   .img-servicios-perfil{
     height: 400px;
+    width: 80%;
+    object-fit: contain;
+  }
+
+
+
+  .imagen-servicio-vet-perfil{
+    width: 40%;
+  }
+  .text-servicio-perfil{
+    font-size: 1.2em;
   }

@@ -4,10 +4,6 @@ import { Col, Form, Row, Label } from "reactstrap";
 import { getUserMail, getAllBarrio } from "../../../services/api";
 import Loading from "../../components/Loading";
 import { parse } from "date-fns";
-import GoogleMap from "../../components/mapaGoogle/GoogleMap";
-//import LeafletMap from "../../components/maps/MapaUbicacionParticular";
-import LeafletMaps from "../../components/maps/LeafletMaps";
-import Maps from "../../components/maps/Maps";
 import Map from "../../components/maps/MapaUbicacionParticular";
 const Step1 = ({ onNext }) => {
     const [isLoading, setIsLoading] = useState(true);
@@ -25,8 +21,6 @@ const Step1 = ({ onNext }) => {
         lat: -31.41894,
         lng: -64.19353,
     });
-
-   
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -62,32 +56,38 @@ const Step1 = ({ onNext }) => {
         handleSubmit,
         formState: { errors },
     } = useForm();
+
     const handleMapClick = (lat, lng) => {
         setLatitud(lat);
         setLongitud(lng);
-
     };
     const handleLocationChange = (location) => {
         setLatitud(location.lat);
         setLongitud(location.lon);
-      };
+    };
     const onSubmit = (data) => {
         if (isGeocoding) {
             // Evita enviar el formulario si la geocodificación está en curso
             return;
-          }
-          
-          setIsGeocoding(true); // Indica que la geocodificación está en curso
+        }
 
+        setIsGeocoding(true); // Indica que la geocodificación está en curso
 
         data.latitud = Number(latitud.toFixed(5));
-        data.longitud =Number(longitud.toFixed(5));
-        data.barrioId= parseInt(data.barrioId,10)
-        data.cuil= parseInt(data.cuil,10)
-        data.numeroCalle= parseInt(data.numeroCalle,10)
+        data.longitud = Number(longitud.toFixed(5));
+        data.barrioId = parseInt(data.barrioId, 10);
+        data.numeroCalle = parseInt(data.numeroCalle, 10);
         onNext(data); // Llama a la función onNext para avanzar al siguiente paso
     };
-    return(
+
+    const handleKeyPress = (e) => {
+        // Permitir solo números (0-9) y la tecla de retroceso
+        const regex = /^[0-9\b]+$/;
+        if (!regex.test(e.key)) {
+            e.preventDefault();
+        }
+    };
+    return (
         <Form onSubmit={handleSubmit(onSubmit)} className="form-step">
             {isLoading ? (
                 <Loading />
@@ -188,7 +188,9 @@ const Step1 = ({ onNext }) => {
                             <div className="mb-3 w-100">
                                 <Label className="form-label">Altura:</Label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    maxLength={4}
+                                    
                                     className={`form-control ${
                                         errors.numeroCalle ? "is-invalid" : ""
                                     }`}
@@ -198,8 +200,9 @@ const Step1 = ({ onNext }) => {
                                         required: "Este campo es obligatorio",
                                     })}
                                     onBlur={(e) => {
-                                        setAltura(e.target.value);
+                                        setAltura(parseInt(e.target.value, 10)); // Parsea el valor a un número usando parseInt
                                     }}
+                                    onKeyPress={handleKeyPress}
                                 />
                                 {errors.numeroCalle && (
                                     <p className="invalid-feedback">
@@ -216,7 +219,9 @@ const Step1 = ({ onNext }) => {
                                     Celular de Contácto
                                 </Label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    maxLength={15}
+                                    
                                     className={`form-control ${
                                         errors.numeroTelefono
                                             ? "is-invalid"
@@ -227,6 +232,7 @@ const Step1 = ({ onNext }) => {
                                     {...register("numeroTelefono", {
                                         required: "Este campo es obligatorio",
                                     })}
+                                    onKeyPress={handleKeyPress}
                                 />
                                 {errors.numeroTelefono && (
                                     <p className="invalid-feedback">
@@ -241,7 +247,8 @@ const Step1 = ({ onNext }) => {
                             <div className="mb-3 w-100">
                                 <Label className="form-label">CUIT</Label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    maxLength={11}
                                     className={`form-control ${
                                         errors.cuil ? "is-invalid" : ""
                                     }`}
@@ -250,6 +257,7 @@ const Step1 = ({ onNext }) => {
                                     {...register("cuil", {
                                         required: "Este campo es obligatorio",
                                     })}
+                                    onKeyPress={handleKeyPress}
                                 />
                                 {errors.cuil && (
                                     <p className="invalid-feedback">
@@ -271,15 +279,15 @@ const Step1 = ({ onNext }) => {
                             />
                         </Col>
                         <Col className="button-container d-flex justify-content-end">
-                        <button
-                            className="btn-next-paseador btn-next "
-                            type="submit"
-                        >
-                            <span class="transition"></span>
-                            <span class="gradient"></span>
-                            <span class="label">Siguiente</span>
-                        </button>
-                    </Col>
+                            <button
+                                className="btn-next-paseador btn-next "
+                                type="submit"
+                            >
+                                <span class="transition"></span>
+                                <span class="gradient"></span>
+                                <span class="label">Siguiente</span>
+                            </button>
+                        </Col>
                     </Row>
                 </div>
             )}

@@ -23,6 +23,9 @@ import {
     getAllBarrio,
     getUserMail,
     updatePaseador,
+    deleteFotoPaseador,
+    postFotoPaseador,
+    updateGrillaPaseador
 } from "../../../../services/api.js";
 import {
     uploadFilesPaseador,
@@ -59,6 +62,7 @@ const SettingsPaseador = () => {
     const [paseador, setPaseador] = useState([]);
     const [labelFecha, setLabelFecha] = useState();
     const [charCount, setCharCount] = useState(0); // Estado para el contador de caracteres
+    const [fotosTemporales, setFotosTemporales] = useState([]);
     const daysOfWeek = [
         "lunes",
         "martes",
@@ -97,99 +101,127 @@ const SettingsPaseador = () => {
         setIsLoading(false);
     };
 
-// Al principio del componente
-const [operationsCompleted, setOperationsCompleted] = useState(0);
+    const [operationsCompleted, setOperationsCompleted] = useState(0);
 
-// ...
-
-useEffect(() => {
-    const initialScheduleData = {};
-    for (const day of daysOfWeek) {
-        initialScheduleData[day.toLowerCase()] = {};
-        for (const period of timePeriods) {
-            initialScheduleData[day.toLowerCase()][period.toLowerCase()] = false;
-        }
-    }
-    setScheduleData(initialScheduleData);
-}, []);
-
-useEffect(() => {
-    const isOneSelected = Object.values(scheduleData).some((dayData) =>
-        Object.values(dayData).some((isSelected) => isSelected)
-    );
-    setIsAtLeastOneSelected(isOneSelected);
-}, [scheduleData]);
-
-const handleCheckboxChange = (day, period, isChecked) => {
-    setScheduleData((prevData) => ({
-        ...prevData,
-        [day.toLowerCase()]: {
-            ...prevData[day.toLowerCase()],
-            [period.toLowerCase()]: isChecked,
-        },
-    }));
-};
-
-useEffect(() => {
-    const fetchData = async () => {
-        const cachedUserData = localStorage.getItem("userData");
-
-        if (cachedUserData) {
-            const dataLocalStorage = JSON.parse(cachedUserData);
-            const userEmail = dataLocalStorage.email;
-
-            const datosUsuario = await getUserMail(userEmail);
-            setUserData(datosUsuario);
-            setOperationsCompleted(prev => prev + 1);
-        }
-    };
-
-    const fetchDataMain = async () => {
-        const fetchedPaseador = await getPaseadorPorId(paseadorId);
-        const experienciaData = await getExperiencia();
-        const barrioData = await getAllBarrio();
-
-        if (fetchedPaseador && experienciaData && barrioData) {
-            setExperiencia(experienciaData);
-            setBarrio(barrioData);
-            setPaseador(fetchedPaseador);
-
-            // Actualiza scheduleData si los datos del paseador están disponibles
-            if (fetchedPaseador.grilla && fetchedPaseador.grilla.scheduleData) {
-                setScheduleData(fetchedPaseador.grilla.scheduleData);
+    useEffect(() => {
+        const initialScheduleData = {};
+        for (const day of daysOfWeek) {
+            initialScheduleData[day.toLowerCase()] = {};
+            for (const period of timePeriods) {
+                initialScheduleData[day.toLowerCase()][
+                    period.toLowerCase()
+                ] = false;
             }
-            setOperationsCompleted(prev => prev + 1);
         }
+        setScheduleData(initialScheduleData);
+    }, []);
+
+    useEffect(() => {
+        const isOneSelected = Object.values(scheduleData).some((dayData) =>
+            Object.values(dayData).some((isSelected) => isSelected)
+        );
+        setIsAtLeastOneSelected(isOneSelected);
+    }, [scheduleData]);
+
+    const handleCheckboxChange = (day, period, isChecked) => {
+        setScheduleData((prevData) => ({
+            ...prevData,
+            [day.toLowerCase()]: {
+                ...prevData[day.toLowerCase()],
+                [period.toLowerCase()]: isChecked,
+            },
+        }));
     };
 
-    if (paseadorId) {
-        fetchDataMain();
+    useEffect(() => {
+        const fetchData = async () => {
+            const cachedUserData = localStorage.getItem("userData");
+
+            if (cachedUserData) {
+                const dataLocalStorage = JSON.parse(cachedUserData);
+                const userEmail = dataLocalStorage.email;
+
+                const datosUsuario = await getUserMail(userEmail);
+                setUserData(datosUsuario);
+                setOperationsCompleted((prev) => prev + 1);
+            }
+        };
+
+        const fetchDataMain = async () => {
+            const fetchedPaseador = await getPaseadorPorId(paseadorId);
+            const experienciaData = await getExperiencia();
+            const barrioData = await getAllBarrio();
+
+            if (fetchedPaseador && experienciaData && barrioData) {
+                setExperiencia(experienciaData);
+                setBarrio(barrioData);
+                setPaseador(fetchedPaseador);
+
+                // Actualiza scheduleData si los datos del paseador están disponibles
+                if (
+                    fetchedPaseador.grilla &&
+                    fetchedPaseador.grilla.scheduleData
+                ) {
+                    setScheduleData(fetchedPaseador.grilla.scheduleData);
+                }
+                setOperationsCompleted((prev) => prev + 1);
+
+                // Obtener fotos y asignar estados temporales
+                if (
+                    fetchedPaseador.fotos &&
+                    Array.isArray(fetchedPaseador.fotos)
+                ) {
+                    const fotosConEstadoTemporal = fetchedPaseador.fotos.map(
+                        (foto) => ({
+                            id: foto && foto.id ? foto.id : "",
+                            url: foto && foto.foto ? foto.foto : "", // Asegúrate de que foto y foto.foto no sean undefined
+                            estadoTemporal: true,
+                        })
+                    );
+
+                    setFotosTemporales(fotosConEstadoTemporal);
+                }
+            }
+        };
+
+        if (paseadorId) {
+            fetchDataMain();
+            fetchData();
+        }
+    }, [paseadorId]);
+
+    const eliminarFotoTemporales = (id) => {
+        setFotosTemporales((prevFotos) => {
+            return prevFotos.map((foto) => {
+                if (foto.id === id) {
+                    return { ...foto, estadoTemporal: false };
+                }
+                return foto;
+            });
+        });
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (paseador && experiencia && barrio) {
+                setValue("presentacion", `${paseador.presentacion}`);
+                setValue("titulo", `${paseador.titulo}`);
+                setValue("experienciaId", paseador.experienciaId);
+                setValue("barrioTrabajoId", paseador.barrioTrabajoId);
+                setValue("precioPaseo", paseador.precioPaseo);
+                setValue("celular", userData && userData.celular);
+                setOperationsCompleted((prev) => prev + 1);
+            }
+        };
+
         fetchData();
-    }
-}, [paseadorId]);
+    }, [paseador, experiencia, barrio, setValue]);
 
-useEffect(() => {
-    const fetchData = async () => {
-        if (paseador && experiencia && barrio) {
-            setValue("presentacion", `${paseador.presentacion}`);
-            setValue("titulo", `${paseador.titulo}`);
-            setValue("experienciaId", paseador.experienciaId);
-            setValue("barrioTrabajoId", paseador.barrioTrabajoId);
-            setValue("precioPaseo", paseador.precioPaseo);
-            setValue("celular", userData && userData.celular);
-            setOperationsCompleted(prev => prev + 1);
+    useEffect(() => {
+        if (operationsCompleted === 3) {
+            setIsLoading(false);
         }
-    };
-
-    fetchData();
-}, [paseador, experiencia, barrio, setValue]);
-
-useEffect(() => {
-    if (operationsCompleted === 3) {
-        setIsLoading(false);
-    }
-}, [operationsCompleted]);
-
+    }, [operationsCompleted]);
 
     //funcion para obtener las urls de las fotos
     const obtenerUrls = async () => {
@@ -211,44 +243,76 @@ useEffect(() => {
         return []; // Retorna un arreglo vacío si no hay archivos
     };
 
-    const onSubmit = async (data) => {
-        data = {
-            ...data,
-            grilla: {
-                scheduleData: { ...scheduleData },
-            },
-        };
+    const onSubmit = async ({ ...data }) => {
         setErrorFile("");
+        showLoadingOverlay()
 
-        if (files.length === 0) {
-            setErrorFile("El campo es obligatorio");
-            //await updatePost(posteoId, data);
-            //hideLoadingOverlay();
-            // navigate("/perfil");
-        } else {
-            showLoadingOverlay();
+        try {
+            // Guardar la grilla en data
+            const dataGrilla = {
+                idPaseador:parseInt(paseadorId,10),
+                
+                    scheduleData: { ...scheduleData },
+                
+            };
 
-            try {
-                paseador.fotos.forEach((foto) => {
-                    deleteFileStorage(foto.foto);
-                });
-                const urls = await obtenerUrls(); // Espera a obtener las URLs
-                console.log(urls); // Utiliza las URLs obtenidas
-                // Agrega las URLs a la propiedad data
-                data = {
-                    ...data,
-                    fotos: urls.map((url) => ({ foto: url.foto })),
-                };
-                console.log(data);
-                await updatePaseador(paseadorId, data);
-                hideLoadingOverlay();
-                navigate(`/perfil/${userData.mail}`);
-            } catch (error) {
-                // Maneja cualquier error de la actualización
-                console.error("Error al realizar la publicacion:", error);
+            // Eliminar las fotos temporales con estadoTemporal igual a false
+            const fotosAEliminar = fotosTemporales.filter(
+                (foto) => !foto.estadoTemporal
+            );
+
+            // Si hay fotos para eliminar, realizar el deleteFileStorage y deleteFotoPaseador
+            if (fotosAEliminar.length > 0) {
+                for (const foto of fotosAEliminar) {
+                    try {
+                        // Ajusta según cómo se almacena la URL de la foto y cómo se obtiene el ID
+                        await deleteFileStorage(foto.url);
+
+                        // Ajusta según cómo se obtiene el ID de la foto en tu servidor
+                        await deleteFotoPaseador(foto.id);
+                    } catch (error) {
+                        console.error(
+                            "Error al eliminar foto temporal:",
+                            error
+                        );
+                    }
+                }
             }
+
+            // Verificar si hay fotos nuevas antes de obtener las URLs
+            if (files.length > 0) {
+                // Obtener las URLs de las nuevas fotos
+                const urls = await obtenerUrls();
+
+                // Enviar las nuevas fotos a la API
+                try {
+                    console.log(urls);
+                    await Promise.all(
+                        urls.map((url) =>
+                            postFotoPaseador({
+                                foto: url.foto,
+                                paseadorId: parseInt(paseadorId, 10),
+                            })
+                        )
+                    );
+                } catch (error) {
+                    console.error(
+                        "Error al enviar nuevas fotos a la API:",
+                        error
+                    );
+                }
+            }
+
+            await updatePaseador(paseadorId, data);
+            await updateGrillaPaseador(paseadorId,dataGrilla)
+            hideLoadingOverlay();
+            navigate(`/perfil/${userData.mail}`);
+        } catch (error) {
+            // Maneja cualquier error de la actualización
+            console.error("Error al realizar la publicación:", error);
         }
     };
+
     document.title = "Modificar Paseador | Amigos Peludos";
     return (
         <React.Fragment>
@@ -269,7 +333,36 @@ useEffect(() => {
                                                     *
                                                 </span>
                                             </h5>
-                                            {/* FOTO DE LA MASCOTA */}
+                                            {/* FOTOS DEL SERVIDOR */}
+                                            {fotosTemporales
+                                                .filter(
+                                                    (foto) =>
+                                                        foto.estadoTemporal
+                                                ) // Filtrar según el estado
+                                                .map((foto) => (
+                                                    <div
+                                                        key={foto.id}
+                                                        className="container-img-cargadas"
+                                                    >
+                                                        <img
+                                                            className="img-cargadas"
+                                                            src={foto.url}
+                                                            alt={`Foto ${foto.id}`}
+                                                        />
+                                                        <button
+                                                            className="btn-eliminar-foto"
+                                                            onClick={() =>
+                                                                eliminarFotoTemporales(
+                                                                    foto.id
+                                                                )
+                                                            }
+                                                        >
+                                                            X
+                                                        </button>
+                                                    </div>
+                                                ))}
+
+                                            {/* FOTO DE LA MASCOTA - FilePond */}
                                             <FilePond
                                                 files={files}
                                                 onupdatefiles={setFiles}

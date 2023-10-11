@@ -30,8 +30,8 @@ const PerfilVeterinaria = () => {
             } catch (error) {
                 console.error("Error al obtener veterinarias:", error);
             }
+            console.log(veterinarias);
         };
-
         fetchVeterinarias();
     }, []);
 
@@ -80,7 +80,7 @@ const PerfilVeterinaria = () => {
     // Función para renderizar las tarjetas de servicios
     const renderServicios = () => {
         const servicios = veterinarias && veterinarias.servicios;
-
+        console.log(servicios);
         // Verificar si servicios es null o undefined
         if (!servicios) {
             // Si no existe, mostrar un mensaje
@@ -306,12 +306,7 @@ const PerfilVeterinaria = () => {
                                                                     </span>
                                                                 </button>
 
-                                                                <button class="social-button mail ">
-                                                                    <i class=" ri-mail-fill"></i>
-                                                                    <span>
-                                                                        Mail
-                                                                    </span>
-                                                                </button>
+                                                                
                                                             </div>
                                                         </Row>
                                                         {veterinarias &&

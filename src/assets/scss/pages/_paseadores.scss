@@ -110,10 +110,44 @@
 
 }
 
+.preview-image{
+  width: 40%;
+  display: flex;
+  justify-content: start;
+  margin: 10px;
+
+}
+.container-img-cargadas{
+  width: 100%;
+  height: 150px;
+  
+    position: relative;
+    display: inline-block;
 
 
+  @media (min-width:550px)and  (max-width: 1200px) {
+    height: 250px;
+    width: 80%;
+  }
+}
+.img-cargadas{
+  width: 80%;
+  height: 100%;
+  margin: 10px;
+  object-fit: contain;
+display: flex;
 
-
+}
+.btn-eliminar-foto {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: red; /* Puedes personalizar el estilo según tus necesidades */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
 
 
 

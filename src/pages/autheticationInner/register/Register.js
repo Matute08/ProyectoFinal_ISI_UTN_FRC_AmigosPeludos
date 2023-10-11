@@ -1,12 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import {
-    Card,
-    CardBody,
-    Col,
-    Container,
-    Row,
-} from "reactstrap";
+import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import ParticlesAuth from "../ParticlesAuth";
 //import images
 import logo from "../../../assets/images/logo/LogoAP.png";
@@ -50,13 +44,7 @@ const Register = () => {
                                             </h5>
                                         </div>
                                         <div className="p-2 mt-4">
-
-
-
                                             <FormRegister></FormRegister>
-                                        
-                                        
-                                        
                                         </div>
                                     </CardBody>
                                 </Card>
@@ -77,6 +65,12 @@ const Register = () => {
                         </Row>
                     </Container>
                 </div>
+                        <div className="text-center footer-copy">
+                            <p className="mb-0 text-muted ">
+                                &copy; {new Date().getFullYear()} Amigos Peludos{" "}
+                                <i className="mdi mdi-paw text-danger"></i>
+                            </p>
+                        </div>
             </ParticlesAuth>
         </React.Fragment>
     );

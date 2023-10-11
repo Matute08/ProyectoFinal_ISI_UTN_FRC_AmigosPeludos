@@ -108,28 +108,7 @@ const Step1 = ({ onNext }) => {
                             </div>
                         </Col>
 
-                        {/* Celular
-                        <Col lg={8} className="d-flex justify-content-center">
-                            <div className="mb-3 w-100">
-                                <Label className="form-label">Celular</Label>
-                                <input
-                                    type="number"
-                                    className={`form-control ${
-                                        errors.celular ? "is-invalid" : ""
-                                    }`}
-                                    name="celular"
-                                    placeholder="Celular"
-                                    {...register("celular", {
-                                        required: "Este campo es obligatorio",
-                                    })}
-                                />
-                                {errors.celular && (
-                                    <p className="invalid-feedback">
-                                        {errors.celular.message}
-                                    </p>
-                                )}
-                            </div>
-                        </Col> */}
+                        
 
                         {/* EDAD */}
                         <Col lg={8} className="d-flex justify-content-center">
