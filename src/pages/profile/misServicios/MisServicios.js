@@ -148,6 +148,19 @@ const MisServicios = () => {
                         <span className=" d-md-inline-block">Veterinaria</span>
                     </NavLink>
                 </NavItem>
+                <NavItem>
+                    <NavLink
+                        href="#mi-qr"
+                        className={`d-md-inline-block ${
+                            activeTab === "4" ? "active" : ""
+                        }`}
+                        onClick={() => {
+                            toggleTab("4");
+                        }}
+                    >
+                        <span className=" d-md-inline-block">Fundación</span>
+                    </NavLink>
+                </NavItem>
             </Nav>
 
             <TabContent activeTab={activeTab}>

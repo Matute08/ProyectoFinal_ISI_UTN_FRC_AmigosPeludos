@@ -1,0 +1,41 @@
+// ... (otros estilos existentes)
+
+.donation-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+
+    .amount-option {
+        padding: 0.5rem;
+        width: calc(25% - 1rem); // Ajusta según tus necesidades
+
+        .selected-amount {
+            border: solid 2px #EC6B76;
+            color: #EC6B76;
+            font-size: 1.5em;
+            
+            :hover{
+                background-color: #EC6B76;
+                
+            }
+        }
+
+        input[type="text"] {
+            border: 2px solid #29afc0;
+            color: #29afc0;
+            display: none;
+
+            &.mb-0 {
+                margin-bottom: 0;
+            }
+
+            &.visible {
+                display: inline-block;
+            }
+        }
+    }
+}
+
+// ... (otros estilos existentes)

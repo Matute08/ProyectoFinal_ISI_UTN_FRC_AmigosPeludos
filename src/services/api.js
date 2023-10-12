@@ -958,3 +958,45 @@ export async function getEstadosVeterinaria() {
         console.log(error);
     }
 }
+
+
+
+
+
+//POST fundacion
+export async function postFundacion(userData) {
+    try {
+        const response = await axios.post(`${url}/fundacion`, userData);
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//GET fundacion
+export async function getFundacion() {
+    try {
+        const response = await axios({
+            url: `${url}/fundacion`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//GET  FUNDACION POR ID
+
+export async function getFundacionId(id) {
+    try {
+        const response = await axios({
+            url: `${url}/fundacion/${id}`,
+            method: "GET",
+        });
+        return response.data; // Devuelve solo los datos (response.data)
+    } catch (error) {
+        console.error("Error al obtener fundacion:", error);
+        throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}

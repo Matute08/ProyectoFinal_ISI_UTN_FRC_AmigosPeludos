@@ -9,8 +9,9 @@ import {
     Image,
 } from "@react-pdf/renderer";
 import { useParams } from "react-router-dom";
-import logo from "../../assets/images/logo/LogoAP.png";
-import { getFormulariosId } from "../../services/api";
+import logo from "../../../assets/images/logo/LogoAP.png";
+
+import { getFormulariosId } from "../../../services/api";
 
 const styles = StyleSheet.create({
     container: {

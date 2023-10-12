@@ -41,11 +41,15 @@ import SettingsCuidador from './pages/profile/misServicios/settingsServices/Sett
 import UserManual from './pages/userManual/UserManual';
 import AddVeterinaria from './pages/veterinarias/registrarVeterinaria/AddVeterinaria';
 import PerfilVeterinaria from './pages/veterinarias/perfilVeterinaria/PerfilVeterinaria';
-import ViewAdoptForm from './pages/requests/ViewAdoptForm';
-import Solicitudes from './pages/requests/Solicitudes';
-import ViewSolicitudes from './pages/requests/ViewSolicitudes';
+import ViewAdoptForm from './pages/requests/pdf/ViewAdoptForm';
+import Solicitudes from './pages/requests/solicitudes/Solicitudes';
+import ViewSolicitudesVeterinarias from './pages/requests/pdf/ViewSolicitudesVeterinarias';
+import ViewSolicitudesFundaciones from './pages/requests/pdf/ViewSolicitudesFundaciones';
 import SettingsVeterinaria from './pages/profile/misServicios/settingsServices/SettingsVeterinaria';
+import Fundaciones from './pages/fundaciones/Fundaciones';
+import AddFundacion from './pages/fundaciones/AddFundaciones';
 
+import DonacionFundacion from './pages/donaciones/DonacionFundacion';
 function App() {
   return (
     <BrowserRouter>
@@ -81,8 +85,13 @@ function App() {
           <Route path="/consultar-posteo-adopcion/:posteoId" element={<ProtectedRoute><ConsultAdoptPets /></ProtectedRoute>} />
           <Route path="/modificar-posteo-adopcion/:posteoId" element={<ProtectedRoute><SettingsAdoptPets /></ProtectedRoute>} />
 
-          <Route path='/preguntas-frecuentes' element={<Questions />} />
+          {/* Solicitudes, Formularios*/}
           <Route path='/formularios' element={<ConsultAdoptForm />} />
+          <Route path="/solicitudes" element={<ProtectedRoute><Solicitudes /></ProtectedRoute>} />
+
+          {/* Manual de usuario y Preguntas Frecuentes */}
+          <Route path='/manualusuario' element={<UserManual />} />
+          <Route path='/preguntas-frecuentes' element={<Questions />} />
 
           {/* Paseadores */}
           <Route path='/paseadores' element={<Paseadores />} />
@@ -105,14 +114,18 @@ function App() {
           <Route path="/agregar-cuidador" element={<ProtectedRoute><AddCuidador /></ProtectedRoute>} />
           <Route path="/modificar-cuidador/:cuidadorId" element={<ProtectedRoute><SettingsCuidador /></ProtectedRoute>} />
 
-          {/* Manual de usuario */}
-          <Route path='/manualusuario' element={<UserManual />} />
-          
           {/* Pdf */}
           <Route path='/ver-formulario/:id' element={<ViewAdoptForm />} />
-          <Route path='/ver-formulario-solicitud/:id' element={<ViewSolicitudes />} />
+          <Route path='/ver-formulario-solicitud-veterinaria/:id' element={<ViewSolicitudesVeterinarias />} />
+          <Route path='/ver-formulario-solicitud-fundacion/:id' element={<ViewSolicitudesFundaciones />} />
 
-          <Route path="/solicitudes" element={<ProtectedRoute><Solicitudes /></ProtectedRoute>} />
+
+          {/* Fundaciones */}
+          <Route path='/fundaciones' element={<Fundaciones />} />
+          <Route path="/agregar-fundacion" element={<ProtectedRoute><AddFundacion /></ProtectedRoute>} />
+
+          {/* Donacion Fundacion */}
+          <Route path="/donar-fundacion/:id" element={<ProtectedRoute><DonacionFundacion /></ProtectedRoute>} />
 
 
 

@@ -1,0 +1,12 @@
+{
+  "rules_version": 2,
+  "rules": {
+    "images": {
+      "$imageId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        ".validate": "newData.child('contentType').val().matches('image/.*')"
+      }
+    }
+  }
+}

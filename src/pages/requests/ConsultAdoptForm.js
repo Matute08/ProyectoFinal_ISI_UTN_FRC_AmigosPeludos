@@ -26,7 +26,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Footer from "../landing/Footer";
 import { PDFViewer } from "@react-pdf/renderer";
 import Navbar from "../landing/Navbar";
-import ViewAdoptForm from "./ViewAdoptForm";
+import ViewAdoptForm from "./pdf/ViewAdoptForm";
 import {
     getFormulariosDuenoPosteo,
     getFormulariosPosibleAdoptante,

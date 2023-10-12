@@ -42,8 +42,25 @@ const Paseadores = () => {
                 setIdUser(userData.id);
             }
         };
+        //verificar si el usuario tiene paseadores para prohibir crear uno nuevo
+        const fetchPaseadoresUser = async () => {
+            // Filtrar paseadores según el userData.id
+            const paseadoresFiltrados = paseadores.filter(
+                (paseador) => paseador.idUsuario === idUser
+            );
+            setUserPaseador(paseadoresFiltrados);
+    
+            // Validar si el usuario puede crear una nueva publicación
+            const puedeCrearPublicacion = paseadoresFiltrados.length === 0;
+    
+            // Actualizar el estado del botón
+            if (puedeCrearPublicacion !== "") {
+                setBoton(true);
+            }
+        };
 
         fetchUserData();
+        fetchPaseadoresUser();
     }, []);
 
     useEffect(() => {
@@ -59,28 +76,28 @@ const Paseadores = () => {
 
         fetchPaseadores();
     }, []);
-    const fetchPaseadoresUser = async () => {
-        // Filtrar paseadores según el userData.id
-        const paseadoresFiltrados = paseadores.filter(
-           (paseador) => paseador.idUsuario === idUser
-        );
-        setUserPaseador(paseadoresFiltrados);
+    // const fetchPaseadoresUser = async () => {
+    //     // Filtrar paseadores según el userData.id
+    //     const paseadoresFiltrados = paseadores.filter(
+    //        (paseador) => paseador.idUsuario === idUser
+    //     );
+    //     setUserPaseador(paseadoresFiltrados);
      
-        // Validar si el usuario puede crear una nueva publicación
-        const puedeCrearPublicacion = paseadoresFiltrados.length === 0;
+    //     // Validar si el usuario puede crear una nueva publicación
+    //     const puedeCrearPublicacion = paseadoresFiltrados.length === 0;
      
-        // Actualizar el estado del botón
-        if (puedeCrearPublicacion !== "") {
+    //     // Actualizar el estado del botón
+    //     if (puedeCrearPublicacion !== "") {
             
-            setBoton(true);
-        }
-     };
+    //         setBoton(true);
+    //     }
+    //  };
      
-     useEffect(() => {
-        if (userData && idUser && paseadores) {
-           fetchPaseadoresUser()
-        }
-     }, [idUser, paseadores, userData]);
+    //  useEffect(() => {
+    //     if (userData && idUser && paseadores) {
+    //        fetchPaseadoresUser()
+    //     }
+    //  }, [idUser, paseadores, userData]);
      
 
     const handleClick = () => {

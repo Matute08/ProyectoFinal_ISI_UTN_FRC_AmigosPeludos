@@ -284,7 +284,7 @@ const Services = () => {
                                     </p>
                                     <div>
                                         <Link
-                                            to="#"
+                                            to="/fundaciones"
                                             className="fs-13 fw-medium"
                                         >
                                             Acceder
