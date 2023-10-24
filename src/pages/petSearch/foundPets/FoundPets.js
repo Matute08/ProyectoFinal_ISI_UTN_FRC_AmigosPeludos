@@ -160,8 +160,8 @@ const FoundPets = () => {
                                                                         elemento.nombre
                                                                     }
                                                                     <p className="texto-card">
-                                                                        Perdido
-                                                                        desde el{" "}
+                                                                        Encontrado
+                                                                        el dia {" "}
                                                                         {new Date(
                                                                             elemento.fechaPerdida
                                                                         ).toLocaleDateString(

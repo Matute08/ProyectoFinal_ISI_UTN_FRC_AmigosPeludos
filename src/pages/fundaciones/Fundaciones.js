@@ -108,12 +108,15 @@ const Fundaciones = () => {
                                                     </p>
                                                 </div>
                                                 <div className="d-flex justify-content-center">
-                                                    <Link to={`/donar-fundacion/${item.id}`} className="boton-donar-fundacion">
+                                                    {/* <Link to={`/donar-fundacion/${item.id}`} className="boton-donar-fundacion">
+                                                        <span>Donar</span>
+                                                    </Link> */}
+                                                    <Link to={``} className="boton-donar-fundacion">
                                                         <span>Donar</span>
                                                     </Link>
                                                 </div>
                                             </CardFooter>
-                                            <div className="card-footer text-center">
+                                            {/* <div className="card-footer text-center">
                                                 <ul className="list-inline mb-0">
                                                     <li className="list-inline-item">
                                                         <Link
@@ -148,7 +151,7 @@ const Fundaciones = () => {
                                                         </Link>
                                                     </li>
                                                 </ul>
-                                            </div>
+                                            </div> */}
                                         </Card>
                                     </Col>
                                 ))}

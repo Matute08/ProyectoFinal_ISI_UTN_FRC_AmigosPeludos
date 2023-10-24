@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { useParams } from "react-router-dom";
+import classnames from "classnames";
+
 import {
     Col,
     Form,
@@ -14,21 +17,30 @@ import {
     NavItem,
     NavLink,
 } from "reactstrap";
-import { useAuth } from "../../services/AuthContext";
 import {
-    getTipoMascota,
-    getSexoMascota,
-    getAllEdadMascota,
-    postMascota,
-    getUserMail,
+    getCuidadorPorId,
+    getExperiencia,
     getAllBarrio,
-    updateUser,
-    getAllRazaId,
-    postFundacion,
-} from "../../services/api";
-import classnames from "classnames";
-import { uploadFilePetsUser } from "../../services/Firebase";
-import Loading from "../components/Loading";
+    getUserMail,
+    updateCuidador,
+    getTipoVivienda,
+    getCuidadoresId,
+    deleteFotoCuidador,
+    postFotoCuidador,
+    updateGrillaCuidador,
+    getFundacionId,
+    updateFundacion,
+} from "../../../../services/api.js";
+import {
+    uploadFilescuidador,
+    deleteFileStorage,
+    uploadFilesCuidador,
+    uploadFileFundaciones,
+} from "../../../../services/Firebase";
+import Loading from "../../../components/Loading.js";
+import Footer from "../../../landing/Footer.js";
+import Navbar from "../../../landing/Navbar.js";
+
 // Import React FilePond
 import { FilePond, registerPlugin } from "react-filepond";
 // Import FilePond styles
@@ -37,37 +49,40 @@ import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orien
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import { format } from "date-fns";
-import Navbar from "../landing/Navbar";
-import Footer from "../landing/Footer";
 
 // Register the plugins
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
-const AddFundacion = () => {
+const SettingsFundacion = () => {
+    const { fundacionId } = useParams();
     const navigate = useNavigate();
-    const { user } = useAuth();
-    const [charCountDescr, setCharCountDescr] = useState(400); // Estado para el contador de caracteres
-    const [charCountUtiliz, setCharCountUtiliz] = useState(400); // Estado para el contador de caracteres
     const [userData, setUserData] = useState();
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("1");
+    const [files, setFiles] = useState([]);
+    const [url, setUrl] = useState([]);
+    const [errorFile, setErrorFile] = useState("");
     const [barrio, setBarrio] = useState([]);
     const [selectedBarrio, setSelectedBarrio] = useState("");
-    const [files, setFiles] = useState([]);
-    const [errorFile, setErrorFile] = useState("");
-    const [url, setUrl] = useState();
+    const [fundacion, setFundacion] = useState([]);
+    const [labelFecha, setLabelFecha] = useState();
+    const [charCount, setCharCount] = useState(0); // Estado para el contador de caracteres
     const [fotosTemporales, setFotosTemporales] = useState([]);
+    const [charCountDescr, setCharCountDescr] = useState(400); // Estado para el contador de caracteres
+    const [charCountUtiliz, setCharCountUtiliz] = useState(400); // Estado para el contador de caracteres
+    //formulario Hook
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        formState: { errors },
+        trigger,
+    } = useForm();
 
-    const tabChange = (tab) => {
-        if (activeTab !== tab) setActiveTab(tab);
-    };
-    const handleKeyPress = (e) => {
-        // Permitir solo números (0-9) y la tecla de retroceso
-        const regex = /^[0-9\b]+$/;
-        if (!regex.test(e.key)) {
-            e.preventDefault();
-        }
-    };
+    // Definir reglas de validación para el campo texto
+    const nameValidation = /^[A-Za-z\s]+$/; // Acepta letras y espacios
+    const numberValidation = /^[0-9]+$/;
+
     const handleDescripcionChange = (e) => {
         const inputValue = e.target.value;
         setCharCountDescr(400 - inputValue.length);
@@ -78,6 +93,10 @@ const AddFundacion = () => {
         setCharCountUtiliz(400 - inputValue.length);
     };
 
+    const tabChange = (tab) => {
+        if (activeTab !== tab) setActiveTab(tab);
+    };
+
     const showLoadingOverlay = () => {
         setIsLoading(true);
     };
@@ -85,61 +104,100 @@ const AddFundacion = () => {
         setIsLoading(false);
     };
 
-    const handleAsyncTask = async () => {
-        showLoadingOverlay();
+    const handleKeyPress = (e) => {
+        // Permitir solo números (0-9) y la tecla de retroceso
+        const regex = /^[0-9\b]+$/;
+        if (!regex.test(e.key)) {
+            e.preventDefault();
+        }
     };
+    // Al principio del componente
+    const [operationsCompleted, setOperationsCompleted] = useState(0);
 
-    // Definir reglas de validación para el campo texto
-    const nameValidation = /^[A-Za-z\s]+$/; // Acepta letras y espacios
-    const numberValidation = /^[0-9]+$/;
-
+    // ...
     useEffect(() => {
-        const fetchUserData = async () => {
-            // Obtener los datos del usuario desde el localStorage
+        const fetchData = async () => {
             const cachedUserData = localStorage.getItem("userData");
 
             if (cachedUserData) {
-                // Parsear los datos almacenados en el localStorage
                 const dataLocalStorage = JSON.parse(cachedUserData);
-
-                // Acceder al correo electrónico del usuario
                 const userEmail = dataLocalStorage.email;
 
                 const datosUsuario = await getUserMail(userEmail);
-                datosUsuario.calle = `${
-                    datosUsuario.calle + " " + datosUsuario.nroCalle
-                }`;
                 setUserData(datosUsuario);
-                setIsLoading(false);
+                setOperationsCompleted((prev) => prev + 1);
             }
         };
 
-        const fetchBarrio = async () => {
-            try {
-                const barrioData = await getAllBarrio();
+        const fetchDataMain = async () => {
+            const fetchedFundacion = await getFundacionId(fundacionId);
+            const barrioData = await getAllBarrio();
+            if (fetchedFundacion && barrioData) {
                 setBarrio(barrioData);
-                setIsLoading(false);
-            } catch (error) {
-                console.error("Error al cargar datos:", error);
-                setIsLoading(false);
+                setFundacion(fetchedFundacion);
+
+                setOperationsCompleted((prev) => prev + 1);
+
+                const fotosConEstadoTemporal = [
+                    {
+                        id: 1, // Asegúrate de que foto y foto.id no sean undefined
+                        url:
+                            (fetchedFundacion && fetchedFundacion.imagen) || "", // Asegúrate de que foto y foto.url no sean undefined
+                        estadoTemporal: true,
+                    },
+                ];
+                setFotosTemporales(fotosConEstadoTemporal);
+            }
+            console.log(fundacion);
+            console.log(fotosTemporales)
+        };
+
+        if (fundacionId) {
+            fetchDataMain();
+            fetchData();
+        }
+    }, [fundacionId]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (fundacion && barrio) {
+                setValue("nombre", fundacion.nombre);
+                setValue("direccion",fundacion.direccion);
+                setValue("nroCalle",fundacion.nroCalle);
+                setValue("barrioId",fundacion.barrioId);
+                setValue("cbu", fundacion.cbu);
+                setValue("aliasCbu",fundacion.aliasCbu);
+                setValue("telefono", fundacion.telefono);
+                setValue("paginaUrl", fundacion.paginaUrl);
+                setValue("facebook", fundacion.facebook);
+                setValue("instagram", fundacion.instagram);
+                setValue("descripcion", fundacion.descripcion);
+                setValue("cuit", fundacion.cuit);
+                setValue("motivoDonaciones", fundacion.motivoDonaciones);
+                setValue("imagen", fundacion.imagen);
+                setValue("fechaAlta", fundacion.fechaAlta);
+                setValue("usuarioId", fundacion.usuarioId);
+                
+                
+
+                setOperationsCompleted((prev) => prev + 1);
             }
         };
 
-        fetchUserData();
-        fetchBarrio();
-    }, []);
+        fetchData();
+    }, [fundacion, barrio, setValue]);
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm();
+    useEffect(() => {
+        if (operationsCompleted === 3) {
+            setIsLoading(false);
+        }
+    }, [operationsCompleted]);
 
     //funcion para obtener las urls de las fotos
     const obtenerUrls = async () => {
         const uploadFile = async (file) => {
-            const uploadedUrl = await uploadFilePetsUser(file);
-            return { foto: uploadedUrl }; // Guarda la URL en un objeto con la propiedad "link"
+            const uploadedUrl = await uploadFileFundaciones(file);
+            return { imagen: uploadedUrl }; // Guarda la URL en un objeto con la propiedad "link"
         };
         console.log(files);
         if (files.length > 0) {
@@ -157,42 +215,37 @@ const AddFundacion = () => {
 
     const onSubmit = async (data) => {
         setErrorFile("");
-        data.barrioId = parseInt(data.barrioId, 10);
-        data.nroCalle = parseInt(data.nroCalle, 10);
-        data.estadoId = parseInt(1, 10);
-        data.usuarioId = parseInt(userData&& userData.id, 10);
-        console.log(data);
-
+        showLoadingOverlay();
+        // Validar antes de continuar
+        const isValid = await trigger();
+        if (isValid) {
+            data.nroCalle = parseInt(data.nroCalle, 10);
+            data.barrioId = parseInt(data.barrioId, 10);
+            //data.estadoId = fundacion.estadoId;
+        }
         try {
             // Verificar si hay fotos nuevas antes de obtener las URLs
             if (files.length > 0) {
-                showLoadingOverlay();
-
+                await deleteFileStorage(fundacion.imagen);
                 // Obtener las URLs de las nuevas fotos
                 const urls = await obtenerUrls();
 
-                // Verificar si hay al menos una URL en el array
-                if (urls.length > 0) {
-                    // Acceder a la primera URL del array
-                    const primeraUrl = urls[0];
+                data.imagen = urls;
 
-                    // Verificar si la URL tiene la propiedad 'foto'
-                    if (primeraUrl.foto) {
-                        // Asignar la URL al campo 'foto' en data
-                        data.imagen = primeraUrl.foto;
-                    }
-                }
-                await postFundacion(data);
-                navigate(`/fundaciones/`);
-            } else {
-                setErrorFile("El campo es obligatorio");
+                // Opcional: Mostrar la URL en la consola para verificación
+                console.log("URL de la foto:", data.imagen);
             }
+            //data.imagen= fotosTemporales.url
+            console.log(data);
+            await updateFundacion(fundacionId, data);
+            hideLoadingOverlay();
+            navigate(`/perfil/${userData.mail}`);
         } catch (error) {
             // Manejar cualquier error de la actualización
-            console.error("Error al actualizar el usuario:", error);
+            console.error("Error al actualizar la fundacion:", error);
         }
     };
-
+    document.title = "Modificar Fundacion | Amigos Peludos";
     return (
         <React.Fragment>
             {!isLoading ? (
@@ -200,23 +253,43 @@ const AddFundacion = () => {
                     <Navbar></Navbar>
                     <Container fluid className="page-content perfil-fondo">
                         <Row>
+                            {/* fotos */}
                             <Col xl={3}>
                                 <Card className="mt-n5">
                                     <CardBody className="p-4">
                                         <div className="text-center">
+                                            {/* NOMBRE MASCOTA */}
                                             <h5 className="fs-16 mb-1">
-                                                Foto de la mascota{" "}
+                                                Imagen{" "}
                                                 <span className="text-danger">
                                                     *
                                                 </span>
                                             </h5>
-
+                                            {/* FOTOS DEL SERVIDOR */}
+                                            {fotosTemporales &&
+                                                fotosTemporales
+                                                    .filter(
+                                                        (foto) =>
+                                                            foto.estadoTemporal
+                                                    ) // Filtrar según el estado
+                                                    .map((foto) => (
+                                                        <div
+                                                            key={foto.id}
+                                                            className="container-img-cargadas"
+                                                        >
+                                                            <img
+                                                                className="img-cargadas"
+                                                                src={foto.url}
+                                                                alt={`Foto ${foto.id}`}
+                                                            />
+                                                        </div>
+                                                    ))}
                                             {/* FOTO DE LA MASCOTA */}
                                             <FilePond
                                                 files={files}
                                                 onupdatefiles={setFiles}
                                                 allowMultiple={false}
-                                                maxFiles={4}
+                                                maxFiles={1}
                                                 name="files"
                                                 className="filepond filepond-input-multiple"
                                                 labelIdle="Arrastra y suelta tus archivos o buscalos "
@@ -248,7 +321,7 @@ const AddFundacion = () => {
                                                     }}
                                                     type="button"
                                                 >
-                                                    Agregar Fundación
+                                                    Actualizar Datos Fundación
                                                 </NavLink>
                                             </NavItem>
                                         </Nav>
@@ -500,6 +573,7 @@ const AddFundacion = () => {
                                                         )}
                                                     </div>
                                                 </Col>
+
                                                 {/* CBU */}
                                                 <Col
                                                     lg={4}
@@ -587,7 +661,7 @@ const AddFundacion = () => {
                                                 </Col>
                                                 {/* TELEFONO */}
                                                 <Col
-                                                    lg={3}
+                                                    lg={4}
                                                     className="d-flex justify-content-center"
                                                 >
                                                     <div className="mb-3 w-100">
@@ -627,7 +701,7 @@ const AddFundacion = () => {
                                                     </div>
                                                 </Col>
                                                 {/* PAGINA PROPIA */}
-                                                <Col lg={3}>
+                                                <Col lg={4}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Pagina Web Fundación
@@ -647,7 +721,7 @@ const AddFundacion = () => {
                                                     </div>
                                                 </Col>
                                                 {/* FACEBOOK */}
-                                                <Col lg={3}>
+                                                <Col lg={4}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Nombre de Usuario de
@@ -668,7 +742,7 @@ const AddFundacion = () => {
                                                     </div>
                                                 </Col>
                                                 {/* INSTAGRAM */}
-                                                <Col lg={3}>
+                                                <Col lg={4}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Nombre de Usuario de
@@ -797,7 +871,7 @@ const AddFundacion = () => {
                                                             type="submit"
                                                         >
                                                             <span class="span-pz text-pz">
-                                                                Registrar
+                                                                Actualizar
                                                             </span>
                                                             <span class="span-pz icon-pz">
                                                                 <svg
@@ -840,7 +914,7 @@ const AddFundacion = () => {
                                                             class="button-pz btn-pz-secondary"
                                                             onClick={() => {
                                                                 navigate(
-                                                                    `/fundaciones`
+                                                                    `/perfil/${userData.mail}`
                                                                 );
                                                             }}
                                                         >
@@ -890,4 +964,4 @@ const AddFundacion = () => {
     );
 };
 
-export default AddFundacion;
+export default SettingsFundacion;

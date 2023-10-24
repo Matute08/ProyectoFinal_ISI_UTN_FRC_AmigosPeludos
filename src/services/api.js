@@ -880,6 +880,19 @@ export async function updateEstadoVeterinaria(id, userData) {
         console.log(error);
     }
 }
+
+//UPDATE estado fundacion
+export async function updateEstadoFundacion(id, userData) {
+    try {
+        const response = await axios.put(
+            `${url}/fundacion/estado/${id}`,
+            userData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
 //GET  horario veterinaria
 export async function getHorarioVeterinaria(id) {
     try {
@@ -946,6 +959,26 @@ export async function updateServicioVeterinaria(id, userData) {
     }
 }
 
+//UPDATE fundacion
+export async function updateFundacion(id, userData) {
+    try {
+        const existingUserData = await getFundacionId(id); // Obtener los datos existentes del usuario desde la API
+        const updatedUserData = Object.assign(
+            {},
+            existingUserData.data,
+            userData
+        ); // Combinar los datos existentes y los datos actualizados
+
+        const response = await axios.put(
+            `${url}/fundacion/${id}`,
+            updatedUserData
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 //GET estados veterinaria
 export async function getEstadosVeterinaria() {
     try {
@@ -998,5 +1031,19 @@ export async function getFundacionId(id) {
     } catch (error) {
         console.error("Error al obtener fundacion:", error);
         throw error; // Lanza el error para que pueda ser manejado en el componente.
+    }
+}
+
+
+//UPDATE qr
+export async function updateQrUsuario(id, qr) {
+    try {
+        const response = await axios.put(
+            `${url}/usuario/qr/${id}`,
+            qr
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
     }
 }

@@ -153,6 +153,30 @@ const AddFoundPets = () => {
         }
     };
 
+    // Definir reglas de validación para el campo texto
+    const nameValidation = /^[A-Za-zÑñ\s]+$/; // Acepta letras y espacios
+    const numberValidation = /^[0-9]+$/;
+
+    const obtenerFechaHace100Anios = () => {
+        const hoy = new Date();
+        const hace100Anios = new Date(hoy);
+        hace100Anios.setFullYear(hoy.getFullYear() - 100);
+        return formatDate(hace100Anios);
+    };
+
+    const formatDate = (date) => {
+        const yyyy = date.getFullYear();
+        const mm = date.getMonth() + 1; // Los meses comienzan desde 0
+        const dd = date.getDate();
+        return `${yyyy}-${mm < 10 ? "0" : ""}${mm}-${dd < 10 ? "0" : ""}${dd}`;
+    };
+    const obtenerFechaActual = () => {
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+        const mm = hoy.getMonth() + 1; // Los meses comienzan desde 0
+        const dd = hoy.getDate();
+        return `${yyyy}-${mm < 10 ? "0" : ""}${mm}-${dd < 10 ? "0" : ""}${dd}`;
+    };
     //formulario Hook
     const {
         register,
@@ -180,15 +204,21 @@ const AddFoundPets = () => {
     };
 
     const onSubmit = async (data) => {
-        showLoadingOverlay();
+
         setErrorUbi("");
         setErrorFile("");
-        if (latitud === undefined && longitud === undefined) {
-            setErrorUbi("El campo es obligatorio");
-        } else {
+        if (
+            (latitud === undefined && longitud === undefined) ||
+            files.length === 0
+        ) {
+            if (latitud === undefined && longitud === undefined) {
+                setErrorUbi("El campo es obligatorio");
+            }
             if (files.length === 0) {
                 setErrorFile("El campo es obligatorio");
-            } else {
+            }
+        } else {
+            showLoadingOverlay();
                 try {
                     const urls = await obtenerUrls(); // Espera a obtener las URLs
 
@@ -197,7 +227,9 @@ const AddFoundPets = () => {
                     data.fotos = urls;
                     data.usuarioId = userData.id;
                     data.tipoPublicacionId = 2
-                    data.mailUsuario = user.email;
+                    data.mailUsuario = userData.mail;
+                    data.calle = `${data.calle} ${data.nroCalle}`;
+                delete data.nroCalle;
                     
                     if (data.castracion === "1") {
                         data.castracion = true;
@@ -213,7 +245,7 @@ const AddFoundPets = () => {
                     // Maneja cualquier error de la actualización
                     console.error("Error al realizar la publicacion:", error);
                 }
-            }
+            
         }
     };
 
@@ -300,6 +332,13 @@ const AddFoundPets = () => {
                                                             placeholder="Nombre de la mascota"
                                                             {...register(
                                                                 "nombre",
+                                                                {
+                                                                    pattern: {
+                                                                        value: nameValidation,
+                                                                        message:
+                                                                            "El nombre solo debe contener letras y espacios.",
+                                                                    },
+                                                                }
                                                                 
                                                             )}
                                                         />
@@ -377,7 +416,11 @@ const AddFoundPets = () => {
                                                         </Label>
                                                         <select
                                                             name="raza"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.razaId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "razaId",
                                                                 {
@@ -413,10 +456,10 @@ const AddFoundPets = () => {
                                                                     )
                                                                 )}
                                                         </select>
-                                                        {errors.raza && (
+                                                        {errors.razaId && (
                                                             <span className="text-danger">
                                                                 {
-                                                                    errors.raza
+                                                                    errors.razaId
                                                                         .message
                                                                 }
                                                             </span>
@@ -592,6 +635,8 @@ const AddFoundPets = () => {
                                                                     },
                                                                 }
                                                             )}
+                                                            min={obtenerFechaHace100Anios()}
+                                                            max={obtenerFechaActual()}
                                                         />
                                                         {errors.fechaPerdida && (
                                                             <span className="text-danger">
@@ -626,6 +671,11 @@ const AddFoundPets = () => {
                                                                         message:
                                                                             "El campo es requerido",
                                                                     },
+                                                                    pattern: {
+                                                                        value: nameValidation,
+                                                                        message:
+                                                                            "El color solo debe contener letras y espacios.",
+                                                                    },
                                                                 }
                                                             )}
                                                         />
@@ -650,7 +700,11 @@ const AddFoundPets = () => {
                                                         </Label>
                                                         <select
                                                             name="ciudadId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.ciudadId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "ciudadId",
                                                                 {
@@ -686,11 +740,11 @@ const AddFoundPets = () => {
                                                                     )
                                                                 )}
                                                         </select>
-                                                        {errors.ciudad && (
+                                                        {errors.ciudadId && (
                                                             <span className="text-danger">
                                                                 {
                                                                     errors
-                                                                        .ciudad
+                                                                        .ciudadId
                                                                         .message
                                                                 }
                                                             </span>
@@ -698,7 +752,7 @@ const AddFoundPets = () => {
                                                     </div>
                                                 </Col>
                                                 {/* barrio */}
-                                                <Col lg={3}>
+                                                <Col lg={2}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Barrio
@@ -756,7 +810,7 @@ const AddFoundPets = () => {
                                                     </div>
                                                 </Col>
                                                 {/* calle */}
-                                                <Col lg={3}>
+                                                <Col lg={2}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Calle
@@ -768,7 +822,7 @@ const AddFoundPets = () => {
                                                             type="text"
                                                             className="form-control"
                                                             name="calle"
-                                                            placeholder="Direccion de perdida"
+                                                            placeholder="Dirección"
                                                             {...register(
                                                                 "calle",
                                                                 {
@@ -777,6 +831,11 @@ const AddFoundPets = () => {
                                                                         message:
                                                                             "El campo es requerido",
                                                                     },
+                                                                    pattern: {
+                                                                        value: nameValidation,
+                                                                        message:
+                                                                            "La calle solo debe contener letras y espacios.",
+                                                                    },
                                                                 }
                                                             )}
                                                         />
@@ -784,6 +843,52 @@ const AddFoundPets = () => {
                                                             <span className="text-danger">
                                                                 {
                                                                     errors.calle
+                                                                        .message
+                                                                }
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </Col>
+                                                {/* nro calle */}
+                                                <Col lg={2}>
+                                                    <div className="mb-3">
+                                                        <Label className="form-label">
+                                                            Altura
+                                                            <span className="text-danger">
+                                                                *
+                                                            </span>
+                                                        </Label>
+                                                        <input
+                                                            type="text"
+                                                            maxLength={4}
+                                                            className={`form-control ${
+                                                                errors.nroCalle
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
+                                                            name="nroCalle"
+                                                            placeholder="Altura"
+                                                            {...register(
+                                                                "nroCalle",
+                                                                {
+                                                                    required: {
+                                                                        value: true,
+                                                                        message:
+                                                                            "El campo es requerido",
+                                                                    },
+                                                                    pattern: {
+                                                                        value: numberValidation,
+                                                                        message:
+                                                                            "La altura solo debe contener numeros.",
+                                                                    },
+                                                                }
+                                                            )}
+                                                        />
+                                                        {errors.nroCalle && (
+                                                            <span className="text-danger">
+                                                                {
+                                                                    errors
+                                                                        .nroCalle
                                                                         .message
                                                                 }
                                                             </span>
@@ -811,6 +916,11 @@ const AddFoundPets = () => {
                                                                         value: true,
                                                                         message:
                                                                             "El campo es requerido",
+                                                                    },
+                                                                    pattern: {
+                                                                        value: numberValidation,
+                                                                        message:
+                                                                            "El telefono solo debe contener numeros.",
                                                                     },
                                                                 }
                                                             )}

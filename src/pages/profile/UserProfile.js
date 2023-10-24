@@ -95,12 +95,12 @@ const Profile = () => {
                                             </span>
                                         </NavLink>
                                     </NavItem>
-                                    {/* <NavItem>
+                                    <NavItem>
                                         <NavLink
                                             href="#mi-qr"
-                                            className={classnames({
-                                                active: activeTab === "3",
-                                            })}
+                                            className={`d-md-inline-block ${
+                                                activeTab === "3" ? "active" : ""
+                                            }`}
                                             onClick={() => {
                                                 toggleTab("3");
                                             }}
@@ -109,15 +109,15 @@ const Profile = () => {
                                                 Mi QR
                                             </span>
                                         </NavLink>
-                                    </NavItem> */}
+                                    </NavItem>
                                     <NavItem>
                                         <NavLink
                                             href="#mis-servicios"
                                             className={`d-md-inline-block ${
-                                                activeTab === "3" ? "active" : ""
+                                                activeTab === "4" ? "active" : ""
                                             }`}
                                             onClick={() => {
-                                                toggleTab("3");
+                                                toggleTab("4");
                                             }}
                                         >
                                             <span className=" d-md-inline-block">
@@ -138,10 +138,10 @@ const Profile = () => {
                                         <MyPosts></MyPosts>
                                     </TabPane>
 
-                                    {/* <TabPane tabId="3">
-                                        <GenerateQr></GenerateQr>
-                                    </TabPane> */}
                                     <TabPane tabId="3">
+                                        <GenerateQr></GenerateQr>
+                                    </TabPane>
+                                    <TabPane tabId="4">
                                             <MisServicios></MisServicios>
 
                                     </TabPane>

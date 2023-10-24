@@ -74,6 +74,7 @@ const ViewSolicitudesFundaciones = () => {
     const [dataForm, setDataForm] = useState();
     const [isLoading, setIsLoading] = useState(true);
     const [imagenFundacion, setImagenFundacion] = useState();
+    const [nombreDueño, setNombreDueño] = useState();
 
     useEffect(() => {
         const fetchForm = async () => {
@@ -83,6 +84,10 @@ const ViewSolicitudesFundaciones = () => {
                     const data = await getFundacionId(id);
                     setDataForm(data);
                     setImagenFundacion(data ? data.imagen : null);
+                    if (data && data.datosUsuario && data.datosUsuario.nombreCompleto) {
+                        setNombreDueño(data.datosUsuario.nombreCompleto);
+                    }
+                    
                     setIsLoading(false);
                 } catch (error) {
                     console.error("Error fetching data:", error);
@@ -165,11 +170,7 @@ const ViewSolicitudesFundaciones = () => {
                                                     Nombre del Dueño:
                                                 </Text>
                                                 <Text>
-                                                    nombre del dueño
-                                                    {/* {dataForm &&
-                                                    dataForm.datosUsuario
-                                                        ? `${dataForm.datosUsuario.nombreCompleto}`
-                                                        : ""} */}
+                                                    {nombreDueño}
                                                 </Text>
                                             </View>
 
@@ -178,10 +179,8 @@ const ViewSolicitudesFundaciones = () => {
                                                     CUIT:
                                                 </Text>
                                                 <Text>
-                                                    43345543534
-                                                    {/* {dataForm
-                                                        ? dataForm.cuil
-                                                        : ""} */}
+                                                    {dataForm
+                                                        ? dataForm.cuit                                                        : ""}
                                                 </Text>
                                             </View>
 
@@ -305,12 +304,11 @@ const ViewSolicitudesFundaciones = () => {
                                                     Fecha de Creación:
                                                 </Text>
                                                 <Text>
-                                                    12/10/2023
-                                                    {/* {dataForm
+                                                    {dataForm
                                                         ? formatDate(
                                                               dataForm.fechaAlta
                                                           )
-                                                        : ""} */}
+                                                        : ""}
                                                 </Text>
                                             </View>
                                         </View>

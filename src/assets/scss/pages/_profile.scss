@@ -305,3 +305,74 @@ $value in $theme-colors {
   .text-servicio-perfil{
     font-size: 1.2em;
   }
+
+
+  .imagen-qr{
+    width: 250px;
+    height: 250px;
+  }
+
+  
+
+
+
+
+
+
+
+
+
+  .btn-descargar-qr {
+    --color: #EC6B76;
+    padding: 0.8em 1.7em;
+    background-color: transparent;
+    border-radius: .3em;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: .5s;
+    font-weight: 600;
+    font-size: 17px;
+    border: 1px solid;
+    font-family: inherit;
+    text-transform: uppercase;
+    color: var(--color);
+    z-index: 1;
+   }
+   
+   .btn-descargar-qr::before, .btn-descargar-qr::after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 50px;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    border-radius: 50%;
+    z-index: -1;
+    background-color: var(--color);
+    transition: 1s ease;
+   }
+   
+   .btn-descargar-qr::before {
+    top: -1em;
+    left: -1em;
+   }
+   
+   .btn-descargar-qr::after {
+    left: calc(100% + 1em);
+    top: calc(100% + 1em);
+   }
+   
+   .btn-descargar-qr:hover::before, .btn-descargar-qr:hover::after {
+    height: 410px;
+    width: 410px;
+   }
+   
+   .btn-descargar-qr:hover {
+    color: rgb(10, 25, 30);
+   }
+   
+   .btn-descargar-qr:active {
+    filter: brightness(.8);
+   }
+   

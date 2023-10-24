@@ -27,7 +27,7 @@ import AddAdoptPets from './pages/petSearch/adoptPets/AddAdoptPets';
 import ConsultAdoptPets from './pages/petSearch/adoptPets/ConsultAdoptPets';
 import SettingsAdoptPets from './pages/petSearch/adoptPets/SettingsAdoptPets';
 import Questions from './pages/frequentQuestions/Questions';
-import GenerateQr from './pages/profile/qr/GenerateQr';
+import QrUsuario from './pages/profile/qr/QrUsuario';
 import ConsultAdoptForm from './pages/requests/ConsultAdoptForm';
 import Paseadores from './pages/paseadores/Paseadores';
 import AddPaseador from './pages/paseadores/AddPaseador';
@@ -47,6 +47,7 @@ import ViewSolicitudesVeterinarias from './pages/requests/pdf/ViewSolicitudesVet
 import ViewSolicitudesFundaciones from './pages/requests/pdf/ViewSolicitudesFundaciones';
 import SettingsVeterinaria from './pages/profile/misServicios/settingsServices/SettingsVeterinaria';
 import Fundaciones from './pages/fundaciones/Fundaciones';
+import SettingsFundacion from './pages/profile/misServicios/settingsServices/SettingsFundacion';
 import AddFundacion from './pages/fundaciones/AddFundaciones';
 
 import DonacionFundacion from './pages/donaciones/DonacionFundacion';
@@ -123,11 +124,13 @@ function App() {
           {/* Fundaciones */}
           <Route path='/fundaciones' element={<Fundaciones />} />
           <Route path="/agregar-fundacion" element={<ProtectedRoute><AddFundacion /></ProtectedRoute>} />
-
+          <Route path="/modificar-fundacion/:fundacionId" element={<ProtectedRoute><SettingsFundacion /></ProtectedRoute>} />
+d
           {/* Donacion Fundacion */}
           <Route path="/donar-fundacion/:id" element={<ProtectedRoute><DonacionFundacion /></ProtectedRoute>} />
 
-
+          {/* QR usuario */}
+          <Route path='/datos-usuario/:id' element={<QrUsuario />} />
 
         </Routes>
       </AuthProvider>

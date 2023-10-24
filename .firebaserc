@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "amigospeludos-a7049"
-  }
+    "default": "amigospeludos-a7049",
+    "desarrollo": "amigospeludos-a7049"
+  },
+  "targets": {},
+  "etags": {}
 }

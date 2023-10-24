@@ -1,0 +1,68 @@
+.img-qr{
+    width: 50%;
+    height: 50%;
+}
+
+.data-container {
+    max-width: 800px; /* Ajusta el ancho máximo según tus necesidades */
+    margin: 0 auto; /* Centra horizontalmente el contenido */
+    padding: 20px; /* Agrega espaciado interno si es necesario */
+    border: 3px solid #EC6B76;
+    border-radius: 10%;
+    text-align: center; /* Centra el texto horizontalmente */
+}
+
+.btn-whatsapp-qr {
+    --color: #00bb2d ;
+    padding: 0.8em 1.7em;
+    background-color: transparent;
+    border-radius: .3em;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: .5s;
+    font-weight: 600;
+    font-size: 17px;
+    border: 1px solid;
+    font-family: inherit;
+    text-transform: uppercase;
+    color: var(--color);
+    z-index: 1;
+   }
+   
+   .btn-whatsapp-qr::before, .btn-whatsapp-qr::after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 50px;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    border-radius: 50%;
+    z-index: -1;
+    background-color: var(--color);
+    transition: 1s ease;
+   }
+   
+   .btn-whatsapp-qr::before {
+    top: -1em;
+    left: -1em;
+   }
+   
+   .btn-whatsapp-qr::after {
+    left: calc(100% + 1em);
+    top: calc(100% + 1em);
+   }
+   
+   .btn-whatsapp-qr:hover::before, .btn-whatsapp-qr:hover::after {
+    height: 410px;
+    width: 410px;
+   }
+   
+   .btn-whatsapp-qr:hover {
+    color: rgb(10, 25, 30);
+   }
+   
+   .btn-whatsapp-qr:active {
+    filter: brightness(.8);
+   }
+   

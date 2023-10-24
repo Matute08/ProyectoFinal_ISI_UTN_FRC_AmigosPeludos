@@ -171,7 +171,8 @@ const FormAddLostPets = () => {
         }
     };
     // Definir reglas de validación para el campo texto
-    const nameValidation = /^[A-Za-z\s]+$/; // Acepta letras y espacios
+    const nameValidation = /^[A-Za-zÑñ\s]+$/; // Acepta letras y espacios
+
     const numberValidation = /^[0-9]+$/;
 
     //formulario Hook

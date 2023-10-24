@@ -7,6 +7,7 @@ import {
     getUserMail,
     getEstadosVeterinaria,
     getFundacion,
+    updateEstadoFundacion,
 } from "../../../services/api";
 import { useAuth } from "../../../services/AuthContext";
 import Loading from "../../components/Loading";
@@ -126,14 +127,14 @@ const SolicitudesFundacion = () => {
                 console.log(formId);
                 console.log(formData);
                 // Llama a tu función de actualización de estado aquí
-                //await updateEstadoVeterinaria(formId, formData);
+                await updateEstadoFundacion(formId, formData);
 
                 // Cierra el mensaje de "Cargando"
                 Swal.close();
 
                 // Muestra el mensaje de éxito con temporizador y barra de progreso
                 Swal.fire({
-                    title: `Estado actualizado correctamente para formulario ${formId}`,
+                    title: `Estado actualizado correctamente para fundación ${formId}`,
                     icon: "success",
                     html: "Cerrando en <b></b> segundos.",
                     timer: 2000, // Tiempo en milisegundos (2 segundos)
@@ -225,15 +226,15 @@ const SolicitudesFundacion = () => {
                                                             ) {
                                                                 return 1; // b va antes que a
                                                             } else {
-                                                                // Si los estados son iguales o ninguno es "Revision", ordenar por fecha decreciente
-                                                                // return (
-                                                                //     new Date(
-                                                                //         b.fechaAlta
-                                                                //     ) -
-                                                                //     new Date(
-                                                                //         a.fechaAlta
-                                                                //     )
-                                                                // );
+                                                                //Si los estados son iguales o ninguno es "Revision", ordenar por fecha decreciente
+                                                                return (
+                                                                    new Date(
+                                                                        b.fechaAlta
+                                                                    ) -
+                                                                    new Date(
+                                                                        a.fechaAlta
+                                                                    )
+                                                                );
                                                             }
                                                         })
                                                         .map((item) => (
@@ -242,10 +243,9 @@ const SolicitudesFundacion = () => {
                                                                     {item.id}
                                                                 </td>
                                                                 <td className="fw-medium">
-                                                                    12/10/2023
-                                                                    {/* {formatDate(
+                                                                    {formatDate(
                                                                                                             item.fechaAlta
-                                                                                                        )} */}
+                                                                                                        )}
                                                                 </td>
                                                                 <td>
                                                                     {
@@ -267,8 +267,7 @@ const SolicitudesFundacion = () => {
                                                                 </td>
                                                                 <td>
                                                                     {
-                                                                        231232322323
-                                                                        // item.cuil
+                                                                         item.cuit
                                                                     }
                                                                 </td>
 

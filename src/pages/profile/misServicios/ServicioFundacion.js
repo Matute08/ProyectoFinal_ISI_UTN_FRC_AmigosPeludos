@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { getVeterinarias, getUserMail } from "../../../services/api";
+import { getVeterinarias, getUserMail, getFundacion } from "../../../services/api";
 import { Col, Row, Table, Card, CardHeader, CardBody } from "reactstrap";
 import { Link, useNavigate } from "react-router-dom";
 
-const ServicioVeterinaria = () => {
+const ServicioFundacion = () => {
     const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [veterinaria, setVeterinaria] = useState();
+    const [fundacion, setFundacion] = useState();
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -44,19 +44,19 @@ const ServicioVeterinaria = () => {
         const fetchServicios = async () => {
             if (userData) {
                 try {
-                    const dataVeterinaria = await getVeterinarias();
+                    const dataFundacion = await getFundacion();
 
                     //Filtrar paseadores, cuidadores y veterinarias según el userData.id
-                    const veterinariasFiltrados = dataVeterinaria.filter(
-                        (vete) => vete.usuarioId === userData.id
+                    const fundacionFiltrados = dataFundacion.filter(
+                        (funda) => funda.datosUsuario&& funda.datosUsuario.id === userData.id
                     );
-                    setVeterinaria(veterinariasFiltrados);
+                    setFundacion(fundacionFiltrados);
 
                     setIsLoading(false);
                 } catch (error) {
                     console.error("Error al obtener datos:", error);
                 }
-                console.log(veterinaria);
+                console.log(fundacion);
             }
         };
         if (userData && userData.id) {
@@ -68,7 +68,7 @@ const ServicioVeterinaria = () => {
         <React.Fragment>
             {!isLoading ? (
                 <>
-                    {veterinaria.length > 0 && (
+                    {fundacion.length > 0 && (
                         <Row className="mt-4">
                             <Col>
                                 <div className="live-preview">
@@ -77,11 +77,11 @@ const ServicioVeterinaria = () => {
                                             <thead>
                                                 <tr>
                                                     <th scope="col">
-                                                        Numero Veterinaria
+                                                        Numero Fundación
                                                     </th>
 
                                                     <th scope="col">
-                                                        Nombre Veterinaria
+                                                        Nombre Fundación
                                                     </th>
                                                     <th scope="col">
                                                         Fecha Solicitud
@@ -93,6 +93,7 @@ const ServicioVeterinaria = () => {
                                                         Dirección
                                                     </th>
                                                     <th scope="col">CUIT</th>
+                                                    <th scope="col">Estado Fundación</th>
 
                                                     <th scope="col">
                                                         Acciones
@@ -102,9 +103,9 @@ const ServicioVeterinaria = () => {
 
                                             {/* MAPEO DE DATOS */}
                                             <tbody>
-                                                {veterinaria &&
-                                                veterinaria.length > 0 ? (
-                                                    veterinaria.map((item) => (
+                                                {fundacion &&
+                                                fundacion.length > 0 ? (
+                                                    fundacion.map((item) => (
                                                         <tr key={item.id}>
                                                             <td className="fw-medium">
                                                                 {item.id}
@@ -120,20 +121,21 @@ const ServicioVeterinaria = () => {
                                                             </td>
                                                             <td>
                                                                 {
-                                                                    item.numeroTelefono
+                                                                    item.telefono
                                                                 }
                                                             </td>
                                                             <td>
                                                                 {item.direccion}{" "}
                                                                 {
-                                                                    item.numeroCalle
+                                                                    item.nroCalle
                                                                 }
                                                             </td>
-                                                            <td>{item.cuil}</td>
+                                                            <td>{item.cuit}</td>
+                                                            <td>{item.estado}</td>
                                                             <td>
                                                                 <div className="d-flex justify-content-center">
                                                                     <Link
-                                                                        to={`/modificar-veterinaria/${item.id}`}
+                                                                        to={`/modificar-fundacion/${item.id}`}
                                                                         className="btn btn-success btn-formulario"
                                                                     >
                                                                         <i className="ri-edit-2-fill"></i>
@@ -142,7 +144,7 @@ const ServicioVeterinaria = () => {
                                                                     <td>
                                                                         <div className="d-flex justify-content-center">
                                                                             <Link
-                                                                                to={`/veterinarias/perfil-veterinaria/${item.id}`}
+                                                                                to={`/donacion-fundacion/${item.id}`}
                                                                                 className="btn btn-primary btn-formulario btn-form"
                                                                             >
                                                                                 <i className="ri-eye-fill"></i>
@@ -183,4 +185,4 @@ const ServicioVeterinaria = () => {
     );
 };
 
-export default ServicioVeterinaria;
+export default ServicioFundacion;

@@ -36,6 +36,14 @@ export async function uploadFilePetsUser(file) {
     return url
 }
 
+//cargar fotos fundaciones
+export async function uploadFileFundaciones(file) {
+    const storageRef =  ref(storage, `fundaciones/${v4()}`)
+    await uploadBytes(storageRef, file)
+    const url = await getDownloadURL(storageRef)
+    return url
+}
+
 
 //cargar fotos mascotas perdidas
 export async function uploadFilesPetsLost(file) {
@@ -61,7 +69,14 @@ export async function uploadFilesCuidador(file) {
     const url = await getDownloadURL(storageRef)
     return url
 }
-
+//cargar fotos qr
+export async function uploadQrUsuario(file) {
+    console.log(file);
+    const storageRef =  ref(storage, `qrUsuarios/${v4()}`)
+    await uploadBytes(storageRef, file)
+    const url = await getDownloadURL(storageRef)
+    return url
+}
 
 export async function deleteFileStorage(file){
     const storageRef = ref(storage, file)

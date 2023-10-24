@@ -4,6 +4,7 @@ import {
     getPaseador,
     getCuidadores,
     getVeterinarias,
+    getFundacion,
 } from "../../../services/api";
 import {
     Col,
@@ -20,7 +21,9 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import ServicioPaseador from "./ServicioPaseador";
 import ServicioCuidador from "./ServicioCuidador";
-import ServicioVeterinaria from "./ServicioVeterinaria"
+import ServicioVeterinaria from "./ServicioVeterinaria";
+import Loading from "../../components/Loading";
+import ServicioFundacion from "./ServicioFundacion";
 
 const MisServicios = () => {
     const [userData, setUserData] = useState(null);
@@ -28,6 +31,7 @@ const MisServicios = () => {
     const [paseadores, setPaseadores] = useState([]);
     const [cuidadores, setCuidadores] = useState([]);
     const [veterinarias, setVeterinarias] = useState([]);
+    const [fundaciones, setFundaciones] = useState([]);
     const [activeTab, setActiveTab] = useState("1");
     const [activityTab, setActivityTab] = useState("1");
 
@@ -74,10 +78,12 @@ const MisServicios = () => {
         const fetchServicios = async () => {
             if (userData) {
                 try {
-                    const dataPaseador = await getPaseador();
-                    const dataCuidador = await getCuidadores();
-                    const dataVeterinaria = await getVeterinarias();
+                    const dataPaseador = (await getPaseador()) || [];
+                    const dataCuidador = (await getCuidadores()) || [];
+                    const dataVeterinaria = (await getVeterinarias()) || [];
+                    const dataFundacion = (await getFundacion()) || [];
 
+                    console.log(dataPaseador);
                     // Filtrar paseadores, cuidadores y veterinarias según el userData.id
                     const paseadoresFiltrados = dataPaseador.filter(
                         (paseador) => paseador.idUsuario === userData.id
@@ -88,15 +94,20 @@ const MisServicios = () => {
                     const veterinariasFiltradas = dataVeterinaria.filter(
                         (veterinaria) => veterinaria.idUsuario === userData.id
                     );
+                    const fundacionesFiltradas = dataFundacion.filter(
+                        (fundacion) => fundacion.idUsuario === userData.id
+                    );
 
                     setPaseadores(paseadoresFiltrados);
                     setCuidadores(cuidadoresFiltrados);
                     setVeterinarias(veterinariasFiltradas);
-                    setIsLoading(false);
+                    setFundaciones(fundacionesFiltradas);
                 } catch (error) {
                     console.error("Error al obtener datos:", error);
                 }
             }
+
+            console.log(veterinarias);
         };
 
         fetchServicios();
@@ -135,6 +146,7 @@ const MisServicios = () => {
                         <span className=" d-md-inline-block">Cuidador</span>
                     </NavLink>
                 </NavItem>
+
                 <NavItem>
                     <NavLink
                         href="#mi-qr"
@@ -148,6 +160,7 @@ const MisServicios = () => {
                         <span className=" d-md-inline-block">Veterinaria</span>
                     </NavLink>
                 </NavItem>
+
                 <NavItem>
                     <NavLink
                         href="#mi-qr"
@@ -165,13 +178,16 @@ const MisServicios = () => {
 
             <TabContent activeTab={activeTab}>
                 <TabPane tabId="1">
-                   <ServicioPaseador></ServicioPaseador>
+                    <ServicioPaseador></ServicioPaseador>
                 </TabPane>
                 <TabPane tabId="2">
                     <ServicioCuidador></ServicioCuidador>
                 </TabPane>
                 <TabPane tabId="3">
                     <ServicioVeterinaria></ServicioVeterinaria>
+                </TabPane>
+                <TabPane tabId="4">
+                    <ServicioFundacion></ServicioFundacion>
                 </TabPane>
             </TabContent>
         </React.Fragment>
