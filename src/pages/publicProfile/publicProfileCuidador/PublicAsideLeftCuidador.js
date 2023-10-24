@@ -78,6 +78,7 @@ const PublicAsideLeftCuidador = ({correoElectronico}) => {
         "barrioId",
         "nroCalle",
         "rolUsuario",
+        "qr"
     ];
 
 

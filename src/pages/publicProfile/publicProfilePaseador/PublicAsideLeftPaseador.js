@@ -78,6 +78,7 @@ const PublicAsideLeftPaseador = ({correoElectronico}) => {
         "barrioId",
         "nroCalle",
         "rolUsuario",
+        "qr"
     ];
 
 

@@ -58,7 +58,7 @@ const PublicProfileCuidador = () => {
         const message = "¡Hola! Necesito tu servicio de cuidador! ";
 
         // Crear la URL de WhatsApp con el número de teléfono y el mensaje
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+        const whatsappUrl = `https://wa.me/+54${phoneNumber}?text=${encodeURIComponent(
             message
         )}`;
 
