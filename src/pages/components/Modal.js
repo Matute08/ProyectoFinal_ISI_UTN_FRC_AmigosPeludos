@@ -134,6 +134,195 @@ const Modal = () => {
             });
     };
 
+
+     //MODAL PARA ELIMINAR PASEADOR
+     const handleSweetAlertDeletePaseador = (callback) => {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success",
+                cancelButton: "btn btn-danger",
+            },
+            buttonsStyling: false,
+        });
+        swalWithBootstrapButtons
+            .fire({
+                title: "¿Estas seguro que deseas eliminar tu perfil de paseador?",
+                text: "Tu cuenta se dará de baja!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Eliminar",
+                cancelButtonText: "Cancelar",
+                reverseButtons: true,
+            })
+            .then(async (result) => {
+                if (result.isConfirmed) {
+                    const deleteUser = await callback();
+                    console.log(deleteUser);
+                    if (deleteUser) {
+                        swalWithBootstrapButtons
+                            .fire({
+                                title: "Tu perfil de paseador fue dado de baja con exito!",
+                                text: "Ya no apareceras como paseador!.",
+                                icon: "success",
+                                confirmButtonText: "Aceptar",
+                            })
+                            .then(() => {
+                                window.location.reload()
+                            });
+                    } 
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swalWithBootstrapButtons.fire({
+                        title: "Cancelado",
+                        text: "Tu perfil de paseador seguira con nosotros :)",
+                        icon: "error",
+                        confirmButtonText: "Aceptar",
+                    });
+                }
+            });
+    };
+
+    //MODAL PARA ELIMINAR Fundacion
+    const handleSweetAlertDeleteFundacion = (callback) => {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success",
+                cancelButton: "btn btn-danger",
+            },
+            buttonsStyling: false,
+        });
+        swalWithBootstrapButtons
+            .fire({
+                title: "¿Estas seguro que deseas eliminar tu Fundación?",
+                text: "Tu fundación se dará de baja!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Eliminar",
+                cancelButtonText: "Cancelar",
+                reverseButtons: true,
+            })
+            .then(async (result) => {
+                if (result.isConfirmed) {
+                    const deleteUser = await callback();
+                    console.log(deleteUser);
+                    if (deleteUser) {
+                        swalWithBootstrapButtons
+                            .fire({
+                                title: "Tu Fundación fue dado de baja con exito!",
+                                text: "Ya no aparecera la Fundación!.",
+                                icon: "success",
+                                confirmButtonText: "Aceptar",
+                            })
+                            .then(() => {
+                                window.location.reload()
+                            });
+                    } 
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swalWithBootstrapButtons.fire({
+                        title: "Cancelado",
+                        text: "Tu Fundación seguira con nosotros :)",
+                        icon: "error",
+                        confirmButtonText: "Aceptar",
+                    });
+                }
+            });
+    };
+
+
+    //MODAL PARA ELIMINAR veterinaria
+    const handleSweetAlertDeleteVeterinaria = (callback) => {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success",
+                cancelButton: "btn btn-danger",
+            },
+            buttonsStyling: false,
+        });
+        swalWithBootstrapButtons
+            .fire({
+                title: "¿Estas seguro que deseas eliminar tu Veterinaria?",
+                text: "Tu Veterinaria se dará de baja!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Eliminar",
+                cancelButtonText: "Cancelar",
+                reverseButtons: true,
+            })
+            .then(async (result) => {
+                if (result.isConfirmed) {
+                    const deleteUser = await callback();
+                    console.log(deleteUser);
+                    if (deleteUser) {
+                        swalWithBootstrapButtons
+                            .fire({
+                                title: "Tu Veterinaria fue dado de baja con exito!",
+                                text: "Ya no aparecera la Veterinaria!.",
+                                icon: "success",
+                                confirmButtonText: "Aceptar",
+                            })
+                            .then(() => {
+                                window.location.reload()
+                            });
+                    } 
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swalWithBootstrapButtons.fire({
+                        title: "Cancelado",
+                        text: "Tu Veterinaria seguira con nosotros :)",
+                        icon: "error",
+                        confirmButtonText: "Aceptar",
+                    });
+                }
+            });
+    };
+
+
+//MODAL PARA ELIMINAR CUIDADOR
+const handleSweetAlertDeleteCuidador = (callback) => {
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: "btn btn-success",
+            cancelButton: "btn btn-danger",
+        },
+        buttonsStyling: false,
+    });
+    swalWithBootstrapButtons
+        .fire({
+            title: "¿Estas seguro que deseas eliminar tu perfil de cuidador?",
+            text: "Tu cuenta se dará de baja!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Eliminar",
+            cancelButtonText: "Cancelar",
+            reverseButtons: true,
+        })
+        .then(async (result) => {
+            if (result.isConfirmed) {
+                const deleteUser = await callback();
+                console.log(deleteUser);
+                if (deleteUser) {
+                    swalWithBootstrapButtons
+                        .fire({
+                            title: "Tu perfil de cuidador fue dado de baja con exito!",
+                            text: "Ya no apareceras como cuidador!.",
+                            icon: "success",
+                            confirmButtonText: "Aceptar",
+                        })
+                        .then(() => {
+                            window.location.reload()
+                        });
+                } 
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                swalWithBootstrapButtons.fire({
+                    title: "Cancelado",
+                    text: "Tu perfil de cuidador seguira con nosotros :)",
+                    icon: "error",
+                    confirmButtonText: "Aceptar",
+                });
+            }
+        });
+};
+
+
+
     //MODAL ELIMINAR MASCOTA
     const handleSweetAlertDeletePet = (nombre, id, foto, callback) => {
         const swalWithBootstrapButtons = Swal.mixin({
@@ -237,6 +426,11 @@ const Modal = () => {
         handleSweetAlertDeleteUser,
         handleSweetAlertDeletePet,
         handleSweetAlertDeletePost,
+        handleSweetAlertDeletePaseador,
+        handleSweetAlertDeleteCuidador,
+        handleSweetAlertDeleteFundacion,
+        handleSweetAlertDeleteVeterinaria
+
 
 
       

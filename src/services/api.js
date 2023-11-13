@@ -785,6 +785,17 @@ export const deleteFotoCuidador = async (id) => {
         console.error(error);
     }
 };
+//ELIMINAR foto posteo
+
+export const deleteFotoPosteo = async (id) => {
+    try {
+        const response = await axios.delete(`${url}/publicacionMascotaFoto/${id}`);
+        return response;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 
 //POST foto PASEADOR
 export async function postFotoPaseador(userData) {
@@ -807,7 +818,16 @@ export async function postFotoCuidador(userData) {
         console.log(error);
     }
 }
-
+//POST foto posteo
+export async function postFotoPosteo(userData) {
+    console.log(userData);
+    try {
+        const response = await axios.post(`${url}/publicacionMascotaFoto`, userData);
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
 //UPDATE grilla cuidador
 export async function updateGrillaCuidador(id, userData) {
     try {
@@ -1047,3 +1067,49 @@ export async function updateQrUsuario(id, qr) {
         console.log(error);
     }
 }
+
+
+//ELIMINAR paseador
+
+export const deletePaseador = async (paseadorId) => {
+    try {
+        const response = await axios.delete(`${url}/paseador/${paseadorId}`);
+        return { success: true , response};
+    } catch (error) {
+        return { success: false , error};
+    }
+};
+
+//ELIMINAR fundacion
+
+export const deleteFundacion = async (fundacionId) => {
+    try {
+        const response = await axios.delete(`${url}/fundacion/${fundacionId}`);
+        return { success: true , response};
+    } catch (error) {
+        return { success: false , error};
+    }
+};
+//ELIMINAR veterinaria
+
+export const deleteVeterinaria = async (veterinariaId) => {
+    try {
+        const response = await axios.delete(`${url}/veterinaria/${veterinariaId}`);
+        return { success: true , response};
+    } catch (error) {
+        return { success: false , error};
+    }
+};
+
+
+
+//ELIMINAR Cuidador
+
+export const deleteCuidador = async (cuidadorId) => {
+    try {
+        const response = await axios.delete(`${url}/cuidadors/${cuidadorId}`);
+        return { success: true , response};
+    } catch (error) {
+        return { success: false , error};
+    }
+};

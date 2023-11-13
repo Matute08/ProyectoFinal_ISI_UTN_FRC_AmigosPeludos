@@ -67,7 +67,7 @@ const MisServicios = () => {
                     datosUsuario.calle + " " + datosUsuario.nroCalle
                 }`;
                 setUserData(datosUsuario);
-                //setIsLoading(false);
+                console.log(userData);
             }
         };
 
@@ -115,66 +115,98 @@ const MisServicios = () => {
 
     return (
         <React.Fragment>
-            <Nav
-                className="nav-tabs-custom rounded card-header-tabs border-bottom-0 justify-content-end"
-                role="tablist"
-            >
-                <NavItem>
-                    <NavLink
-                        href="#paseador"
-                        className={`d-md-inline-block ${
-                            activeTab === "1" ? "active" : ""
-                        }`}
-                        onClick={() => {
-                            toggleTab("1");
-                        }}
-                    >
-                        <span className="d-md-inline-block">Paseador</span>
-                    </NavLink>
-                </NavItem>
+            {userData &&
+            (userData.esPaseador ||
+                userData.esCuidador ||
+                userData.esVeterinaria ||
+                userData.esFundacion) ? (
+                <Nav
+                    className="nav-tabs-custom rounded card-header-tabs border-bottom-0 justify-content-end"
+                    role="tablist"
+                >
+                    {userData && userData.esPaseador ? (
+                        <NavItem>
+                            <NavLink
+                                href="#paseador"
+                                className={`d-md-inline-block ${
+                                    activeTab === "1" ? "active" : ""
+                                }`}
+                                onClick={() => {
+                                    toggleTab("1");
+                                }}
+                            >
+                                <span className="d-md-inline-block">
+                                    Paseador
+                                </span>
+                            </NavLink>
+                        </NavItem>
+                    ) : (
+                        ""
+                    )}
 
-                <NavItem>
-                    <NavLink
-                        href="#mis-publicaciones"
-                        className={`d-md-inline-block ${
-                            activeTab === "2" ? "active" : ""
-                        }`}
-                        onClick={() => {
-                            toggleTab("2");
-                        }}
-                    >
-                        <span className=" d-md-inline-block">Cuidador</span>
-                    </NavLink>
-                </NavItem>
+                    {userData && userData.esCuidador ? (
+                        <NavItem>
+                            <NavLink
+                                href="#cuidador"
+                                className={`d-md-inline-block ${
+                                    activeTab === "2" ? "active" : ""
+                                }`}
+                                onClick={() => {
+                                    toggleTab("2");
+                                }}
+                            >
+                                <span className=" d-md-inline-block">
+                                    Cuidador
+                                </span>
+                            </NavLink>
+                        </NavItem>
+                    ) : (
+                        ""
+                    )}
 
-                <NavItem>
-                    <NavLink
-                        href="#mi-qr"
-                        className={`d-md-inline-block ${
-                            activeTab === "3" ? "active" : ""
-                        }`}
-                        onClick={() => {
-                            toggleTab("3");
-                        }}
-                    >
-                        <span className=" d-md-inline-block">Veterinaria</span>
-                    </NavLink>
-                </NavItem>
+                    {userData && userData.esVeterinaria ? (
+                        <NavItem>
+                            <NavLink
+                                href="#veterinaria"
+                                className={`d-md-inline-block ${
+                                    activeTab === "3" ? "active" : ""
+                                }`}
+                                onClick={() => {
+                                    toggleTab("3");
+                                }}
+                            >
+                                <span className=" d-md-inline-block">
+                                    Veterinaria
+                                </span>
+                            </NavLink>
+                        </NavItem>
+                    ) : (
+                        ""
+                    )}
 
-                <NavItem>
-                    <NavLink
-                        href="#mi-qr"
-                        className={`d-md-inline-block ${
-                            activeTab === "4" ? "active" : ""
-                        }`}
-                        onClick={() => {
-                            toggleTab("4");
-                        }}
-                    >
-                        <span className=" d-md-inline-block">Fundación</span>
-                    </NavLink>
-                </NavItem>
-            </Nav>
+                    {userData && userData.esFundacion ? (
+                        <NavItem>
+                            <NavLink
+                                href="#fundacion"
+                                className={`d-md-inline-block ${
+                                    activeTab === "4" ? "active" : ""
+                                }`}
+                                onClick={() => {
+                                    toggleTab("4");
+                                }}
+                            >
+                                <span className=" d-md-inline-block">
+                                    Fundación
+                                </span>
+                            </NavLink>
+                        </NavItem>
+                    ) : (
+                        ""
+                    )}
+                </Nav>
+            ) : (
+                ""
+            )}
 
             <TabContent activeTab={activeTab}>
                 <TabPane tabId="1">

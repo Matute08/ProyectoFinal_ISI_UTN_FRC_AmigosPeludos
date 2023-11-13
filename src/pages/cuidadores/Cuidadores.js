@@ -141,8 +141,8 @@ const Cuidadores = () => {
                                                         />
                                                     )}
                                                     <h5 className="precio-paseador">
-                                                        ${cuidador.precioPaseo}{" "}
-                                                        / Paseo
+                                                        ${cuidador.precioCuidado}{" "}
+                                                        / Por hora
                                                     </h5>
                                                 </Col>
 

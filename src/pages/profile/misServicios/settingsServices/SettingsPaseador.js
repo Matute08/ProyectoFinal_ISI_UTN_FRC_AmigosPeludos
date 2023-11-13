@@ -433,6 +433,7 @@ const SettingsPaseador = () => {
                                                                         "Este campo es obligatorio",
                                                                 }
                                                             )}
+                                                            disabled
                                                         />
                                                         {errors.celular && (
                                                             <p className="invalid-feedback">

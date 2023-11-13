@@ -107,6 +107,12 @@ const Step5 = ({
                 console.log(allData);
                 await postPaseador(allData);
 
+                const actualizarUser = {
+                    esPaseador: true
+                  };
+                  
+                  await updateUser(userData.id, actualizarUser);
+
             
 
                 setTimeout(() => {

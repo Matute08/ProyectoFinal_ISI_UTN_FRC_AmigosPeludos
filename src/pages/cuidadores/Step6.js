@@ -109,6 +109,13 @@ const Step6 = ({
                 console.log(allData);
                 await postCuidador(allData);
 
+                const actualizarUser = {
+                    esCuidador: true
+                  };
+                  
+                  await updateUser(userData.id, actualizarUser);
+                  
+
             
 
                 setTimeout(() => {
@@ -141,8 +148,7 @@ const Step6 = ({
                                 Fotos <span className="text-danger">*</span>
                             </h5>
                             <p>
-                                Adjunta imagenes donde se aprecie el paseo de
-                                las mascotas que has realizado
+                                Adjunta imagenes donde se aprecie tu trabajo como cuidador/a
                             </p>
                             {/* FOTO DE LA MASCOTA */}
                             <FilePond

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import Swal from "sweetalert2";
 import {
     Col,
     Form,
@@ -160,13 +161,12 @@ const AddFundacion = () => {
         data.barrioId = parseInt(data.barrioId, 10);
         data.nroCalle = parseInt(data.nroCalle, 10);
         data.estadoId = parseInt(1, 10);
-        data.usuarioId = parseInt(userData&& userData.id, 10);
+        data.usuarioId = parseInt(userData && userData.id, 10);
         console.log(data);
 
         try {
             // Verificar si hay fotos nuevas antes de obtener las URLs
             if (files.length > 0) {
-                showLoadingOverlay();
 
                 // Obtener las URLs de las nuevas fotos
                 const urls = await obtenerUrls();
@@ -182,8 +182,15 @@ const AddFundacion = () => {
                         data.imagen = primeraUrl.foto;
                     }
                 }
+                handleConfirmacionFundacion()
                 await postFundacion(data);
-                navigate(`/fundaciones/`);
+
+                const actualizarUser = {
+                    esFundacion: true,
+                };
+
+                await updateUser(userData.id, actualizarUser);
+
             } else {
                 setErrorFile("El campo es obligatorio");
             }
@@ -191,6 +198,29 @@ const AddFundacion = () => {
             // Manejar cualquier error de la actualización
             console.error("Error al actualizar el usuario:", error);
         }
+    };
+
+    const handleConfirmacionFundacion = async () => {
+        // Muestra el mensaje de éxito con temporizador y barra de progreso
+        Swal.fire({
+            title: `La fundación fue creada y se encuentra en Revisión`,
+            icon: "success",
+            html: "Cerrando en <b></b> segundos.",
+            timer: 3000, // Tiempo en milisegundos (2 segundos)
+            timerProgressBar: true,
+            showConfirmButton: false,
+            didOpen: () => {
+                const b = Swal.getHtmlContainer().querySelector("b");
+                const timerInterval = setInterval(() => {
+                    b.textContent = (Swal.getTimerLeft() / 1000).toFixed(1);
+                }, 100);
+            },
+            willClose: () => {
+                showLoadingOverlay();
+
+                navigate(`/fundaciones/`);
+            },
+        });
     };
 
     return (
@@ -205,7 +235,7 @@ const AddFundacion = () => {
                                     <CardBody className="p-4">
                                         <div className="text-center">
                                             <h5 className="fs-16 mb-1">
-                                                Foto de la mascota{" "}
+                                                Foto de la Fundación{" "}
                                                 <span className="text-danger">
                                                     *
                                                 </span>
@@ -216,7 +246,7 @@ const AddFundacion = () => {
                                                 files={files}
                                                 onupdatefiles={setFiles}
                                                 allowMultiple={false}
-                                                maxFiles={4}
+                                                maxFiles={1}
                                                 name="files"
                                                 className="filepond filepond-input-multiple"
                                                 labelIdle="Arrastra y suelta tus archivos o buscalos "
@@ -366,7 +396,7 @@ const AddFundacion = () => {
                                                                     ? "is-invalid"
                                                                     : ""
                                                             }`}
-                                                            maxLength={3}
+                                                            maxLength={4}
                                                             name="nroCalle"
                                                             placeholder="Altura"
                                                             {...register(
@@ -406,6 +436,9 @@ const AddFundacion = () => {
                                                         <Label className="form-label">
                                                             Barrio
                                                         </Label>
+                                                        <span className="text-danger">
+                                                            *
+                                                        </span>
                                                         <select
                                                             name="barrioId"
                                                             className={`form-select ${
@@ -469,6 +502,9 @@ const AddFundacion = () => {
                                                         <Label className="form-label">
                                                             CUIT
                                                         </Label>
+                                                        <span className="text-danger">
+                                                            *
+                                                        </span>
                                                         <input
                                                             type="text"
                                                             maxLength={11}
@@ -510,6 +546,9 @@ const AddFundacion = () => {
                                                             Ingrese su CBU para
                                                             recibir donaciones
                                                         </Label>
+                                                        <span className="text-danger">
+                                                            *
+                                                        </span>
                                                         <input
                                                             type="text"
                                                             maxLength={15}
@@ -594,6 +633,9 @@ const AddFundacion = () => {
                                                         <Label className="form-label">
                                                             Telefono de Contácto
                                                         </Label>
+                                                        <span className="text-danger">
+                                                            *
+                                                        </span>
                                                         <input
                                                             type="text"
                                                             maxLength={15}
@@ -631,9 +673,6 @@ const AddFundacion = () => {
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Pagina Web Fundación
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
                                                         </Label>
                                                         <input
                                                             type="text"
@@ -650,11 +689,7 @@ const AddFundacion = () => {
                                                 <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
-                                                            Nombre de Usuario de
-                                                            Facebook
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
+                                                            Link de Facebook
                                                         </Label>
                                                         <input
                                                             type="text"
@@ -671,11 +706,7 @@ const AddFundacion = () => {
                                                 <Col lg={3}>
                                                     <div className="mb-3">
                                                         <Label className="form-label">
-                                                            Nombre de Usuario de
-                                                            Instagram
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
+                                                            Link de Instagram
                                                         </Label>
                                                         <input
                                                             type="text"
@@ -696,6 +727,9 @@ const AddFundacion = () => {
                                                             Descripción de la
                                                             Fundación
                                                         </Label>
+                                                        <span className="text-danger">
+                                                            *
+                                                        </span>
                                                         <textarea
                                                             type="text"
                                                             className={`form-control ${
@@ -732,11 +766,11 @@ const AddFundacion = () => {
                                                             </p>
                                                         )}
                                                         {/* Contador de caracteres restantes */}
-                                                        <div className="text-muted">
+                                                        {/* <div className="text-muted">
                                                             Caracteres
                                                             restantes:{" "}
                                                             {charCountDescr}
-                                                        </div>
+                                                        </div> */}
                                                     </div>
                                                 </Col>
                                                 {/* DESCRIPCION DE LA UTILIZACION DEL DINERO */}
@@ -746,6 +780,9 @@ const AddFundacion = () => {
                                                             Utilización de la
                                                             Donación
                                                         </Label>
+                                                        <span className="text-danger">
+                                                            *
+                                                        </span>
                                                         <textarea
                                                             type="text"
                                                             maxLength={400}
@@ -782,11 +819,11 @@ const AddFundacion = () => {
                                                             </p>
                                                         )}
                                                         {/* Contador de caracteres restantes */}
-                                                        <div className="text-muted">
+                                                        {/* <div className="text-muted">
                                                             Caracteres
                                                             restantes:{" "}
                                                             {charCountUtiliz}
-                                                        </div>
+                                                        </div> */}
                                                     </div>
                                                 </Col>
 

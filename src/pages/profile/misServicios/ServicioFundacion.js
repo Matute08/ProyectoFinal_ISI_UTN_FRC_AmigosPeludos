@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { getVeterinarias, getUserMail, getFundacion } from "../../../services/api";
+import {
+    getVeterinarias,
+    getUserMail,
+    getFundacion,
+    deleteFundacion,
+    updateUser
+} from "../../../services/api";
 import { Col, Row, Table, Card, CardHeader, CardBody } from "reactstrap";
 import { Link, useNavigate } from "react-router-dom";
+import Modal from "../../components/Modal";
 
 const ServicioFundacion = () => {
     const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [fundacion, setFundacion] = useState();
+    const { handleSweetAlertDeleteFundacion } = Modal();
+
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -48,7 +57,9 @@ const ServicioFundacion = () => {
 
                     //Filtrar paseadores, cuidadores y veterinarias según el userData.id
                     const fundacionFiltrados = dataFundacion.filter(
-                        (funda) => funda.datosUsuario&& funda.datosUsuario.id === userData.id
+                        (funda) =>
+                            funda.datosUsuario &&
+                            funda.datosUsuario.id === userData.id
                     );
                     setFundacion(fundacionFiltrados);
 
@@ -64,6 +75,31 @@ const ServicioFundacion = () => {
         }
     }, [userData && userData.id]);
 
+    const handleDeleteFundacion = async () => {
+        const idFundacion = fundacion && fundacion[0].id;
+        const deleteResponse = await deleteFundacion(idFundacion);
+        const fundacionUsuario = fundacion.filter(
+            (funda) => funda.usuarioId === userData.id
+          );
+
+        if (
+             fundacionUsuario.length === 1
+            
+            
+        ) {
+
+            const actualizarUser = {
+                esFundacion: false,
+            };
+            await updateUser(userData.id, actualizarUser);
+            
+            console.log(deleteResponse);
+            return deleteResponse.success;
+        }else{
+            return deleteResponse.success;
+        }
+
+    };
     return (
         <React.Fragment>
             {!isLoading ? (
@@ -77,10 +113,6 @@ const ServicioFundacion = () => {
                                             <thead>
                                                 <tr>
                                                     <th scope="col">
-                                                        Numero Fundación
-                                                    </th>
-
-                                                    <th scope="col">
                                                         Nombre Fundación
                                                     </th>
                                                     <th scope="col">
@@ -93,7 +125,9 @@ const ServicioFundacion = () => {
                                                         Dirección
                                                     </th>
                                                     <th scope="col">CUIT</th>
-                                                    <th scope="col">Estado Fundación</th>
+                                                    <th scope="col">
+                                                        Estado Fundación
+                                                    </th>
 
                                                     <th scope="col">
                                                         Acciones
@@ -105,56 +139,105 @@ const ServicioFundacion = () => {
                                             <tbody>
                                                 {fundacion &&
                                                 fundacion.length > 0 ? (
-                                                    fundacion.map((item) => (
-                                                        <tr key={item.id}>
-                                                            <td className="fw-medium">
-                                                                {item.id}
-                                                            </td>
+                                                    fundacion
+                                                        .sort((a, b) => {
+                                                            // Ordenar por estado primero
+                                                            if (
+                                                                a.estado ===
+                                                                    "Revision" &&
+                                                                b.estado !==
+                                                                    "Revision"
+                                                            ) {
+                                                                return -1; // a va antes que b
+                                                            } else if (
+                                                                a.estado !==
+                                                                    "Revision" &&
+                                                                b.estado ===
+                                                                    "Revision"
+                                                            ) {
+                                                                return 1; // b va antes que a
+                                                            } else {
+                                                                //Si los estados son iguales o ninguno es "Revision", ordenar por fecha decreciente
+                                                                return (
+                                                                    new Date(
+                                                                        b.fechaAlta
+                                                                    ) -
+                                                                    new Date(
+                                                                        a.fechaAlta
+                                                                    )
+                                                                );
+                                                            }
+                                                        })
+                                                        .map((item) => (
+                                                            <tr key={item.id}>
+                                                                <td>
+                                                                    {
+                                                                        item.nombre
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    {formatDate(
+                                                                        item.fechaAlta
+                                                                    )}
+                                                                </td>
+                                                                <td>
+                                                                    {
+                                                                        item.telefono
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    {
+                                                                        item.direccion
+                                                                    }{" "}
+                                                                    {
+                                                                        item.nroCalle
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    {item.cuit}
+                                                                </td>
+                                                                <td>
+                                                                    {
+                                                                        item.estado
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    <div className="d-flex justify-content-center">
+                                                                        <Link
+                                                                            to={`/modificar-fundacion/${item.id}`}
+                                                                            className="btn btn-success btn-formulario"
+                                                                        >
+                                                                            <i className="ri-edit-2-fill"></i>
+                                                                        </Link>
 
-                                                            <td>
-                                                                {item.nombre}
-                                                            </td>
-                                                            <td>
-                                                                {formatDate(
-                                                                    item.fechaAlta
-                                                                )}
-                                                            </td>
-                                                            <td>
-                                                                {
-                                                                    item.telefono
-                                                                }
-                                                            </td>
-                                                            <td>
-                                                                {item.direccion}{" "}
-                                                                {
-                                                                    item.nroCalle
-                                                                }
-                                                            </td>
-                                                            <td>{item.cuit}</td>
-                                                            <td>{item.estado}</td>
-                                                            <td>
-                                                                <div className="d-flex justify-content-center">
-                                                                    <Link
-                                                                        to={`/modificar-fundacion/${item.id}`}
-                                                                        className="btn btn-success btn-formulario"
-                                                                    >
-                                                                        <i className="ri-edit-2-fill"></i>
-                                                                    </Link>
-
-                                                                    <td>
-                                                                        <div className="d-flex justify-content-center">
-                                                                            <Link
-                                                                                to={`/donacion-fundacion/${item.id}`}
-                                                                                className="btn btn-primary btn-formulario btn-form"
-                                                                            >
-                                                                                <i className="ri-eye-fill"></i>
-                                                                            </Link>
-                                                                        </div>
-                                                                    </td>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    ))
+                                                                        <td>
+                                                                            <div className="d-flex justify-content-center">
+                                                                                <Link
+                                                                                    to={`/donacion-fundacion/${item.id}`}
+                                                                                    className="btn btn-info btn-formulario "
+                                                                                >
+                                                                                    <i className="ri-eye-fill"></i>
+                                                                                </Link>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div className="d-flex justify-content-center">
+                                                                                <Link
+                                                                                    onClick={() =>
+                                                                                        handleSweetAlertDeleteFundacion(
+                                                                                            handleDeleteFundacion
+                                                                                        )
+                                                                                    }
+                                                                                    className="btn btn-danger btn-formulario "
+                                                                                >
+                                                                                    <i className=" ri-delete-bin-fill"></i>
+                                                                                </Link>
+                                                                            </div>
+                                                                        </td>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        ))
                                                 ) : (
                                                     <tr>
                                                         <td

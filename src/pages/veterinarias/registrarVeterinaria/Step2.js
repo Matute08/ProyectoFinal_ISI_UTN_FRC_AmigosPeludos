@@ -74,7 +74,9 @@ const Step2 = ({ onNext, onPrev, step1Data }) => {
                 <thead>
                     <tr>
                         <th>Día</th>
-                        <th>Horario de <br /> Corrido</th>
+                        <th>
+                            Horario de <br /> Corrido
+                        </th>
                         <th>Desde Turno Mañana</th>
                         <th>Hasta Turno Mañana</th>
                         <th>Desde Turno Tarde</th>
@@ -82,105 +84,157 @@ const Step2 = ({ onNext, onPrev, step1Data }) => {
                     </tr>
                 </thead>
                 <tbody>
-                {Object.keys(horarios).map(
-                    (dia, index) =>
-                        diasSeleccionados.includes(index) && (
-                            <tr key={dia}>
-                                <td>{dia}</td>
-                                <td>
-                                    <Input
-                                        type="checkbox"
-                                        checked={checkBoxState[dia]}
-                                        onChange={(e) =>
-                                            handleCheckBoxChange(
-                                                dia,
-                                                e.target.checked
-                                            )
-                                        }
-                                    />
-                                </td>
-                                <td>
-                                    <Input
-                                        type="select"
-                                        value={horarios[dia][0]}
-                                        onChange={(e) =>
-                                            handleHorarioChange(
-                                                dia,
-                                                0,
-                                                e.target.value
-                                            )
-                                        }
-                                        //disabled={checkBoxState[dia]}
-                                    >
-                                        <option value="">
-                                            Seleccione...
-                                        </option>
-                                        <option value="8am">8am</option>
-                                        <option value="9am">9am</option>
-                                    </Input>
-                                </td>
-                                <td>
-                                    <Input
-                                        type="select"
-                                        value={horarios[dia][1]}
-                                        onChange={(e) =>
-                                            handleHorarioChange(
-                                                dia,
-                                                1,
-                                                e.target.value
-                                            )
-                                        }
-                                        disabled={checkBoxState[dia]}
-                                    >
-                                        <option value="">
-                                            Seleccione...
-                                        </option>
-                                        <option value="8:00">8:00</option>
-                                        <option value="8:15">8:15</option>
-                                    </Input>
-                                </td>
-                                <td>
-                                    <Input
-                                        type="select"
-                                        value={horarios[dia][2]}
-                                        onChange={(e) =>
-                                            handleHorarioChange(
-                                                dia,
-                                                2,
-                                                e.target.value
-                                            )
-                                        }
-                                        disabled={checkBoxState[dia]}
-                                    >
-                                        <option value="">
-                                            Seleccione...
-                                        </option>
-                                        <option value="13:00">13:00</option>
-                                        <option value="14:00">14:00</option>
-                                    </Input>
-                                </td>
-                                <td>
-                                    <Input
-                                        type="select"
-                                        value={horarios[dia][3]}
-                                        onChange={(e) =>
-                                            handleHorarioChange(
-                                                dia,
-                                                3,
-                                                e.target.value
-                                            )
-                                        }
-                                    >
-                                        <option value="">
-                                            Seleccione...
-                                        </option>
-                                        <option value="17:00">17:00</option>
-                                        <option value="18:00">18:00</option>
-                                    </Input>
-                                </td>
-                            </tr>
-                        )
-                )}
+                    {Object.keys(horarios).map(
+                        (dia, index) =>
+                            diasSeleccionados.includes(index) && (
+                                <tr key={dia}>
+                                    <td>{dia}</td>
+                                    <td>
+                                        <Input
+                                            type="checkbox"
+                                            checked={checkBoxState[dia]}
+                                            onChange={(e) =>
+                                                handleCheckBoxChange(
+                                                    dia,
+                                                    e.target.checked
+                                                )
+                                            }
+                                        />
+                                    </td>
+                                    <td>
+                                        <Input
+                                            type="select"
+                                            value={horarios[dia][0]}
+                                            onChange={(e) =>
+                                                handleHorarioChange(
+                                                    dia,
+                                                    0,
+                                                    e.target.value
+                                                )
+                                            }
+                                            //disabled={checkBoxState[dia]}
+                                        >
+                                            <option value="">
+                                                Seleccione...
+                                            </option>
+                                            {Array.from(
+                                                { length: 17 },
+                                                (_, index) => {
+                                                    const hora = 7 + index;
+                                                    const label = `${hora}:00`;
+                                                    return (
+                                                        <option
+                                                            key={label}
+                                                            value={label}
+                                                        >
+                                                            {label}
+                                                        </option>
+                                                    );
+                                                }
+                                            )}
+                                        </Input>
+                                    </td>
+                                    <td>
+                                        <Input
+                                            type="select"
+                                            value={horarios[dia][1]}
+                                            onChange={(e) =>
+                                                handleHorarioChange(
+                                                    dia,
+                                                    1,
+                                                    e.target.value
+                                                )
+                                            }
+                                            disabled={checkBoxState[dia]}
+                                        >
+                                            <option value="">
+                                                Seleccione...
+                                            </option>
+                                            {Array.from(
+                                                { length: 17 },
+                                                (_, index) => {
+                                                    const hora = 7 + index;
+                                                    const label = `${hora}:00`;
+                                                    return (
+                                                        <option
+                                                            key={label}
+                                                            value={label}
+                                                        >
+                                                            {label}
+                                                        </option>
+                                                    );
+                                                }
+                                            )}
+                                        </Input>
+                                    </td>
+                                    <td>
+                                        <Input
+                                            type="select"
+                                            value={horarios[dia][2]}
+                                            onChange={(e) =>
+                                                handleHorarioChange(
+                                                    dia,
+                                                    2,
+                                                    e.target.value
+                                                )
+                                            }
+                                            disabled={checkBoxState[dia]}
+                                        >
+                                            <option value="">
+                                                Seleccione...
+                                            </option>
+                                            {Array.from(
+                                                { length: 17 },
+                                                (_, index) => {
+                                                    const hora = 7 + index;
+                                                    const label = `${hora}:00`;
+                                                    return (
+                                                        <option
+                                                            key={label}
+                                                            value={label}
+                                                        >
+                                                            {label}
+                                                        </option>
+                                                    );
+                                                }
+                                            )}
+                                        </Input>
+                                    </td>
+                                    <td>
+                                        <Input
+                                            type="select"
+                                            value={horarios[dia][3]}
+                                            onChange={(e) =>
+                                                handleHorarioChange(
+                                                    dia,
+                                                    3,
+                                                    e.target.value
+                                                )
+                                            }
+                                        >
+                                            <option value="">
+                                                Seleccione...
+                                            </option>
+                                            {Array.from(
+                                                { length: 17 },
+                                                (_, index) => {
+                                                    const hora = 7 + index;
+                                                    const label = `${hora}:00`;
+                                                    return (
+                                                        <option
+                                                            key={label}
+                                                            value={label}
+                                                        >
+                                                            {label}
+                                                        </option>
+                                                    );
+                                                }
+                                            )}
+                                        </Input>
+                                    </td>
+                                </tr>
+                            )
+                    )}
                 </tbody>
             </Table>
         );

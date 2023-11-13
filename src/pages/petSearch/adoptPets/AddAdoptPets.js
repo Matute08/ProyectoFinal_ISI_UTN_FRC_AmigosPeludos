@@ -26,8 +26,6 @@ import {
     getAllRazaId,
     getAllBarrio,
     postPublicacion,
-    
-
 } from "../../../services/api";
 import classnames from "classnames";
 import { uploadFilesPetsLost } from "../../../services/Firebase";
@@ -64,7 +62,6 @@ const FormAddAdoptPets = () => {
     const [errorFile, setErrorFile] = useState("");
     const [ciudad, setCiudad] = useState();
     const [barrio, setBarrio] = useState();
-    
 
     const tabChange = (tab) => {
         if (activeTab !== tab) setActiveTab(tab);
@@ -99,7 +96,9 @@ const FormAddAdoptPets = () => {
                 const userEmail = dataLocalStorage.email;
 
                 const datosUsuario = await getUserMail(userEmail);
-                datosUsuario.calle = `${datosUsuario.calle + " " + datosUsuario.nroCalle}`;
+                datosUsuario.calle = `${
+                    datosUsuario.calle + " " + datosUsuario.nroCalle
+                }`;
                 setUserData(datosUsuario);
                 setIsLoading(false);
             }
@@ -135,14 +134,12 @@ const FormAddAdoptPets = () => {
             }
         };
 
-       
         fetchUserData();
         tipoMascotas();
         tipoSexo();
         edadMascota();
         ciudadMascota();
         barrioMascota();
-      
     }, []);
 
     const getRaza = async (e) => {
@@ -180,37 +177,37 @@ const FormAddAdoptPets = () => {
     };
 
     const onSubmit = async (data) => {
-        showLoadingOverlay();
-
+        setErrorUbi("");
         setErrorFile("");
-        
-            if (files.length === 0) {
-                setErrorFile("El campo es obligatorio");
-            } else {
-                try {
-                    const urls = await obtenerUrls(); // Espera a obtener las URLs
 
-                    data.fotos = urls;
-                    data.usuarioId = userData.id;
-                    data.tipoPublicacionId = 3
-                    data.mailUsuario = user.email;
-                    
-                    if (data.castracion === "1") {
-                        data.castracion = true;
-                    } else{
-                        data.castracion = false;
-                    }
+        if (files.length === 0) {
+            setErrorFile("El campo es obligatorio");
+        } else {
+            showLoadingOverlay();
 
-                    await postPublicacion(data);
+            try {
+                const urls = await obtenerUrls(); // Espera a obtener las URLs
 
-                    hideLoadingOverlay();
-                    navigate("/mascotas-adopcion");
-                } catch (error) {
-                    // Maneja cualquier error de la actualización
-                    console.error("Error al realizar la publicacion:", error);
+                data.fotos = urls;
+                data.usuarioId = userData.id;
+                data.tipoPublicacionId = 3;
+                data.mailUsuario = user.email;
+
+                if (data.castracion === "1") {
+                    data.castracion = true;
+                } else {
+                    data.castracion = false;
                 }
+
+                await postPublicacion(data);
+
+                hideLoadingOverlay();
+                navigate("/mascotas-adopcion");
+            } catch (error) {
+                // Maneja cualquier error de la actualización
+                console.error("Error al realizar la publicacion:", error);
             }
-        
+        }
     };
 
     return (
@@ -276,7 +273,6 @@ const FormAddAdoptPets = () => {
                                                 </NavLink>
                                             </NavItem>
                                         </Nav>
-
                                     </CardHeader>
                                     <CardBody>
                                         {/* FORMULARIO */}
@@ -287,7 +283,6 @@ const FormAddAdoptPets = () => {
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Nombre de la mascota
-                                                           
                                                         </Label>
                                                         <input
                                                             type="text"
@@ -295,14 +290,12 @@ const FormAddAdoptPets = () => {
                                                             name="nombre"
                                                             placeholder="Nombre de la mascota"
                                                             {...register(
-                                                                "nombre",
-                                                                
+                                                                "nombre"
                                                             )}
                                                         />
-                                                        
                                                     </div>
                                                 </Col>
-                                                
+
                                                 {/* tipo de mascota */}
                                                 <Col lg={3}>
                                                     <div className="mb-3">
@@ -314,7 +307,11 @@ const FormAddAdoptPets = () => {
                                                         </label>
                                                         <select
                                                             name="tipoId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.tipoId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "tipoId",
                                                                 {
@@ -373,7 +370,11 @@ const FormAddAdoptPets = () => {
                                                         </Label>
                                                         <select
                                                             name="raza"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.razaId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "razaId",
                                                                 {
@@ -409,10 +410,11 @@ const FormAddAdoptPets = () => {
                                                                     )
                                                                 )}
                                                         </select>
-                                                        {errors.raza && (
+                                                        {errors.razaId && (
                                                             <span className="text-danger">
                                                                 {
-                                                                    errors.raza
+                                                                    errors
+                                                                        .razaId
                                                                         .message
                                                                 }
                                                             </span>
@@ -430,7 +432,11 @@ const FormAddAdoptPets = () => {
                                                         </Label>
                                                         <select
                                                             name="edadId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.edadId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "edadId",
                                                                 {
@@ -483,14 +489,12 @@ const FormAddAdoptPets = () => {
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Castrada/o
-                                                            
                                                         </Label>
                                                         <select
                                                             name="castracion"
                                                             className="form-select "
                                                             {...register(
-                                                                "castracion",
-                                                                
+                                                                "castracion"
                                                             )}
                                                         >
                                                             <option value="">
@@ -502,9 +506,7 @@ const FormAddAdoptPets = () => {
                                                             <option value="0">
                                                                 No
                                                             </option>
-                                                          
                                                         </select>
-                                                        
                                                     </div>
                                                 </Col>
                                                 {/* sexo */}
@@ -518,7 +520,11 @@ const FormAddAdoptPets = () => {
                                                         </Label>
                                                         <select
                                                             name="sexoId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.sexoId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "sexoId",
                                                                 {
@@ -565,76 +571,7 @@ const FormAddAdoptPets = () => {
                                                         )}
                                                     </div>
                                                 </Col>
-                                                {/* fecha de encontrada */}
-                                                {/* <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Fecha de Encuentro
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <input
-                                                            type="date"
-                                                            className="form-control"
-                                                            name="fechaPerdida"
-                                                            {...register(
-                                                                "fechaPerdida",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
-                                                                }
-                                                            )}
-                                                        />
-                                                        {errors.fechaPerdida && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .fechaPerdida
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col> */}
-                                                {/* color */}
-                                                {/* <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Color
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            name="color"
-                                                            placeholder="Color"
-                                                            {...register(
-                                                                "color",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
-                                                                }
-                                                            )}
-                                                        />
-                                                        {errors.color && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors.color
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col> */}
+
                                                 {/* ciudad */}
                                                 <Col lg={3}>
                                                     <div className="mb-3">
@@ -646,7 +583,11 @@ const FormAddAdoptPets = () => {
                                                         </Label>
                                                         <select
                                                             name="ciudadId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.ciudadId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "ciudadId",
                                                                 {
@@ -682,11 +623,11 @@ const FormAddAdoptPets = () => {
                                                                     )
                                                                 )}
                                                         </select>
-                                                        {errors.ciudad && (
+                                                        {errors.ciudadId && (
                                                             <span className="text-danger">
                                                                 {
                                                                     errors
-                                                                        .ciudad
+                                                                        .ciudadId
                                                                         .message
                                                                 }
                                                             </span>
@@ -704,7 +645,11 @@ const FormAddAdoptPets = () => {
                                                         </Label>
                                                         <select
                                                             name="barrioId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.barrioId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "barrioId",
                                                                 {
@@ -854,29 +799,7 @@ const FormAddAdoptPets = () => {
                                                         )}
                                                     </div>
                                                 </Col>
-                                                {/* ubicacion */}
-                                                {/* <Col lg={12}>
-                                                    <div className="mapa">
-                                                        <label
-                                                            htmlFor="location"
-                                                            className="form-label"
-                                                        >
-                                                            Ubicación de
-                                                            Pérdida:
-                                                        </label>
-                                                        <Maps
-                                                            onMapClick={
-                                                                handleMapClick
-                                                            }
-                                                            isClickable={true}
-                                                        ></Maps>
-
-                                                        <p className="text-danger">
-                                                            {errorUbi}
-                                                        </p>
-                                                    </div>
-                                                </Col> */}
-
+                                                
                                                 <Col lg={12}>
                                                     <div className="hstack gap-2 justify-content-end">
                                                         <button

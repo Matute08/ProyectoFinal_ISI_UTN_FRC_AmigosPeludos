@@ -15,8 +15,14 @@ import Loading from "../../components/Loading";
 
 const styles = StyleSheet.create({
     container: {
-        padding: 20,
+        padding: 10,
         fontFamily: "Helvetica",
+        //marginVertical:20
+    },
+
+    border: {
+        border: 2,
+        borderColor: "black",
     },
     image: {
         width: "15%",
@@ -30,18 +36,19 @@ const styles = StyleSheet.create({
     title: {
         textAlign: "center",
         fontSize: 30,
-        margin: 20,
+        margin: 15,
         fontWeight: "bold",
     },
     label: {
         fontWeight: "bold",
-        marginBottom: 20,
+        marginBottom: 5,
         marginRight: 10,
-        fontSize: 18,
+        fontSize: 14,
+        marginLeft: 10,
     },
     item: {
-        marginBottom: 10,
-        fontSize: 17,
+        marginBottom: 5,
+        fontSize: 14,
         width: "100%",
         display: "flex",
         flexDirection: "row", // Cambio aquí
@@ -49,16 +56,21 @@ const styles = StyleSheet.create({
     },
     day: {
         fontWeight: "bold",
-        marginBottom: 20,
+        marginBottom: 5,
         marginRight: 10,
-        fontSize: 18,
+        fontSize: 14,
+        marginLeft: 10,
     },
     containerDiv: {
         height: "100vh",
+        border: 3,
+        borderColor: "black",
     },
     subTitle: {
-        fontSize: 30,
-        margin: 20,
+        fontSize: 18,
+        margin: 10,
+        fontWeight: 'bold', // Hace que el texto sea negrita
+    textDecoration: 'underline',
     },
 });
 
@@ -100,8 +112,8 @@ const ViewSolicitudesVeterinarias = () => {
                         {dataForm && (
                             <PDFViewer width="100%" height="100%">
                                 <Document>
-                                    <Page style={styles.container}>
-                                        <View>
+                                    <Page size="A4" style={styles.container}>
+                                        <View style={styles.border}>
                                             <Text style={styles.title}>
                                                 Solicitud de Servicio
                                             </Text>
@@ -198,6 +210,21 @@ const ViewSolicitudesVeterinarias = () => {
                                                         : "No recibe donaciones"}
                                                 </Text>
                                             </View>
+
+                                            
+                                                <View style={styles.item}>
+                                                    <Text style={styles.label}>
+                                                        Fecha de Creación:
+                                                    </Text>
+                                                    <Text>
+                                                        {dataForm
+                                                            ? formatDate(
+                                                                  dataForm.fechaAlta
+                                                              )
+                                                            : ""}
+                                                    </Text>
+                                                </View>
+                                           
                                             {/* hroarios */}
                                             <View style={styles.item}>
                                                 <Text style={styles.subTitle}>
@@ -283,18 +310,21 @@ const ViewSolicitudesVeterinarias = () => {
                                                     Servicios que Ofrece:
                                                 </Text>
                                             </View>
-                                            <View style={styles.day}>
-                                                <Text>
-                                                    Castraciones:{" "}
-                                                    {dataForm.servicios
-                                                        .castraciones
-                                                        ? "Si"
-                                                        : "No"}
-                                                </Text>
+
+                                            <View style={styles.item}>
+                                                <View style={styles.label}>
+                                                    <Text>
+                                                        Castraciones:{" "}
+                                                        {dataForm.servicios
+                                                            .castraciones
+                                                            ? "Si"
+                                                            : "No"}
+                                                    </Text>
+                                                </View>
                                             </View>
 
-                                            <View style={styles.day}>
-                                                <View style={styles.day}>
+                                            <View style={styles.item}>
+                                                <View style={styles.label}>
                                                     <Text>
                                                         Internaciones:{" "}
                                                         {dataForm.servicios
@@ -304,8 +334,8 @@ const ViewSolicitudesVeterinarias = () => {
                                                     </Text>
                                                 </View>
                                             </View>
-                                            <View style={styles.day}>
-                                                <View style={styles.day}>
+                                            <View style={styles.item}>
+                                                <View style={styles.label}>
                                                     <Text>
                                                         Vacunaciones:{" "}
                                                         {dataForm.servicios
@@ -315,8 +345,8 @@ const ViewSolicitudesVeterinarias = () => {
                                                     </Text>
                                                 </View>
                                             </View>
-                                            <View style={styles.day}>
-                                                <View style={styles.day}>
+                                            <View style={styles.item}>
+                                                <View style={styles.label}>
                                                     <Text>
                                                         Equipos para extracción:{" "}
                                                         {dataForm.servicios
@@ -326,8 +356,8 @@ const ViewSolicitudesVeterinarias = () => {
                                                     </Text>
                                                 </View>
                                             </View>
-                                            <View style={styles.day}>
-                                                <View style={styles.day}>
+                                            <View style={styles.item}>
+                                                <View style={styles.label}>
                                                     <Text>
                                                         Radiografias:{" "}
                                                         {dataForm.servicios
@@ -337,8 +367,8 @@ const ViewSolicitudesVeterinarias = () => {
                                                     </Text>
                                                 </View>
                                             </View>
-                                            <View style={styles.day}>
-                                                <View style={styles.day}>
+                                            <View style={styles.item}>
+                                                <View style={styles.label}>
                                                     <Text>
                                                         Ecografias:{" "}
                                                         {dataForm.servicios
@@ -348,8 +378,8 @@ const ViewSolicitudesVeterinarias = () => {
                                                     </Text>
                                                 </View>
                                             </View>
-                                            <View style={styles.day}>
-                                                <View style={styles.day}>
+                                            <View style={styles.item}>
+                                                <View style={styles.label}>
                                                     <Text>
                                                         Guardias 24hs:{" "}
                                                         {dataForm.servicios
@@ -359,8 +389,8 @@ const ViewSolicitudesVeterinarias = () => {
                                                     </Text>
                                                 </View>
                                             </View>
-                                            <View style={styles.day}>
-                                                <View style={styles.day}>
+                                            <View style={styles.item}>
+                                                <View style={styles.label}>
                                                     <Text>
                                                         Emergencias a Domicilio:{" "}
                                                         {dataForm.servicios
@@ -370,8 +400,8 @@ const ViewSolicitudesVeterinarias = () => {
                                                     </Text>
                                                 </View>
                                             </View>
-                                            <View style={styles.day}>
-                                                <View style={styles.day}>
+                                            <View style={styles.item}>
+                                                <View style={styles.label}>
                                                     <Text>
                                                         Observacion Gratuita:{" "}
                                                         {dataForm.servicios
@@ -381,30 +411,16 @@ const ViewSolicitudesVeterinarias = () => {
                                                     </Text>
                                                 </View>
                                             </View>
-                                            <View style={styles.day}>
-                                                <View style={styles.day}>
+                                            <View style={styles.item}>
+                                                <View style={styles.label}>
                                                     <Text>
                                                         Otros:{" "}
-                                                        {dataForm.servicios
-                                                            .otros
-                                                            ? "Si"
-                                                            : "No"}
+                                                        {
+                                                            dataForm.servicios
+                                                                .otros
+                                                        }
                                                     </Text>
                                                 </View>
-                                            </View>
-                                        </View>
-                                        <View style={styles.day}>
-                                            <View style={styles.item}>
-                                                <Text style={styles.label}>
-                                                    Fecha de Creación:
-                                                </Text>
-                                                <Text>
-                                                    {dataForm
-                                                        ? formatDate(
-                                                              dataForm.fechaAlta
-                                                          )
-                                                        : ""}
-                                                </Text>
                                             </View>
                                         </View>
                                     </Page>

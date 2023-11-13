@@ -221,7 +221,9 @@ const SettingsFundacion = () => {
         if (isValid) {
             data.nroCalle = parseInt(data.nroCalle, 10);
             data.barrioId = parseInt(data.barrioId, 10);
-            //data.estadoId = fundacion.estadoId;
+            data.id = parseInt(fundacion.id, 10);
+            data.estadoId = fundacion.estadoId;
+            data.fechaAlta = fundacion.fechaAlta;
         }
         try {
             // Verificar si hay fotos nuevas antes de obtener las URLs
@@ -239,7 +241,7 @@ const SettingsFundacion = () => {
             console.log(data);
             await updateFundacion(fundacionId, data);
             hideLoadingOverlay();
-            navigate(`/perfil/${userData.mail}`);
+            navigate(`/perfil/${userData&& userData.mail}`);
         } catch (error) {
             // Manejar cualquier error de la actualización
             console.error("Error al actualizar la fundacion:", error);

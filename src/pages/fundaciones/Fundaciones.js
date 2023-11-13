@@ -54,9 +54,9 @@ const Fundaciones = () => {
             } catch (error) {
                 console.error("Error al obtener Fundacion:", error);
             }
-            console.log(fundacion && fundacion[0].imagen);
         };
 
+        console.log(fundacion);
         fetchFundaciones();
     }, []);
     const handleClick = () => {
@@ -111,7 +111,7 @@ const Fundaciones = () => {
                                                     {/* <Link to={`/donar-fundacion/${item.id}`} className="boton-donar-fundacion">
                                                         <span>Donar</span>
                                                     </Link> */}
-                                                    <Link to={``} className="boton-donar-fundacion">
+                                                    <Link to={`donar-fundacion/${item.id}`} className="boton-donar-fundacion">
                                                         <span>Donar</span>
                                                     </Link>
                                                 </div>
@@ -159,10 +159,10 @@ const Fundaciones = () => {
 
                         {!fundacion || fundacion.length === 0 ? (
                             <div
-                                className="alert alert-primary w-75"
+                                className="alert alert-primary w-100"
                                 role="alert"
                             >
-                                <h5>No Hay Fundaciones Registradas.</h5>
+                                <h4 className="text-center">No Hay Fundaciones Registradas.</h4>
                             </div>
                         ) : null}
 

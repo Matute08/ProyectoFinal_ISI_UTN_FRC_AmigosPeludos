@@ -369,6 +369,7 @@ const ConsultAdoptForm = () => {
                                                                                                                     item.id
                                                                                                                 )
                                                                                                             }
+                                                                                                            title="Cambiar Estado"
                                                                                                         >
                                                                                                             <i className="ri-edit-2-fill"></i>
                                                                                                         </button>
@@ -383,6 +384,7 @@ const ConsultAdoptForm = () => {
                                                                                                                            item.id
                                                                                                                         )
                                                                                                                     } 
+                                                                                                                    title="Ver Formulario"
                                                                                                                 >
                                                                                                                     <i className="ri-eye-fill"></i>
                                                                                                                 </button>
@@ -518,7 +520,8 @@ const ConsultAdoptForm = () => {
                                                                                                                 handleViewPDF(
                                                                                                                    item.id
                                                                                                                 )
-                                                                                                            } 
+                                                                                                            }
+                                                                                                            title="Ver formulario" 
                                                                                                         >
                                                                                                             <i className="ri-eye-fill"></i>
                                                                                                         </button>

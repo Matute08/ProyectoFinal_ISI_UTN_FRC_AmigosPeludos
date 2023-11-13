@@ -12,7 +12,7 @@ import {
 } from "reactstrap";
 import Navbar from "../landing/Navbar";
 import { useParams } from "react-router-dom";
-
+import axios from "axios";
 import Footer from "../landing/Footer";
 import Loading from "../components/Loading";
 import {
@@ -22,6 +22,8 @@ import {
     getUserMail,
 } from "../../services/api";
 import img from "../../assets/images/user/user-random.jpg";
+import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
+
 
 const DonacionFundacion = () => {
     const { id } = useParams();
@@ -31,6 +33,11 @@ const DonacionFundacion = () => {
     const [userData, setUserData] = useState();
     const [idUser, setIdUser] = useState();
     const [boton, setBoton] = useState(true);
+    const [selectedAmount, setSelectedAmount] = useState(null);
+    
+    const [preferenceId, setPreferenceId] = useState(null);
+    initMercadoPago("TEST-8ad7c3f4-f218-474f-a719-2d5600b8253d")
+
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -72,11 +79,44 @@ const DonacionFundacion = () => {
     const handleClick = () => {
         navigate("/agregar-fundacion");
     };
-    const [customAmount, setCustomAmount] = useState(""); // Nuevo estado para el monto personalizado
 
     const handleDonation = (amount) => {
-        // Lógica para manejar la donación, puedes enviar el monto al servidor aquí
+        if (selectedAmount === amount) {
+            // Deseleccionar el botón si ya está seleccionado
+            setSelectedAmount(null);
+        } else {
+            // Seleccionar el nuevo botón
+            setSelectedAmount(amount);
+        }
         console.log(`Donar ${amount} pesos`);
+    };
+
+
+    //MERCADO PAGO FUNCIONES
+    const createPreference = async () => {
+        try {
+            // la URL que sea el endpoint del servidor
+            const response = await axios.post(
+                "https://amigospeludos.azurewebsites.net/api/MercadoPago/create_preference",
+                {
+                    title: `Gracias por la donacion a ${fundacion&& fundacion.nombre}`,
+                    unit_price: selectedAmount,
+                    quantity: 1,
+                }
+                
+            );
+            const { id } = response.data;
+            return id;
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleBuy = async () => {
+        const id = await createPreference();
+        if (id) {
+            setPreferenceId(id);
+        }
     };
 
     return (
@@ -93,74 +133,121 @@ const DonacionFundacion = () => {
                                 <div className="w-100">
                                     <div>
                                         <h1>Colabora con {fundacion.nombre}</h1>
-                                        <p>{fundacion.motivoDonaciones}</p>
+                                        <div className="w-100 d-flex justify-content-center">
+                                            <p className="texto-donar m-2">
+                                                {fundacion.motivoDonaciones}
+                                            </p>
+                                        </div>
                                     </div>
 
                                     <hr />
 
                                     <div>
                                         <h2>¿Cuánto queres donar?</h2>
-                                        <p>
+                                        <p className="texto-donar m-2">
                                             Los monton estan expresados en pesos
                                             Argentinos (ARS)
                                         </p>
                                     </div>
 
                                     <div className="donation-buttons">
-                                        {[500, 1000, 1500, 2000].map(
-                                            (amount, index) => (
-                                                <div
-                                                    key={index}
-                                                    className={`amount-option p-2 w-1/2 sm:w-1/3 md:w-1/4 xl:w-1/5`}
-                                                    onClick={() =>
-                                                        handleDonation(amount)
-                                                    }
-                                                >
+                                        <div className="amount-options-container d-flex justify-content-center">
+                                            {[500, 1000, 1500, 2000].map(
+                                                (amount, index) => (
                                                     <div
-                                                        className={`py-4 cursor-pointer text-center rounded text-xl pointer selected-amount`}
+                                                        key={index}
+                                                        className={`amount-option p-2 w-1/2 sm:w-1/3 md:w-1/4 xl:w-1/5 ${
+                                                            selectedAmount ===
+                                                            amount
+                                                                ? "selected"
+                                                                : ""
+                                                        }`}
+                                                        onClick={() =>
+                                                            handleDonation(
+                                                                amount
+                                                            )
+                                                        }
                                                     >
-                                                        ${amount},00
+                                                        <div
+                                                            className={`py-4 cursor-pointer text-center rounded text-xl pointer selected-amount`}
+                                                        >
+                                                            ${amount},00
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            )
-                                        )}
-                                        <div
-                                            className={`amount-option p-2 w-1/2 sm:w-1/3 md:w-1/4 xl:w-1/5`}
-                                        >
-                                            <div
-                                                className={`py-4 cursor-pointer text-center rounded text-xl pointer selected-amount`}
-                                            >
-                                                <input
-                                                    name="customAmount"
-                                                    data-testid="customAmountInput"
-                                                    type="text"
-                                                    className={`py-4 cursor-pointer text-center font-bold rounded text-xl pointer mb-0 visible`}
-                                                    value={customAmount}
-                                                    onChange={(e) =>
-                                                        setCustomAmount(
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                />
-                                            </div>
+                                                )
+                                            )}
                                         </div>
+                                    </div>
+                                    <hr />
+                                    <div className="m-5 d-flex justify-content-center">
+                                        {selectedAmount && selectedAmount !== " " ?(
+                                        <button
+                                            class="button-donar"
+                                            onClick={handleBuy}
+                                        >
+                                            {preferenceId && (
+                                                <Wallet
+                                                    initialization={{
+                                                        preferenceId,
+                                                    }}
+                                                />
+                                            )}
+                                            <p>Donar</p>
+                                        </button>
+
+                                        ) : (
+                                            ""
+                                        )}
                                     </div>
                                 </div>
                             </Col>
                             <Col lg={3}>
                                 <div>
                                     <div>
-                                        <img src={fundacion.imagen} alt="" />
-                                        <h3>{fundacion.nombre}</h3>
+                                        <hr />
+                                        <div className="d-flex justify-content-center">
+                                            <img
+                                                className="imagen-donar m-3"
+                                                src={fundacion.imagen}
+                                                alt=""
+                                            />
+                                        </div>
+                                        <h3 className="text-center">{fundacion.nombre}</h3>
                                     </div>
                                     <div>
-                                        <p>
+                                        <p className="texto-donar text-center">
                                             {fundacion.direccion}{" "}
                                             {fundacion.nroCalle}
                                         </p>
                                     </div>
                                     <hr />
-                                    <p>{fundacion.descripcion}</p>
+                                    <p className="texto-donar m-1">
+                                        {fundacion.descripcion}
+                                    </p>
+                                    <hr />
+                                    <div className="m-4">
+                                        <a
+                                            className="texto-donar d-flex"
+                                            href={fundacion.paginaUrl}
+                                            target="_blank"
+                                        >
+                                            Pagina Web
+                                        </a>
+                                        <a
+                                            className="texto-donar d-flex"
+                                            href={fundacion.facebook}
+                                            target="_blank"
+                                        >
+                                            Facebook
+                                        </a>
+                                        <a
+                                            className="texto-donar d-flex"
+                                            href={fundacion.instagram}
+                                            target="_blank"
+                                        >
+                                            Instagram
+                                        </a>
+                                    </div>
                                 </div>
                             </Col>
                         </Row>

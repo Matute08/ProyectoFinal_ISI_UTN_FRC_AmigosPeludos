@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { getVeterinarias, getUserMail } from "../../../services/api";
+import { getVeterinarias, getUserMail, deleteVeterinaria, updateUser } from "../../../services/api";
 import { Col, Row, Table, Card, CardHeader, CardBody } from "reactstrap";
 import { Link, useNavigate } from "react-router-dom";
+import Modal from "../../components/Modal";
 
 const ServicioVeterinaria = () => {
     const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [veterinaria, setVeterinaria] = useState();
+    const { handleSweetAlertDeleteVeterinaria } = Modal();
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -64,6 +66,33 @@ const ServicioVeterinaria = () => {
         }
     }, [userData && userData.id]);
 
+    const handleDeleteVeterinaria = async () => {
+        const idVeterinaria = veterinaria && veterinaria[0].id;
+        const deleteResponse = await deleteVeterinaria(idVeterinaria);
+        const veterinariasUsuario = veterinaria.filter(
+            (vete) => vete.usuarioId === userData.id
+          );
+
+        if (
+             veterinariasUsuario.length === 1
+            
+            
+        ) {
+            console.log("dio 1");
+            console.log("dio mas de 1");
+            const actualizarUser = {
+                esVeterinaria: false,
+            };
+            await updateUser(userData.id, actualizarUser);
+            
+            console.log(deleteResponse);
+            return deleteResponse.success;
+        }else{
+            return deleteResponse.success;
+        }
+
+    };
+
     return (
         <React.Fragment>
             {!isLoading ? (
@@ -76,9 +105,7 @@ const ServicioVeterinaria = () => {
                                         <Table className="table-bordered align-middle table-nowrap mb-0 table-responsive-sm">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">
-                                                        Numero Veterinaria
-                                                    </th>
+                                                    
 
                                                     <th scope="col">
                                                         Nombre Veterinaria
@@ -93,6 +120,7 @@ const ServicioVeterinaria = () => {
                                                         Dirección
                                                     </th>
                                                     <th scope="col">CUIT</th>
+                                                    <th scope="col">Estado Veterinaria</th>
 
                                                     <th scope="col">
                                                         Acciones
@@ -104,11 +132,38 @@ const ServicioVeterinaria = () => {
                                             <tbody>
                                                 {veterinaria &&
                                                 veterinaria.length > 0 ? (
-                                                    veterinaria.map((item) => (
+                                                    veterinaria
+                                                    .sort((a, b) => {
+                                                        // Ordenar por estado primero
+                                                        if (
+                                                            a.estado ===
+                                                                "Revision" &&
+                                                            b.estado !==
+                                                                "Revision"
+                                                        ) {
+                                                            return -1; // a va antes que b
+                                                        } else if (
+                                                            a.estado !==
+                                                                "Revision" &&
+                                                            b.estado ===
+                                                                "Revision"
+                                                        ) {
+                                                            return 1; // b va antes que a
+                                                        } else {
+                                                            //Si los estados son iguales o ninguno es "Revision", ordenar por fecha decreciente
+                                                            return (
+                                                                new Date(
+                                                                    b.fechaAlta
+                                                                ) -
+                                                                new Date(
+                                                                    a.fechaAlta
+                                                                )
+                                                            );
+                                                        }
+                                                    })
+                                                    .map((item) => (
                                                         <tr key={item.id}>
-                                                            <td className="fw-medium">
-                                                                {item.id}
-                                                            </td>
+                                                            
 
                                                             <td>
                                                                 {item.nombre}
@@ -130,6 +185,7 @@ const ServicioVeterinaria = () => {
                                                                 }
                                                             </td>
                                                             <td>{item.cuil}</td>
+                                                            <td>{item.estado}</td>
                                                             <td>
                                                                 <div className="d-flex justify-content-center">
                                                                     <Link
@@ -143,9 +199,23 @@ const ServicioVeterinaria = () => {
                                                                         <div className="d-flex justify-content-center">
                                                                             <Link
                                                                                 to={`/veterinarias/perfil-veterinaria/${item.id}`}
-                                                                                className="btn btn-primary btn-formulario btn-form"
+                                                                                className="btn btn-info btn-formulario"
                                                                             >
                                                                                 <i className="ri-eye-fill"></i>
+                                                                            </Link>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div className="d-flex justify-content-center">
+                                                                            <Link
+                                                                                onClick={() =>
+                                                                                    handleSweetAlertDeleteVeterinaria(
+                                                                                        handleDeleteVeterinaria
+                                                                                    )
+                                                                                }
+                                                                                className="btn btn-danger btn-formulario"
+                                                                            >
+                                                                                <i className=" ri-delete-bin-fill"></i>
                                                                             </Link>
                                                                         </div>
                                                                     </td>

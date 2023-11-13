@@ -28,6 +28,9 @@ import {
     postPublicacion,
     getPublicacionesId,
     updatePost,
+    deleteFotoPosteo,
+    postFotoCuidador,
+    postFotoPosteo,
 } from "../../services/api";
 import classnames from "classnames";
 import LeafletMaps from "../components/maps/LeafletMaps";
@@ -72,6 +75,7 @@ const SettingsLostPets = () => {
     const [barrio, setBarrio] = useState();
     const [post, setPost] = useState([]);
     const [labelFecha, setLabelFecha] = useState();
+    const [fotosTemporales, setFotosTemporales] = useState([]);
 
     const tabChange = (tab) => {
         if (activeTab !== tab) setActiveTab(tab);
@@ -108,6 +112,19 @@ const SettingsLostPets = () => {
                     setLabelFecha("Fecha de Perdida");
                 } else {
                     setLabelFecha("Fecha de Encuentro");
+                }
+
+                // Obtener fotos y asignar estados temporales
+                if (updatedPost.fotos && Array.isArray(updatedPost.fotos)) {
+                    const fotosConEstadoTemporal = updatedPost.fotos.map(
+                        (foto) => ({
+                            id: foto && foto.id ? foto.id : "",
+                            url: foto && foto.foto ? foto.foto : "", // Asegúrate de que foto y foto.foto no sean undefined
+                            estadoTemporal: true,
+                        })
+                    );
+
+                    setFotosTemporales(fotosConEstadoTemporal);
                 }
 
                 setPost(updatedPost);
@@ -171,6 +188,17 @@ const SettingsLostPets = () => {
         ciudadMascota();
         barrioMascota();
     }, []);
+
+    const eliminarFotoTemporales = (id) => {
+        setFotosTemporales((prevFotos) => {
+            return prevFotos.map((foto) => {
+                if (foto.id === id) {
+                    return { ...foto, estadoTemporal: false };
+                }
+                return foto;
+            });
+        });
+    };
 
     //formulario Hook
     const {
@@ -261,40 +289,75 @@ const SettingsLostPets = () => {
             data.castracion = false;
         }
 
-        if (files.length === 0) {
+        try {
+            // Eliminar las fotos temporales con estadoTemporal igual a false
+            const fotosAEliminar = fotosTemporales.filter(
+                (foto) => !foto.estadoTemporal
+            );
+
+            // Si hay fotos para eliminar, realizar el deleteFileStorage y deleteFotoPaseador
+            if (fotosAEliminar.length > 0) {
+                for (const foto of fotosAEliminar) {
+                    try {
+                        console.log("Foto a eliminar:", foto);
+
+                        // Ajusta según cómo se almacena la URL de la foto y cómo se obtiene el ID
+                        await deleteFileStorage(foto.url);
+
+                        // Ajusta según cómo se obtiene el ID de la foto en tu servidor
+                        await deleteFotoPosteo(foto.id);
+                    } catch (error) {
+                        console.error(
+                            "Error al eliminar foto temporal:",
+                            error
+                        );
+                    }
+                }
+            }
+            // Verificar si hay fotos nuevas antes de obtener las URLs
+            if (files.length > 0) {
+                // Obtener las URLs de las nuevas fotos
+                const urls = await obtenerUrls();
+
+                // Enviar las nuevas fotos a la API
+                try {
+                    console.log(urls);
+                    await Promise.all(
+                        urls.map((url) =>
+                            postFotoPosteo({
+                                foto: url.foto,
+                                publicacionMascotaId: parseInt(posteoId, 10),
+                            })
+                        )
+                    );
+                } catch (error) {
+                    console.error(
+                        "Error al enviar nuevas fotos a la API:",
+                        error
+                    );
+                }
+            console.log(urls);
+
+            }
+
             data.latitud = post.latitud;
             data.longitud = post.longitud;
+            data.tipoPublicacionId = post.tipoPublicacionId;
+            data.usuarioId = userData.id;
+            data.mailUsuario = user.email;
+
+            console.log(data);
+            console.log(posteoId)
             await updatePost(posteoId, data);
 
             hideLoadingOverlay();
-            navigate("/perfil");
-        } else {
-            try {
-                post.fotos.forEach((foto) => {
-                    deleteFileStorage(foto.foto);
-                });
-                const urls = await obtenerUrls(); // Espera a obtener las URLs
-
-                data.latitud = post.latitud;
-                data.longitud = post.longitud;
-                data.fotos = urls;
-                data.tipoPublicacionId = post.tipoPublicacionId;
-                data.usuarioId = userData.id;
-                data.mailUsuario = user.email;
-
-                console.log(data);
-                console.log(urls); // Utiliza las URLs obtenidas
-
-                await updatePost(posteoId, data);
-
-                hideLoadingOverlay();
-                navigate("/perfil");
-            } catch (error) {
-                // Maneja cualquier error de la actualización
-                console.error("Error al realizar la publicacion:", error);
-            }
+            navigate(`/perfil/${userData && userData.mail}`);
+        } catch (error) {
+            // Maneja cualquier error de la actualización
+            console.error("Error al realizar la publicación:", error);
         }
     };
+
     document.title = "Modificar Posteo | Amigos Peludos";
     return (
         <React.Fragment>
@@ -308,13 +371,41 @@ const SettingsLostPets = () => {
                                 <Card className="mt-n5">
                                     <CardBody className="p-4">
                                         <div className="text-center">
-                                            {/* NOMBRE MASCOTA */}
-                                            <h5 className="fs-16 mb-1">
-                                                Fotos de la mascota{" "}
+                                             {/* NOMBRE MASCOTA */}
+                                             <h5 className="fs-16 mb-1">
+                                                Imagenes{" "}
                                                 <span className="text-danger">
                                                     *
                                                 </span>
                                             </h5>
+                                            {/* FOTOS DEL SERVIDOR */}
+                                            {fotosTemporales
+                                                .filter(
+                                                    (foto) =>
+                                                        foto.estadoTemporal
+                                                ) // Filtrar según el estado
+                                                .map((foto) => (
+                                                    <div
+                                                        key={foto.id}
+                                                        className="container-img-cargadas"
+                                                    >
+                                                        <img
+                                                            className="img-cargadas"
+                                                            src={foto.url}
+                                                            alt={`Foto ${foto.id}`}
+                                                        />
+                                                        <button
+                                                            className="btn-eliminar-foto"
+                                                            onClick={() =>
+                                                                eliminarFotoTemporales(
+                                                                    foto.id
+                                                                )
+                                                            }
+                                                        >
+                                                            X
+                                                        </button>
+                                                    </div>
+                                                ))}
                                             {/* FOTO DE LA MASCOTA */}
                                             <FilePond
                                                 files={files}
@@ -486,10 +577,10 @@ const SettingsLostPets = () => {
                                                                     )
                                                                 )}
                                                         </select>
-                                                        {errors.raza && (
+                                                        {errors.razaId && (
                                                             <span className="text-danger">
                                                                 {
-                                                                    errors.raza
+                                                                    errors.razaId
                                                                         .message
                                                                 }
                                                             </span>
@@ -720,7 +811,23 @@ const SettingsLostPets = () => {
                                                                 *
                                                             </span>
                                                         </Label>
-                                                        <select
+                                                        <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            name="ciudadId"
+                                                            {...register(
+                                                                "ciudadId",
+                                                                {
+                                                                    required: {
+                                                                        value: true,
+                                                                        message:
+                                                                            "El campo es requerido",
+                                                                    },
+                                                                }
+                                                            )}
+                                                            disabled
+                                                        />
+                                                        {/* <select
                                                             name="ciudadId"
                                                             className="form-select "
                                                             {...register(
@@ -733,6 +840,7 @@ const SettingsLostPets = () => {
                                                                     },
                                                                 }
                                                             )}
+                                                            disabled
                                                         >
                                                             <option value="">
                                                                 Seleccione...
@@ -757,8 +865,8 @@ const SettingsLostPets = () => {
                                                                         </option>
                                                                     )
                                                                 )}
-                                                        </select>
-                                                        {errors.ciudad && (
+                                                        </select> */}
+                                                        {/* {errors.ciudad && (
                                                             <span className="text-danger">
                                                                 {
                                                                     errors
@@ -766,7 +874,7 @@ const SettingsLostPets = () => {
                                                                         .message
                                                                 }
                                                             </span>
-                                                        )}
+                                                        )} */}
                                                     </div>
                                                 </Col>
                                                 {/* barrio */}

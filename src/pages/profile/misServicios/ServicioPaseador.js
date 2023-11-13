@@ -4,14 +4,20 @@ import {
     getPaseador,
     getCuidadores,
     getVeterinarias,
+    deletePaseador,
+    updateUser
 } from "../../../services/api";
 import { Col, Row } from "reactstrap";
 import { Link, useNavigate } from "react-router-dom";
+import Modal from "../../components/Modal";
 
 const ServicioPaseador = () => {
     const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [paseadores, setPaseadores] = useState([]);
+    const { handleSweetAlertDeletePaseador } = Modal();
+
+
 
     const daysOfWeek = [
         "lunes",
@@ -47,6 +53,8 @@ const ServicioPaseador = () => {
         fetchUserData();
     }, []);
 
+    
+
     useEffect(() => {
         const fetchServicios = async () => {
             if (userData) {
@@ -69,6 +77,23 @@ const ServicioPaseador = () => {
         }
     }, [userData && userData.id]);
 
+
+    //funcion para eliminar al usuario
+    const handleDeletePaseador = async () => {
+        const idPaseador = paseadores && paseadores[0].id
+        const deleteResponse = await deletePaseador(idPaseador);
+
+        const actualizarUser = {
+            esPaseador: false
+          };
+          
+          await updateUser(userData.id, actualizarUser);
+
+        console.log(deleteResponse);
+        return deleteResponse.success;
+        //window.location.reload()
+        
+    };
     return (
         <React.Fragment>
             {!isLoading ? (
@@ -346,6 +371,29 @@ const ServicioPaseador = () => {
                                         </Row>
                                         <Row>
                                             <div className=" w-100 d-flex justify-content-end m-3">
+                                                <Link
+                                                    class="button-pz btn-pz-danger m-3"
+                                                    onClick={() =>
+                                                        handleSweetAlertDeletePaseador(
+                                                            handleDeletePaseador
+                                                        )
+                                                    }
+                                                >
+                                                    <span class="span-pz text-pz">
+                                                        Eliminar Paseador
+                                                    </span>
+                                                    <span class="span-pz icon-pz m-1">
+                                                        <svg
+                                                            width="24"
+                                                            height="24"
+                                                            viewBox="0 0 24 24"
+                                                            className="svg-pz"
+                                                        >
+                                                            <path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z"></path>
+                                                        </svg>
+                                                    </span>
+                                                </Link>
+
                                                 <Link
                                                     class="button-pz btn-pz-success m-3"
                                                     to={`/modificar-paseador/${paseador.id}`}

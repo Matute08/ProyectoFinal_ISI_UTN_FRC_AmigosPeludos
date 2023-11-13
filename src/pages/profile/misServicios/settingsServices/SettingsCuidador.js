@@ -230,8 +230,8 @@ const SettingsCuidador = () => {
                 setValue("nroCalle", cuidador.nroCalle);
                 setValue("piso", cuidador.piso);
                 setValue("tipoViviendaId", cuidador.tipoViviendaId);
-                setValue("patioBalcon", cuidador.patioBalcon);
-                setValue("transportePropio", cuidador.transportePropio);
+                setValue("patioBalcon", cuidador.patioBalcon === true ? "1" : "0");
+                setValue("transportePropio", cuidador.transportePropio  === true ? "1" : "0");
 
                 setOperationsCompleted((prev) => prev + 1);
             }
@@ -274,9 +274,9 @@ const SettingsCuidador = () => {
         if (isValid) {
             data.tipoViviendaId = parseInt(data.tipoViviendaId, 10);
             // Convierte los valores de cadena a booleano
-            data.patioBalcon = data.patioBalcon === "true" ? true : false;
+            data.patioBalcon = data.patioBalcon === "1" ? true : false;
             data.transportePropio =
-                data.transportePropio === "true" ? true : false;
+                data.transportePropio === "1" ? true : false;
         }
 
         try {
@@ -463,7 +463,9 @@ const SettingsCuidador = () => {
                                                                         "Este campo es obligatorio",
                                                                 }
                                                             )}
+                                                            disabled
                                                         />
+                                                    
                                                         {errors.celular && (
                                                             <p className="invalid-feedback">
                                                                 {
@@ -798,7 +800,7 @@ const SettingsCuidador = () => {
                                                         <select
                                                             name="tipoViviendaId"
                                                             className={`form-select ${
-                                                                errors.barrioTrabajoId
+                                                                errors.tipoViviendaId
                                                                     ? "is-invalid"
                                                                     : ""
                                                             }`}
@@ -876,13 +878,13 @@ const SettingsCuidador = () => {
                                                                 Seleccione...
                                                             </option>
                                                             <option
-                                                                value={true}
+                                                                value={"1"}
                                                             >
                                                                 Si.
                                                             </option>{" "}
                                                             {/* Valor booleano true */}
                                                             <option
-                                                                value={false}
+                                                                value={"0"}
                                                             >
                                                                 No.
                                                             </option>{" "}
@@ -930,12 +932,12 @@ const SettingsCuidador = () => {
                                                                 Seleccione...
                                                             </option>
                                                             <option
-                                                                value={true}
+                                                                value={"1"}
                                                             >
                                                                 Si.
                                                             </option>
                                                             <option
-                                                                value={false}
+                                                                value={"0"}
                                                             >
                                                                 No.
                                                             </option>

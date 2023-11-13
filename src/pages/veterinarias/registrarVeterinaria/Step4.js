@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Col, Form, Row, Label, Input } from "reactstrap";
-import { getUserMail, postVeterinaria } from "../../../services/api";
+import { getUserMail, postVeterinaria, updateUser } from "../../../services/api";
 import Loading from "../../components/Loading";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const Step4 = ({ onNext, onPrev, step1Data, step2Data, step3Data }) => {
     const [isLoading, setIsLoading] = useState(true);
@@ -16,6 +17,16 @@ const Step4 = ({ onNext, onPrev, step1Data, step2Data, step3Data }) => {
         watch,
         setValue,
     } = useForm();
+    const showLoadingOverlay = () => {
+        setIsLoading(true);
+    };
+    const hideLoadingOverlay = () => {
+        setIsLoading(false);
+    };
+
+    const handleAsyncTask = async () => {
+        showLoadingOverlay();
+    };
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -48,15 +59,23 @@ const Step4 = ({ onNext, onPrev, step1Data, step2Data, step3Data }) => {
         };
 
         try {
-            setIsLoading(true);
+            //setIsLoading(true);
             console.log(allData);
+
+            handleConfirmacionVeterinaria()
             await postVeterinaria(allData);
 
-            setTimeout(() => {
-                setIsLoading(false);
-                onNext(allData);
-            }, 4000);
-            navigate("/veterinarias")
+            const actualizarUser = {
+                esVeterinaria: true
+              };
+              
+              await updateUser(userData.id, actualizarUser);
+
+            // setTimeout(() => {
+            //     setIsLoading(false);
+            //     onNext(allData);
+            // }, 4000);
+            // navigate("/veterinarias")
 
            
               
@@ -66,6 +85,29 @@ const Step4 = ({ onNext, onPrev, step1Data, step2Data, step3Data }) => {
         }
 
        
+    };
+
+    const handleConfirmacionVeterinaria = async () => {
+        // Muestra el mensaje de éxito con temporizador y barra de progreso
+        Swal.fire({
+            title: `La Veterinaria fue creada y se encuentra en Revisión`,
+            icon: "success",
+            html: "Cerrando en <b></b> segundos.",
+            timer: 3000, // Tiempo en milisegundos (2 segundos)
+            timerProgressBar: true,
+            showConfirmButton: false,
+            didOpen: () => {
+                const b = Swal.getHtmlContainer().querySelector("b");
+                const timerInterval = setInterval(() => {
+                    b.textContent = (Swal.getTimerLeft() / 1000).toFixed(1);
+                }, 100);
+            },
+            willClose: () => {
+                showLoadingOverlay();
+
+                navigate(`/veterinarias/`);
+            },
+        });
     };
 
     const aceptaTransferencias = watch("aceptaTransferencias");
@@ -134,7 +176,7 @@ const Step4 = ({ onNext, onPrev, step1Data, step2Data, step3Data }) => {
                                             required:
                                                 "Este campo es obligatorio",
                                         })}
-                                        placeholder="Precio por paseo"
+                                        placeholder="Ingrese CBU"
                                         className={`form-control ${
                                             errors.trasnferencia
                                                 ? "is-invalid"

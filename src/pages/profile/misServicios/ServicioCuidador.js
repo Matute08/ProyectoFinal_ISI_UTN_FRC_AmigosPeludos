@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { getUserMail, getCuidadores } from "../../../services/api";
+import {
+    getUserMail,
+    getCuidadores,
+    deleteCuidador,
+    updateUser
+} from "../../../services/api";
 import { Col, Row } from "reactstrap";
 import { Link, useNavigate } from "react-router-dom";
+import Modal from "../../components/Modal";
 
 const ServicioCuidador = () => {
     const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [cuidadores, setCuidadores] = useState()
+    const [cuidadores, setCuidadores] = useState();
+    const { handleSweetAlertDeleteCuidador } = Modal();
 
     const daysOfWeek = [
         "lunes",
@@ -65,6 +72,22 @@ const ServicioCuidador = () => {
             fetchServicios();
         }
     }, [userData && userData.id]);
+
+    //funcion para eliminar al cudiador
+    const handleDeleteCuidador = async () => {
+        const idCuidador = cuidadores && cuidadores[0].id;
+        const deleteResponse =  await deleteCuidador(idCuidador);
+
+        const actualizarUser = {
+            esCuidador: false
+          };
+          
+          await updateUser(userData.id, actualizarUser);
+
+        console.log(deleteResponse);
+        return deleteResponse.success;
+
+    };
 
     return (
         <React.Fragment>
@@ -258,7 +281,12 @@ const ServicioCuidador = () => {
                                                                 className="carousel-inner"
                                                                 role="listbox"
                                                             >
-                                                                {cuidador&& cuidador.fotos.map((foto, index)  => (
+                                                                {cuidador &&
+                                                                    cuidador.fotos.map(
+                                                                        (
+                                                                            foto,
+                                                                            index
+                                                                        ) => (
                                                                             <div
                                                                                 className={`carousel-item ${
                                                                                     index ===
@@ -274,7 +302,6 @@ const ServicioCuidador = () => {
                                                                                     className="d-block img-fluid mx-auto  img-servicios-perfil"
                                                                                     src={
                                                                                         foto.foto
-
                                                                                     }
                                                                                     alt={`Slide ${
                                                                                         index +
@@ -315,7 +342,6 @@ const ServicioCuidador = () => {
                                                             </a>
                                                         </div>
                                                     </div>
-                                                    
                                                 </Row>
                                             </Col>
                                         </Row>
@@ -427,6 +453,29 @@ const ServicioCuidador = () => {
                                         </Row>
                                         <Row>
                                             <div className=" w-100 d-flex justify-content-end m-3">
+                                                <Link
+                                                    class="button-pz btn-pz-danger m-3"
+                                                    onClick={() =>
+                                                        handleSweetAlertDeleteCuidador(
+                                                            handleDeleteCuidador
+                                                        )
+                                                    }
+                                                >
+                                                    <span class="span-pz text-pz">
+                                                        Eliminar Cuidador
+                                                    </span>
+                                                    <span class="span-pz icon-pz m-1">
+                                                        <svg
+                                                            width="24"
+                                                            height="24"
+                                                            viewBox="0 0 24 24"
+                                                            className="svg-pz"
+                                                        >
+                                                            <path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z"></path>
+                                                        </svg>
+                                                    </span>
+                                                </Link>
+
                                                 <Link
                                                     class="button-pz btn-pz-success m-3"
                                                     to={`/modificar-cuidador/${cuidador.id}`}

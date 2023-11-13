@@ -126,22 +126,7 @@ const ViewSolicitudesFundaciones = () => {
                                                 src={logo}
                                             />
 
-                                            <View style={styles.item}>
-                                                <Text style={styles.label}>
-                                                    Imagen:
-                                                </Text>
-                                                {dataForm.imagen ? (
-                                                    <Image
-                                                        src={dataForm.imagen}
-                                                        style={{
-                                                            width: "100%",
-                                                            height: "auto",
-                                                        }}
-                                                    />
-                                                ) : (
-                                                    <Text>- Sin imagen -</Text>
-                                                )}
-                                            </View>
+                                            
 
                                             <View style={styles.item}>
                                                 <Text style={styles.label}>

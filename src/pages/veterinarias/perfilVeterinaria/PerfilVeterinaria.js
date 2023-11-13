@@ -17,7 +17,7 @@ import vacuna from "../../../assets/images/servicesVet/vacunacion.jpg";
 import otros from "../../../assets/images/servicesVet/otros.jpg";
 
 const PerfilVeterinaria = () => {
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [veterinarias, setVeterinarias] = useState();
     const { id } = useParams();
 
@@ -87,7 +87,7 @@ const PerfilVeterinaria = () => {
             return (
                 <Col>
                     <h1 className="text-center">
-                        Esta veterinaria no ofrece servicios.
+                    Contáctate con la veterinaria para conocer los servicios que ofrecen.
                     </h1>
                 </Col>
             );
@@ -105,7 +105,7 @@ const PerfilVeterinaria = () => {
             return (
                 <Col>
                     <h1 className="text-center">
-                        Esta veterinaria no ofrece servicios.
+                    Contáctate con la veterinaria para conocer los servicios que ofrecen
                     </h1>
                 </Col>
             );
@@ -305,8 +305,6 @@ const PerfilVeterinaria = () => {
                                                                         WhatsApp
                                                                     </span>
                                                                 </button>
-
-                                                                
                                                             </div>
                                                         </Row>
                                                         {veterinarias &&
@@ -347,7 +345,16 @@ const PerfilVeterinaria = () => {
                                 Servicios que ofrece
                             </h2>
                             <Row>{renderServicios()}</Row>
+
+                            <h2 className="text-center m-5">
+                                Otros Servicios que ofrece:
+                            </h2>
+
+                            <h4 className=" p-5">
+                                {'- '}{veterinarias && veterinarias.servicios.otros}
+                            </h4>
                         </div>
+                        
                     </Container>
                     <Footer />
                 </>

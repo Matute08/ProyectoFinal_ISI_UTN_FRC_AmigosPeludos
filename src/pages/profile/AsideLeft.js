@@ -87,7 +87,12 @@ const AsideLeft = () => {
         "barrioId",
         "nroCalle",
         "rolUsuario",
-        "qr"
+        "qr",
+        "esPaseador",
+        "esCuidador",
+        "esVeterinaria",
+        "esFundacion"
+
     ];
 
     //funcion para eliminar al usuario

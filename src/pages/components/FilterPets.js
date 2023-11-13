@@ -9,7 +9,7 @@ import {
 import Loading from "./Loading";
 import { Col } from "reactstrap";
 
-const FilterPets = ({ cardsData }) => {
+const FilterPets = ({ cardsData, setPublicacionesFiltradas }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     const [tiposMascota, setTipoMascota] = useState([]);
@@ -17,32 +17,44 @@ const FilterPets = ({ cardsData }) => {
     const [sexo, setSexo] = useState([]);
     const [ciudad, setCiudad] = useState([]);
     const [barrio, setBarrio] = useState([]);
-    const [isRazaEnabled, setIsRazaEnabled] = useState(false); // Nuevo estado para habilitar/deshabilitar el campo de raza
+    const [isRazaEnabled, setIsRazaEnabled] = useState(false);
 
-    //tipo de mascota
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const tipo = await getTipoMascota();
                 if (tipo) {
                     setTipoMascota(tipo);
-                    setIsLoading(false);
                 }
             } catch (error) {
                 // Manejo de errores
             }
+            setIsLoading(false);
         };
 
         fetchData();
     }, []);
 
-    //sexo
+    const handleTipoMascotaChange = async (e) => {
+        const tipoMascotaId = e.target.value;
+        setIsRazaEnabled(!!tipoMascotaId);
+
+        try {
+            const razaData = await getAllRazaId(tipoMascotaId);
+            if (razaData) {
+                setRaza(razaData);
+            }
+        } catch (error) {
+            // Manejo de errores
+        }
+    };
+
     useEffect(() => {
         const fetchSexo = async () => {
             try {
-                const sexo = await getSexoMascota();
-                if (sexo) {
-                    setSexo(sexo);
+                const sexoData = await getSexoMascota();
+                if (sexoData) {
+                    setSexo(sexoData);
                 }
             } catch (error) {
                 // Manejo de errores
@@ -51,13 +63,12 @@ const FilterPets = ({ cardsData }) => {
         fetchSexo();
     }, []);
 
-    //ciudad
     useEffect(() => {
         const fetchCiudad = async () => {
             try {
-                const ciudad = await getCiudad();
-                if (ciudad) {
-                    setCiudad(ciudad);
+                const ciudadData = await getCiudad();
+                if (ciudadData) {
+                    setCiudad(ciudadData);
                 }
             } catch (error) {
                 // Manejo de errores
@@ -65,13 +76,13 @@ const FilterPets = ({ cardsData }) => {
         };
         fetchCiudad();
     }, []);
-    //barrio
+
     useEffect(() => {
         const fetchBarrio = async () => {
             try {
-                const barrio = await getAllBarrio();
-                if (barrio) {
-                    setBarrio(barrio);
+                const barrioData = await getAllBarrio();
+                if (barrioData) {
+                    setBarrio(barrioData);
                 }
             } catch (error) {
                 // Manejo de errores
@@ -80,31 +91,17 @@ const FilterPets = ({ cardsData }) => {
         fetchBarrio();
     }, []);
 
-    //raza
-    const getRaza = async (e) => {
-        const op = e.target.value;
-        setRaza(await getAllRazaId(op));
-    };
-
-    // Función para habilitar el campo de raza cuando se selecciona un tipo de mascota
-    const handleTipoMascotaChange = (e) => {
-        const tipoMascotaId = e.target.value;
-        setIsRazaEnabled(!!tipoMascotaId); // Habilitar el campo de raza si tipoMascotaId tiene valor
-        getRaza(e);
-    };
-
     return (
         <React.Fragment>
             {!isLoading ? (
                 <>
-                
                     <Col lg={2}>
                         <div className="mb-3">
                             <label className="form-label">
                                 Tipo de mascota:
                             </label>
                             <select
-                                className="form-select "
+                                className="form-select"
                                 onChange={handleTipoMascotaChange}
                             >
                                 <option value="">Seleccione...</option>
@@ -126,20 +123,19 @@ const FilterPets = ({ cardsData }) => {
                             <label>Raza:</label>
                             <select
                                 name="raza"
-                                className="form-select "
-                                disabled={!isRazaEnabled} // Deshabilitar el campo de raza si no está habilitado
+                                className="form-select"
+                                disabled={!isRazaEnabled}
                             >
                                 <option value="">Seleccione...</option>
-                                {raza &&
-                                    raza.map((elemento) => (
-                                        <option
-                                            className="form-control"
-                                            key={elemento.id}
-                                            value={elemento.id}
-                                        >
-                                            {elemento.nombre}
-                                        </option>
-                                    ))}
+                                {raza.map((elemento) => (
+                                    <option
+                                        className="form-control"
+                                        key={elemento.id}
+                                        value={elemento.id}
+                                    >
+                                        {elemento.nombre}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </Col>
@@ -147,81 +143,67 @@ const FilterPets = ({ cardsData }) => {
                     <Col lg={2}>
                         <div className="mb-3">
                             <label>Sexo:</label>
-                            <select name="sexo" className="form-select ">
+                            <select name="sexo" className="form-select">
                                 <option value="">Seleccione...</option>
-                                {sexo &&
-                                    sexo.map((elemento) => (
-                                        <option
-                                            className="form-control"
-                                            key={elemento.id}
-                                            value={elemento.id}
-                                        >
-                                            {elemento.nombre}
-                                        </option>
-                                    ))}
+                                {sexo.map((elemento) => (
+                                    <option
+                                        className="form-control"
+                                        key={elemento.id}
+                                        value={elemento.id}
+                                    >
+                                        {elemento.nombre}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </Col>
                     <Col lg={2}>
                         <div className="mb-3">
                             <label>Ciudad:</label>
-                            <select
-                                name="ciudad"
-                                className="form-select "
-                            >
+                            <select name="ciudad" className="form-select">
                                 <option value="">Seleccione...</option>
-                                {ciudad &&
-                                    ciudad.map((elemento) => (
-                                        <option
-                                            className="form-control"
-                                            key={elemento.id}
-                                            value={elemento.id}
-                                        >
-                                            {elemento.nombre}
-                                        </option>
-                                    ))}
+                                {ciudad.map((elemento) => (
+                                    <option
+                                        className="form-control"
+                                        key={elemento.id}
+                                        value={elemento.id}
+                                    >
+                                        {elemento.nombre}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </Col>
                     <Col lg={2}>
                         <div className="mb-3">
                             <label>Barrio:</label>
-                            <select
-                                name="barrio"
-                                className="form-select "
-                            >
+                            <select name="barrio" className="form-select">
                                 <option value="">Seleccione...</option>
-                                {barrio &&
-                                    barrio.map((elemento) => (
-                                        <option
-                                            className="form-control"
-                                            key={elemento.id}
-                                            value={elemento.id}
-                                        >
-                                            {elemento.nombre}
-                                        </option>
-                                    ))}
+                                {barrio.map((elemento) => (
+                                    <option
+                                        className="form-control"
+                                        key={elemento.id}
+                                        value={elemento.id}
+                                    >
+                                        {elemento.nombre}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </Col>
                     <Col lg={12}>
                         <div className="button-filter w-100 d-flex justify-content-center">
                             <button className="btn btn-success mt-2 acept">
-                                Aplicar 
+                                Aplicar
                             </button>
-
                             <button className="btn btn-danger mt-2 clean">
-                                Limpiar 
+                                Limpiar
                             </button>
                         </div>
-                     
                     </Col>
-                  
                 </>
             ) : (
-                <>
-                    <Loading></Loading>
-                </>
+                <Loading></Loading>
             )}
         </React.Fragment>
     );

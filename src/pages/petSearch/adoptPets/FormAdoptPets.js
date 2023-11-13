@@ -9,12 +9,13 @@ import {
     ModalHeader,
     Row,
 } from "reactstrap";
+import Swal from "sweetalert2";
 import {
     getUserMail,
     getCiudad,
     getAllBarrio,
     postFormularioAdopcion,
-    getPublicacionesId
+    getPublicacionesId,
 } from "../../../services/api";
 import { useAuth } from "../../../services/AuthContext";
 import { useForm } from "react-hook-form";
@@ -40,7 +41,9 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
                 const userEmail = dataLocalStorage.email;
 
                 const datosUsuario = await getUserMail(userEmail);
-                datosUsuario.calle = `${datosUsuario.calle + " " + datosUsuario.nroCalle}`;
+                datosUsuario.calle = `${
+                    datosUsuario.calle + " " + datosUsuario.nroCalle
+                }`;
                 setUserData(datosUsuario);
                 setIsLoading(false);
             }
@@ -57,18 +60,39 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
                 setBarrio(dataBarrio);
             }
         };
-        const publicacion = async () =>{
+        const publicacion = async () => {
             const publiData = await getPublicacionesId(posteoId);
             if (publiData) {
-                setPubli(publiData)
+                setPubli(publiData);
             }
-        }
+        };
 
         fetchUserData();
         ciudadMascota();
         barrioMascota();
         publicacion();
     }, []);
+
+    const handleUpdateState = async () => {
+        // Muestra el mensaje de éxito con temporizador y barra de progreso
+        Swal.fire({
+            title: `Formulario enviado con éxito`,
+            icon: "success",
+            html: "Cerrando en <b></b> segundos.",
+            timer: 2000, // Tiempo en milisegundos (2 segundos)
+            timerProgressBar: true,
+            showConfirmButton: false,
+            didOpen: () => {
+                const b = Swal.getHtmlContainer().querySelector("b");
+                const timerInterval = setInterval(() => {
+                    b.textContent = (Swal.getTimerLeft() / 1000).toFixed(1);
+                }, 100);
+            },
+            willClose: () => {
+                window.location.reload();
+            },
+        });
+    };
 
     const {
         register,
@@ -83,17 +107,13 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
             data.aceptaMascota = data.aceptaMascota === "1";
             data.viviendaCerrada = data.viviendaCerrada === "1";
             data.estadoFormularioId = 1;
-            data.usuarioIdSolicitante = userData.id
-            data.usuarioIdSolicitado = publi.usuarioId
+            data.usuarioIdSolicitante = userData.id;
+            data.usuarioIdSolicitado = publi.usuarioId;
             data.publicacionMascotaId = parseInt(posteoId, 10);
 
-
-            console.log("Formulario enviar");
-            console.log(data);
+           
             await postFormularioAdopcion(data);
-
-            window.location.reload()
-            //navigate("/mascotas-adopcion");
+            handleUpdateState()
         } catch (error) {
             // Maneja cualquier error de la actualización
             console.error("Error al enviar el formulario:", error);

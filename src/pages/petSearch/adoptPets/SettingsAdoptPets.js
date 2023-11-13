@@ -28,6 +28,8 @@ import {
     posteoPublicacion,
     getPublicacionesId,
     updatePost,
+    deleteFotoPosteo,
+    postFotoPosteo
 } from "../../../services/api";
 import classnames from "classnames";
 import {
@@ -71,8 +73,7 @@ const SettingsAdoptPets = () => {
     const [barrio, setBarrio] = useState();
     const [posteo, setPosteo] = useState([]);
     const [labelFecha, setLabelFecha] = useState();
-
-
+    const [fotosTemporales, setFotosTemporales] = useState([]);
     const tabChange = (tab) => {
         if (activeTab !== tab) setActiveTab(tab);
     };
@@ -84,15 +85,24 @@ const SettingsAdoptPets = () => {
         setIsLoading(false);
     };
 
-   
-
-   
-
     useEffect(() => {
         const publicacion = async () => {
             const post = await getPublicacionesId(posteoId);
 
-            setPosteo(post)
+            // Obtener fotos y asignar estados temporales
+            if (post.fotos && Array.isArray(post.fotos)) {
+                const fotosConEstadoTemporal = post.fotos.map(
+                    (foto) => ({
+                        id: foto && foto.id ? foto.id : "",
+                        url: foto && foto.foto ? foto.foto : "", // Asegúrate de que foto y foto.foto no sean undefined
+                        estadoTemporal: true,
+                    })
+                );
+
+                setFotosTemporales(fotosConEstadoTemporal);
+            }
+
+            setPosteo(post);
             setIsLoading(false);
         };
 
@@ -108,7 +118,9 @@ const SettingsAdoptPets = () => {
                 const userEmail = dataLocalStorage.email;
 
                 const datosUsuario = await getUserMail(userEmail);
-                datosUsuario.calle = `${datosUsuario.calle + " " + datosUsuario.nroCalle}`;
+                datosUsuario.calle = `${
+                    datosUsuario.calle + " " + datosUsuario.nroCalle
+                }`;
                 setUserData(datosUsuario);
                 setIsLoading(false);
             }
@@ -151,8 +163,16 @@ const SettingsAdoptPets = () => {
         ciudadMascota();
         barrioMascota();
     }, []);
-
-
+    const eliminarFotoTemporales = (id) => {
+        setFotosTemporales((prevFotos) => {
+            return prevFotos.map((foto) => {
+                if (foto.id === id) {
+                    return { ...foto, estadoTemporal: false };
+                }
+                return foto;
+            });
+        });
+    };
 
     //formulario Hook
     const {
@@ -174,7 +194,7 @@ const SettingsAdoptPets = () => {
                 setValue("castracion", castrado);
                 setValue("descripcion", posteo.descripcion);
                 setValue("razaId", posteo.razaId);
-                setValue("ciudadId", posteo.ciudadId);
+                setValue("ciudadId", "Cordoba");
                 setValue("barrioId", posteo.barrioId);
                 setIsLoading(false);
             }
@@ -225,38 +245,79 @@ const SettingsAdoptPets = () => {
         return []; // Retorna un arreglo vacío si no hay archivos
     };
 
+
+    
+
     const onSubmit = async (data) => {
         showLoadingOverlay();
         setErrorFile("");
+
         if (data.castracion === "1") {
             data.castracion = true;
-        } else{
+        } else {
             data.castracion = false;
         }
 
-        if (files.length === 0) {
+        try {
+            // Eliminar las fotos temporales con estadoTemporal igual a false
+            const fotosAEliminar = fotosTemporales.filter(
+                (foto) => !foto.estadoTemporal
+            );
+
+            // Si hay fotos para eliminar, realizar el deleteFileStorage y deleteFotoPaseador
+            if (fotosAEliminar.length > 0) {
+                for (const foto of fotosAEliminar) {
+                    try {
+                        console.log("Foto a eliminar:", foto);
+
+                        // Ajusta según cómo se almacena la URL de la foto y cómo se obtiene el ID
+                        await deleteFileStorage(foto.url);
+
+                        // Ajusta según cómo se obtiene el ID de la foto en tu servidor
+                        await deleteFotoPosteo(foto.id);
+                    } catch (error) {
+                        console.error(
+                            "Error al eliminar foto temporal:",
+                            error
+                        );
+                    }
+                }
+            }
+            // Verificar si hay fotos nuevas antes de obtener las URLs
+            if (files.length > 0) {
+                // Obtener las URLs de las nuevas fotos
+                const urls = await obtenerUrls();
+
+                // Enviar las nuevas fotos a la API
+                try {
+                    console.log(urls);
+                    await Promise.all(
+                        urls.map((url) =>
+                            postFotoPosteo({
+                                foto: url.foto,
+                                publicacionMascotaId: parseInt(posteoId, 10),
+                            })
+                        )
+                    );
+                } catch (error) {
+                    console.error(
+                        "Error al enviar nuevas fotos a la API:",
+                        error
+                    );
+                }
+                console.log(urls);
+            }
+
+            data.tipoPublicacionId = posteo.tipoPublicacionId;
+            data.usuarioId = userData.id;
+            data.mailUsuario = user.email;
             await updatePost(posteoId, data);
 
             hideLoadingOverlay();
-            navigate("/perfil");
-        } else {
-            try {
-                posteo.fotos.forEach((foto) => {
-                    deleteFileStorage(foto.foto);
-                });
-                const urls = await obtenerUrls(); // Espera a obtener las URLs
-                data.fotos = urls;
-                data.tipoPublicacionId = posteo.tipoPublicacionId;
-                data.usuarioId = userData.id;
-                data.mailUsuario = user.email;
-                await updatePost(posteoId, data);
-
-                hideLoadingOverlay();
-                navigate("/perfil");
-            } catch (error) {
-                // Maneja cualquier error de la actualización
-                console.error("Error al realizar la publicacion:", error);
-            }
+            navigate(`/perfil/${userData && userData.mail}`);
+        } catch (error) {
+            // Maneja cualquier error de la actualización
+            console.error("Error al realizar la publicación:", error);
         }
     };
     document.title = "Modificar posteo | Amigos Peludos";
@@ -274,11 +335,39 @@ const SettingsAdoptPets = () => {
                                         <div className="text-center">
                                             {/* NOMBRE MASCOTA */}
                                             <h5 className="fs-16 mb-1">
-                                                Fotos de la mascota{" "}
+                                                Imagenes{" "}
                                                 <span className="text-danger">
                                                     *
                                                 </span>
                                             </h5>
+                                            {/* FOTOS DEL SERVIDOR */}
+                                            {fotosTemporales
+                                                .filter(
+                                                    (foto) =>
+                                                        foto.estadoTemporal
+                                                ) // Filtrar según el estado
+                                                .map((foto) => (
+                                                    <div
+                                                        key={foto.id}
+                                                        className="container-img-cargadas"
+                                                    >
+                                                        <img
+                                                            className="img-cargadas"
+                                                            src={foto.url}
+                                                            alt={`Foto ${foto.id}`}
+                                                        />
+                                                        <button
+                                                            className="btn-eliminar-foto"
+                                                            onClick={() =>
+                                                                eliminarFotoTemporales(
+                                                                    foto.id
+                                                                )
+                                                            }
+                                                        >
+                                                            X
+                                                        </button>
+                                                    </div>
+                                                ))}
                                             {/* FOTO DE LA MASCOTA */}
                                             <FilePond
                                                 files={files}
@@ -330,7 +419,6 @@ const SettingsAdoptPets = () => {
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Nombre de la mascota
-                                                            
                                                         </Label>
                                                         <input
                                                             type="text"
@@ -338,11 +426,9 @@ const SettingsAdoptPets = () => {
                                                             name="nombre"
                                                             placeholder="Nombre de la mascota"
                                                             {...register(
-                                                                "nombre",
-                                                                
+                                                                "nombre"
                                                             )}
                                                         />
-                                                        
                                                     </div>
                                                 </Col>
                                                 {/* tipo de mascota */}
@@ -356,7 +442,11 @@ const SettingsAdoptPets = () => {
                                                         </label>
                                                         <select
                                                             name="tipoId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.tipoId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "tipoId",
                                                                 {
@@ -417,7 +507,11 @@ const SettingsAdoptPets = () => {
                                                         </Label>
                                                         <select
                                                             name="razaId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.razaId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "razaId",
                                                                 {
@@ -453,10 +547,11 @@ const SettingsAdoptPets = () => {
                                                                     )
                                                                 )}
                                                         </select>
-                                                        {errors.raza && (
+                                                        {errors.razaId && (
                                                             <span className="text-danger">
                                                                 {
-                                                                    errors.raza
+                                                                    errors
+                                                                        .razaId
                                                                         .message
                                                                 }
                                                             </span>
@@ -474,7 +569,11 @@ const SettingsAdoptPets = () => {
                                                         </Label>
                                                         <select
                                                             name="edadId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.edadId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "edadId",
                                                                 {
@@ -527,14 +626,12 @@ const SettingsAdoptPets = () => {
                                                     <div className="mb-3">
                                                         <Label className="form-label">
                                                             Castrada/o
-                                                           
                                                         </Label>
                                                         <select
                                                             name="castracion"
                                                             className="form-select "
                                                             {...register(
-                                                                "castracion",
-                                                               
+                                                                "castracion"
                                                             )}
                                                         >
                                                             <option value="">
@@ -550,7 +647,6 @@ const SettingsAdoptPets = () => {
                                                                 No se
                                                             </option>
                                                         </select>
-                                                        
                                                     </div>
                                                 </Col>
                                                 {/* sexo */}
@@ -564,7 +660,11 @@ const SettingsAdoptPets = () => {
                                                         </Label>
                                                         <select
                                                             name="sexoId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.sexoId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "sexoId",
                                                                 {
@@ -621,9 +721,29 @@ const SettingsAdoptPets = () => {
                                                                 *
                                                             </span>
                                                         </Label>
-                                                        <select
+                                                        <input
+                                                            type="text"
+                                                            className="form-control"
                                                             name="ciudadId"
-                                                            className="form-select "
+                                                            {...register(
+                                                                "ciudadId",
+                                                                {
+                                                                    required: {
+                                                                        value: true,
+                                                                        message:
+                                                                            "El campo es requerido",
+                                                                    },
+                                                                }
+                                                            )}
+                                                            disabled
+                                                        />
+                                                        {/* <select
+                                                            name="ciudadId"
+                                                            className={`form-select ${
+                                                                errors.ciudadId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "ciudadId",
                                                                 {
@@ -658,12 +778,12 @@ const SettingsAdoptPets = () => {
                                                                         </option>
                                                                     )
                                                                 )}
-                                                        </select>
-                                                        {errors.ciudad && (
+                                                        </select> */}
+                                                        {errors.ciudadId && (
                                                             <span className="text-danger">
                                                                 {
                                                                     errors
-                                                                        .ciudad
+                                                                        .ciudadId
                                                                         .message
                                                                 }
                                                             </span>
@@ -681,7 +801,11 @@ const SettingsAdoptPets = () => {
                                                         </Label>
                                                         <select
                                                             name="barrioId"
-                                                            className="form-select "
+                                                            className={`form-select ${
+                                                                errors.barrioId
+                                                                    ? "is-invalid"
+                                                                    : ""
+                                                            }`}
                                                             {...register(
                                                                 "barrioId",
                                                                 {
@@ -761,7 +885,6 @@ const SettingsAdoptPets = () => {
                                                         )}
                                                     </div>
                                                 </Col>
-                                                
 
                                                 <Col lg={12}>
                                                     <div className="hstack gap-2 justify-content-end">

@@ -1,5 +1,19 @@
-// ... (otros estilos existentes)
+/* Estilos para pantallas más pequeñas (media queries) */
+@media (max-width: 600px) {
+    .amount-option {
+        flex-basis: 100%;
+        /* En pantallas más pequeñas, los botones ocuparán todo el ancho disponible */
+    }
+}
 
+
+.amount-option.selected{
+    background-color: #EC6B76;
+    padding: 0.5;
+    border: solid 2px #EC6B76;
+    border-radius: 5%;
+
+}
 .donation-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -7,20 +21,28 @@
     margin-left: -0.5rem;
     margin-right: -0.5rem;
 
+    .amount-options-container {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        /* Asegura que los botones se ajusten en una fila o columna según el espacio disponible */
+    }
+
     .amount-option {
         padding: 0.5rem;
         width: calc(25% - 1rem); // Ajusta según tus necesidades
 
         .selected-amount {
             border: solid 2px #EC6B76;
-            color: #EC6B76;
+            color: #0e0d0d;
             font-size: 1.5em;
-            
-            :hover{
+
+            :hover {
                 background-color: #EC6B76;
-                
+
             }
         }
+        
 
         input[type="text"] {
             border: 2px solid #29afc0;
@@ -39,3 +61,80 @@
 }
 
 // ... (otros estilos existentes)
+
+
+.imagen-donar {
+    width: 60%;
+    height: 60%;
+}
+
+.texto-donar {
+    font-size: 1.2em;
+    text-align: justify;
+}
+
+// --
+
+.button-donar {
+    all: unset;
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0.6em 2em;
+    border: #EC6B76 solid 0.15em;
+    border-radius: 0.25em;
+    color: #030303;
+    font-size: 1.5em;
+    font-weight: 600;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border 300ms, color 300ms;
+    user-select: none;
+  }
+  
+  .button-donar p {
+    z-index: 1;
+    margin: 0;
+  }
+  
+  .button-donar:hover {
+    color: #212121;
+  }
+  
+  .button-donar:active {
+    border-color: teal;
+  }
+  
+  .button-donar::after, .button-donar::before {
+    content: "";
+    position: absolute;
+    width: 9em;
+    aspect-ratio: 1;
+    background: #e69628;
+    opacity: 50%;
+    border-radius: 50%;
+    transition: transform 500ms, background 300ms;
+  }
+  
+  .button-donar::before {
+    left: 0;
+    transform: translateX(-8em);
+  }
+  
+  .button-donar::after {
+    right: 0;
+    transform: translateX(8em);
+  }
+  
+  .button-donar:hover:before {
+    transform: translateX(-1em);
+  }
+  
+  .button-donar:hover:after {
+    transform: translateX(1em);
+  }
+  
+  .button-donar:active:before,
+  .button-donar:active:after {
+    background: teal;
+  }

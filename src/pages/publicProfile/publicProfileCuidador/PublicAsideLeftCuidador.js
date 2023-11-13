@@ -18,7 +18,7 @@ import avatar1 from "../../../assets/images/user/user-random.jpg";
 import Loading from "../../components/Loading";
 import Modal from "../../components/Modal";
 
-const PublicAsideLeftCuidador = ({correoElectronico}) => {
+const PublicAsideLeftCuidador = ({ correoElectronico }) => {
     const { handleSweetAlertDeleteUser } = Modal();
     const navigate = useNavigate();
     const { user, deleteAccount } = useAuth();
@@ -31,16 +31,16 @@ const PublicAsideLeftCuidador = ({correoElectronico}) => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const userData = correoElectronico && await getUserMail(correoElectronico);
+            const userData =
+                correoElectronico && (await getUserMail(correoElectronico));
             userData.calle = `${userData.calle + " " + userData.nroCalle}`;
             setUserData(userData);
             setIsLoading(false);
         };
-        console.log(correoElectronico)
+        console.log(correoElectronico);
         console.log(userData);
         fetchUserData();
     }, []);
-    
 
     useEffect(() => {
         const fetchRol = async () => {
@@ -78,9 +78,12 @@ const PublicAsideLeftCuidador = ({correoElectronico}) => {
         "barrioId",
         "nroCalle",
         "rolUsuario",
-        "qr"
+        "qr",
+        "esPaseador",
+        "esCuidador",
+        "esVeterinaria",
+        "esFundacion",
     ];
-
 
     return (
         <React.Fragment>
