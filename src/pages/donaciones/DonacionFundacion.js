@@ -25,7 +25,7 @@ import img from "../../assets/images/user/user-random.jpg";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 
 const DonacionFundacion = () => {
-    const { id } = useParams();
+    const { idFunda } = useParams();
     const navigate = useNavigate();
     const [fundacion, setFundacion] = useState();
     const [isLoading, setIsLoading] = useState(true);
@@ -60,20 +60,20 @@ const DonacionFundacion = () => {
     }, []);
 
     useEffect(() => {
-        console.log(id);
+    
         const fetchFundaciones = async () => {
             try {
-                const dataFundacion = await getFundacionId(id);
+                const dataFundacion = await getFundacionId(idFunda);
                 setFundacion(dataFundacion);
                 setIsLoading(false);
             } catch (error) {
                 console.error("Error al obtener Fundacion:", error);
             }
         };
-        if (id) {
+        if (idFunda) {
             fetchFundaciones();
         }
-    }, [id]);
+    }, [idFunda]);
 
     const handleClick = () => {
         navigate("/agregar-fundacion");
@@ -104,7 +104,7 @@ const DonacionFundacion = () => {
                     }`,
                     unit_price: selectedAmount,
                     quantity: 1,
-                    pagina: `https://amigos-peludos.vercel.app/fundaciones/donar-fundacion/${id}`
+                    pagina: `https://amigos-peludos.vercel.app/fundaciones/donar-fundacion/${idFunda}`
                     
                     
                 }

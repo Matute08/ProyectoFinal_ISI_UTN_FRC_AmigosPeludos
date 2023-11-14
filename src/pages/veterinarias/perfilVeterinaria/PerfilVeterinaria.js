@@ -21,7 +21,7 @@ import axios from "axios";
 const PerfilVeterinaria = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [veterinarias, setVeterinarias] = useState();
-    const { id } = useParams();
+    const { idVete } = useParams();
     const [selectedAmount, setSelectedAmount] = useState(null);
     const [mostrarBoton, setMostrarBoton] = useState(false);
     const [mostrarBotonMail, setMostrarBotonMail] = useState(true);
@@ -48,7 +48,7 @@ const PerfilVeterinaria = () => {
                     }`,
                     unit_price: donationAmount,
                     quantity: 1,
-                    pagina: `https://amigos-peludos.vercel.app/veterinarias/perfil-veterinarias/${id}`,
+                    pagina: `https://amigos-peludos.vercel.app/veterinarias/perfil-veterinarias/${idVete}`,
                     
                 }
             );
@@ -76,7 +76,7 @@ const PerfilVeterinaria = () => {
     useEffect(() => {
         const fetchVeterinarias = async () => {
             try {
-                const dataVeterinarias = await getVeterinariaId(id);
+                const dataVeterinarias = await getVeterinariaId(idVete);
                 setVeterinarias(dataVeterinarias);
                 setIsLoading(false);
             } catch (error) {
