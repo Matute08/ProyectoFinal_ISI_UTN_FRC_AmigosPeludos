@@ -98,6 +98,11 @@
 }
 .presentacion-paseador{
   color: black !important;
+  overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    text-align: justify;
 }
 
 .button-container {

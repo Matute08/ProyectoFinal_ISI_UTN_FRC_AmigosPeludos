@@ -189,8 +189,8 @@ const PublicProfilePaseador = () => {
                                                 </Row>
 
                                                 <Row>
-                                                    <div className="m-4">
-                                                        <h5>
+                                                    <div className="m-4 text-public-profile">
+                                                        <h5 className="">
                                                             {" "}
                                                             <strong>
                                                                 {" "}

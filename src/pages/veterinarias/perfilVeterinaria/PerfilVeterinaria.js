@@ -37,7 +37,7 @@ const PerfilVeterinaria = () => {
         setMostrarInput(true);
         setMostrarBoton(true);
     };
-   
+
     const createPreference = async () => {
         try {
             const response = await axios.post(
@@ -68,7 +68,7 @@ const PerfilVeterinaria = () => {
         // Actualiza el estado con el valor del input
         setDonationAmount(event.target.value);
         console.log(donationAmount);
-      };
+    };
     //-----------------------------------------------------
 
     useEffect(() => {
@@ -162,7 +162,6 @@ const PerfilVeterinaria = () => {
         }
 
         return (
-            
             serviciosActivos &&
             serviciosActivos.map((servicio, index) => (
                 <Col key={index} xs={12} sm={6} md={4} lg={3} className="mb-4">
@@ -184,7 +183,36 @@ const PerfilVeterinaria = () => {
             ))
         );
     };
-
+    function renderHorario(horario) {
+        const turnos = horario.split(" y ");
+        if (turnos.length > 1) {
+            // Horario con turno mañana y turno tarde
+            return (
+                <ul>
+                    {turnos.map((turno, index) => (
+                        <li key={index}>{formatTurno(turno)}</li>
+                    ))}
+                </ul>
+            );
+        } else {
+            // Horario corrido
+            return <span>{formatTurno(horario)}</span>;
+        }
+    }
+    
+    function formatTurno(turno) {
+        const [tipo, horas] = turno.split(" desde ");
+        return (
+            <span>
+                {tipo}: {horas}
+            </span>
+        );
+    }
+    
+    function capitalizeFirstLetter(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+    
     return (
         <React.Fragment>
             {!isLoading ? (
@@ -400,7 +428,9 @@ const PerfilVeterinaria = () => {
                                                                                         handleChange
                                                                                     }
                                                                                 />
-                                                                                {mostrarBoton && donationAmount> 0?(
+                                                                                {mostrarBoton &&
+                                                                                donationAmount >
+                                                                                    0 ? (
                                                                                     <button
                                                                                         className="m-3 button-donar"
                                                                                         onClick={
@@ -448,14 +478,21 @@ const PerfilVeterinaria = () => {
                             </h2>
                             <Row>{renderServicios()}</Row>
 
-                            <h2 className="text-center m-5">
-                                Otros Servicios que ofrece:
-                            </h2>
+                            {veterinarias && veterinarias.servicios.otros ? (
+                                <div>
+                                    <h2 className="text-center m-5">
+                                        Otros Servicios que ofrece:
+                                    </h2>
 
-                            <h4 className=" p-5">
-                                {"- "}
-                                {veterinarias && veterinarias.servicios.otros}
-                            </h4>
+                                    <h4 className=" p-5">
+                                        {"- "}
+                                        {veterinarias &&
+                                            veterinarias.servicios.otros}
+                                    </h4>
+                                </div>
+                            ) : (
+                                ""
+                            )}
                         </div>
                     </Container>
                     <Footer />

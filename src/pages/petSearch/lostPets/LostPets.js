@@ -274,23 +274,85 @@ const LostPets = () => {
                                                         : ""
                                                 }`}
                                             >
-                                                {publicacionesFiltradas.map(
-                                                    (elemento) => (
-                                                        <div
-                                                            key={elemento.id}
-                                                            className={`card-pets ${
-                                                                activeCardId ===
-                                                                elemento.id
-                                                                    ? "show"
-                                                                    : ""
-                                                            }`}
-                                                            onClick={() =>
-                                                                handleClick(
-                                                                    elemento.id
-                                                                )
-                                                            }
-                                                        >
-                                                            <div className="card__image-holder">
+                                                {publicacionesFiltradas
+                                                    .map((elemento) => (
+                                                        <div key={elemento.id}>
+                                                            <div class="card ">
+                                                                {elemento &&
+                                                                    elemento.fotos &&
+                                                                    elemento
+                                                                        .fotos
+                                                                        .length >
+                                                                        0 && (
+                                                                        <img
+                                                                            key={
+                                                                                elemento
+                                                                                    .fotos[0]
+                                                                                    .id
+                                                                            }
+                                                                            src={
+                                                                                elemento
+                                                                                    .fotos[0]
+                                                                                    .foto
+                                                                            }
+                                                                            alt="Imagen de la publicación"
+                                                                            class="card-img-top card__image"
+                                                                        />
+                                                                    )}
+
+                                                                <div class="card-body">
+                                                                    <div className="card-pets ">
+                                                                        <div className="card-title">
+                                                                            <h2 className="titulo-card ">
+                                                                                {elemento.nombre
+                                                                                    ? elemento.nombre
+                                                                                    : "-"}
+                                                                                <p className="texto-card">
+                                                                                    Desde:{" "}
+                                                                                    {new Date(
+                                                                                        elemento.fechaAlta
+                                                                                    ).toLocaleDateString(
+                                                                                        "es-ES",
+                                                                                        {
+                                                                                            day: "2-digit",
+                                                                                            month: "2-digit",
+                                                                                            year: "numeric",
+                                                                                        }
+                                                                                    )}
+                                                                                </p>
+                                                                            </h2>
+                                                                        </div>
+                                                                    </div>
+                                                                    <hr />
+                                                                    <div className="card-pets">
+                                                                        <p className="card-description card-text">
+                                                                            {
+                                                                                elemento.descripcion
+                                                                            }
+                                                                        </p>
+                                                                    </div>
+                                                                        
+                                                                    <div className="card-actions">
+                                                                        <Link
+                                                                            className="learn-more button-learn-more"
+                                                                            to={`/consultar-posteo/${elemento.id}`}
+                                                                        >
+                                                                            <span
+                                                                                className="circle"
+                                                                                aria-hidden="true"
+                                                                            >
+                                                                                <span className="icon arrow"></span>
+                                                                            </span>
+                                                                            <span className="button-text">
+                                                                                Ver
+                                                                                Más
+                                                                            </span>
+                                                                        </Link>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* <div className="card__image-holder">
                                                                 {elemento &&
                                                                     elemento.fotos &&
                                                                     elemento
@@ -331,13 +393,12 @@ const LostPets = () => {
                                                                 </a>
                                                                 <h2 className="titulo-card">
                                                                     {
-                                                                        elemento.nombre
+                                                                        elemento.nombre ? (elemento.nombre):("-")
                                                                     }
                                                                     <p className="texto-card">
-                                                                        Encontrado
-                                                                        el día{" "}
+                                                                        Desde: {" "}
                                                                         {new Date(
-                                                                            elemento.fechaPerdida
+                                                                            elemento.fechaAlta
                                                                         ).toLocaleDateString(
                                                                             "es-ES",
                                                                             {
@@ -374,13 +435,13 @@ const LostPets = () => {
                                                                         </Link>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            </div> */}
                                                         </div>
-                                                    )
-                                                ).slice(
-                                                  firstIndex,
-                                                  lastIndex
-                                              )}
+                                                    ))
+                                                    .slice(
+                                                        firstIndex,
+                                                        lastIndex
+                                                    )}
                                             </div>
                                         ) : (
                                             <div

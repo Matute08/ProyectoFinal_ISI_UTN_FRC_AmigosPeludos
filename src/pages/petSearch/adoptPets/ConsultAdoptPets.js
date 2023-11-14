@@ -33,6 +33,13 @@ const ConsultAdoptPets = () => {
         const fetchPublicData = async () => {
             const publicData = await getPublicacionesId(posteoId);
             const updatedPublicData = { ...publicData }; // Copia del objeto publicData
+            updatedPublicData.fechaPerdida = new Date(
+                publicData.fechaAlta
+            ).toLocaleDateString("es-ES", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+            });
             updatedPublicData.castracion === true
                 ? (updatedPublicData.castracion = "Si")
                 : (updatedPublicData.castracion = "No");
@@ -51,6 +58,7 @@ const ConsultAdoptPets = () => {
         descripcion: "Descripción",
         barrioPublicacion: "Barrio",
         ciudadPublicacion: "Ciudad",
+        fechaPerdida: "En adopcion desde "
     };
     const excludedKeys = [
         "id",
@@ -68,7 +76,6 @@ const ConsultAdoptPets = () => {
         "publicacionTipo",
         "fechaAlta",
         "color",
-        "fechaPerdida",
         "calle",
     ];
 
@@ -94,13 +101,13 @@ const ConsultAdoptPets = () => {
                                     <Row className="fila-consult w-100">
                                         <Col lg={6} sm={12} className="col ">
                                             <Row className="w-100 justify-content-center">
-                                                <Card className="card-consult-post">
+                                            <Card className="card-consult-post">
                                                     <CardHeader>
                                                         <h4 className="card-title card-title-post mb-0">
-                                                            Datos de la mascota{" "}
+                                                            Datos de la mascota
                                                         </h4>
                                                     </CardHeader>
-                                                    <CardBody className=" p-1">
+                                                    <CardBody className="p-1">
                                                         {datosPublicacion &&
                                                             Object.entries(
                                                                 datosPublicacion
@@ -118,21 +125,31 @@ const ConsultAdoptPets = () => {
                                                                     ) {
                                                                         return null; // Omitir el título y el valor "Foto" en el lado izquierdo
                                                                     }
+
                                                                     const modifiedKey =
                                                                         keyMap[
                                                                             key
                                                                         ] ||
                                                                         key;
+
+                                                                    // Si es la descripción, almacénala para mostrarla al final
+                                                                    if (
+                                                                        key ===
+                                                                        "descripcion"
+                                                                    ) {
+                                                                        return null; // No renderizar la descripción aquí
+                                                                    }
+
                                                                     return (
                                                                         <div
                                                                             key={
                                                                                 key.id
                                                                             }
-                                                                            className=" container-datos-mascotas w-100 "
+                                                                            className="container-datos-mascotas w-100"
                                                                         >
-                                                                            <div className="flex-column  datos-mascotas ">
+                                                                            <div className="flex-column datos-mascotas">
                                                                                 <div className="m-2">
-                                                                                    <p className=" m-0">
+                                                                                    <p className="m-0">
                                                                                         <strong>
                                                                                             {
                                                                                                 modifiedKey
@@ -149,6 +166,25 @@ const ConsultAdoptPets = () => {
                                                                         </div>
                                                                     );
                                                                 }
+                                                            )}
+
+                                                        {/* Renderizar la descripción al final si existe */}
+                                                        {datosPublicacion &&
+                                                            datosPublicacion.descripcion && (
+                                                                <div className="container-datos-mascotas w-100">
+                                                                    <div className="flex-column datos-mascotas">
+                                                                        <div className="m-2">
+                                                                            <p className="m-0">
+                                                                                <strong>
+                                                                                    Descripción:
+                                                                                </strong>{" "}
+                                                                                {
+                                                                                    datosPublicacion.descripcion
+                                                                                }
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             )}
                                                     </CardBody>
                                                 </Card>
@@ -213,7 +249,7 @@ const ConsultAdoptPets = () => {
                                         </Col>
                                     </Row>
 
-                                    <Row className="fila-consult w-100">
+                                    {/* <Row className="fila-consult w-100">
                                         <Col lg={12} sm={12} className="col">
                                             <Card className="card-consult-post ">
                                                 <CardHeader>
@@ -251,7 +287,7 @@ const ConsultAdoptPets = () => {
                                                 </CardBody>
                                             </Card>
                                         </Col>
-                                    </Row>
+                                    </Row> */}
                                 </div>
                             </div>
                         </Container>

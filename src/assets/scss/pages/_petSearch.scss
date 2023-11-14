@@ -115,7 +115,7 @@ a.btn-card {
 .card-pets {
     background: #ffffff;
     display: inline-block;
-    margin: 8px;
+    //margin: 8px;
     perspective: 1000;
     position: relative;
     text-align: left;
@@ -140,7 +140,7 @@ a.btn-card {
 
 .card-pets .card-title {
     background: #ffffff;
-    padding: 6px 15px 10px;
+    //padding: 6px 15px 10px;
     position: relative;
     z-index: 0;
 }
@@ -192,17 +192,20 @@ a.btn-card {
 
 .card-pets .card-description {
     margin: 0px 10px 0 10px;
-    //position: relative;
     font-size: 14px;
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    line-height: 1.5; // Ajusta este valor según sea necesario
+    max-height: 4.5em; // 3 líneas multiplicado por el valor de line-height
+    height: 4.5em; // Establecer una altura fija
 }
 
-.card-pets .card-actions {
-    box-shadow: 0 2px 0px 0 rgba(0, 0, 0, 0.075);
-    padding: 10px 15px 20px;
+
+
+.card-actions {
+    //box-shadow: 0 2px 0px 0 rgba(0, 0, 0, 0.075);
+    padding: 15px 0px 15px;
     text-align: center;
 }
 

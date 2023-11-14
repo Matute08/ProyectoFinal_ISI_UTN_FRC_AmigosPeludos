@@ -34,13 +34,7 @@ const ConsultPosts = () => {
         const fetchPublicData = async () => {
             const publicData = await getPublicacionesId(posteoId);
             const updatedPublicData = { ...publicData }; // Copia del objeto publicData
-            updatedPublicData.fechaPerdida = new Date(
-                publicData.fechaPerdida
-            ).toLocaleDateString("es-ES", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-            });
+
             updatedPublicData.castracion === true
                 ? (updatedPublicData.castracion = "Si")
                 : updatedPublicData.castracion === false
@@ -50,11 +44,33 @@ const ConsultPosts = () => {
             if (updatedPublicData.tipoPublicacionId === 1) {
                 setTitulo("Detalle de la Mascota Perdida");
                 setLabelFecha("Perdida el");
+                updatedPublicData.fechaPerdida = new Date(
+                    publicData.fechaPerdida
+                ).toLocaleDateString("es-ES", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                });
             } else if (updatedPublicData.tipoPublicacionId === 2) {
                 setTitulo("Detalle de la Mascota Encontrada");
                 setLabelFecha("Encontrada el");
+                updatedPublicData.fechaPerdida = new Date(
+                    publicData.fechaPerdida
+                ).toLocaleDateString("es-ES", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                });
             } else {
                 setTitulo("Detalle de la Mascota En Adopción");
+                setLabelFecha("En adopción desde")
+                updatedPublicData.fechaPerdida = new Date(
+                    publicData.fechaAlta
+                ).toLocaleDateString("es-ES", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                });
             }
             setDatosPublicacion(updatedPublicData);
             setIsLoading(false);
@@ -144,10 +160,10 @@ const ConsultPosts = () => {
                                                 <Card className="card-consult-post">
                                                     <CardHeader>
                                                         <h4 className="card-title card-title-post mb-0">
-                                                            Datos de la mascota{" "}
+                                                            Datos de la mascota
                                                         </h4>
                                                     </CardHeader>
-                                                    <CardBody className=" p-1">
+                                                    <CardBody className="p-1">
                                                         {datosPublicacion &&
                                                             Object.entries(
                                                                 datosPublicacion
@@ -165,21 +181,31 @@ const ConsultPosts = () => {
                                                                     ) {
                                                                         return null; // Omitir el título y el valor "Foto" en el lado izquierdo
                                                                     }
+
                                                                     const modifiedKey =
                                                                         keyMap[
                                                                             key
                                                                         ] ||
                                                                         key;
+
+                                                                    // Si es la descripción, almacénala para mostrarla al final
+                                                                    if (
+                                                                        key ===
+                                                                        "descripcion"
+                                                                    ) {
+                                                                        return null; // No renderizar la descripción aquí
+                                                                    }
+
                                                                     return (
                                                                         <div
                                                                             key={
                                                                                 key.id
                                                                             }
-                                                                            className=" container-datos-mascotas w-100 "
+                                                                            className="container-datos-mascotas w-100"
                                                                         >
-                                                                            <div className="flex-column  datos-mascotas ">
+                                                                            <div className="flex-column datos-mascotas">
                                                                                 <div className="m-2">
-                                                                                    <p className=" m-0">
+                                                                                    <p className="m-0">
                                                                                         <strong>
                                                                                             {
                                                                                                 modifiedKey
@@ -196,6 +222,25 @@ const ConsultPosts = () => {
                                                                         </div>
                                                                     );
                                                                 }
+                                                            )}
+
+                                                        {/* Renderizar la descripción al final si existe */}
+                                                        {datosPublicacion &&
+                                                            datosPublicacion.descripcion && (
+                                                                <div className="container-datos-mascotas w-100">
+                                                                    <div className="flex-column datos-mascotas">
+                                                                        <div className="m-2">
+                                                                            <p className="m-0">
+                                                                                <strong>
+                                                                                    Descripción:
+                                                                                </strong>{" "}
+                                                                                {
+                                                                                    datosPublicacion.descripcion
+                                                                                }
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             )}
                                                     </CardBody>
                                                 </Card>
@@ -307,7 +352,10 @@ const ConsultPosts = () => {
 
                                                         <a
                                                             class="social-button mail"
-                                                            href={`mailto:${datosPublicacion&& datosPublicacion.mailUsuario}`}
+                                                            href={`mailto:${
+                                                                datosPublicacion &&
+                                                                datosPublicacion.mailUsuario
+                                                            }`}
                                                         >
                                                             <i class="ri-mail-fill"></i>
                                                             <span>Mail</span>

@@ -149,7 +149,7 @@ const DonacionFundacion = () => {
                                         <h2>¿Cuánto queres donar?</h2>
                                         <p className="texto-donar m-2">
                                             Los monton estan expresados en pesos
-                                            Argentinos (ARS)
+                                            argentinos (ARS)
                                         </p>
                                     </div>
 
