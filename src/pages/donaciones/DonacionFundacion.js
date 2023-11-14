@@ -104,7 +104,7 @@ const DonacionFundacion = () => {
                     }`,
                     unit_price: selectedAmount,
                     quantity: 1,
-                    idFundacion: id,
+                    
                     
                 }
             );
