@@ -213,7 +213,7 @@ const ServicioFundacion = () => {
                                                                         <td>
                                                                             <div className="d-flex justify-content-center">
                                                                                 <Link
-                                                                                    to={`/donacion-fundacion/${item.id}`}
+                                                                                    to={`/fundaciones/donar-fundacion/${item.id}`}
                                                                                     className="btn btn-info btn-formulario "
                                                                                 >
                                                                                     <i className="ri-eye-fill"></i>
