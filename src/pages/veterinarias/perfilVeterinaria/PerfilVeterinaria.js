@@ -41,14 +41,13 @@ const PerfilVeterinaria = () => {
     const createPreference = async () => {
         try {
             const response = await axios.post(
-                "https://amigospeludos.azurewebsites.net/api/MercadoPagoVeterinaria/create_preference",
+                "https://amigospeludos.azurewebsites.net/api/Veterinaria/MercadoPago/create_preference",
                 {
                     title: `Gracias por la transferencia a ${
                         veterinarias && veterinarias.nombre
                     }`,
                     unit_price: donationAmount,
                     quantity: 1,
-                    
                 }
             );
             const { id } = response.data;
