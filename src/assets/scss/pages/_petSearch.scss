@@ -196,6 +196,7 @@ a.btn-card {
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
     line-height: 1.5; // Ajusta este valor según sea necesario
     max-height: 4.5em; // 3 líneas multiplicado por el valor de line-height
     height: 4.5em; // Establecer una altura fija

@@ -18,6 +18,7 @@ import {
     getFormulariosPosibleAdoptante,
     getFundacion,
     getVeterinarias,
+    getFormularios,
 } from "../../services/api";
 
 import logo from "../../assets/images/logo/LogoAP.png";
@@ -91,15 +92,17 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
     useEffect(() => {
         const fetchFormDataSolicitante = async () => {
             if (userData && userData.id) {
-                const publicDataForm = await getFormulariosPosibleAdoptante(
-                    userData.id
-                );
+                const publicDataForm = await getFormularios();
 
                 // Calcula el número de formularios en estado 1
                 const numFormulariosEnEstado1 = publicDataForm.filter(
-                    (formulario) => formulario.estadoFormularioId === 1
+                    (formulario) => formulario.estadoFormularioId === 1 && formulario.nombreDueño === userData.nombreCompleto
                 ).length;
+                
+                  
                 setNotificaciones(numFormulariosEnEstado1);
+                console.log(publicDataForm);
+                console.log(userData);
             }
         };
 
@@ -162,8 +165,6 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
             fetchFormDataSolicitado();
         }
     }, [userData]);
-
-    
 
     return (
         <React.Fragment>
@@ -346,11 +347,35 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
                                                                 )?.nombre}
                                                         </span>
                                                     </span>
-                                                    {(notificaciones > 0 || notificacionesVete>0 || notificacionesFunda >0) && (
-                                                        <span className="circulo-rojo">
-                                                            {" "}
-                                                            {notificaciones+notificacionesFunda+notificacionesVete}
-                                                        </span>
+                                                    {userData && userData.rolId === 1 ? (
+                                                        <>
+                                                        {(notificaciones > 0 ||
+                                                            notificacionesVete >
+                                                                0 ||
+                                                            notificacionesFunda >
+                                                                0) && (
+                                                            <span className="circulo-rojo">
+                                                                {" "}
+                                                                {notificaciones +
+                                                                    notificacionesFunda +
+                                                                    notificacionesVete}
+                                                            </span>
+                                                        )}
+                                                        
+                                                        </>
+
+                                                    ):(
+                                                        <>
+                                                        {notificaciones > 0
+                                                            && (
+                                                            <span className="circulo-rojo">
+                                                                {" "}
+                                                                {notificaciones}
+                                                            </span>
+                                                        )}
+                                                        
+                                                        </>
+
                                                     )}
                                                 </span>
                                             </DropdownToggle>

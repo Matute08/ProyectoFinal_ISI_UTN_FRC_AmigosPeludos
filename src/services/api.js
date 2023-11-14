@@ -495,6 +495,20 @@ export async function getFormulariosId(id) {
     }
 }
 
+//GET FORMULARIOS con ID
+export async function getFormularios(id) {
+    try {
+        const response = await axios({
+            url: `${url}/formularioAdopcions`,
+            method: "GET",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
 //GET estados FORMULARIOS
 export async function getEstadosFormularios() {
     try {

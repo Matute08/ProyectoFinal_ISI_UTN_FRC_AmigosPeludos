@@ -112,7 +112,7 @@ const Fundaciones = () => {
                                                         <span>Donar</span>
                                                     </Link> */}
                                                     <Link to={`donar-fundacion/${item.id}`} className="boton-donar-fundacion">
-                                                        <span>Donar</span>
+                                                        <span>Más Info</span>
                                                     </Link>
                                                 </div>
                                             </CardFooter>

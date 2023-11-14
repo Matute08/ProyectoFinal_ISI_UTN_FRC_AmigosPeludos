@@ -93,7 +93,7 @@ const Questions = () => {
         {
             question:
                 "¿Puedo filtrar la búsqueda por ubicación, tipo de mascota o características específicas?",
-            answer: "Exacto! puedes filtrar por tipo de mascota (perro o gato), raza, sexo, ciudad y barrio.",
+            answer: "Exacto! puedes filtrar por tipo de mascota (perro o gato), sexo y barrio.",
             eventKey: "5",
         },
         {

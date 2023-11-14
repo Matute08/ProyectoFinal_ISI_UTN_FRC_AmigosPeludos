@@ -34,6 +34,7 @@ import {
     getUserId,
     getEstadosFormularios,
     updateForm,
+    getFormularios
 } from "../../services/api";
 import { useAuth } from "../../services/AuthContext";
 import Loading from "../components/Loading";
@@ -199,26 +200,28 @@ const ConsultAdoptForm = () => {
         newTab.focus();
     };
     
-     // notificaciones adopciones
-     useEffect(() => {
-        const fetchFormDataSolicitante = async () => {
-            if (userData && userData.id) {
-                const publicDataForm = await getFormulariosPosibleAdoptante(
-                    userData.id
-                );
-
-                // Calcula el número de formularios en estado 1
-                const numFormulariosEnEstado1 = publicDataForm.filter(
-                    (formulario) => formulario.estadoFormularioId === 1
-                ).length;
-                setNotificaciones(numFormulariosEnEstado1);
-            }
-        };
-
+ // notificaciones adopciones
+ useEffect(() => {
+    const fetchFormDataSolicitante = async () => {
         if (userData && userData.id) {
-            fetchFormDataSolicitante();
+            const publicDataForm = await getFormularios();
+
+            // Calcula el número de formularios en estado 1
+            const numFormulariosEnEstado1 = publicDataForm.filter(
+                (formulario) => formulario.estadoFormularioId === 1 && formulario.nombreDueño === userData.nombreCompleto
+            ).length;
+            
+              
+            setNotificaciones(numFormulariosEnEstado1);
+            console.log(publicDataForm);
+            console.log(userData);
         }
-    }, [userData]);
+    };
+
+    if (userData && userData.id) {
+        fetchFormDataSolicitante();
+    }
+}, [userData]);
 
 
     document.title = "Solicitudes de Adopcion | Amigos Peludos";
