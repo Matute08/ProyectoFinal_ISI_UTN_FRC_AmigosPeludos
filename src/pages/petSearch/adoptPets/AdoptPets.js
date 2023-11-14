@@ -339,7 +339,7 @@ const AdoptPets = () => {
                                                                     <div className="card-actions">
                                                                         <Link
                                                                             className="learn-more button-learn-more"
-                                                                            to={`/consultar-posteo/${elemento.id}`}
+                                                                            to={`/consultar-posteo-adopcion/${elemento.id}`}
                                                                         >
                                                                             <span
                                                                                 className="circle"

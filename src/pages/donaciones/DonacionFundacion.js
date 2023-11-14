@@ -104,7 +104,8 @@ const DonacionFundacion = () => {
                     }`,
                     unit_price: selectedAmount,
                     quantity: 1,
-                    //idFundacion: id, PROBAR SI FUNCIONA HACERLO ASI: /fundaciones/donar-fundacion/idFundacion
+                    idFundacion: id,
+                    
                 }
             );
             const { id } = response.data;
@@ -148,8 +149,7 @@ const DonacionFundacion = () => {
                                     <div>
                                         <h2>¿Cuánto queres donar?</h2>
                                         <p className="texto-donar m-2">
-                                            Los monton estan expresados en pesos
-                                            argentinos (ARS)
+                                        Los montos están expresados en pesos argentinos (ARS)
                                         </p>
                                     </div>
 

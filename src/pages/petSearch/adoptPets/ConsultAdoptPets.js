@@ -249,7 +249,7 @@ const ConsultAdoptPets = () => {
                                         </Col>
                                     </Row>
 
-                                    {/* <Row className="fila-consult w-100">
+                                    <Row className="fila-consult w-100">
                                         <Col lg={12} sm={12} className="col">
                                             <Card className="card-consult-post ">
                                                 <CardHeader>
@@ -287,7 +287,7 @@ const ConsultAdoptPets = () => {
                                                 </CardBody>
                                             </Card>
                                         </Col>
-                                    </Row> */}
+                                    </Row>
                                 </div>
                             </div>
                         </Container>

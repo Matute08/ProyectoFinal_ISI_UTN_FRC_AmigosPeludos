@@ -48,6 +48,7 @@ const PerfilVeterinaria = () => {
                     }`,
                     unit_price: donationAmount,
                     quantity: 1,
+                    idVeterinaria: id
                 }
             );
             const { id } = response.data;
