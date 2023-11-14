@@ -121,8 +121,7 @@ a.btn-card {
     text-align: left;
     transition: all 0.3s 0s ease-in;
     z-index: 1;
-
-   width: 250px;
+    width: 250px;
 
 }
 
@@ -143,6 +142,7 @@ a.btn-card {
     //padding: 6px 15px 10px;
     position: relative;
     z-index: 0;
+    
 }
 
 .card-pets .card-title .toggle-info {
@@ -181,6 +181,8 @@ a.btn-card {
     letter-spacing: -0.05em;
     margin: 0;
     padding: 0;
+    width: 80%;
+
 }
 
 .card-pets .card-title .titulo-card .texto-card {
@@ -188,6 +190,7 @@ a.btn-card {
     font-size: 18px;
     font-weight: 600;
     letter-spacing: -0.025em;
+
 }
 
 .card-pets .card-description {

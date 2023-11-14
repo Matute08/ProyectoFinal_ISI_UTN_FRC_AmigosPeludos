@@ -277,7 +277,8 @@ const LostPets = () => {
                                                 {publicacionesFiltradas
                                                     .map((elemento) => (
                                                         <div key={elemento.id}>
-                                                            <div class="card ">
+                                                            <div class="card card-pets">
+                                                                
                                                                 {elemento &&
                                                                     elemento.fotos &&
                                                                     elemento
@@ -301,7 +302,7 @@ const LostPets = () => {
                                                                     )}
 
                                                                 <div class="card-body">
-                                                                    <div className="card-pets ">
+                                                                    <div className="">
                                                                         <div className="card-title">
                                                                             <h2 className="titulo-card ">
                                                                                 {elemento.nombre
@@ -324,7 +325,7 @@ const LostPets = () => {
                                                                         </div>
                                                                     </div>
                                                                     <hr />
-                                                                    <div className="card-pets">
+                                                                    <div className="">
                                                                         <p className="card-description card-text">
                                                                             {
                                                                                 elemento.descripcion

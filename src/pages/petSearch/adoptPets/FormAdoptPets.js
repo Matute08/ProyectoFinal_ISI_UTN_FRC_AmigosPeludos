@@ -340,9 +340,9 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
                                                 </option>
                                             ))}
                                     </select>
-                                    {errors.ciudad && (
+                                    {errors.ciudadId && (
                                         <span className="text-danger">
-                                            {errors.ciudad.message}
+                                            {errors.ciudadId.message}
                                         </span>
                                     )}
                                 </div>
