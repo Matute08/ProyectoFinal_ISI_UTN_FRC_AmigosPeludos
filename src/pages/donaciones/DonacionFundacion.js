@@ -24,7 +24,6 @@ import {
 import img from "../../assets/images/user/user-random.jpg";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 
-
 const DonacionFundacion = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -34,10 +33,10 @@ const DonacionFundacion = () => {
     const [idUser, setIdUser] = useState();
     const [boton, setBoton] = useState(true);
     const [selectedAmount, setSelectedAmount] = useState(null);
-    
-    const [preferenceId, setPreferenceId] = useState(null);
-    initMercadoPago("TEST-8ad7c3f4-f218-474f-a719-2d5600b8253d")
+    const [mostrarBoton, setMostrarBoton] = useState(false);
 
+    const [preferenceId, setPreferenceId] = useState(null);
+    initMercadoPago("TEST-8ad7c3f4-f218-474f-a719-2d5600b8253d");
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -84,13 +83,14 @@ const DonacionFundacion = () => {
         if (selectedAmount === amount) {
             // Deseleccionar el botón si ya está seleccionado
             setSelectedAmount(null);
+            setMostrarBoton(false);
         } else {
             // Seleccionar el nuevo botón
             setSelectedAmount(amount);
+            setMostrarBoton(true);
         }
         console.log(`Donar ${amount} pesos`);
     };
-
 
     //MERCADO PAGO FUNCIONES
     const createPreference = async () => {
@@ -99,11 +99,13 @@ const DonacionFundacion = () => {
             const response = await axios.post(
                 "https://amigospeludos.azurewebsites.net/api/MercadoPago/create_preference",
                 {
-                    title: `Gracias por la donacion a ${fundacion&& fundacion.nombre}`,
+                    title: `Gracias por la donacion a ${
+                        fundacion && fundacion.nombre
+                    }`,
                     unit_price: selectedAmount,
                     quantity: 1,
+                    //idFundacion: id, PROBAR SI FUNCIONA HACERLO ASI: /fundaciones/donar-fundacion/idFundacion
                 }
-                
             );
             const { id } = response.data;
             return id;
@@ -115,6 +117,7 @@ const DonacionFundacion = () => {
     const handleBuy = async () => {
         const id = await createPreference();
         if (id) {
+            setMostrarBoton(false);
             setPreferenceId(id);
         }
     };
@@ -179,22 +182,28 @@ const DonacionFundacion = () => {
                                         </div>
                                     </div>
                                     <hr />
-                                    <div className="m-5 d-flex justify-content-center">
-                                        {selectedAmount && selectedAmount !== " " ?(
-                                        <button
-                                            class="button-donar"
-                                            onClick={handleBuy}
-                                        >
-                                            {preferenceId && (
-                                                <Wallet
-                                                    initialization={{
-                                                        preferenceId,
-                                                    }}
-                                                />
-                                            )}
-                                            <p>Donar</p>
-                                        </button>
-
+                                    <div className="m-5 d-flex justify-content-center d-flex">
+                                        {selectedAmount &&
+                                        selectedAmount !== " " ? (
+                                            <Row className="justify-content-center">
+                                                <Col xs={12} md={6}>
+                                                    {mostrarBoton ? (
+                                                        <button
+                                                            className="mb-3 button-donar"
+                                                            onClick={handleBuy}
+                                                            variant="primary"
+                                                        >
+                                                            Donar
+                                                        </button>
+                                                    ) : preferenceId ? (
+                                                        <Wallet
+                                                            initialization={{
+                                                                preferenceId,
+                                                            }}
+                                                        />
+                                                    ) : null}
+                                                </Col>
+                                            </Row>
                                         ) : (
                                             ""
                                         )}
@@ -212,7 +221,9 @@ const DonacionFundacion = () => {
                                                 alt=""
                                             />
                                         </div>
-                                        <h3 className="text-center">{fundacion.nombre}</h3>
+                                        <h3 className="text-center">
+                                            {fundacion.nombre}
+                                        </h3>
                                     </div>
                                     <div>
                                         <p className="texto-donar text-center">

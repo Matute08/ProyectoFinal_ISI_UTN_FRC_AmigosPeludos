@@ -76,6 +76,31 @@ const SettingsCuidador = () => {
         "domingo",
     ];
     const timePeriods = ["manana", "tarde", "noche"];
+
+    const mapDayToDisplayValue = (day) => {
+        // Define el mapeo de los valores del servidor a valores amigables para el usuario
+        const dayMap = {
+            lunes: "Lunes",
+            martes: "Martes",
+            miercoles: "Miércoles",
+            jueves: "Jueves",
+            viernes: "Viernes",
+            sabado: "Sábado",
+            domingo: "Domingo",
+        };
+        return dayMap[day] || day; // Si existe el mapeo, úsalo; de lo contrario, utiliza el valor original
+    };
+
+    const mapTimePeriodToDisplayValue = (timePeriod) => {
+        // Define el mapeo de los valores del servidor a valores amigables para el usuario
+        const timePeriodMap = {
+            manana: "Mañana",
+            tarde: "Tarde",
+            noche: "Noche",
+        };
+        return timePeriodMap[timePeriod] || timePeriod; // Si existe el mapeo, úsalo; de lo contrario, utiliza el valor original
+    };
+
     const [fotosTemporales, setFotosTemporales] = useState([]);
 
     const [scheduleData, setScheduleData] = useState({});
@@ -230,8 +255,14 @@ const SettingsCuidador = () => {
                 setValue("nroCalle", cuidador.nroCalle);
                 setValue("piso", cuidador.piso);
                 setValue("tipoViviendaId", cuidador.tipoViviendaId);
-                setValue("patioBalcon", cuidador.patioBalcon === true ? "1" : "0");
-                setValue("transportePropio", cuidador.transportePropio  === true ? "1" : "0");
+                setValue(
+                    "patioBalcon",
+                    cuidador.patioBalcon === true ? "1" : "0"
+                );
+                setValue(
+                    "transportePropio",
+                    cuidador.transportePropio === true ? "1" : "0"
+                );
 
                 setOperationsCompleted((prev) => prev + 1);
             }
@@ -344,6 +375,7 @@ const SettingsCuidador = () => {
             console.error("Error al realizar la publicación:", error);
         }
     };
+
     document.title = "Modificar cuidador | Amigos Peludos";
     return (
         <React.Fragment>
@@ -465,7 +497,7 @@ const SettingsCuidador = () => {
                                                             )}
                                                             disabled
                                                         />
-                                                    
+
                                                         {errors.celular && (
                                                             <p className="invalid-feedback">
                                                                 {
@@ -877,15 +909,11 @@ const SettingsCuidador = () => {
                                                             <option value="">
                                                                 Seleccione...
                                                             </option>
-                                                            <option
-                                                                value={"1"}
-                                                            >
+                                                            <option value={"1"}>
                                                                 Si.
                                                             </option>{" "}
                                                             {/* Valor booleano true */}
-                                                            <option
-                                                                value={"0"}
-                                                            >
+                                                            <option value={"0"}>
                                                                 No.
                                                             </option>{" "}
                                                             {/* Valor booleano false */}
@@ -931,14 +959,10 @@ const SettingsCuidador = () => {
                                                             <option value="">
                                                                 Seleccione...
                                                             </option>
-                                                            <option
-                                                                value={"1"}
-                                                            >
+                                                            <option value={"1"}>
                                                                 Si.
                                                             </option>
-                                                            <option
-                                                                value={"0"}
-                                                            >
+                                                            <option value={"0"}>
                                                                 No.
                                                             </option>
                                                         </select>
@@ -1014,9 +1038,9 @@ const SettingsCuidador = () => {
                                                                                     day
                                                                                 }
                                                                             >
-                                                                                {
+                                                                                {mapDayToDisplayValue(
                                                                                     day
-                                                                                }
+                                                                                )}
                                                                             </th>
                                                                         )
                                                                     )}
@@ -1033,9 +1057,9 @@ const SettingsCuidador = () => {
                                                                             }
                                                                         >
                                                                             <td>
-                                                                                {
+                                                                                {mapTimePeriodToDisplayValue(
                                                                                     period
-                                                                                }
+                                                                                )}
                                                                             </td>
                                                                             {daysOfWeek.map(
                                                                                 (

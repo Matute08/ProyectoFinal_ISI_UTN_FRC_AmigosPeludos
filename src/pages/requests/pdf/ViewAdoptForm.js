@@ -15,8 +15,14 @@ import { getFormulariosId } from "../../../services/api";
 
 const styles = StyleSheet.create({
     container: {
-        padding: 20,
+        padding: 10,
         fontFamily: "Helvetica",
+        //marginVertical:20
+    },
+
+    border: {
+        border: 2,
+        borderColor: "black",
     },
     image: {
         width: "15%",
@@ -30,23 +36,35 @@ const styles = StyleSheet.create({
     title: {
         textAlign: "center",
         fontSize: 30,
-        margin: 20,
+        margin: 15,
         fontWeight: "bold",
     },
     label: {
         fontWeight: "bold",
-        marginBottom: 20,
-        marginRight: 10
+        marginBottom: 5,
+        marginRight: 10,
+        fontSize: 14,
+        marginLeft: 10,
     },
     item: {
-        marginBottom: 10,
+        marginBottom: 5,
+        fontSize: 14,
         width: "100%",
         display: "flex",
-        flexDirection: "row",  // Cambio aquí
+        flexDirection: "row", // Cambio aquí
         //justifyContent: "space-between",  // Añadido para espacio entre etiquetas y valores
     },
+
     containerDiv: {
         height: "100vh",
+        border: 3,
+        borderColor: "black",
+    },
+    subTitle: {
+        fontSize: 18,
+        margin: 10,
+        fontWeight: 'bold', // Hace que el texto sea negrita
+    textDecoration: 'underline',
     },
 });
 
@@ -85,8 +103,8 @@ const ViewAdoptForm = () => {
             {dataForm && (
                 <PDFViewer width="100%" height="100%">
                     <Document>
-                        <Page style={styles.container}>
-                            <View>
+                        <Page size="A4" style={styles.container}>
+                            <View style={styles.border}>
                                 <Text style={styles.title}>
                                     Formulario de Adopción
                                 </Text>

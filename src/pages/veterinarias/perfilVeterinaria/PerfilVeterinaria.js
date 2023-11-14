@@ -15,11 +15,61 @@ import radio from "../../../assets/images/servicesVet/radiografia.jpg";
 import sangre from "../../../assets/images/servicesVet/sangre.jpg";
 import vacuna from "../../../assets/images/servicesVet/vacunacion.jpg";
 import otros from "../../../assets/images/servicesVet/otros.jpg";
+import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
+import axios from "axios";
 
 const PerfilVeterinaria = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [veterinarias, setVeterinarias] = useState();
     const { id } = useParams();
+    const [selectedAmount, setSelectedAmount] = useState(null);
+    const [mostrarBoton, setMostrarBoton] = useState(false);
+    const [mostrarBotonMail, setMostrarBotonMail] = useState(true);
+    const [mostrarInput, setMostrarInput] = useState(false);
+    const [preferenceId, setPreferenceId] = useState(null);
+    const [donationAmount, setDonationAmount] = useState(null);
+    initMercadoPago("TEST-8ad7c3f4-f218-474f-a719-2d5600b8253d");
+    const [mostrarDonacionVeterinaria, setMostrarDonacionVeterinaria] =
+        useState(false);
+
+    const handleTransferenciaClick = () => {
+        setMostrarBotonMail(false);
+        setMostrarInput(true);
+        setMostrarBoton(true);
+    };
+   
+    const createPreference = async () => {
+        try {
+            const response = await axios.post(
+                "https://amigospeludos.azurewebsites.net/api/MercadoPago/create_preference",
+                {
+                    title: `Gracias por la donacion a ${
+                        veterinarias && veterinarias.nombre
+                    }`,
+                    unit_price: donationAmount,
+                    quantity: 1,
+                }
+            );
+            const { id } = response.data;
+            return id;
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleBuy = async () => {
+        const id = await createPreference();
+        if (id) {
+            setMostrarBoton(false);
+            setPreferenceId(id);
+        }
+    };
+    const handleChange = (event) => {
+        // Actualiza el estado con el valor del input
+        setDonationAmount(event.target.value);
+        console.log(donationAmount);
+      };
+    //-----------------------------------------------------
 
     useEffect(() => {
         const fetchVeterinarias = async () => {
@@ -30,7 +80,6 @@ const PerfilVeterinaria = () => {
             } catch (error) {
                 console.error("Error al obtener veterinarias:", error);
             }
-            console.log(veterinarias);
         };
         fetchVeterinarias();
     }, []);
@@ -40,10 +89,10 @@ const PerfilVeterinaria = () => {
         const phoneNumber = veterinarias && veterinarias.numeroTelefono;
 
         // Mensaje predeterminado
-        const message = "¡Hola! Encontre a tu mascota perdida! ";
+        const message = "¡Hola!. Vi tu veterinaria en Amigos Peludos! ";
 
         // Crear la URL de WhatsApp con el número de teléfono y el mensaje
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+        const whatsappUrl = `https://wa.me/+54${phoneNumber}?text=${encodeURIComponent(
             message
         )}`;
 
@@ -80,14 +129,14 @@ const PerfilVeterinaria = () => {
     // Función para renderizar las tarjetas de servicios
     const renderServicios = () => {
         const servicios = veterinarias && veterinarias.servicios;
-        console.log(servicios);
         // Verificar si servicios es null o undefined
         if (!servicios) {
             // Si no existe, mostrar un mensaje
             return (
                 <Col>
                     <h1 className="text-center">
-                    Contáctate con la veterinaria para conocer los servicios que ofrecen.
+                        Contáctate con la veterinaria para conocer los servicios
+                        que ofrecen.
                     </h1>
                 </Col>
             );
@@ -105,13 +154,15 @@ const PerfilVeterinaria = () => {
             return (
                 <Col>
                     <h1 className="text-center">
-                    Contáctate con la veterinaria para conocer los servicios que ofrecen
+                        Contáctate con la veterinaria para conocer los servicios
+                        que ofrecen
                     </h1>
                 </Col>
             );
         }
 
         return (
+            
             serviciosActivos &&
             serviciosActivos.map((servicio, index) => (
                 <Col key={index} xs={12} sm={6} md={4} lg={3} className="mb-4">
@@ -153,8 +204,8 @@ const PerfilVeterinaria = () => {
                                     <Col
                                         sm={9}
                                         md={12}
-                                        lg={9}
-                                        xl={9}
+                                        lg={12}
+                                        xl={10}
                                         className="mb-4 "
                                     >
                                         <Card
@@ -309,21 +360,72 @@ const PerfilVeterinaria = () => {
                                                         </Row>
                                                         {veterinarias &&
                                                         veterinarias.cbu ? (
-                                                            <Row>
-                                                                <h5 className="text-center">
-                                                                    Transferencia
-                                                                </h5>
-                                                                <div className="container-button-contact">
-                                                                    <button class="social-button mercado-pago ">
-                                                                        <i class=" ri-bank-card-fill"></i>
-                                                                        <span>
-                                                                            Transferencia
-                                                                        </span>
-                                                                    </button>
-                                                                </div>
-                                                            </Row>
+                                                            <div>
+                                                                <Row>
+                                                                    <h5 className="text-center">
+                                                                        Transferencia
+                                                                    </h5>
+                                                                    <div className="container-button-contact">
+                                                                        {mostrarBotonMail ? (
+                                                                            <button
+                                                                                className="social-button mercado-pago"
+                                                                                onClick={
+                                                                                    handleTransferenciaClick
+                                                                                }
+                                                                            >
+                                                                                <i className="ri-bank-card-fill"></i>
+                                                                                <span>
+                                                                                    Transferencia
+                                                                                </span>
+                                                                            </button>
+                                                                        ) : (
+                                                                            ""
+                                                                        )}
+                                                                        {mostrarInput ? (
+                                                                            <div className="w-75">
+                                                                                <hr />
+                                                                                <label className="d-flex form-label">
+                                                                                    Indique
+                                                                                    el
+                                                                                    monto:{" "}
+                                                                                </label>
+                                                                                <input
+                                                                                    type="number"
+                                                                                    className="form-control"
+                                                                                    value={
+                                                                                        donationAmount ||
+                                                                                        ""
+                                                                                    }
+                                                                                    onChange={
+                                                                                        handleChange
+                                                                                    }
+                                                                                />
+                                                                                {mostrarBoton && donationAmount> 0?(
+                                                                                    <button
+                                                                                        className="m-3 button-donar"
+                                                                                        onClick={
+                                                                                            handleBuy
+                                                                                        }
+                                                                                        variant="primary"
+                                                                                    >
+                                                                                        Transferir
+                                                                                    </button>
+                                                                                ) : preferenceId ? (
+                                                                                    <Wallet
+                                                                                        initialization={{
+                                                                                            preferenceId,
+                                                                                        }}
+                                                                                    />
+                                                                                ) : null}
+                                                                            </div>
+                                                                        ) : (
+                                                                            ""
+                                                                        )}
+                                                                    </div>
+                                                                </Row>
+                                                            </div>
                                                         ) : (
-                                                            <></>
+                                                            ""
                                                         )}
                                                     </Col>
                                                 </Row>
@@ -351,10 +453,10 @@ const PerfilVeterinaria = () => {
                             </h2>
 
                             <h4 className=" p-5">
-                                {'- '}{veterinarias && veterinarias.servicios.otros}
+                                {"- "}
+                                {veterinarias && veterinarias.servicios.otros}
                             </h4>
                         </div>
-                        
                     </Container>
                     <Footer />
                 </>

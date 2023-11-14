@@ -41,20 +41,7 @@ const Home = () => {
                                         animales!
                                     </span>
                                 </p>
-                                <div className="d-flex gap-2 justify-content-center mt-4">
-                                    <Link
-                                        to="/register"
-                                        className="btn btn-primary"
-                                    >
-                                        ¡Adopta una mascota!{" "}
-                                    </Link>
-                                    <Link
-                                        to="/pages-pricing"
-                                        className="btn btn-danger"
-                                    >
-                                        ¡Trabaja con nosotros!{" "}
-                                    </Link>
-                                </div>
+                                
                             </div>
                         </Col>
                     </Row>

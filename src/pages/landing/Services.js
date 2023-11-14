@@ -81,7 +81,7 @@ const Services = () => {
                                     </p>
                                     <div>
                                         <Link
-                                            to="#"
+                                            to="/mascotas-encontradas"
                                             className="fs-13 fw-medium"
                                         >
                                             Acceder{" "}
@@ -116,7 +116,7 @@ const Services = () => {
                                     </p>
                                     <div>
                                         <Link
-                                            to="#"
+                                            to="/mascotas-adopcion"
                                             className="fs-13 fw-medium"
                                         >
                                             Acceder{" "}
@@ -215,7 +215,7 @@ const Services = () => {
                                         Realizá donaciones a veterinarias o
                                         fundaciones de manera segura{" "}
                                     </p>
-                                    <div>
+                                    {/* <div>
                                         <Link
                                             to="#"
                                             className="fs-13 fw-medium"
@@ -223,7 +223,7 @@ const Services = () => {
                                             Acceder{" "}
                                             <i className="ri-arrow-right-s-line align-bottom"></i>
                                         </Link>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </Col>

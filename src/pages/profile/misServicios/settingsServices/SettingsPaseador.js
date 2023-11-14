@@ -74,6 +74,30 @@ const SettingsPaseador = () => {
     ];
     const timePeriods = ["manana", "tarde", "noche"];
 
+    const mapDayToDisplayValue = (day) => {
+        // Define el mapeo de los valores del servidor a valores amigables para el usuario
+        const dayMap = {
+          "lunes": "Lunes",
+          "martes": "Martes",
+          "miercoles": "Miércoles",
+          "jueves": "Jueves",
+          "viernes": "Viernes",
+          "sabado": "Sábado",
+          "domingo": "Domingo",
+        };
+        return dayMap[day] || day; // Si existe el mapeo, úsalo; de lo contrario, utiliza el valor original
+      };
+      
+      const mapTimePeriodToDisplayValue = (timePeriod) => {
+        // Define el mapeo de los valores del servidor a valores amigables para el usuario
+        const timePeriodMap = {
+          "manana": "Mañana",
+          "tarde": "Tarde",
+          "noche": "Noche",
+        };
+        return timePeriodMap[timePeriod] || timePeriod; // Si existe el mapeo, úsalo; de lo contrario, utiliza el valor original
+      };
+
     const [scheduleData, setScheduleData] = useState({});
     const [isAtLeastOneSelected, setIsAtLeastOneSelected] = useState(false);
     //formulario Hook
@@ -697,84 +721,41 @@ const SettingsPaseador = () => {
                                                 >
                                                     <div className="mb-3 w-100 table-responsive">
                                                         <table className="table table-bordered table-striped">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th></th>
-                                                                    {daysOfWeek.map(
-                                                                        (
-                                                                            day
-                                                                        ) => (
-                                                                            <th
-                                                                                key={
-                                                                                    day
-                                                                                }
-                                                                            >
-                                                                                {
-                                                                                    day
-                                                                                }
-                                                                            </th>
-                                                                        )
-                                                                    )}
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {timePeriods.map(
-                                                                    (
-                                                                        period
-                                                                    ) => (
-                                                                        <tr
-                                                                            key={
-                                                                                period
-                                                                            }
-                                                                        >
-                                                                            <td>
-                                                                                {
-                                                                                    period
-                                                                                }
-                                                                            </td>
-                                                                            {daysOfWeek.map(
-                                                                                (
-                                                                                    day
-                                                                                ) => (
-                                                                                    <td
-                                                                                        key={
-                                                                                            day
-                                                                                        }
-                                                                                        className="checkbox-cell"
-                                                                                    >
-                                                                                        <div className="custom-checkbox">
-                                                                                            <input
-                                                                                                type="checkbox"
-                                                                                                onChange={(
-                                                                                                    e
-                                                                                                ) =>
-                                                                                                    handleCheckboxChange(
-                                                                                                        day,
-                                                                                                        period,
-                                                                                                        e
-                                                                                                            .target
-                                                                                                            .checked
-                                                                                                    )
-                                                                                                }
-                                                                                                checked={
-                                                                                                    scheduleData[
-                                                                                                        day.toLowerCase()
-                                                                                                    ] &&
-                                                                                                    scheduleData[
-                                                                                                        day.toLowerCase()
-                                                                                                    ][
-                                                                                                        period.toLowerCase()
-                                                                                                    ]
-                                                                                                }
-                                                                                            />
-                                                                                        </div>
-                                                                                    </td>
-                                                                                )
-                                                                            )}
-                                                                        </tr>
-                                                                    )
-                                                                )}
-                                                            </tbody>
+                                                        <thead>
+  <tr>
+    <th></th>
+    {daysOfWeek.map((day) => (
+      <th key={day}>{mapDayToDisplayValue(day)}</th>
+    ))}
+  </tr>
+</thead>
+<tbody>
+  {timePeriods.map((period) => (
+    <tr key={period}>
+      <td>{mapTimePeriodToDisplayValue(period)}</td>
+      {daysOfWeek.map((day) => (
+        <td key={day} className="checkbox-cell">
+          <div className="custom-checkbox">
+            <input
+              type="checkbox"
+              onChange={(e) =>
+                handleCheckboxChange(
+                  day,
+                  period,
+                  e.target.checked
+                )
+              }
+              checked={
+                scheduleData[day.toLowerCase()] &&
+                scheduleData[day.toLowerCase()][period.toLowerCase()]
+              }
+            />
+          </div>
+        </td>
+       ) )}
+    </tr>
+  ))}
+</tbody>
                                                         </table>
                                                     </div>
                                                 </Col>

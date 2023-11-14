@@ -185,6 +185,8 @@ const UserProfileSetting = () => {
             const datosUsuario = await getUserMail(userEmail);
             setUserData(datosUsuario);
 
+            console.log(datosUsuario);
+
             const fotosConEstadoTemporal = [
                 {
                     id: 1, // Asegúrate de que foto y foto.id no sean undefined
@@ -194,8 +196,6 @@ const UserProfileSetting = () => {
             ];
             setFotosTemporales(fotosConEstadoTemporal);
         }
-
-        console.log(fotosTemporales);
     };
 
     const obtenerId = (datos) => {

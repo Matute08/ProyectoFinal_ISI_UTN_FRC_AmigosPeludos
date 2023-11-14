@@ -7,10 +7,7 @@ import { Col, Container, Row, Card, CardBody, CardHeader } from "reactstrap";
 import { useAuth } from "../../services/AuthContext";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import {
-    Scrollbar,
-    Autoplay,
-} from "swiper";
+import { Scrollbar, Autoplay } from "swiper";
 import "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -23,7 +20,7 @@ import LeafletMaps from "../components/maps/LeafletMaps";
 import { getPublicacionesId } from "../../services/api";
 
 const ConsultPosts = () => {
-    const {user} = useAuth()
+    const { user } = useAuth();
     const [isLoading, setIsLoading] = useState();
     const { posteoId } = useParams();
     const [datosPublicacion, setDatosPublicacion] = useState();
@@ -45,20 +42,19 @@ const ConsultPosts = () => {
                 year: "numeric",
             });
             updatedPublicData.castracion === true
-                ? (updatedPublicData.castracion = "Si") 
-                : (updatedPublicData.castracion === false) 
+                ? (updatedPublicData.castracion = "Si")
+                : updatedPublicData.castracion === false
                 ? (updatedPublicData.castracion = "No")
-                : ((updatedPublicData.castracion = "No se"));
-            
-            
+                : (updatedPublicData.castracion = "No se");
+
             if (updatedPublicData.tipoPublicacionId === 1) {
-                setTitulo("Detalle de la Mascota Perdida")
-                setLabelFecha("Perdida el")
-            }else if (updatedPublicData.tipoPublicacionId ===2) {
-                setTitulo("Detalle de la Mascota Encontrada")
-                setLabelFecha("Encontrada el")
-            }else{
-                setTitulo("Detalle de la Mascota En Adopción")
+                setTitulo("Detalle de la Mascota Perdida");
+                setLabelFecha("Perdida el");
+            } else if (updatedPublicData.tipoPublicacionId === 2) {
+                setTitulo("Detalle de la Mascota Encontrada");
+                setLabelFecha("Encontrada el");
+            } else {
+                setTitulo("Detalle de la Mascota En Adopción");
             }
             setDatosPublicacion(updatedPublicData);
             setIsLoading(false);
@@ -74,7 +70,7 @@ const ConsultPosts = () => {
         const message = "¡Hola! Encontre a tu mascota perdida! ";
 
         // Crear la URL de WhatsApp con el número de teléfono y el mensaje
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+        const whatsappUrl = `https://wa.me/+54${phoneNumber}?text=${encodeURIComponent(
             message
         )}`;
 
@@ -309,10 +305,13 @@ const ConsultPosts = () => {
                                                             </span>
                                                         </button>
 
-                                                        <button class="social-button mail">
-                                                            <i class=" ri-mail-fill"></i>
+                                                        <a
+                                                            class="social-button mail"
+                                                            href={`mailto:${datosPublicacion&& datosPublicacion.mailUsuario}`}
+                                                        >
+                                                            <i class="ri-mail-fill"></i>
                                                             <span>Mail</span>
-                                                        </button>
+                                                        </a>
                                                     </div>
                                                 </CardBody>
                                             </Card>

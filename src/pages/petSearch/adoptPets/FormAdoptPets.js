@@ -154,7 +154,7 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
                                         type="text"
                                         className="form-control"
                                         name="nombre"
-                                        placeholder=" Apellido"
+                                        placeholder=" Nombre"
                                         {...register("nombre", {
                                             required: {
                                                 value: true,
@@ -293,7 +293,7 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
                                         type="number"
                                         className="form-control"
                                         name="nroCalle"
-                                        placeholder="Dirección"
+                                        placeholder="Altura"
                                         {...register("nroCalle", {
                                             required: {
                                                 value: true,
@@ -357,7 +357,7 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
                                     <select
                                         name="barrio"
                                         className="form-select "
-                                        {...register("barrio", {
+                                        {...register("barrioId", {
                                             required: {
                                                 value: true,
                                                 message:
@@ -377,9 +377,9 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
                                                 </option>
                                             ))}
                                     </select>
-                                    {errors.barrio && (
+                                    {errors.barrioId && (
                                         <span className="text-danger">
-                                            {errors.barrio.message}
+                                            {errors.barrioId.message}
                                         </span>
                                     )}
                                 </div>

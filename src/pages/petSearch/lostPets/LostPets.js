@@ -8,7 +8,7 @@ import Loading from "../../components/Loading";
 import FilterPets from "../../components/FilterPets";
 import { useNavigate } from "react-router-dom";
 import LeafletMaps from "../../components/maps/LeafletMaps";
-import { getMascotasPublicadas } from "../../../services/api";
+import { getMascotasPublicadas, getTipoMascota,getSexoMascota,getCiudad,getAllBarrio } from "../../../services/api";
 const LostPets = () => {
 
     const navigate = useNavigate();
@@ -22,6 +22,35 @@ const LostPets = () => {
     const [publicaciones, setPublicaciones] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const [publicacionesFiltradas, setPublicacionesFiltradas] = useState([]);
+    const [filtroTipoMascota, setFiltroTipoMascota] = useState("");
+    const [filtroSexo, setFiltroSexo] = useState("");
+    const [filtroBarrio, setFiltroBarrio] = useState("");
+    const [tiposMascota, setTiposMascota] = useState([]);
+    const [sexo, setSexo] = useState([]);
+    const [barrios, setBarrios] = useState([]);
+    const [ciudades, setCiudades] = useState([]);
+    const [filtroCiudad, setFiltroCiudad] = useState("");
+
+
+    useEffect(() => {
+        const cargarListasFiltros = async () => {
+            const tiposMascotaData = await getTipoMascota();
+            setTiposMascota(tiposMascotaData);
+
+          
+            const sexoData = await getSexoMascota();
+            setSexo(sexoData);
+
+            const ciudadesData = await getCiudad();
+            setCiudades(ciudadesData);
+
+            const barriosData = await getAllBarrio();
+            setBarrios(barriosData);
+        };
+        cargarListasFiltros();
+    }, []);
+
     // Dentro de la función useEffect
     useEffect(() => {
         const fetchPublicData = async () => {
@@ -31,11 +60,51 @@ const LostPets = () => {
                 (a, b) => new Date(b.fechaAlta) - new Date(a.fechaAlta)
             );
             setPublicaciones(sortedPublicaciones);
+            setPublicacionesFiltradas(sortedPublicaciones);
             setIsLoading(false);
         };
         console.log(publicaciones);
         fetchPublicData();
     }, []);
+
+
+    const handleLimpiarFiltros = () => {
+        setFiltroTipoMascota("");
+        setFiltroBarrio("");
+        setPublicacionesFiltradas(publicaciones);
+    };
+    const aplicarFiltros = () => {
+        let publicacionesFiltradasCopy = [...publicaciones]; // Copia del estado original
+
+        // Filtrar por tipo de mascota
+        if (filtroTipoMascota) {
+            publicacionesFiltradasCopy = publicacionesFiltradasCopy.filter(
+                (publicacion) =>
+                    publicacion.tipoMascotaNombre === filtroTipoMascota
+            );
+        }
+
+        // Filtrar por barrio
+        if (filtroBarrio) {
+            console.log(filtroBarrio);
+            publicacionesFiltradasCopy = publicacionesFiltradasCopy.filter(
+                (publicacion) =>
+                    publicacion.barrioId === parseInt(filtroBarrio, 10)
+            );
+        }
+
+        // Filtrar por sexo
+        if (filtroSexo) {
+          console.log(filtroSexo);
+          publicacionesFiltradasCopy = publicacionesFiltradasCopy.filter(
+              (publicacion) =>
+                  publicacion.sexoId === parseInt(filtroSexo, 10)
+          );
+      }
+
+        // Actualizar el estado de las publicaciones filtradas
+        setPublicacionesFiltradas(publicacionesFiltradasCopy);
+    };
 
     const handleClick = (id) => {
         if (activeCardId === id) {
@@ -85,22 +154,128 @@ const LostPets = () => {
                                         </h1>
                                     </Col>
                                 </Row>
-                                <Row className="d-flex justify-content-center ">
-                                    <FilterPets
-                                        cardsData={publicaciones}
-                                    ></FilterPets>
+
+                                <Row
+                                    className={`d-flex justify-content-center `}
+                                >
+                                    <Col lg={2}>
+                                        <div className="mb-3">
+                                            <label className="form-label">
+                                                Tipo de mascota:
+                                            </label>
+                                            <select
+                                                className="form-select"
+                                                value={filtroTipoMascota}
+                                                onChange={(e) =>
+                                                    setFiltroTipoMascota(
+                                                        e.target.value
+                                                    )
+                                                }
+                                            >
+                                                <option value="">
+                                                    Seleccione...
+                                                </option>
+                                                {tiposMascota.map((tipo) => (
+                                                    <option
+                                                        key={tipo.id}
+                                                        value={tipo.tipo}
+                                                        className="form-control"
+                                                    >
+                                                        {tipo.tipo}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </Col>
+
+                                    <Col lg={2}>
+                                        <div className="mb-3">
+                                            <label>Barrio:</label>
+                                            <select
+                                                name="barrio"
+                                                className="form-select"
+                                                value={filtroBarrio}
+                                                onChange={(e) =>
+                                                    setFiltroBarrio(
+                                                        e.target.value
+                                                    )
+                                                }
+                                            >
+                                                <option value="">
+                                                    Seleccione...
+                                                </option>
+                                                {barrios.map((elemento) => (
+                                                    <option
+                                                        className="form-control"
+                                                        key={elemento.id}
+                                                        value={elemento.id}
+                                                    >
+                                                        {elemento.nombre}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </Col>
+
+                                    <Col lg={2}>
+                                        <div className="mb-3">
+                                            <label>Sexo:</label>
+                                            <select
+                                                name="sexo"
+                                                className="form-select"
+                                                value={filtroSexo}
+                                                onChange={(e) =>
+                                                    setFiltroSexo(
+                                                        e.target.value
+                                                    )
+                                                }
+                                            >
+                                                <option value="">
+                                                    Seleccione...
+                                                </option>
+                                                {sexo.map((elemento) => (
+                                                    <option
+                                                        className="form-control"
+                                                        key={elemento.id}
+                                                        value={elemento.id}
+                                                    >
+                                                        {elemento.nombre}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </Col>
+
+                                    <Col lg={2}>
+                                        <div className="button-filter w-100 d-flex justify-content-center">
+                                            <button
+                                                className="btn btn-success mt-2 acept"
+                                                onClick={aplicarFiltros}
+                                            >
+                                                Aplicar
+                                            </button>
+                                            <button
+                                                className="btn btn-danger mt-2 clean"
+                                                onClick={handleLimpiarFiltros}
+                                            >
+                                                Limpiar
+                                            </button>
+                                        </div>
+                                    </Col>
                                 </Row>
 
                                 <Row>
                                     <Col>
-                                        <div
-                                            className={` container-cards ${
-                                                isCardShowing ? "showing" : ""
-                                            }`}
-                                        >
-                                            {publicaciones &&
-                                                publicaciones
-                                                    .map((elemento) => (
+                                        {publicacionesFiltradas.length > 0 ? (
+                                            <div
+                                                className={` container-cards ${
+                                                    isCardShowing
+                                                        ? "showing"
+                                                        : ""
+                                                }`}
+                                            >
+                                                {publicacionesFiltradas.map(
+                                                    (elemento) => (
                                                         <div
                                                             key={elemento.id}
                                                             className={`card-pets ${
@@ -145,7 +320,7 @@ const LostPets = () => {
                                                                     onClick={(
                                                                         e
                                                                     ) => {
-                                                                        e.stopPropagation(); // Evitar que el clic se propague al elemento de la tarjeta
+                                                                        e.stopPropagation();
                                                                         handleClick(
                                                                             elemento.id
                                                                         );
@@ -159,8 +334,8 @@ const LostPets = () => {
                                                                         elemento.nombre
                                                                     }
                                                                     <p className="texto-card">
-                                                                        Perdido
-                                                                        desde el{" "}
+                                                                        Encontrado
+                                                                        el día{" "}
                                                                         {new Date(
                                                                             elemento.fechaPerdida
                                                                         ).toLocaleDateString(
@@ -183,16 +358,16 @@ const LostPets = () => {
                                                                 <div className="card-flap flap2">
                                                                     <div className="card-actions">
                                                                         <Link
-                                                                            class="learn-more button-learn-more"
+                                                                            className="learn-more button-learn-more"
                                                                             to={`/consultar-posteo/${elemento.id}`}
                                                                         >
                                                                             <span
-                                                                                class="circle"
+                                                                                className="circle"
                                                                                 aria-hidden="true"
                                                                             >
-                                                                                <span class="icon arrow"></span>
+                                                                                <span className="icon arrow"></span>
                                                                             </span>
-                                                                            <span class="button-text">
+                                                                            <span className="button-text">
                                                                                 Ver
                                                                                 Más
                                                                             </span>
@@ -201,14 +376,26 @@ const LostPets = () => {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    ))
-                                                    .slice(
-                                                        firstIndex,
-                                                        lastIndex
-                                                    )}
-                                        </div>
+                                                    )
+                                                ).slice(
+                                                  firstIndex,
+                                                  lastIndex
+                                              )}
+                                            </div>
+                                        ) : (
+                                            <div
+                                                className="alert alert-primary w-100 d-flex justify-content-center "
+                                                role="alert"
+                                            >
+                                                <h5>
+                                                    No hay publicaciones con
+                                                    esos filtros.
+                                                </h5>
+                                            </div>
+                                        )}
                                     </Col>
                                 </Row>
+
 
                                 <Row>
                                     <Col>

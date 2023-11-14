@@ -50,6 +50,7 @@ const ConsultAdoptForm = () => {
     const [selectedFormDetails, setSelectedFormDetails] = useState(null);
     const [showPDF, setShowPDF] = useState(false);
     const navigate = useNavigate();
+    const [notificaciones, setNotificaciones] = useState(0);
 
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedFormData, setSelectedFormData] = useState(null);
@@ -198,6 +199,26 @@ const ConsultAdoptForm = () => {
         newTab.focus();
     };
     
+     // notificaciones adopciones
+     useEffect(() => {
+        const fetchFormDataSolicitante = async () => {
+            if (userData && userData.id) {
+                const publicDataForm = await getFormulariosPosibleAdoptante(
+                    userData.id
+                );
+
+                // Calcula el número de formularios en estado 1
+                const numFormulariosEnEstado1 = publicDataForm.filter(
+                    (formulario) => formulario.estadoFormularioId === 1
+                ).length;
+                setNotificaciones(numFormulariosEnEstado1);
+            }
+        };
+
+        if (userData && userData.id) {
+            fetchFormDataSolicitante();
+        }
+    }, [userData]);
 
 
     document.title = "Solicitudes de Adopcion | Amigos Peludos";
@@ -239,6 +260,12 @@ const ConsultAdoptForm = () => {
                                                         <span className=" d-md-inline-block">
                                                             Formularios
                                                             Recibidos
+                                                            {notificaciones > 0 && (
+                                                            <span className="circulo-rojo">
+                                                                {" "}
+                                                                {notificaciones}
+                                                            </span>
+                                                        )}
                                                         </span>
                                                     </NavLink>
                                                 </NavItem>

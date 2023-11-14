@@ -213,6 +213,19 @@
     }
 }
 
+.circulo-rojo {
+    background-color: red;
+    color: white;
+    border-radius: 50%; /* Esto hace que el elemento sea un círculo */
+    width: 20px; /* Ancho del círculo */
+    height: 20px; /* Altura del círculo */
+    display: inline-block; /* Hace que el círculo se muestre en línea con el texto */
+    text-align: center;
+    font-size: 14px;
+    line-height: 20px; /* Alinea verticalmente el número en el centro del círculo */
+    margin-left: 5px; /* Espacio entre el icono y el círculo */
+  }
+  
 
 .dropdownmenu {
     background-color: transparent;

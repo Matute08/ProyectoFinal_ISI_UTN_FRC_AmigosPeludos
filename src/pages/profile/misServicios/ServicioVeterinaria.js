@@ -78,10 +78,9 @@ const ServicioVeterinaria = () => {
             
             
         ) {
-            console.log("dio 1");
-            console.log("dio mas de 1");
+            
             const actualizarUser = {
-                esVeterinaria: false,
+                esVeterinaria: null,
             };
             await updateUser(userData.id, actualizarUser);
             

@@ -1,9 +1,19 @@
-
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Col, Form, Row } from "reactstrap";
 
-const Step4 = ({ onNext, onPrevious, step1Data, step2Data,step3Data }) => {
+// Función para formatear los nombres
+const formatName = (name) => {
+  // Capitalizar la primera letra
+  const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
+  // Reemplazar "manana" por "Mañana"
+  if (formattedName === "Manana") {
+    return "Mañana";
+  }
+  return formattedName;
+};
+
+const Step4 = ({ onNext, onPrevious, step1Data, step2Data, step3Data }) => {
   const daysOfWeek = [
     "lunes",
     "martes",
@@ -13,7 +23,9 @@ const Step4 = ({ onNext, onPrevious, step1Data, step2Data,step3Data }) => {
     "sabado",
     "domingo",
   ];
+
   const timePeriods = ["manana", "tarde", "noche"];
+
   const [scheduleData, setScheduleData] = useState({});
   const [isAtLeastOneSelected, setIsAtLeastOneSelected] = useState(false);
 
@@ -79,14 +91,14 @@ const Step4 = ({ onNext, onPrevious, step1Data, step2Data,step3Data }) => {
                 <tr>
                   <th></th>
                   {daysOfWeek.map((day) => (
-                    <th key={day}>{day}</th>
+                    <th key={day}>{formatName(day)}</th> // Usar la función de formato
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {timePeriods.map((period) => (
                   <tr key={period}>
-                    <td>{period}</td>
+                    <td>{formatName(period)}</td> 
                     {daysOfWeek.map((day) => (
                       <td key={day} className="checkbox-cell">
                         <div className="custom-checkbox">

@@ -807,12 +807,7 @@ const SettingsFundacion = () => {
                                                                 }
                                                             </p>
                                                         )}
-                                                        {/* Contador de caracteres restantes */}
-                                                        <div className="text-muted">
-                                                            Caracteres
-                                                            restantes:{" "}
-                                                            {charCountDescr}
-                                                        </div>
+  
                                                     </div>
                                                 </Col>
                                                 {/* DESCRIPCION DE LA UTILIZACION DEL DINERO */}
@@ -857,12 +852,7 @@ const SettingsFundacion = () => {
                                                                 }
                                                             </p>
                                                         )}
-                                                        {/* Contador de caracteres restantes */}
-                                                        <div className="text-muted">
-                                                            Caracteres
-                                                            restantes:{" "}
-                                                            {charCountUtiliz}
-                                                        </div>
+
                                                     </div>
                                                 </Col>
 

@@ -19,16 +19,21 @@ const ServicioPaseador = () => {
 
 
 
-    const daysOfWeek = [
-        "lunes",
-        "martes",
-        "miercoles",
-        "jueves",
-        "viernes",
-        "sabado",
-        "domingo",
-    ];
-    const timePeriods = ["manana", "tarde", "noche"];
+    const daysOfWeek = {
+        lunes: "Lunes",
+        martes: "Martes",
+        miercoles: "Miercoles",
+        jueves: "Jueves",
+        viernes: "Viernes",
+        sabado: "Sabado",
+        domingo: "Domingo",
+    };
+
+    const timePeriods = {
+        manana: "Mañana",
+        tarde: "Tarde",
+        noche: "Noche",
+    };
     useEffect(() => {
         const fetchUserData = async () => {
             // Obtener los datos del usuario desde el localStorage
@@ -84,7 +89,7 @@ const ServicioPaseador = () => {
         const deleteResponse = await deletePaseador(idPaseador);
 
         const actualizarUser = {
-            esPaseador: false
+            esPaseador: null
           };
           
           await updateUser(userData.id, actualizarUser);
@@ -277,10 +282,12 @@ const ServicioPaseador = () => {
                                                 >
                                                     <div className="mb-3 w-75 table-responsive">
                                                         <table className="table table-bordered table-striped">
-                                                            <thead>
+                                                        <thead>
                                                                 <tr>
                                                                     <th></th>
-                                                                    {daysOfWeek.map(
+                                                                    {Object.keys(
+                                                                        daysOfWeek
+                                                                    ).map(
                                                                         (
                                                                             day
                                                                         ) => (
@@ -290,15 +297,20 @@ const ServicioPaseador = () => {
                                                                                 }
                                                                             >
                                                                                 {
-                                                                                    day
+                                                                                    daysOfWeek[
+                                                                                        day
+                                                                                    ]
                                                                                 }
                                                                             </th>
                                                                         )
                                                                     )}
                                                                 </tr>
                                                             </thead>
+
                                                             <tbody>
-                                                                {timePeriods.map(
+                                                                {Object.keys(
+                                                                    timePeriods
+                                                                ).map(
                                                                     (
                                                                         period
                                                                     ) => (
@@ -309,10 +321,14 @@ const ServicioPaseador = () => {
                                                                         >
                                                                             <td>
                                                                                 {
-                                                                                    period
+                                                                                    timePeriods[
+                                                                                        period
+                                                                                    ]
                                                                                 }
                                                                             </td>
-                                                                            {daysOfWeek.map(
+                                                                            {Object.keys(
+                                                                                daysOfWeek
+                                                                            ).map(
                                                                                 (
                                                                                     day
                                                                                 ) => {
@@ -322,7 +338,7 @@ const ServicioPaseador = () => {
                                                                                         paseador
                                                                                             .grilla
                                                                                             .scheduleData &&
-                                                                                        paseador
+                                                                                            paseador
                                                                                             .grilla
                                                                                             .scheduleData[
                                                                                             day.toLowerCase()

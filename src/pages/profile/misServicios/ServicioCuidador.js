@@ -3,7 +3,7 @@ import {
     getUserMail,
     getCuidadores,
     deleteCuidador,
-    updateUser
+    updateUser,
 } from "../../../services/api";
 import { Col, Row } from "reactstrap";
 import { Link, useNavigate } from "react-router-dom";
@@ -15,16 +15,22 @@ const ServicioCuidador = () => {
     const [cuidadores, setCuidadores] = useState();
     const { handleSweetAlertDeleteCuidador } = Modal();
 
-    const daysOfWeek = [
-        "lunes",
-        "martes",
-        "miercoles",
-        "jueves",
-        "viernes",
-        "sabado",
-        "domingo",
-    ];
-    const timePeriods = ["manana", "tarde", "noche"];
+    const daysOfWeek = {
+        lunes: "Lunes",
+        martes: "Martes",
+        miercoles: "Miercoles",
+        jueves: "Jueves",
+        viernes: "Viernes",
+        sabado: "Sabado",
+        domingo: "Domingo",
+    };
+
+    const timePeriods = {
+        manana: "Mañana",
+        tarde: "Tarde",
+        noche: "Noche",
+    };
+
     useEffect(() => {
         const fetchUserData = async () => {
             // Obtener los datos del usuario desde el localStorage
@@ -76,17 +82,16 @@ const ServicioCuidador = () => {
     //funcion para eliminar al cudiador
     const handleDeleteCuidador = async () => {
         const idCuidador = cuidadores && cuidadores[0].id;
-        const deleteResponse =  await deleteCuidador(idCuidador);
+        const deleteResponse = await deleteCuidador(idCuidador);
 
         const actualizarUser = {
-            esCuidador: false
-          };
-          
-          await updateUser(userData.id, actualizarUser);
+            esCuidador: null,
+        };
+
+        await updateUser(userData.id, actualizarUser);
 
         console.log(deleteResponse);
         return deleteResponse.success;
-
     };
 
     return (
@@ -199,7 +204,7 @@ const ServicioCuidador = () => {
                                                                     </strong>
                                                                     {cuidador &&
                                                                     cuidador.patioBalcon ===
-                                                                        1
+                                                                        true
                                                                         ? "Si"
                                                                         : "No"}{" "}
                                                                 </h5>
@@ -214,7 +219,7 @@ const ServicioCuidador = () => {
                                                                     </strong>
                                                                     {cuidador &&
                                                                     cuidador.transportePropio ===
-                                                                        1
+                                                                        true
                                                                         ? "Si"
                                                                         : "No"}{" "}
                                                                 </h5>
@@ -362,7 +367,9 @@ const ServicioCuidador = () => {
                                                             <thead>
                                                                 <tr>
                                                                     <th></th>
-                                                                    {daysOfWeek.map(
+                                                                    {Object.keys(
+                                                                        daysOfWeek
+                                                                    ).map(
                                                                         (
                                                                             day
                                                                         ) => (
@@ -372,15 +379,20 @@ const ServicioCuidador = () => {
                                                                                 }
                                                                             >
                                                                                 {
-                                                                                    day
+                                                                                    daysOfWeek[
+                                                                                        day
+                                                                                    ]
                                                                                 }
                                                                             </th>
                                                                         )
                                                                     )}
                                                                 </tr>
                                                             </thead>
+
                                                             <tbody>
-                                                                {timePeriods.map(
+                                                                {Object.keys(
+                                                                    timePeriods
+                                                                ).map(
                                                                     (
                                                                         period
                                                                     ) => (
@@ -391,10 +403,14 @@ const ServicioCuidador = () => {
                                                                         >
                                                                             <td>
                                                                                 {
-                                                                                    period
+                                                                                    timePeriods[
+                                                                                        period
+                                                                                    ]
                                                                                 }
                                                                             </td>
-                                                                            {daysOfWeek.map(
+                                                                            {Object.keys(
+                                                                                daysOfWeek
+                                                                            ).map(
                                                                                 (
                                                                                     day
                                                                                 ) => {

@@ -89,7 +89,7 @@ const ServicioFundacion = () => {
         ) {
 
             const actualizarUser = {
-                esFundacion: false,
+                esFundacion: null,
             };
             await updateUser(userData.id, actualizarUser);
             

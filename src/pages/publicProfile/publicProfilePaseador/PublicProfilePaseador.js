@@ -66,18 +66,21 @@ const PublicProfilePaseador = () => {
         window.open(whatsappUrl, "_blank");
     };
 
-    const daysOfWeek = [
-        "lunes",
-        "martes",
-        "miercoles",
-        "jueves",
-        "viernes",
-        "sabado",
-        "domingo",
-    ];
-    const timePeriods = ["manana", "tarde", "noche"];
+    const daysOfWeek = {
+        lunes: "Lunes",
+        martes: "Martes",
+        miercoles: "Miercoles",
+        jueves: "Jueves",
+        viernes: "Viernes",
+        sabado: "Sabado",
+        domingo: "Domingo",
+    };
 
-    
+    const timePeriods = {
+        manana: "Mañana",
+        tarde: "Tarde",
+        noche: "Noche",
+    };
 
     const toggleTab = (tab) => {
         if (activeTab !== tab) {
@@ -335,7 +338,9 @@ const PublicProfilePaseador = () => {
                                                                 <thead>
                                                                     <tr>
                                                                         <th></th>
-                                                                        {daysOfWeek.map(
+                                                                        {Object.keys(
+                                                                            daysOfWeek
+                                                                        ).map(
                                                                             (
                                                                                 day
                                                                             ) => (
@@ -345,15 +350,20 @@ const PublicProfilePaseador = () => {
                                                                                     }
                                                                                 >
                                                                                     {
-                                                                                        day
+                                                                                        daysOfWeek[
+                                                                                            day
+                                                                                        ]
                                                                                     }
                                                                                 </th>
                                                                             )
                                                                         )}
                                                                     </tr>
                                                                 </thead>
+
                                                                 <tbody>
-                                                                    {timePeriods.map(
+                                                                    {Object.keys(
+                                                                        timePeriods
+                                                                    ).map(
                                                                         (
                                                                             period
                                                                         ) => (
@@ -364,10 +374,14 @@ const PublicProfilePaseador = () => {
                                                                             >
                                                                                 <td>
                                                                                     {
-                                                                                        period
+                                                                                        timePeriods[
+                                                                                            period
+                                                                                        ]
                                                                                     }
                                                                                 </td>
-                                                                                {daysOfWeek.map(
+                                                                                {Object.keys(
+                                                                                    daysOfWeek
+                                                                                ).map(
                                                                                     (
                                                                                         day
                                                                                     ) => {

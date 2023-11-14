@@ -56,10 +56,8 @@ export const FormRegister = () => {
                 //si se registro en firebase, lo registro en la base de datos
                 if (isUser) {
                     //corroboro si es un usuario que se dio de baja, o un usuario nuevo
-                    console.log("entro al es usuario");
                     await updateUser(isUser.id, data);
                 } else {
-                    console.log("entro a usuario nuevo");
                     data.tipoAutenticacionId = "1";
                     data.rolId = "2";
                     await postUser(data);
@@ -80,10 +78,10 @@ export const FormRegister = () => {
         }
     };
 
-    const handleGoogleSignIn = async () => {
-        await registerWithGoogle();
-        navigate(`/completar-perfil/${mail}`);
-    };
+    // const handleGoogleSignIn = async () => {
+    //     await registerWithGoogle();
+    //     navigate(`/completar-perfil/${mail}`);
+    // };
 
     return (
         <Form
@@ -215,7 +213,7 @@ export const FormRegister = () => {
                 </button>
             </div>
 
-            <div className="mt-4 text-center">
+            {/* <div className="mt-4 text-center">
                 <div className="signin-other-title">
                     <h5 className="fs-13 mb-4 title text-muted">
                         Crear cuenta con:
@@ -231,7 +229,7 @@ export const FormRegister = () => {
                         <i className="ri-google-fill fs-16"></i>
                     </button>{" "}
                 </div>
-            </div>
+            </div> */}
         </Form>
 
         

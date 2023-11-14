@@ -12,7 +12,13 @@ import {
 import Scrollspy from "react-scrollspy";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../services/AuthContext";
-import { getUserMail, getRol } from "../../services/api";
+import {
+    getUserMail,
+    getRol,
+    getFormulariosPosibleAdoptante,
+    getFundacion,
+    getVeterinarias,
+} from "../../services/api";
 
 import logo from "../../assets/images/logo/LogoAP.png";
 import userRandom from "../../assets/images/user/user-random.jpg";
@@ -31,6 +37,10 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
     const [dropdownOpenBusqueda, setDropdownOpenBusqueda] = useState(false);
     const [dropdownOpenServicios, setDropdownOpenServicios] = useState(false);
     const [isProfileDropdown, setIsProfileDropdown] = useState(false);
+    const [formularioAdopciones, setFormulariosAdopciones] = useState();
+    const [notificaciones, setNotificaciones] = useState(0);
+    const [notificacionesVete, setNotificacionesVete] = useState(0);
+    const [notificacionesFunda, setNotificacionesFunda] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
 
     const toggleBusqueda = () =>
@@ -68,8 +78,6 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
         fetchUserData();
     }, []);
 
-
-
     useEffect(() => {
         const fetchRol = async () => {
             const roles = await getRol();
@@ -78,6 +86,84 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
 
         fetchRol();
     }, []);
+
+    // notificaciones adopciones
+    useEffect(() => {
+        const fetchFormDataSolicitante = async () => {
+            if (userData && userData.id) {
+                const publicDataForm = await getFormulariosPosibleAdoptante(
+                    userData.id
+                );
+
+                // Calcula el número de formularios en estado 1
+                const numFormulariosEnEstado1 = publicDataForm.filter(
+                    (formulario) => formulario.estadoFormularioId === 1
+                ).length;
+                setNotificaciones(numFormulariosEnEstado1);
+            }
+        };
+
+        if (userData && userData.id) {
+            fetchFormDataSolicitante();
+        }
+    }, [userData]);
+
+    // notificaciones veterinarias
+    useEffect(() => {
+        const fetchFormDataSolicitado = async () => {
+            try {
+                // Obtener datos de veterinarias
+                const publicData = await getVeterinarias();
+
+                // Filtrar las veterinarias en estado 1
+                const veterinariasEnEstado1 = publicData.filter(
+                    (veterinaria) => veterinaria.estadoId === 1
+                );
+
+                // Obtener el número de veterinarias en estado 1
+                setNotificacionesVete(veterinariasEnEstado1.length);
+
+                setIsLoading(false);
+            } catch (error) {
+                console.error("Error al obtener datos de veterinarias:", error);
+            }
+        };
+
+        // Verificar si hay un usuario válido antes de hacer la solicitud
+        if (userData && userData.id) {
+            fetchFormDataSolicitado();
+        }
+    }, [userData]);
+
+    //notificaciones fundaciones
+
+    useEffect(() => {
+        const fetchFormDataSolicitado = async () => {
+            try {
+                // Obtener datos de fundaciones
+                const fundacionData = await getFundacion();
+
+                // Filtrar las fundaciones en estado deseado (por ejemplo, estadoId === 1)
+                const fundacionesEnEstadoDeseado = fundacionData.filter(
+                    (fundacion) => fundacion.estadoId === 1
+                );
+
+                // Obtener el número de fundaciones en el estado deseado
+                setNotificacionesFunda(fundacionesEnEstadoDeseado.length);
+
+                setIsLoading(false);
+            } catch (error) {
+                console.error("Error al obtener datos de fundaciones:", error);
+            }
+        };
+
+        // Verificar si hay un usuario válido antes de hacer la solicitud
+        if (userData && userData.id) {
+            fetchFormDataSolicitado();
+        }
+    }, [userData]);
+
+    
 
     return (
         <React.Fragment>
@@ -260,26 +346,38 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
                                                                 )?.nombre}
                                                         </span>
                                                     </span>
+                                                    {(notificaciones > 0 || notificacionesVete>0 || notificacionesFunda >0) && (
+                                                        <span className="circulo-rojo">
+                                                            {" "}
+                                                            {notificaciones+notificacionesFunda+notificacionesVete}
+                                                        </span>
+                                                    )}
                                                 </span>
                                             </DropdownToggle>
 
                                             <DropdownMenu className="dropdown-menu-end">
-                                                <DropdownItem href={userData && `/perfil/${userData.mail}`}>
+                                                <DropdownItem
+                                                    href={
+                                                        userData &&
+                                                        `/perfil/${userData.mail}`
+                                                    }
+                                                >
                                                     <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                                                     <span className="align-middle">
                                                         Perfil
                                                     </span>
                                                 </DropdownItem>
-                                                <DropdownItem href="#">
-                                                    <i className="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i>{" "}
-                                                    <span className="align-middle">
-                                                        Mensajes
-                                                    </span>
-                                                </DropdownItem>
+
                                                 <DropdownItem href="/formularios">
                                                     <i className="mdi mdi-form-select text-muted fs-16 align-middle me-1"></i>
                                                     <span className="align-middle">
-                                                        Formularios
+                                                        Formularios{" "}
+                                                        {notificaciones > 0 && (
+                                                            <span className="circulo-rojo">
+                                                                {" "}
+                                                                {notificaciones}
+                                                            </span>
+                                                        )}
                                                     </span>
                                                 </DropdownItem>
 
@@ -290,6 +388,16 @@ const Navbar = ({ isHomePage, direction, ...args }) => {
                                                             <i className="mdi mdi-form-select text-muted fs-16 align-middle me-1"></i>
                                                             <span className="align-middle">
                                                                 Solicitudes
+                                                                {(notificacionesFunda >
+                                                                    0 ||
+                                                                    notificacionesVete >
+                                                                        0) && (
+                                                                    <span className="circulo-rojo">
+                                                                        {" "}
+                                                                        {notificacionesFunda +
+                                                                            notificacionesVete}
+                                                                    </span>
+                                                                )}
                                                             </span>
                                                         </DropdownItem>
                                                     )}

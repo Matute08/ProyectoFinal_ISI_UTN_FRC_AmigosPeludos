@@ -40,6 +40,7 @@ const PublicProfileCuidador = () => {
                 if (dataCuidador) {
                     setUserData(dataCuidador);
                     setIsLoading(false);
+                    console.log(dataCuidador);
                 }
             } catch (error) {
                 console.error("Error al cargar datos:", error);
@@ -66,16 +67,21 @@ const PublicProfileCuidador = () => {
         window.open(whatsappUrl, "_blank");
     };
 
-    const daysOfWeek = [
-        "lunes",
-        "martes",
-        "miercoles",
-        "jueves",
-        "viernes",
-        "sabado",
-        "domingo",
-    ];
-    const timePeriods = ["manana", "tarde", "noche"];
+    const daysOfWeek = {
+        lunes: "Lunes",
+        martes: "Martes",
+        miercoles: "Miercoles",
+        jueves: "Jueves",
+        viernes: "Viernes",
+        sabado: "Sabado",
+        domingo: "Domingo",
+    };
+
+    const timePeriods = {
+        manana: "Mañana",
+        tarde: "Tarde",
+        noche: "Noche",
+    };
 
     const toggleTab = (tab) => {
         if (activeTab !== tab) {
@@ -302,7 +308,7 @@ const PublicProfileCuidador = () => {
                                                                 </strong>
                                                                 {userData &&
                                                                 userData.patioBalcon ===
-                                                                    1
+                                                                    true
                                                                     ? "Si"
                                                                     : "No"}{" "}
                                                             </h5>
@@ -317,7 +323,7 @@ const PublicProfileCuidador = () => {
                                                                 </strong>
                                                                 {userData &&
                                                                 userData.transportePropio ===
-                                                                    1
+                                                                    true
                                                                     ? "Si"
                                                                     : "No"}{" "}
                                                             </h5>
@@ -442,7 +448,9 @@ const PublicProfileCuidador = () => {
                                                                 <thead>
                                                                     <tr>
                                                                         <th></th>
-                                                                        {daysOfWeek.map(
+                                                                        {Object.keys(
+                                                                            daysOfWeek
+                                                                        ).map(
                                                                             (
                                                                                 day
                                                                             ) => (
@@ -452,15 +460,20 @@ const PublicProfileCuidador = () => {
                                                                                     }
                                                                                 >
                                                                                     {
-                                                                                        day
+                                                                                        daysOfWeek[
+                                                                                            day
+                                                                                        ]
                                                                                     }
                                                                                 </th>
                                                                             )
                                                                         )}
                                                                     </tr>
                                                                 </thead>
+
                                                                 <tbody>
-                                                                    {timePeriods.map(
+                                                                    {Object.keys(
+                                                                        timePeriods
+                                                                    ).map(
                                                                         (
                                                                             period
                                                                         ) => (
@@ -471,10 +484,14 @@ const PublicProfileCuidador = () => {
                                                                             >
                                                                                 <td>
                                                                                     {
-                                                                                        period
+                                                                                        timePeriods[
+                                                                                            period
+                                                                                        ]
                                                                                     }
                                                                                 </td>
-                                                                                {daysOfWeek.map(
+                                                                                {Object.keys(
+                                                                                    daysOfWeek
+                                                                                ).map(
                                                                                     (
                                                                                         day
                                                                                     ) => {

@@ -49,6 +49,8 @@ const Solicitudes = () => {
     const [selectedFormDetails, setSelectedFormDetails] = useState(null);
     const [showPDF, setShowPDF] = useState(false);
     const navigate = useNavigate();
+    const [notificacionesVete, setNotificacionesVete] = useState(0);
+    const [notificacionesFunda, setNotificacionesFunda] = useState(0);
 
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedFormData, setSelectedFormData] = useState(null);
@@ -82,6 +84,63 @@ const Solicitudes = () => {
 
         fetchUserData();
     }, []);
+
+    // notificaciones veterinarias
+    useEffect(() => {
+        const fetchFormDataSolicitado = async () => {
+            try {
+                // Obtener datos de veterinarias
+                const publicData = await getVeterinarias();
+
+                // Filtrar las veterinarias en estado 1
+                const veterinariasEnEstado1 = publicData.filter(
+                    (veterinaria) => veterinaria.estadoId === 1
+                );
+
+                // Obtener el número de veterinarias en estado 1
+                setNotificacionesVete(veterinariasEnEstado1.length);
+
+                setIsLoading(false);
+            } catch (error) {
+                console.error("Error al obtener datos de veterinarias:", error);
+            }
+        };
+
+        // Verificar si hay un usuario válido antes de hacer la solicitud
+        if (userData && userData.id) {
+            fetchFormDataSolicitado();
+        }
+    }, [userData]);
+
+
+    //notificaciones fundaciones
+
+    useEffect(() => {
+        const fetchFormDataSolicitado = async () => {
+            try {
+                // Obtener datos de fundaciones
+                const fundacionData = await getFundacion();
+
+                // Filtrar las fundaciones en estado deseado (por ejemplo, estadoId === 1)
+                const fundacionesEnEstadoDeseado = fundacionData.filter(
+                    (fundacion) => fundacion.estadoId === 1
+                );
+
+                // Obtener el número de fundaciones en el estado deseado
+                setNotificacionesFunda(fundacionesEnEstadoDeseado.length);
+
+                setIsLoading(false);
+            } catch (error) {
+                console.error("Error al obtener datos de fundaciones:", error);
+            }
+        };
+
+        // Verificar si hay un usuario válido antes de hacer la solicitud
+        if (userData && userData.id) {
+            fetchFormDataSolicitado();
+        }
+    }, [userData]);
+
     document.title = "Solicitudes de Servicios | Amigos Peludos";
 
     return (
@@ -118,6 +177,12 @@ const Solicitudes = () => {
                                             >
                                                 <span className=" d-md-inline-block">
                                                     Solicitudes Veterinarias
+                                                    {notificacionesVete > 0 && (
+                                                        <span className="circulo-rojo">
+                                                            {" "}
+                                                            {notificacionesVete}
+                                                        </span>
+                                                    )}
                                                 </span>
                                             </NavLink>
                                         </NavItem>
@@ -135,6 +200,12 @@ const Solicitudes = () => {
                                             >
                                                 <span className=" d-md-inline-block">
                                                     Solicitudes Fundaciones
+                                                    {notificacionesFunda > 0 && (
+                                                        <span className="circulo-rojo">
+                                                            {" "}
+                                                            {notificacionesFunda}
+                                                        </span>
+                                                    )}
                                                 </span>
                                             </NavLink>
                                         </NavItem>
