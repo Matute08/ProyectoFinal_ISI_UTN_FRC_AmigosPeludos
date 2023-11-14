@@ -41,13 +41,14 @@ const PerfilVeterinaria = () => {
     const createPreference = async () => {
         try {
             const response = await axios.post(
-                "https://amigospeludos.azurewebsites.net/api/Veterinaria/MercadoPago/create_preference",
+                "https://amigospeludos.azurewebsites.net/api/MercadoPago/create_preference",
                 {
                     title: `Gracias por la transferencia a ${
                         veterinarias && veterinarias.nombre
                     }`,
                     unit_price: donationAmount,
                     quantity: 1,
+                    pagina: "https://amigos-peludos.vercel.app/veterinarias/"
                 }
             );
             const { id } = response.data;
@@ -249,7 +250,7 @@ const PerfilVeterinaria = () => {
                                             </CardHeader>
                                             <CardBody>
                                                 <Row>
-                                                    <Col lg={4} md={4}>
+                                                    <Col lg={4} md={12}>
                                                         <div className="text-start wrap">
                                                             <h5>
                                                                 Dirección:{" "}
@@ -276,7 +277,7 @@ const PerfilVeterinaria = () => {
                                                             </h5>
                                                         </div>
                                                     </Col>
-                                                    <Col lg={5} md={4}>
+                                                    <Col lg={5} md={12}>
                                                         <div>
                                                             <h5 className="text-center">
                                                                 Horarios
@@ -365,7 +366,7 @@ const PerfilVeterinaria = () => {
 
                                                     <Col
                                                         lg={3}
-                                                        md={3}
+                                                        md={12}
                                                         className=""
                                                     >
                                                         <Row>
@@ -410,7 +411,7 @@ const PerfilVeterinaria = () => {
                                                                             ""
                                                                         )}
                                                                         {mostrarInput ? (
-                                                                            <div className="w-75">
+                                                                            <div className="w-100 ">
                                                                                 <hr />
                                                                                 <label className="d-flex form-label">
                                                                                     Indique
@@ -431,8 +432,10 @@ const PerfilVeterinaria = () => {
                                                                                 {mostrarBoton &&
                                                                                 donationAmount >
                                                                                     0 ? (
+                                                                                        <div className="d-flex justify-content-center">
+                                                                                            
                                                                                     <button
-                                                                                        className="m-3 button-donar"
+                                                                                        className="m-3 button-donar "
                                                                                         onClick={
                                                                                             handleBuy
                                                                                         }
@@ -440,6 +443,7 @@ const PerfilVeterinaria = () => {
                                                                                     >
                                                                                         Transferir
                                                                                     </button>
+                                                                                        </div>
                                                                                 ) : preferenceId ? (
                                                                                     <Wallet
                                                                                         initialization={{

@@ -104,6 +104,7 @@ const DonacionFundacion = () => {
                     }`,
                     unit_price: selectedAmount,
                     quantity: 1,
+                    pagina: "https://amigos-peludos.vercel.app/fundaciones/"
                     
                     
                 }
