@@ -104,23 +104,23 @@ const DonacionFundacion = () => {
                     }`,
                     unit_price: selectedAmount,
                     quantity: 1,
-                    pagina: "https://amigos-peludos.vercel.app/fundaciones/"
+                    pagina: `https://amigos-peludos.vercel.app/fundaciones/${id}`
                     
                     
                 }
             );
-            const { id } = response.data;
-            return id;
+            const { idResponse } = response.data;
+            return idResponse;
         } catch (error) {
             console.log(error);
         }
     };
 
     const handleBuy = async () => {
-        const id = await createPreference();
-        if (id) {
+        const idResponse = await createPreference();
+        if (idResponse) {
             setMostrarBoton(false);
-            setPreferenceId(id);
+            setPreferenceId(idResponse);
         }
     };
 
