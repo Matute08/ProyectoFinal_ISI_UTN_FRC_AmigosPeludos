@@ -102,7 +102,7 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
 
     const onSubmit = async (data) => {
         try {
-            //data.tipoViviendaId = data.tipoViviendaId === "1";
+            data.tipoViviendaId = parseInt(data.tipoViviendaId,10) ;
             data.estadoResidencia = data.estadoResidencia === "1";
             data.aceptaMascota = data.aceptaMascota === "1";
             data.viviendaCerrada = data.viviendaCerrada === "1";
@@ -111,7 +111,7 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
             data.usuarioIdSolicitado = publi.usuarioId;
             data.publicacionMascotaId = parseInt(posteoId, 10);
 
-           
+            console.log(data);
             await postFormularioAdopcion(data);
             handleUpdateState()
         } catch (error) {
@@ -403,7 +403,7 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
                                                 },
                                             })}
                                             type="radio"
-                                            value="0"
+                                            value="1"
                                         />
 
                                         <span className="radio-text">Casa</span>
@@ -420,7 +420,7 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
                                                 },
                                             })}
                                             type="radio"
-                                            value="1"
+                                            value="2"
                                         />
 
                                         <span className="radio-text">

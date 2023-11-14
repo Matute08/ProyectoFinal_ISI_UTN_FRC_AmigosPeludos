@@ -895,7 +895,7 @@ const SettingsPet = () => {
                                                                         class="button-pz btn-pz-secondary"
                                                                         onClick={() => {
                                                                             navigate(
-                                                                                `/perfil/${userData.mail}`
+                                                                                `/perfil/${userData&& userData.mail}`
                                                                             );
                                                                         }}
                                                                     >
