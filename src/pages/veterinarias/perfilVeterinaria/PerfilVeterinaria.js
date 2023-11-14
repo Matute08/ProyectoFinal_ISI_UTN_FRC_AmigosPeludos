@@ -48,7 +48,7 @@ const PerfilVeterinaria = () => {
                     }`,
                     unit_price: donationAmount,
                     quantity: 1,
-                    pagina: `https://amigos-peludos.vercel.app/veterinarias/perfil-veterinarias/${idVete}`,
+                    pagina: `https://amigos-peludos.vercel.app/veterinarias/perfil-veterinaria/${idVete}`,
                     
                 }
             );
