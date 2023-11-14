@@ -106,7 +106,7 @@ function App() {
           {/* Veterinarias */}
           <Route path='/veterinarias' element={<Veterinarias />} />
           <Route path="/agregar-veterinaria" element={<ProtectedRoute><AddVeterinaria /></ProtectedRoute>} />
-          <Route path="/veterinarias/perfil-veterinaria/:id" element={<ProtectedRoute><PerfilVeterinaria /></ProtectedRoute>} />
+          <Route path="/veterinarias/perfil-veterinaria/:idVete" element={<ProtectedRoute><PerfilVeterinaria /></ProtectedRoute>} />
           <Route path="/modificar-veterinaria/:veterinariaId" element={<ProtectedRoute><SettingsVeterinaria /></ProtectedRoute>} />
 
 
@@ -127,7 +127,7 @@ function App() {
           <Route path="/modificar-fundacion/:fundacionId" element={<ProtectedRoute><SettingsFundacion /></ProtectedRoute>} />
 d
           {/* Donacion Fundacion */}
-          <Route path="/fundaciones/donar-fundacion/:id" element={<ProtectedRoute><DonacionFundacion /></ProtectedRoute>} />
+          <Route path="/fundaciones/donar-fundacion/:idFunda" element={<ProtectedRoute><DonacionFundacion /></ProtectedRoute>} />
 
           {/* QR usuario */}
           <Route path='/datos-usuario/:id' element={<QrUsuario />} />
