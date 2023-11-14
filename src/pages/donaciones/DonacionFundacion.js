@@ -109,18 +109,18 @@ const DonacionFundacion = () => {
                     
                 }
             );
-            const { idResponse } = response.data;
-            return idResponse;
+            const { id } = response.data;
+            return id;
         } catch (error) {
             console.log(error);
         }
     };
 
     const handleBuy = async () => {
-        const idResponse = await createPreference();
-        if (idResponse) {
+        const id = await createPreference();
+        if (id) {
             setMostrarBoton(false);
-            setPreferenceId(idResponse);
+            setPreferenceId(id);
         }
     };
 
