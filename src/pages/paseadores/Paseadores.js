@@ -13,7 +13,8 @@ import {
 import Navbar from "../landing/Navbar";
 import Footer from "../landing/Footer";
 import Loading from "../components/Loading";
-import { getPaseador, getUserMail } from "../../services/api";
+import { getPaseador } from "../../services/commonApi";
+import { getUserMail, updateUser } from "../../services/userApi";
 import img from "../../assets/images/user/user-random.jpg";
 
 const Paseadores = () => {

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-    getTipoMascota,
-    getAllRazaId,
-    getSexoMascota,
-    getCiudad,
-    getAllBarrio,
-} from "../../services/api";
+
+
+import { getUserMail } from "../../services/userApi";
+import { getAllRazaId, getCiudad, getAllBarrio } from "../../services/commonApi";
+import {getSexoMascota, getTipoMascota} from "../../services/PetsApi";
+
 import Loading from "./Loading";
 import { Col } from "reactstrap";
 
@@ -24,7 +23,7 @@ const FilterPets = ({ cardsData, setPublicacionesFiltradas }) => {
             try {
                 const tipo = await getTipoMascota();
                 if (tipo) {
-                    setTipoMascota(tipo);
+                    setTipoMascota(tipo.data);
                 }
             } catch (error) {
                 // Manejo de errores
@@ -42,7 +41,7 @@ const FilterPets = ({ cardsData, setPublicacionesFiltradas }) => {
         try {
             const razaData = await getAllRazaId(tipoMascotaId);
             if (razaData) {
-                setRaza(razaData);
+                setRaza(razaData.data);
             }
         } catch (error) {
             // Manejo de errores
@@ -54,7 +53,7 @@ const FilterPets = ({ cardsData, setPublicacionesFiltradas }) => {
             try {
                 const sexoData = await getSexoMascota();
                 if (sexoData) {
-                    setSexo(sexoData);
+                    setSexo(sexoData.data);
                 }
             } catch (error) {
                 // Manejo de errores
@@ -68,7 +67,7 @@ const FilterPets = ({ cardsData, setPublicacionesFiltradas }) => {
             try {
                 const ciudadData = await getCiudad();
                 if (ciudadData) {
-                    setCiudad(ciudadData);
+                    setCiudad(ciudadData.data);
                 }
             } catch (error) {
                 // Manejo de errores
@@ -82,7 +81,7 @@ const FilterPets = ({ cardsData, setPublicacionesFiltradas }) => {
             try {
                 const barrioData = await getAllBarrio();
                 if (barrioData) {
-                    setBarrio(barrioData);
+                    setBarrio(barrioData.data);
                 }
             } catch (error) {
                 // Manejo de errores

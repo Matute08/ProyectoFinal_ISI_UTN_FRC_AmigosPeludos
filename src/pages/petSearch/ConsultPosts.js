@@ -1,380 +1,490 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+// ConsultPosts.js (Refactorizado v2 - Usando <i> para Font Awesome)
+
+import React, { useState, useEffect, useMemo } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Loading from "../components/Loading";
 import Navbar from "../landing/Navbar";
 import Footer from "../landing/Footer";
-import { Col, Container, Row, Card, CardBody, CardHeader } from "reactstrap";
-import { useAuth } from "../../services/AuthContext";
+import {
+    Col,
+    Container,
+    Row,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    Button,
+    Alert,
+    Spinner,
+    ListGroup,
+    ListGroupItem,
+    Badge,
+} from "reactstrap";
+// import { useAuth } from "../../services/AuthContext"; // user no se usa
 
+// Swiper (Carrusel de Imágenes)
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Scrollbar, Autoplay } from "swiper";
-import "swiper";
+import { Navigation, Pagination, Autoplay } from "swiper"; // Módulos deseados
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-import "swiper/css/scrollbar";
-import "swiper/css/effect-fade";
-import "swiper/css/effect-flip";
 
-import LeafletMaps from "../components/maps/LeafletMaps";
-import { getPublicacionesId } from "../../services/api";
+// Mapa
+import LeafletMaps from "../components/maps/LeafletMaps"; // Verificar ruta
+
+// API
+import { getPublicacionesId } from "../../services/PublicationsPetsApi"; // Verificar ruta
+
+// Placeholder para imagen
+const placeholderImage = "/images/placeholder-image.png"; // Define una ruta real
 
 const ConsultPosts = () => {
-    const { user } = useAuth();
-    const [isLoading, setIsLoading] = useState();
+    // const { user } = useAuth(); // No se usa
     const { posteoId } = useParams();
-    const [datosPublicacion, setDatosPublicacion] = useState();
-    const [tipoPublicacion, setTipoPublicacion] = useState();
-    const [titulo, setTitulo] = useState();
-    const [labelFecha, setLabelFecha] = useState();
-    const [url, setUrl] = useState([]);
+    const navigate = useNavigate();
 
+    // --- Estados ---
+    const [isLoading, setIsLoading] = useState(true);
+    const [datosPublicacion, setDatosPublicacion] = useState(null);
+    const [error, setError] = useState(null);
+
+    // --- Carga de Datos ---
     useEffect(() => {
-        window.scrollTo(0, 0);
+        window.scrollTo(0, 0); // Scroll al top
         const fetchPublicData = async () => {
-            const publicData = await getPublicacionesId(posteoId);
-            const updatedPublicData = { ...publicData }; // Copia del objeto publicData
-
-            updatedPublicData.castracion === true
-                ? (updatedPublicData.castracion = "Si")
-                : updatedPublicData.castracion === false
-                ? (updatedPublicData.castracion = "No")
-                : (updatedPublicData.castracion = "No se");
-
-            if (updatedPublicData.tipoPublicacionId === 1) {
-                setTitulo("Detalle de la Mascota Perdida");
-                setLabelFecha("Perdida el");
-                updatedPublicData.fechaPerdida = new Date(
-                    publicData.fechaPerdida
-                ).toLocaleDateString("es-ES", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                });
-            } else if (updatedPublicData.tipoPublicacionId === 2) {
-                setTitulo("Detalle de la Mascota Encontrada");
-                setLabelFecha("Encontrada el");
-                updatedPublicData.fechaPerdida = new Date(
-                    publicData.fechaPerdida
-                ).toLocaleDateString("es-ES", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                });
-            } else {
-                setTitulo("Detalle de la Mascota En Adopción");
-                setLabelFecha("En adopción desde")
-                updatedPublicData.fechaPerdida = new Date(
-                    publicData.fechaAlta
-                ).toLocaleDateString("es-ES", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                });
+            if (!posteoId) {
+                setError("ID de publicación no válido.");
+                setIsLoading(false);
+                return;
             }
-            setDatosPublicacion(updatedPublicData);
-            setIsLoading(false);
+            setIsLoading(true);
+            setError(null);
+            setDatosPublicacion(null);
+
+            try {
+                const response = await getPublicacionesId(posteoId);
+                // Asumiendo que la API devuelve { data: {...} }
+                const data = response?.data || response; // Manejar ambos casos
+                if (data && typeof data === "object" && data.id) {
+                    setDatosPublicacion(data);
+                } else {
+                    throw new Error(
+                        "No se encontraron datos para esta publicación o la respuesta de la API es inválida."
+                    );
+                }
+            } catch (err) {
+                console.error("Error fetching publicacion data:", err);
+                setError(err.message || "Error al cargar la publicación.");
+            } finally {
+                setIsLoading(false);
+            }
         };
         fetchPublicData();
-    }, []);
+    }, [posteoId]); // Dependencia correcta
 
+    // --- Cálculo de Valores Derivados ---
+    const {
+        titulo,
+        labelFecha,
+        displayDate,
+        castracionDisplay,
+        tipoPublicacionId,
+    } = useMemo(() => {
+        if (!datosPublicacion) {
+            return {
+                titulo: "Cargando...",
+                labelFecha: "",
+                displayDate: "",
+                castracionDisplay: "",
+                tipoPublicacionId: null,
+            };
+        }
+        let calculatedTitulo = "Detalle de Publicación";
+        let calculatedLabelFecha = "Fecha";
+        let calculatedDate = "";
+        let calculatedCastracion = "No especificado";
+        const pubType = datosPublicacion.tipoPublicacionId;
+
+        if (pubType === 1) {
+            calculatedTitulo = "Detalle de Mascota Perdida";
+            calculatedLabelFecha = "Perdida el";
+        } else if (pubType === 2) {
+            calculatedTitulo = "Detalle de Mascota Encontrada";
+            calculatedLabelFecha = "Encontrada el";
+        } else if (pubType === 3) {
+            calculatedTitulo = "Detalle de Mascota en Adopción";
+            calculatedLabelFecha = "En adopción desde";
+        }
+
+        const dateToFormat =
+            pubType === 3
+                ? datosPublicacion.fechaAlta
+                : datosPublicacion.fechaPerdida;
+        if (dateToFormat) {
+            try {
+                calculatedDate = new Date(dateToFormat).toLocaleDateString(
+                    "es-AR",
+                    { day: "2-digit", month: "2-digit", year: "numeric" }
+                );
+            } catch (e) {
+                calculatedDate = "Inválida";
+            }
+        }
+        if (typeof datosPublicacion.castracion === "boolean") {
+            calculatedCastracion = datosPublicacion.castracion ? "Sí" : "No";
+        }
+        return {
+            titulo: calculatedTitulo,
+            labelFecha: calculatedLabelFecha,
+            displayDate: calculatedDate,
+            castracionDisplay: calculatedCastracion,
+            tipoPublicacionId: pubType,
+        };
+    }, [datosPublicacion]);
+
+    // --- Función WhatsApp ---
     const openWhatsApp = () => {
-        // Número de teléfono al que enviar el mensaje
-        const phoneNumber = datosPublicacion && datosPublicacion.telefono;
-
-        // Mensaje predeterminado
-        const message = "¡Hola! Encontre a tu mascota perdida! ";
-
-        // Crear la URL de WhatsApp con el número de teléfono y el mensaje
-        const whatsappUrl = `https://wa.me/+54${phoneNumber}?text=${encodeURIComponent(
+        const phoneNumber = datosPublicacion?.telefono;
+        if (!phoneNumber) {
+            alert("El teléfono de contacto no está disponible.");
+            return;
+        }
+        let message = `¡Hola! Vi la publicación de ${
+            datosPublicacion?.nombre || "la mascota"
+        } (${
+            datosPublicacion?.publicacionTipo || ""
+        }) y quisiera más información.`;
+        // Personalizar mensaje aún más si se desea
+        const whatsappUrl = `https://wa.me/54${phoneNumber}?text=${encodeURIComponent(
             message
         )}`;
-
-        // Redireccionar al usuario a la URL de WhatsApp
-        window.open(whatsappUrl, "_blank");
+        window.open(whatsappUrl, "_blank", "noopener,noreferrer");
     };
 
-    const pagination = {
-        clickable: true,
-        renderBullet: function (index, className) {
-            return (
-                '<span className="' + className + '">' + (index + 1) + "</span>"
-            );
-        },
-    };
-    const keyMap = {
-        nombre: "Nombre",
-        tipoMascotaNombre: "Tipo de mascota",
-        edadMascota: "Edad",
-        razaNombre: "Raza",
-        castracion: "Castrado/a",
-        sexoMascota: "Sexo",
-        color: "Color",
-        descripcion: "Descripción",
-        calle: "Calle",
-        barrioPublicacion: "Barrio",
-        ciudadPublicacion: "Ciudad",
-        fechaPerdida: labelFecha,
+    // --- Renderizado ---
 
-        //fotos: "Foto de la mascota",
-    };
-    const excludedKeys = [
-        "id",
-        "edadId",
-        "sexoId",
-        "usuarioId",
-        "razaId",
-        "mailUsuario",
-        "fotos",
-        "latitud",
-        "longitud",
-        "tipoPublicacionId",
-        "telefono",
-        "barrioId",
-        "publicacionTipo",
-        "fechaAlta",
-    ];
+    if (isLoading) {
+        return <Loading />;
+    }
 
-    document.title = "Consultar Posteo | Amigos Peludos";
+    if (error || !datosPublicacion) {
+        return (
+            <>
+                <Navbar />
+                <Container className="page-content text-center mt-5">
+                    <Alert color="danger">
+                        {error || "No se encontró la publicación."}
+                    </Alert>
+                    <Button
+                        color="secondary"
+                        onClick={() => navigate(-1)}
+                        className="mt-2 d-inline-flex align-items-center"
+                    >
+                        {/* Icono Volver con <i> */}
+                        <i className="fas fa-arrow-left me-1"></i> Volver
+                    </Button>
+                </Container>
+                <Footer />
+            </>
+        );
+    }
+
+    document.title = `${titulo} | Amigos Peludos`;
+
     return (
         <React.Fragment>
-            <Navbar></Navbar>
-            {!isLoading ? (
-                <>
-                    <div className="page-content perfil-fondo">
-                        <Container fluid className="contenedor-fluido">
-                            {/* Fila 1 titulo */}
-                            <Row>
-                                <Col className=" d-flex justify-content-center titulo-consult-pest ">
-                                    <h1>{titulo}</h1>
-                                </Col>
-                            </Row>
+            <Navbar />
+            <div className="page-content perfil-fondo py-4">
+                <Container>
+                    {/* --- Título --- */}
+                    <Row className="mb-4">
+                        <Col className="text-center">
+                            <h1>{titulo}</h1>
+                            <Badge
+                                color={
+                                    tipoPublicacionId === 1
+                                        ? "danger"
+                                        : tipoPublicacionId === 2
+                                        ? "success"
+                                        : "info"
+                                }
+                                pill
+                                className="ms-2 fs-6"
+                            >
+                                {datosPublicacion.publicacionTipo || ""}
+                            </Badge>
+                        </Col>
+                    </Row>
 
-                            {/* Fila 2 contenido */}
-                            <div className="container-consult-post">
-                                {/* Columna 1 datos */}
-                                <div className="consult-post">
-                                    <Row className="fila-consult w-100">
-                                        <Col lg={6} sm={12} className="col ">
-                                            <Row className="w-100 justify-content-center">
-                                                <Card className="card-consult-post">
-                                                    <CardHeader>
-                                                        <h4 className="card-title card-title-post mb-0">
-                                                            Datos de la mascota
-                                                        </h4>
-                                                    </CardHeader>
-                                                    <CardBody className="p-1">
-                                                        {datosPublicacion &&
-                                                            Object.entries(
-                                                                datosPublicacion
-                                                            ).map(
-                                                                ([
-                                                                    key,
-                                                                    value,
-                                                                ]) => {
-                                                                    if (
-                                                                        key ===
-                                                                            "fotos" ||
-                                                                        excludedKeys.includes(
-                                                                            key
-                                                                        )
-                                                                    ) {
-                                                                        return null; // Omitir el título y el valor "Foto" en el lado izquierdo
-                                                                    }
+                    {/* --- Contenido Principal (2 Columnas) --- */}
+                    <Row className="g-4">
+                        {/* Columna Izquierda: Datos y Contacto */}
+                        <Col lg={5} md={6} className="d-flex flex-column">
+                            {" "}
+                            {/* Flex column */}
+                            {/* Card Datos Mascota */}
+                            <Card className="mb-4 shadow-sm flex-grow-1">
+                                {" "}
+                                {/* flex-grow-1 */}
+                                <CardHeader className="bg-light">
+                                    <CardTitle tag="h5" className="mb-0">
+                                        Datos de la Mascota
+                                    </CardTitle>
+                                </CardHeader>
+                                <ListGroup flush>
+                                    {datosPublicacion.nombre && (
+                                        <ListGroupItem>
+                                            <strong>Nombre:</strong>{" "}
+                                            {datosPublicacion.nombre}
+                                        </ListGroupItem>
+                                    )}
+                                    <ListGroupItem>
+                                        <strong>Tipo:</strong>{" "}
+                                        {datosPublicacion.tipoMascotaNombre ||
+                                            "N/A"}
+                                    </ListGroupItem>
+                                    <ListGroupItem>
+                                        <strong>Raza:</strong>{" "}
+                                        {datosPublicacion.razaNombre || "N/A"}
+                                    </ListGroupItem>
+                                    <ListGroupItem>
+                                        <strong>Edad Aprox.:</strong>{" "}
+                                        {datosPublicacion.edadMascota || "N/A"}
+                                    </ListGroupItem>
+                                    <ListGroupItem>
+                                        <strong>Sexo:</strong>{" "}
+                                        {datosPublicacion.sexoMascota || "N/A"}
+                                    </ListGroupItem>
+                                    <ListGroupItem>
+                                        <strong>Color:</strong>{" "}
+                                        {datosPublicacion.color || "N/A"}
+                                    </ListGroupItem>
+                                    <ListGroupItem>
+                                        <strong>Castrado/a:</strong>{" "}
+                                        {castracionDisplay}
+                                    </ListGroupItem>
+                                    <ListGroupItem>
+                                        <strong>{labelFecha}:</strong>{" "}
+                                        {displayDate || "N/A"}
+                                    </ListGroupItem>
+                                    <ListGroupItem>
+                                        <strong>Barrio:</strong>{" "}
+                                        {datosPublicacion.barrioPublicacion ||
+                                            "N/A"}
+                                    </ListGroupItem>
+                                    <ListGroupItem>
+                                        <strong>Ciudad:</strong>{" "}
+                                        {datosPublicacion.ciudadPublicacion ||
+                                            "N/A"}
+                                    </ListGroupItem>
+                                </ListGroup>
+                                {datosPublicacion.descripcion && (
+                                    <CardBody className="border-top">
+                                        <h6 className="mb-2">
+                                            Descripción Adicional:
+                                        </h6>
+                                        <p className="text-muted mb-0">
+                                            {datosPublicacion.descripcion}
+                                        </p>
+                                    </CardBody>
+                                )}
+                            </Card>
+                            {/* Card Datos de Contacto */}
+                            <Card className="shadow-sm mt-auto">
+                                {" "}
+                                {/* mt-auto para empujar abajo si hay espacio */}
+                                <CardHeader className="bg-light">
+                                    <CardTitle tag="h5" className="mb-0">
+                                        Contacto
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardBody className="text-center">
+                                    <p className="mb-3">
+                                        Si tienes información o estás
+                                        interesado:
+                                    </p>
+                                    <div className="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                                        {/* Botón WhatsApp con <i> */}
+                                        {datosPublicacion.telefono && (
+                                            <Button
+                                                color="success"
+                                                onClick={openWhatsApp}
+                                                className="d-inline-flex align-items-center"
+                                            >
+                                                {/* Icono WhatsApp con <i> */}
+                                                <i className="fab fa-whatsapp me-2"></i>{" "}
+                                                WhatsApp
+                                            </Button>
+                                        )}
+                                        {/* Botón Mail con <i> */}
+                                        {datosPublicacion.mailUsuario && (
+                                            <Button
+                                                color="secondary"
+                                                outline
+                                                href={`mailto:${datosPublicacion.mailUsuario}`}
+                                                className="d-inline-flex align-items-center"
+                                            >
+                                                {/* Icono Mail con <i> */}
+                                                <i className="fas fa-envelope me-2"></i>{" "}
+                                                Enviar Mail
+                                            </Button>
+                                        )}
+                                    </div>
+                                    {!datosPublicacion.telefono &&
+                                        !datosPublicacion.mailUsuario && (
+                                            <p className="text-danger mt-2 mb-0">
+                                                No hay datos de contacto
+                                                disponibles.
+                                            </p>
+                                        )}
+                                </CardBody>
+                            </Card>
+                        </Col>
 
-                                                                    const modifiedKey =
-                                                                        keyMap[
-                                                                            key
-                                                                        ] ||
-                                                                        key;
-
-                                                                    // Si es la descripción, almacénala para mostrarla al final
-                                                                    if (
-                                                                        key ===
-                                                                        "descripcion"
-                                                                    ) {
-                                                                        return null; // No renderizar la descripción aquí
-                                                                    }
-
-                                                                    return (
-                                                                        <div
-                                                                            key={
-                                                                                key.id
-                                                                            }
-                                                                            className="container-datos-mascotas w-100"
-                                                                        >
-                                                                            <div className="flex-column datos-mascotas">
-                                                                                <div className="m-2">
-                                                                                    <p className="m-0">
-                                                                                        <strong>
-                                                                                            {
-                                                                                                modifiedKey
-                                                                                            }
-
-                                                                                            :
-                                                                                        </strong>{" "}
-                                                                                        {
-                                                                                            value
-                                                                                        }
-                                                                                    </p>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    );
-                                                                }
-                                                            )}
-
-                                                        {/* Renderizar la descripción al final si existe */}
-                                                        {datosPublicacion &&
-                                                            datosPublicacion.descripcion && (
-                                                                <div className="container-datos-mascotas w-100">
-                                                                    <div className="flex-column datos-mascotas">
-                                                                        <div className="m-2">
-                                                                            <p className="m-0">
-                                                                                <strong>
-                                                                                    Descripción:
-                                                                                </strong>{" "}
-                                                                                {
-                                                                                    datosPublicacion.descripcion
-                                                                                }
-                                                                            </p>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                    </CardBody>
-                                                </Card>
-                                            </Row>
-                                        </Col>
-
-                                        <Col
-                                            lg={6}
-                                            sm={12}
-                                            className="consult-post col d-inline"
+                        {/* Columna Derecha: Fotos y Mapa */}
+                        <Col lg={7} md={6}>
+                            {/* Card Fotos */}
+                            <Card className="mb-4 shadow-sm">
+                                <CardHeader className="bg-light">
+                                    <CardTitle tag="h5" className="mb-0">
+                                        Fotos
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardBody
+                                    className={
+                                        !(
+                                            datosPublicacion.fotos &&
+                                            datosPublicacion.fotos.length > 0
+                                        )
+                                            ? "text-center"
+                                            : "p-2"
+                                    }
+                                >
+                                    {" "}
+                                    {/* Centrar si no hay fotos */}
+                                    {datosPublicacion.fotos &&
+                                    datosPublicacion.fotos.length > 0 ? (
+                                        <Swiper
+                                            modules={[
+                                                Navigation,
+                                                Pagination,
+                                                Autoplay,
+                                            ]}
+                                            spaceBetween={10}
+                                            slidesPerView={1}
+                                            navigation
+                                            pagination={{ clickable: true }}
+                                            loop={
+                                                datosPublicacion.fotos.length >
+                                                1
+                                            } // Loop solo si hay más de 1 foto
+                                            autoplay={{
+                                                delay: 5000,
+                                                disableOnInteraction: true,
+                                            }} // Delay más largo, parar en interacción
+                                            className="rounded"
                                         >
-                                            <Card className="card-consult-post">
-                                                <CardHeader>
-                                                    <h4 className="card-title card-title-post mb-0">
-                                                        Fotos de la Mascota
-                                                    </h4>
-                                                </CardHeader>
-                                                <CardBody className="card-body-img">
-                                                    <Swiper
-                                                        scrollbar={{
-                                                            hide: true,
-                                                        }}
-                                                        modules={[
-                                                            Scrollbar,
-                                                            Autoplay,
-                                                        ]}
-                                                        loop={true}
-                                                        autoplay={{
-                                                            delay: 2500,
-                                                            disableOnInteraction: false,
-                                                        }}
-                                                        className="mySwiper swiper pagination-scrollbar-swiper rounded"
+                                            {datosPublicacion.fotos.map(
+                                                (
+                                                    item,
+                                                    index // Añadir index
+                                                ) => (
+                                                    <SwiperSlide
+                                                        key={
+                                                            item.id ||
+                                                            `foto-${index}`
+                                                        }
                                                     >
-                                                        <div className="swiper-wrapper">
-                                                            <div className="swiper-wrapper">
-                                                                {datosPublicacion &&
-                                                                    datosPublicacion.fotos &&
-                                                                    datosPublicacion.fotos.map(
-                                                                        (
-                                                                            item
-                                                                        ) => (
-                                                                            <SwiperSlide
-                                                                                key={
-                                                                                    item.id
-                                                                                }
-                                                                            >
-                                                                                <img
-                                                                                    src={
-                                                                                        item.foto
-                                                                                    }
-                                                                                    alt=""
-                                                                                    className="img-fluid"
-                                                                                />
-                                                                            </SwiperSlide>
-                                                                        )
-                                                                    )}
-                                                            </div>
-                                                        </div>
-                                                    </Swiper>
-                                                </CardBody>
-                                            </Card>
-                                        </Col>
-                                    </Row>
-
-                                    <Row className="fila-consult w-100">
-                                        <Col lg={12} sm={12} className="col">
-                                            <Card className="card-consult-post ">
-                                                <CardHeader>
-                                                    <h4 className="card-title card-title-post mb-0">
-                                                        Ubicación
-                                                    </h4>
-                                                </CardHeader>
-                                                <CardBody>
-                                                    <LeafletMaps
-                                                        latitud={
-                                                            datosPublicacion &&
-                                                            datosPublicacion.latitud
-                                                        }
-                                                        longitud={
-                                                            datosPublicacion &&
-                                                            datosPublicacion.longitud
-                                                        }
-                                                        isClickeable={false}
-                                                    ></LeafletMaps>
-                                                </CardBody>
-                                            </Card>
-                                        </Col>
-
-                                        <Col lg={12} sm={12} className="col">
-                                            <Card className="card-consult-post ">
-                                                <CardHeader>
-                                                    <h4 className="card-title card-title-post mb-0">
-                                                        Datos de Contacto
-                                                    </h4>
-                                                </CardHeader>
-                                                <CardBody>
-                                                    <div className="container-button-contact">
-                                                        <button
-                                                            class="social-button whatsapp"
-                                                            onClick={
-                                                                openWhatsApp
+                                                        {" "}
+                                                        {/* Mejor key */}
+                                                        <img
+                                                            src={
+                                                                item.foto ||
+                                                                placeholderImage
                                                             }
-                                                        >
-                                                            <i class="ri-whatsapp-line"></i>
-                                                            <span>
-                                                                WhatsApp
-                                                            </span>
-                                                        </button>
+                                                            alt={`Foto ${
+                                                                index + 1
+                                                            } de la mascota`}
+                                                            className="img-fluid rounded"
+                                                            style={{
+                                                                maxHeight:
+                                                                    "500px",
+                                                                width: "100%",
+                                                                objectFit:
+                                                                    "contain",
+                                                            }}
+                                                            onError={(e) => {
+                                                                if (
+                                                                    e.target
+                                                                        .src !==
+                                                                    placeholderImage
+                                                                ) {
+                                                                    e.target.onerror =
+                                                                        null;
+                                                                    e.target.src =
+                                                                        placeholderImage;
+                                                                }
+                                                            }}
+                                                        />
+                                                    </SwiperSlide>
+                                                )
+                                            )}
+                                        </Swiper>
+                                    ) : (
+                                        <p className="text-muted mb-0 p-5">
+                                            No hay fotos disponibles.
+                                        </p>
+                                    )}
+                                </CardBody>
+                            </Card>
 
-                                                        <a
-                                                            class="social-button mail"
-                                                            href={`mailto:${
-                                                                datosPublicacion &&
-                                                                datosPublicacion.mailUsuario
-                                                            }`}
-                                                        >
-                                                            <i class="ri-mail-fill"></i>
-                                                            <span>Mail</span>
-                                                        </a>
-                                                    </div>
-                                                </CardBody>
-                                            </Card>
-                                        </Col>
-                                    </Row>
-                                </div>
-                            </div>
-                        </Container>
-                    </div>
-
-                    <Footer></Footer>
-                </>
-            ) : (
-                <Loading></Loading>
-            )}
+                            {/* Card Mapa */}
+                            {datosPublicacion.latitud &&
+                                datosPublicacion.longitud && (
+                                    <Card className="shadow-sm">
+                                        <CardHeader className="bg-light">
+                                            <CardTitle
+                                                tag="h5"
+                                                className="mb-0"
+                                            >
+                                                Ubicación de Referencia
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardBody
+                                            className="p-0"
+                                            style={{ height: "350px" }}
+                                        >
+                                            <LeafletMaps
+                                                latitud={
+                                                    datosPublicacion.latitud
+                                                }
+                                                longitud={
+                                                    datosPublicacion.longitud
+                                                }
+                                                isClickeable={false}
+                                            />
+                                        </CardBody>
+                                    </Card>
+                                )}
+                        </Col>
+                    </Row>
+                    {/* Botón Volver General */}
+                    <Row className="mt-4">
+                        <Col className="text-center">
+                            <Button
+                                color="secondary"
+                                onClick={() => navigate(-1)}
+                                className="d-inline-flex align-items-center"
+                            >
+                                {/* Icono Volver con <i> */}
+                                <i className="fas fa-arrow-left me-1"></i>{" "}
+                                Volver a la lista
+                            </Button>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
+            <Footer />
         </React.Fragment>
     );
 };

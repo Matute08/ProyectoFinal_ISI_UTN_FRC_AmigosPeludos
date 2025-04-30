@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-    getUserMail,
-    getCuidadores,
-    deleteCuidador,
-    updateUser,
-} from "../../../services/api";
+import { getCuidadores,deleteCuidador } from "../../../services/commonApi";
+import { getUserMail, updateUser } from "../../../services/userApi";
 import { Col, Row } from "reactstrap";
 import { Link, useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";

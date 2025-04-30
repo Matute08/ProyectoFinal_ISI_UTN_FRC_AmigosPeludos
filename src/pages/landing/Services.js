@@ -3,6 +3,81 @@ import { Link } from "react-router-dom";
 import { Col, Container, Row } from "reactstrap";
 
 const Services = () => {
+    const services = [
+        {
+            title: "Mascotas perdidas",
+            description:
+                "¿Perdiste a tu mascota?, no te preocupes, chequeá si alguien ya la encontró",
+            icon: "ri-search-line",
+            link: "/mascotas-perdidas",
+            animation: { type: "fade-right", duration: 600 },
+        },
+        {
+            title: "Mascotas encontradas",
+            description:
+                "Publicá esa mascota que encontraste, seguramente su dueño está buscándolo",
+            icon: "ri-road-map-fill",
+            link: "/mascotas-encontradas",
+            animation: { type: "fade-down", duration: 600 },
+        },
+        {
+            title: "Mascotas en adopción",
+            description:
+                "No lo dudes más! Adopta a esa mascota que tanto anhelas y dale un hogar.",
+            icon: "ri-empathize-line",
+            link: "/mascotas-adopcion",
+            animation: { type: "fade-left", duration: 600 },
+        },
+        {
+            title: "Paseadores",
+            description:
+                "¿Necesitás pasear a tu perro?, encontrá aquí al paseador que más se ajuste a tus necesidades",
+            icon: "ri-walk-line",
+            link: "/paseadores",
+            animation: { type: "fade-right", duration: 700 },
+        },
+        {
+            title: "Cuidadores",
+            description:
+                "¿No sabés con quien dejas tu mascota?, aquí podras encontrar a cuidadores que se encargaran de ello.",
+            icon: "ri-heart-2-fill",
+            link: "/cuidadores",
+            animation: { type: "zoom-out", duration: 700 },
+        },
+        {
+            title: "Donaciones",
+            description:
+                "Realizá donaciones a veterinarias o fundaciones de manera segura",
+            icon: "ri-hand-coin-line",
+            link: "#",
+            animation: { type: "fade-left", duration: 700 },
+        },
+        {
+            title: "Veterinarias",
+            description:
+                "Encontrá aquí a las veterinarias de tu zona y que realicen atención gratuita",
+            icon: "ri-shield-cross-line",
+            link: "/veterinarias",
+            animation: { type: "fade-right", duration: 800 },
+        },
+        {
+            title: "Fundaciones",
+            description:
+                "Encontrá aquí a las fundaciones de animales que se encuentren cerca de tu zona",
+            icon: "ri-home-heart-fill",
+            link: "/fundaciones",
+            animation: { type: "fade-up", duration: 800 },
+        },
+        {
+            title: "Traslados",
+            description:
+                "Nos encargamos de ponerte en contacto con usuarios disponibles para trasladar mascotas a veterinarias en situaciones de urgencia.",
+            icon: "ri-car-line",
+            link: "#",
+            animation: { type: "fade-left", duration: 800 },
+        },
+    ];
+
     return (
         <React.Fragment>
             <section className="section mt-5 mb-5" id="services">
@@ -23,312 +98,41 @@ const Services = () => {
                         </Col>
                     </Row>
                     <Row className="g-3">
-                        <Col lg={4}>
-                            <div
-                                className="d-flex p-3"
-                                data-aos="fade-right"
-                                data-aos-duration="600"
-                                data-aos-easing="ease-in-sine"
-                            >
-                                <div className="flex-shrink-0 me-3">
-                                    <div className="avatar-sm icon-effect">
-                                        <div className="avatar-title bg-transparent text-success rounded-circle">
-                                            <i className="ri-search-line fs-36"></i>
+                        {services.map((service, index) => (
+                            <Col lg={4} key={index}>
+                                <div
+                                    className="d-flex p-3"
+                                    data-aos={service.animation.type}
+                                    data-aos-duration={service.animation.duration}
+                                    data-aos-easing="ease-in-sine"
+                                >
+                                    <div className="flex-shrink-0 me-3">
+                                        <div className="avatar-sm icon-effect">
+                                            <div className="avatar-title bg-transparent text-success rounded-circle">
+                                                <i className={`${service.icon} fs-36`}></i>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="flex-grow-1 ">
-                                    <h5 className="fs-18">Mascotas perdidas</h5>
-                                    <p className="text-muted my-3 ff-secondary">
-                                        ¿Perdiste a tu mascota?, no te
-                                        preocupes, chequeá si alguien ya la
-                                        encontró
-                                    </p>
-                                    <div>
-                                        <Link
-                                            to="/mascotas-perdidas"
-                                            className="fs-13 fw-medium"
-                                        >
-                                            Acceder{" "}
-                                            <i className="ri-arrow-right-s-line align-bottom"></i>
-                                        </Link>
+                                    <div className="flex-grow-1">
+                                        <h5 className="fs-18">{service.title}</h5>
+                                        <p className="text-muted my-3 ff-secondary">
+                                            {service.description}
+                                        </p>
+                                        {service.link && (
+                                            <div>
+                                                <Link
+                                                    to={service.link}
+                                                    className="fs-13 fw-medium"
+                                                >
+                                                    Acceder{" "}
+                                                    <i className="ri-arrow-right-s-line align-bottom"></i>
+                                                </Link>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                            </div>
-                        </Col>
-
-                        <Col lg={4}>
-                            <div
-                                className="d-flex p-3"
-                                data-aos="fade-down"
-                                data-aos-duration="600"
-                                data-aos-easing="ease-in-sine"
-                            >
-                                <div className="flex-shrink-0 me-3">
-                                    <div className="avatar-sm icon-effect">
-                                        <div className="avatar-title bg-transparent text-success rounded-circle">
-                                            <i className="ri-road-map-fill fs-36"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex-grow-1">
-                                    <h5 className="fs-18">
-                                        Mascotas encontradas
-                                    </h5>
-                                    <p className="text-muted my-3 ff-secondary">
-                                        Publicá esa mascota que encontraste,
-                                        seguramente su dueño está buscándolo
-                                    </p>
-                                    <div>
-                                        <Link
-                                            to="/mascotas-encontradas"
-                                            className="fs-13 fw-medium"
-                                        >
-                                            Acceder{" "}
-                                            <i className="ri-arrow-right-s-line align-bottom"></i>
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </Col>
-
-                        <Col lg={4}>
-                            <div
-                                className="d-flex p-3"
-                                data-aos="fade-left"
-                                data-aos-duration="600"
-                                data-aos-easing="ease-in-sine"
-                            >
-                                <div className="flex-shrink-0 me-3">
-                                    <div className="avatar-sm icon-effect">
-                                        <div className="avatar-title bg-transparent text-success rounded-circle">
-                                            <i className="ri-empathize-line fs-36"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex-grow-1">
-                                    <h5 className="fs-18">
-                                        Mascotas en adopción
-                                    </h5>
-                                    <p className="text-muted my-3 ff-secondary">
-                                        No lo dudes más! Adopta a esa mascota
-                                        que tanto anhelas y dale un hogar .
-                                    </p>
-                                    <div>
-                                        <Link
-                                            to="/mascotas-adopcion"
-                                            className="fs-13 fw-medium"
-                                        >
-                                            Acceder{" "}
-                                            <i className="ri-arrow-right-s-line align-bottom"></i>
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </Col>
-
-                        <Col lg={4}>
-                            <div
-                                className="d-flex p-3"
-                                data-aos="fade-right"
-                                data-aos-duration="700"
-                                data-aos-easing="ease-in-sine"
-                            >
-                                <div className="flex-shrink-0 me-3">
-                                    <div className="avatar-sm icon-effect">
-                                        <div className="avatar-title bg-transparent text-success rounded-circle">
-                                            <i className="ri-walk-line fs-36"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex-grow-1">
-                                    <h5 className="fs-18">Paseadores</h5>
-                                    <p className="text-muted my-3 ff-secondary">
-                                        ¿Necesitás pasear a tu perro?, encontrá
-                                        aquí al paseador que más se ajuste a tus
-                                        necesidades
-                                    </p>
-                                    <div>
-                                        <Link
-                                            to="/paseadores"
-                                            className="fs-13 fw-medium"
-                                        >
-                                            Acceder{" "}
-                                            <i className="ri-arrow-right-s-line align-bottom"></i>
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </Col>
-
-                        <Col lg={4}>
-                            <div
-                                className="d-flex p-3"
-                                data-aos="zoom-out"
-                                data-aos-duration="700"
-                                data-aos-easing="ease-in-sine"
-                            >
-                                <div className="flex-shrink-0 me-3">
-                                    <div className="avatar-sm icon-effect">
-                                        <div className="avatar-title bg-transparent text-success rounded-circle">
-                                            <i className="ri-heart-2-fill fs-36"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex-grow-1">
-                                    <h5 className="fs-18">Cuidadores</h5>
-                                    <p className="text-muted my-3 ff-secondary">
-                                        ¿No sabés con quien dejas tu mascota?,
-                                        aquí podras encontrar a cuidadores que
-                                        se encargaran de ello.{" "}
-                                    </p>
-                                    <div>
-                                        <Link
-                                            to="/cuidadores"
-                                            className="fs-13 fw-medium"
-                                        >
-                                            Acceder{" "}
-                                            <i className="ri-arrow-right-s-line align-bottom"></i>
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </Col>
-
-                        <Col lg={4}>
-                            <div
-                                className="d-flex p-3"
-                                data-aos="fade-left"
-                                data-aos-duration="700"
-                                data-aos-easing="ease-in-sine"
-                            >
-                                <div className="flex-shrink-0 me-3">
-                                    <div className="avatar-sm icon-effect">
-                                        <div className="avatar-title bg-transparent text-success rounded-circle">
-                                            <i className="ri-hand-coin-line fs-36"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex-grow-1">
-                                    <h5 className="fs-18">Donaciones</h5>
-                                    <p className="text-muted my-3 ff-secondary">
-                                        Realizá donaciones a veterinarias o
-                                        fundaciones de manera segura{" "}
-                                    </p>
-                                    {/* <div>
-                                        <Link
-                                            to="#"
-                                            className="fs-13 fw-medium"
-                                        >
-                                            Acceder{" "}
-                                            <i className="ri-arrow-right-s-line align-bottom"></i>
-                                        </Link>
-                                    </div> */}
-                                </div>
-                            </div>
-                        </Col>
-
-                        <Col lg={4}>
-                            <div
-                                className="d-flex p-3"
-                                data-aos="fade-right"
-                                data-aos-duration="800"
-                                data-aos-easing="ease-in-sine"
-                            >
-                                <div className="flex-shrink-0 me-3">
-                                    <div className="avatar-sm icon-effect">
-                                        <div className="avatar-title bg-transparent text-success rounded-circle">
-                                            <i className="ri-shield-cross-line fs-36"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex-grow-1">
-                                    <h5 className="fs-18">Veterinarias</h5>
-                                    <p className="text-muted my-3 ff-secondary">
-                                        Encontrá aquí a las veterinarias de tu
-                                        zona y que realicen atención gratuita
-                                    </p>
-                                    <div>
-                                        <Link
-                                            to="/veterinarias"
-                                            className="fs-13 fw-medium"
-                                        >
-                                            Acceder{" "}
-                                            <i className="ri-arrow-right-s-line align-bottom"></i>
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </Col>
-
-                        <Col lg={4}>
-                            <div
-                                className="d-flex p-3"
-                                data-aos="fade-up"
-                                data-aos-duration="800"
-                                data-aos-easing="ease-in-sine"
-                            >
-                                <div className="flex-shrink-0 me-3">
-                                    <div className="avatar-sm icon-effect">
-                                        <div className="avatar-title bg-transparent text-success rounded-circle">
-                                            <i className="ri-home-heart-fill fs-36"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex-grow-1">
-                                    <h5 className="fs-18">Fundaciones</h5>
-                                    <p className="text-muted my-3 ff-secondary">
-                                        Encontrá aquí a las fundaciones de
-                                        animales que se encuentren cerca de tu
-                                        zona
-                                    </p>
-                                    <div>
-                                        <Link
-                                            to="/fundaciones"
-                                            className="fs-13 fw-medium"
-                                        >
-                                            Acceder
-                                            <i className="ri-arrow-right-s-line align-bottom"></i>
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </Col>
-
-                        <Col lg={4}>
-                            <div
-                                className="d-flex p-3"
-                                data-aos="fade-left"
-                                data-aos-duration="800"
-                                data-aos-easing="ease-in-sine"
-                            >
-                                <div className="flex-shrink-0 me-3">
-                                    <div className="avatar-sm icon-effect">
-                                        <div className="avatar-title bg-transparent text-success rounded-circle">
-                                            <i className=" ri-car-line fs-36"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex-grow-1">
-                                    <h5 className="fs-18">Traslados</h5>
-                                    <p className="text-muted my-3 ff-secondary">
-                                        Nos encargamos de ponerte en contacto
-                                        con usuarios disponibles para trasladar
-                                        mascotas a veterinarias en situaciones
-                                        de urgencia.
-                                    </p>
-                                    <div>
-                                        <Link
-                                            to="#"
-                                            className="fs-13 fw-medium"
-                                        >
-                                            Acceder
-                                            <i className="ri-arrow-right-s-line align-bottom"></i>
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </Col>
+                            </Col>
+                        ))}
                     </Row>
                 </Container>
             </section>

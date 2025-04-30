@@ -18,15 +18,13 @@ import { useAuth } from "../../../services/AuthContext";
 import {
     getTipoMascota,
     getSexoMascota,
-    getAllEdadMascota,
-    postMascota,
-    getUserMail,
-    updateUser,
-    getCiudad,
-    getAllRazaId,
-    getAllBarrio,
-    postPublicacion,
-} from "../../../services/api";
+      getAllEdadMascota
+} from "../../../services/PetsApi";
+import { getAllBarrio, getCiudad, getAllRazaId } from "../../../services/commonApi";
+import {getUserMail} from "../../../services/userApi";
+import { postPublicacion } from "../../../services/PublicationsPetsApi";
+
+
 import classnames from "classnames";
 import { uploadFilesPetsLost } from "../../../services/Firebase";
 import Loading from "../../components/Loading";
@@ -96,41 +94,41 @@ const FormAddAdoptPets = () => {
                 const userEmail = dataLocalStorage.email;
 
                 const datosUsuario = await getUserMail(userEmail);
-                datosUsuario.calle = `${
-                    datosUsuario.calle + " " + datosUsuario.nroCalle
+                datosUsuario.data.calle = `${
+                    datosUsuario.data.calle + " " + datosUsuario.data.nroCalle
                 }`;
-                setUserData(datosUsuario);
+                setUserData(datosUsuario.data);
                 setIsLoading(false);
             }
         };
         const tipoMascotas = async () => {
             const dataTipoMascota = await getTipoMascota();
             if (dataTipoMascota) {
-                setTipoMascota(dataTipoMascota);
+                setTipoMascota(dataTipoMascota.data);
             }
         };
         const tipoSexo = async () => {
             const dataTipoSexo = await getSexoMascota();
             if (dataTipoSexo) {
-                setTipoSexo(dataTipoSexo);
+                setTipoSexo(dataTipoSexo.data);
             }
         };
         const edadMascota = async () => {
             const dataEdadMascota = await getAllEdadMascota();
             if (dataEdadMascota) {
-                setEdadMascota(dataEdadMascota);
+                setEdadMascota(dataEdadMascota.data);
             }
         };
         const ciudadMascota = async () => {
             const dataCiudad = await getCiudad();
             if (dataCiudad) {
-                setCiudad(dataCiudad);
+                setCiudad(dataCiudad.data);
             }
         };
         const barrioMascota = async () => {
             const dataBarrio = await getAllBarrio();
             if (dataBarrio) {
-                setBarrio(dataBarrio);
+                setBarrio(dataBarrio.data);
             }
         };
 
@@ -390,7 +388,7 @@ const FormAddAdoptPets = () => {
                                                                 Seleccione...
                                                             </option>
                                                             {raza &&
-                                                                raza.map(
+                                                                raza.data.map(
                                                                     (
                                                                         elemento
                                                                     ) => (
@@ -799,7 +797,7 @@ const FormAddAdoptPets = () => {
                                                         )}
                                                     </div>
                                                 </Col>
-                                                
+
                                                 <Col lg={12}>
                                                     <div className="hstack gap-2 justify-content-end">
                                                         <button

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Col, Form, Row, Label } from "reactstrap";
-import { getTipoVivienda } from "../../services/api";
+import { getTipoVivienda } from "../../services/commonApi";
 import Loading from "../components/Loading";
 
 const Step2 = ({ onNext, onPrevious, step1Data }) => {

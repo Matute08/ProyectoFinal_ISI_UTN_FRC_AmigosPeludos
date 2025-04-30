@@ -1,106 +1,111 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Card, CardBody, CardHeader, Button, Badge } from 'reactstrap'; // Importar componentes necesarios
+import { RiMapPinLine, RiPhoneLine, RiTimeLine, RiExternalLinkLine } from 'react-icons/ri'; // Importar iconos
+
+// Helper para formatear horarios de forma más limpia
+const formatHorario = (horarioStr) => {
+    if (!horarioStr || typeof horarioStr !== 'string') {
+        return <Badge color="secondary" pill className="ms-2">No disponible</Badge>;
+    }
+    // Intenta dividir por turnos si existe " y "
+    const turnos = horarioStr.split(' y ');
+    if (turnos.length > 1) {
+        return (
+            <span className="ms-2">
+                {turnos[0].replace("Turno mañana desde", "Mañana:")} <br />
+                <span className="ms-3">{turnos[1].replace("Turno tarde desde", "Tarde:")}</span>
+            </span>
+        );
+    }
+    // Si no, muestra como viene (podría ser "Turno mañana..." o "Cerrado")
+    return <span className="ms-2">{horarioStr.replace("Turno mañana desde", "Mañana:").replace("Turno tarde desde", "Tarde:")}</span>;
+};
+
+// Helper para obtener el día actual (0=Domingo, 1=Lunes...)
+const getTodayIndex = () => {
+    return new Date().getDay();
+};
 
 const VeterinariaDetalle = ({ veterinaria, onClose }) => {
     if (!veterinaria) {
-        return null;
+        return null; // O un mensaje indicando que no hay selección
     }
 
-    // Determinar si la veterinaria es de Google Places o registrada
-    const fuente = veterinaria.fuente;
+    const diasSemana = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
+    const hoyIndex = getTodayIndex();
 
     return (
-        <div className="veterinaria-detail">
-            <div className="d-flex justify-content-end">
-                <button className="close-button " onClick={onClose}>
-                    X
-                </button>
-            </div>
+        // Usar animación suave al aparecer/desaparecer (requiere CSS adicional o librería como framer-motion)
+        <Card className="veterinaria-detail-card shadow-sm border-light d-flex flex-column h-100"> {/* Añadir h-100 si quieres que ocupe altura */}
+             <CardHeader className="d-flex justify-content-between align-items-center bg-light flex-shrink-0"> {/* Encabezado no crece ni se encoge */}
+                <h5 className="mb-0 text-primary">{veterinaria.nombre}</h5>
+                <Button close onClick={onClose} aria-label="Cerrar" />
+            </CardHeader>
+            <CardBody className="flex-grow-1" style={{ overflowY: 'auto' }}>
 
-            {fuente !== "registrada" && (
-                <div>
-                    <h3>{veterinaria.name}</h3>
-                    <p>Dirección: {veterinaria.vicinity}</p>
-                    <p>Valoración: {veterinaria.rating}</p>
-                    {/* Información específica de veterinarias de Google Places */}
-                    {/* Agrega aquí cualquier información adicional de Google Places */}
-                </div>
-            )}
+                {/* Imagen de la Veterinaria (si existe) */}
+                {veterinaria.foto && (
+                    <img
+                        src={veterinaria.foto}
+                        alt={`Foto de ${veterinaria.nombre}`}
+                        className="img-fluid rounded mb-3 shadow-sm"
+                        style={{ maxHeight: '180px', width: '100%', objectFit: 'cover' }}
+                    />
+                )}
 
-            {fuente === "registrada" && (
-                <div>
-                    {/* Información específica de veterinarias registradas */}
-                    <h3>{veterinaria.nombre}</h3>
-                    <p>
-                        Dirección: {veterinaria.direccion}{" "}
-                        {veterinaria.numeroCalle}
+                {/* Información de Contacto */}
+                <div className="mb-3">
+                    <p className="mb-1 d-flex align-items-center">
+                        <RiMapPinLine className="me-2 text-secondary flex-shrink-0" size="1.2em" />
+                        <span>{veterinaria.direccion} {veterinaria.numeroCalle}</span>
                     </p>
-                    <p>Teléfono: {veterinaria.numeroTelefono}</p>
-
-                    {/* Mostrar horarios */}
-                    <p>Horarios:</p>
-                    <ul>
-                        <li>
-                            Lunes:{" "}
-                            {veterinaria.horarios && veterinaria.horarios.lunes
-                                ? veterinaria.horarios.lunes
-                                : "Cerrado"}
-                        </li>
-                        <li>
-                            Martes:{" "}
-                            {veterinaria.horarios && veterinaria.horarios.martes
-                                ? veterinaria.horarios.martes
-                                : "Cerrado"}
-                        </li>
-                        <li>
-                            Miércoles:{" "}
-                            {veterinaria.horarios &&
-                            veterinaria.horarios.miercoles
-                                ? veterinaria.horarios.miercoles
-                                : "Cerrado"}
-                        </li>
-                        <li>
-                            Jueves:{" "}
-                            {veterinaria.horarios && veterinaria.horarios.jueves
-                                ? veterinaria.horarios.jueves
-                                : "Cerrado"}
-                        </li>
-                        <li>
-                            Viernes:{" "}
-                            {veterinaria.horarios &&
-                            veterinaria.horarios.viernes
-                                ? veterinaria.horarios.viernes
-                                : "Cerrado"}
-                        </li>
-                        <li>
-                            Sábado:{" "}
-                            {veterinaria.horarios && veterinaria.horarios.sabado
-                                ? veterinaria.horarios.sabado
-                                : "Cerrado"}
-                        </li>
-                        <li>
-                            Domingo:{" "}
-                            {veterinaria.horarios &&
-                            veterinaria.horarios.domingo
-                                ? veterinaria.horarios.domingo
-                                : "Cerrado"}
-                        </li>
-                    </ul>
-
-                    <Link
-                        className="btn-next-paseador btn-next "
-                        type="submit"
-                        to={`perfil-veterinaria/${
-                            veterinaria && veterinaria.id
-                        }`}
-                    >
-                        <span class="transition"></span>
-                        <span class="gradient"></span>
-                        <span class="label">Ver Servicios</span>
-                    </Link>
+                    <p className="mb-0 d-flex align-items-center">
+                        <RiPhoneLine className="me-2 text-secondary flex-shrink-0" size="1.2em" />
+                        <span>{veterinaria.numeroTelefono || 'No disponible'}</span>
+                    </p>
                 </div>
-            )}
-        </div>
+
+                {/* Horarios */}
+                <div className="mb-3">
+                    <h6 className="d-flex align-items-center mb-2">
+                        <RiTimeLine className="me-2 text-secondary flex-shrink-0" size="1.2em" /> Horarios:
+                    </h6>
+                    {/* Usar lista de definición para mejor semántica y estilo */}
+                    <dl className="dl-horarios ms-1" style={{ fontSize: '0.9em' }}>
+                        {diasSemana.map((dia, index) => {
+                             // Capitalizar primera letra del día
+                            const diaCapitalizado = dia.charAt(0).toUpperCase() + dia.slice(1);
+                            // Determinar si es hoy
+                            const esHoy = index === hoyIndex;
+                            return (
+                                <React.Fragment key={dia}>
+                                    <dt className={esHoy ? 'fw-bold text-success' : ''}>
+                                        {diaCapitalizado}{esHoy ? ' (Hoy)' : ''}:
+                                    </dt>
+                                    <dd className={`mb-1 ${esHoy ? 'fw-bold text-success' : 'text-muted'}`}>
+                                        {formatHorario(veterinaria.horarios?.[dia])}
+                                    </dd>
+                                </React.Fragment>
+                            );
+                         })}
+                    </dl>
+                </div>
+
+                 {/* Botón de Acción - */}
+                 <div className="mt-auto pt-2"> 
+                    <Link
+                        className="btn btn-primary w-100 d-flex align-items-center justify-content-center"
+                        to={`/veterinarias/perfil-veterinaria/${veterinaria.id}`}
+                        onClick={onClose} // Cerrar este detalle al ir al perfil completo
+                        title={`Ver perfil completo de ${veterinaria.nombre}`}
+                    >
+                        <RiExternalLinkLine className="me-1" /> Ver Perfil Completo
+                    </Link>
+                 </div>
+
+            </CardBody>
+        </Card>
     );
 };
 

@@ -1,84 +1,48 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth} from "firebase/auth";
-import {getStorage, ref, uploadBytes, getDownloadURL, deleteObject} from "firebase/storage"
+import { getAuth } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { v4 } from "uuid";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBAhPb1c3gWjDNeWxN2-1e3TD04Vkej5wk",
-    authDomain: "amigospeludos-a7049.firebaseapp.com",
-    projectId: "amigospeludos-a7049",
-    storageBucket: "amigospeludos-a7049.appspot.com",
-    messagingSenderId: "927442582764",
-    appId: "1:927442582764:web:ccbb8ef8f438c9bc1b39c9",
-};
+    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  };
 
-// Initialize Firebase
-const firebaseApp = initializeApp(firebaseConfig);
-export const auth = getAuth(firebaseApp);
-export const storage = getStorage(firebaseApp)
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
 
-//funciones de firebase
+// Exportar los servicios de Firebase que necesites en tu app
+export const auth = getAuth(app);
+export const storage = getStorage(app);
 
-//cargar fotos usuario
-export async function uploadFileUser(file) {
-    const storageRef =  ref(storage, `avatarUser/${v4()}`)
-    await uploadBytes(storageRef, file)
-    const url = await getDownloadURL(storageRef)
-    return url
+// Función genérica para subir archivos
+async function uploadFile(file, folder) {
+    const storageRef = ref(storage, `${folder}/${v4()}`);
+    const metadata = {
+        contentType: file.type // esto extrae el tipo correcto del archivo (ej: image/jpeg)
+    };
+    await uploadBytes(storageRef, file, metadata);
+    return await getDownloadURL(storageRef);
 }
 
-//cargar fotos mascotas del usuario
-export async function uploadFilePetsUser(file) {
-    const storageRef =  ref(storage, `petsUser/${v4()}`)
-    await uploadBytes(storageRef, file)
-    const url = await getDownloadURL(storageRef)
-    return url
-}
+// Funciones específicas para subir archivos
+export const uploadFileUser = (file) => uploadFile(file, "avatarUser");
+export const uploadFilePetsUser = (file) => uploadFile(file, "petsUser");
+export const uploadFileFundaciones = (file) => uploadFile(file, "fundaciones");
+export const uploadFilesPetsLost = (file) => uploadFile(file, "petsLost");
+export const uploadFilesPaseador = (file) => uploadFile(file, "paseador");
+export const uploadFilesCuidador = (file) => uploadFile(file, "cuidador");
+export const uploadQrUsuario = (file) => uploadFile(file, "qrUsuarios");
 
-//cargar fotos fundaciones
-export async function uploadFileFundaciones(file) {
-    const storageRef =  ref(storage, `fundaciones/${v4()}`)
-    await uploadBytes(storageRef, file)
-    const url = await getDownloadURL(storageRef)
-    return url
-}
-
-
-//cargar fotos mascotas perdidas
-export async function uploadFilesPetsLost(file) {
-    const storageRef =  ref(storage, `petsLost/${v4()}`)
-    await uploadBytes(storageRef, file)
-    const url = await getDownloadURL(storageRef)
-    return url
+// Eliminar archivo del almacenamiento
+export async function deleteFileStorage(filePath) {
+    const storageRef = ref(storage, filePath);
+    await deleteObject(storageRef);
 }
 
 
-//cargar fotos paseadores
-export async function uploadFilesPaseador(file) {
-    const storageRef =  ref(storage, `paseador/${v4()}`)
-    await uploadBytes(storageRef, file)
-    const url = await getDownloadURL(storageRef)
-    return url
-}
-
-//cargar fotos cuidadores
-export async function uploadFilesCuidador(file) {
-    const storageRef =  ref(storage, `cuidador/${v4()}`)
-    await uploadBytes(storageRef, file)
-    const url = await getDownloadURL(storageRef)
-    return url
-}
-//cargar fotos qr
-export async function uploadQrUsuario(file) {
-    console.log(file);
-    const storageRef =  ref(storage, `qrUsuarios/${v4()}`)
-    await uploadBytes(storageRef, file)
-    const url = await getDownloadURL(storageRef)
-    return url
-}
-
-export async function deleteFileStorage(file){
-    const storageRef = ref(storage, file)
-    await deleteObject(storageRef)
-}

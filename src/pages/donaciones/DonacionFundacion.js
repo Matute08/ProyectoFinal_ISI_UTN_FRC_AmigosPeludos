@@ -15,12 +15,8 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import Footer from "../landing/Footer";
 import Loading from "../components/Loading";
-import {
-    getFundacion,
-    getFundacionId,
-    getPaseador,
-    getUserMail,
-} from "../../services/api";
+import { getFundacionId } from "../../services/commonApi";
+import { getUserMail } from "../../services/userApi";
 import img from "../../assets/images/user/user-random.jpg";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 

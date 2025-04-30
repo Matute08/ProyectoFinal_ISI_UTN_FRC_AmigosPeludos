@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-    getUserMail,
-    getPaseador,
-    getCuidadores,
-    getVeterinarias,
-    getFundacion,
-} from "../../../services/api";
+import { getPaseador, getCuidadores, getVeterinarias, getFundacion } from "../../../services/commonApi";
+import { getUserMail, updateUser } from "../../../services/userApi";
 import {
     Col,
     Row,
@@ -63,16 +58,15 @@ const MisServicios = () => {
                 const userEmail = dataLocalStorage.email;
 
                 const datosUsuario = await getUserMail(userEmail);
-                datosUsuario.calle = `${
-                    datosUsuario.calle + " " + datosUsuario.nroCalle
+                datosUsuario.data.calle = `${
+                    datosUsuario.data.calle + " " + datosUsuario.data.nroCalle
                 }`;
-                setUserData(datosUsuario);
-                console.log(userData);
+                setUserData(datosUsuario.data);
             }
         };
 
         fetchUserData();
-    }, []);
+    }, [userData]);
 
     useEffect(() => {
         const fetchServicios = async () => {
@@ -83,35 +77,33 @@ const MisServicios = () => {
                     const dataVeterinaria = (await getVeterinarias()) || [];
                     const dataFundacion = (await getFundacion()) || [];
 
-                    console.log(dataPaseador);
                     // Filtrar paseadores, cuidadores y veterinarias según el userData.id
-                    const paseadoresFiltrados = dataPaseador.filter(
+                    const paseadoresFiltrados = dataPaseador.data.filter(
                         (paseador) => paseador.idUsuario === userData.id
                     );
-                    const cuidadoresFiltrados = dataCuidador.filter(
+                    const cuidadoresFiltrados = dataCuidador.data.filter(
                         (cuidador) => cuidador.idUsuario === userData.id
                     );
-                    const veterinariasFiltradas = dataVeterinaria.filter(
+                    const veterinariasFiltradas = dataVeterinaria.data.filter(
                         (veterinaria) => veterinaria.idUsuario === userData.id
                     );
-                    const fundacionesFiltradas = dataFundacion.filter(
+                    const fundacionesFiltradas = dataFundacion.data.filter(
                         (fundacion) => fundacion.idUsuario === userData.id
                     );
 
-                    setPaseadores(paseadoresFiltrados);
-                    setCuidadores(cuidadoresFiltrados);
-                    setVeterinarias(veterinariasFiltradas);
-                    setFundaciones(fundacionesFiltradas);
+                    setPaseadores(paseadoresFiltrados.data);
+                    setCuidadores(cuidadoresFiltrados.data);
+                    setVeterinarias(veterinariasFiltradas.data);
+                    setFundaciones(fundacionesFiltradas.data);
                 } catch (error) {
                     console.error("Error al obtener datos:", error);
                 }
             }
 
-            console.log(veterinarias);
         };
 
         fetchServicios();
-    }, [userData && userData.id]);
+    }, [userData, userData?.id, veterinarias]);
 
     return (
         <React.Fragment>
@@ -121,7 +113,7 @@ const MisServicios = () => {
                 userData.esVeterinaria ||
                 userData.esFundacion) ? (
                 <Nav
-                    className="nav-tabs-custom rounded card-header-tabs border-bottom-0 justify-content-end"
+                    className="nav-tabs-custom rounded card-header-tabs border-bottom-0 justify-content-start"
                     role="tablist"
                 >
                     {userData && userData.esPaseador ? (

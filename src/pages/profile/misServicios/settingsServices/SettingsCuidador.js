@@ -17,18 +17,11 @@ import {
     NavItem,
     NavLink,
 } from "reactstrap";
-import {
-    getCuidadorPorId,
-    getExperiencia,
-    getAllBarrio,
-    getUserMail,
-    updateCuidador,
-    getTipoVivienda,
-    getCuidadoresId,
-    deleteFotoCuidador,
-    postFotoCuidador,
-    updateGrillaCuidador,
-} from "../../../../services/api.js";
+
+import { getUserMail } from "../../../../services/userApi.js";
+import { getExperiencia,getAllBarrio,updateCuidador,getTipoVivienda,getCuidadoresId,deleteFotoCuidador,postFotoCuidador,updateGrillaCuidador } from "../../../../services/commonApi.js";
+
+
 import {
     uploadFilescuidador,
     deleteFileStorage,

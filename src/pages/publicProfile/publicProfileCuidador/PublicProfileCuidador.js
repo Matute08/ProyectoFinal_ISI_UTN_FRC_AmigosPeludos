@@ -22,7 +22,7 @@ import SwiperCore, { Autoplay } from "swiper";
 import Navbar from "../../landing/Navbar";
 import Footer from "../../landing/Footer";
 import Loading from "../../components/Loading";
-import { getCuidadoresId } from "../../../services/api";
+import { getCuidadoresId } from "../../../services/commonApi";
 import PublicAsideLeft from "./PublicAsideLeftCuidador";
 
 const PublicProfileCuidador = () => {

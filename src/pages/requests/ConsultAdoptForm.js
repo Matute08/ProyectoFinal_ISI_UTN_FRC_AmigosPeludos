@@ -21,21 +21,13 @@ import Swal from "sweetalert2"; // Importa SweetAlert2
 import classnames from "classnames";
 import { Link, useNavigate } from "react-router-dom";
 
-
-
+import { getUserMail } from "../../services/userApi";
+import { getFormularios,getFormulariosDuenoPosteo,getFormulariosPosibleAdoptante,getEstadosFormularios,updateForm } from "../../services/FormApi";
 import Footer from "../landing/Footer";
 import { PDFViewer } from "@react-pdf/renderer";
 import Navbar from "../landing/Navbar";
 import ViewAdoptForm from "./pdf/ViewAdoptForm";
-import {
-    getFormulariosDuenoPosteo,
-    getFormulariosPosibleAdoptante,
-    getUserMail,
-    getUserId,
-    getEstadosFormularios,
-    updateForm,
-    getFormularios
-} from "../../services/api";
+
 import { useAuth } from "../../services/AuthContext";
 import Loading from "../components/Loading";
 

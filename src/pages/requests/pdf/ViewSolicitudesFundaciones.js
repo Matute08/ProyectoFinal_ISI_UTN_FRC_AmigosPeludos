@@ -10,11 +10,7 @@ import {
 } from "@react-pdf/renderer";
 import { useParams } from "react-router-dom";
 import logo from "../../../assets/images/logo/LogoAP.png";
-import {
-    getFormulariosId,
-    getVeterinariaId,
-    getFundacionId,
-} from "../../../services/api";
+import { getFundacionId } from "../../../services/commonApi";
 import Loading from "../../components/Loading";
 
 const styles = StyleSheet.create({

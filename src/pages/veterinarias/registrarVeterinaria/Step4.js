@@ -1,221 +1,81 @@
-import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { Col, Form, Row, Label, Input } from "reactstrap";
-import { getUserMail, postVeterinaria, updateUser } from "../../../services/api";
-import Loading from "../../components/Loading";
-import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import React from "react";
+import { useFormContext } from "react-hook-form";
+import { Col, Row, Label, Input } from "reactstrap";
 
-const Step4 = ({ onNext, onPrev, step1Data, step2Data, step3Data }) => {
-    const [isLoading, setIsLoading] = useState(true);
-    const [userData, setUserData] = useState();
-    const navigate = useNavigate();
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-        watch,
-        setValue,
-    } = useForm();
-    const showLoadingOverlay = () => {
-        setIsLoading(true);
-    };
-    const hideLoadingOverlay = () => {
-        setIsLoading(false);
-    };
+const Step4Refactored = () => {
+    const { register, formState: { errors }, watch } = useFormContext();
 
-    const handleAsyncTask = async () => {
-        showLoadingOverlay();
-    };
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            const cachedUserData = localStorage.getItem("userData");
-
-            if (cachedUserData) {
-                const dataLocalStorage = JSON.parse(cachedUserData);
-                const userEmail = dataLocalStorage.email;
-
-                const userData = await getUserMail(userEmail);
-                setUserData(userData);
-                setIsLoading(false);
-            }
-        };
-
-        fetchUserData();
-    }, []);
-
-    const onSubmit = async (data) => {
-        const cbu =
-            data.aceptaTransferencias === "Si" ? data.trasnferencia  : null;
-
-        const allData = {
-            ...step1Data,
-            ...step2Data,
-            ...step3Data,
-            cbu: cbu,
-            estadoId: parseInt(1,10),
-            usuarioId: userData.id
-        };
-
-        try {
-            //setIsLoading(true);
-            console.log(allData);
-
-            handleConfirmacionVeterinaria()
-            await postVeterinaria(allData);
-
-            const actualizarUser = {
-                esVeterinaria: true
-              };
-              
-              await updateUser(userData.id, actualizarUser);
-
-            // setTimeout(() => {
-            //     setIsLoading(false);
-            //     onNext(allData);
-            // }, 4000);
-            // navigate("/veterinarias")
-
-           
-              
-        } catch (error) {
-            console.error("Error al realizar la publicación:", error);
-            setIsLoading(false);
-        }
-
-       
-    };
-
-    const handleConfirmacionVeterinaria = async () => {
-        // Muestra el mensaje de éxito con temporizador y barra de progreso
-        Swal.fire({
-            title: `La Veterinaria fue creada y se encuentra en Revisión`,
-            icon: "success",
-            html: "Cerrando en <b></b> segundos.",
-            timer: 3000, // Tiempo en milisegundos (2 segundos)
-            timerProgressBar: true,
-            showConfirmButton: false,
-            didOpen: () => {
-                const b = Swal.getHtmlContainer().querySelector("b");
-                const timerInterval = setInterval(() => {
-                    b.textContent = (Swal.getTimerLeft() / 1000).toFixed(1);
-                }, 100);
-            },
-            willClose: () => {
-                showLoadingOverlay();
-
-                navigate(`/veterinarias/`);
-            },
-        });
-    };
-
+    // Observa si acepta transferencias para mostrar/ocultar el CBU
     const aceptaTransferencias = watch("aceptaTransferencias");
-    const handleKeyPress = (e) => {
-        // Permitir solo números (0-9) y la tecla de retroceso
+
+    const handleKeyPressNumeric = (e) => {
         const regex = /^[0-9\b]+$/;
         if (!regex.test(e.key)) {
             e.preventDefault();
         }
     };
+
     return (
-        <Form onSubmit={handleSubmit(onSubmit)} className="form-step">
-            {isLoading ? (
-                <Loading />
-            ) : (
-                <div className="d-flex justify-content-center">
-                    <Row className="w-75">
-                        <Label className="m-4">
-                            El objetivo de las transferencias, es saber si usted
-                            acepta recibir donaciones de las personas, con el
-                            fin de, si alguna persona no puede pagar el
-                            tratamiento de una mascota, que esa mascota, reciba
-                            igualmente ese tratamiento para asegurar su vida.
-                        </Label>
-                        <Col lg={12} className="d-flex justify-content-center">
-                            <div className="mb-3 w-100">
-                                <Label className="form-label">
-                                    ¿Acepta donaciones?
-                                </Label>
-                                <select
-                                    {...register("aceptaTransferencias", {
-                                        required: "Seleccione una opción",
-                                    })}
-                                    className={`form-select ${
-                                        errors.aceptaTransferencias
-                                            ? "is-invalid"
-                                            : ""
-                                    }`}
-                                >
-                                    <option value="" selected disabled>Seleccione...</option>
-                                    <option value="Si">Sí</option>
-                                    <option value="No">No</option>
-                                </select>
-                                {errors.aceptaTransferencias && (
-                                    <div className="invalid-feedback">
-                                        {errors.aceptaTransferencias.message}
-                                    </div>
-                                )}
-                            </div>
-                        </Col>
+        <div className="d-flex justify-content-center">
+            <Row className="w-75">
+                <h5 className="text-center mb-3">Donaciones</h5>
+                <p className="text-muted mb-4 text-center small">
+                    Si aceptas donaciones, personas podrán colaborar a través de la plataforma
+                    para cubrir costos de tratamientos de mascotas necesitadas en tu veterinaria.
+                    Si aceptas, te pediremos un CBU/Alias para recibir las transferencias.
+                </p>
 
-                        {aceptaTransferencias === "Si" && (
-                            <Col
-                                lg={12}
-                                className="d-flex justify-content-center"
-                            >
-                                <div className="mb-3 w-100">
-                                    <Label className="form-label">
-                                        Ingrese su CBU para recibir
-                                        transferencias
-                                    </Label>
-                                    <input
-                                        type="text"
-                                        maxLength={15}
-                                        {...register("trasnferencia", {
-                                            required:
-                                                "Este campo es obligatorio",
-                                        })}
-                                        placeholder="Ingrese CBU"
-                                        className={`form-control ${
-                                            errors.trasnferencia
-                                                ? "is-invalid"
-                                                : ""
-                                        }`}
-                                        onKeyPress={handleKeyPress}
-                                    />
-                                    {errors.trasnferencia && (
-                                        <div className="invalid-feedback">
-                                            {errors.trasnferencia.message}
-                                        </div>
-                                    )}
-                                </div>
-                            </Col>
+                {/* Acepta Donaciones? */}
+                <Col xs={12} className="mb-3">
+                    <Label htmlFor="aceptaTransferencias" className="form-label">¿Aceptas recibir donaciones?</Label>
+                    <select
+                        id="aceptaTransferencias"
+                        className={`form-select ${errors.aceptaTransferencias ? "is-invalid" : ""}`}
+                        {...register("aceptaTransferencias", { required: "Selecciona una opción" })}
+                    >
+                        <option value="" disabled>Seleccione...</option>
+                        <option value="Si">Sí, acepto donaciones</option>
+                        <option value="No">No, por ahora no</option>
+                    </select>
+                    {errors.aceptaTransferencias && (
+                        <div className="invalid-feedback">{errors.aceptaTransferencias.message}</div>
+                    )}
+                </Col>
+
+                {/* CBU (Condicional) */}
+                {aceptaTransferencias === "Si" && (
+                    <Col xs={12} className="mb-3">
+                        <Label htmlFor="cbu" className="form-label">CBU o Alias</Label>
+                        <input
+                            id="cbu"
+                            type="text"
+                            maxLength={22} // CBU tiene 22 dígitos, Alias puede variar
+                            className={`form-control ${errors.cbu ? "is-invalid" : ""}`}
+                            placeholder="Ingresa tu CBU (22 dígitos) o Alias"
+                            {...register("cbu", {
+                                required: "El CBU/Alias es obligatorio si aceptas donaciones",
+                                // Validación más específica para CBU/Alias si es necesaria
+                                // pattern: { value: /^[0-9]{22}$/, message: 'CBU inválido (22 dígitos)' }
+                                // O una validación más flexible para Alias
+                                validate: value => (value && value.length > 3) || "Ingresa un CBU o Alias válido"
+
+                            })}
+                            onKeyPress={handleKeyPressNumeric} // Solo si esperas CBU numérico
+                        />
+                        {errors.cbu && (
+                            <div className="invalid-feedback">{errors.cbu.message}</div>
                         )}
+                    </Col>
+                )}
+                {/* Campo oculto para estadoId si no se gestiona en otro lado */}
+                <input type="hidden" {...register('estadoId')} />
+                {/* Campo oculto para usuarioId si no se gestiona en otro lado */}
+                <input type="hidden" {...register('usuarioId')} />
 
-                        <Col className="button-container">
-                            {onPrev && (
-                                <button
-                                    className="btn-next-paseador"
-                                    onClick={onPrev}
-                                >
-                                    <span class="transition transition-back"></span>
-                                    <span class="gradient"></span>
-                                    <span class="label">Atras</span>
-                                </button>
-                            )}
-
-                            <button className="btn-next-paseador" type="submit">
-                                <span class="transition"></span>
-                                <span class="gradient"></span>
-                                <span class="label">Finalizar</span>
-                            </button>
-                        </Col>
-                    </Row>
-                </div>
-            )}
-        </Form>
+                 {/* Los botones de navegación ahora están en AddVeterinariaRefactored */}
+            </Row>
+        </div>
     );
 };
 
-export default Step4;
+export default Step4Refactored;

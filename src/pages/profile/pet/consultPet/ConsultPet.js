@@ -1,168 +1,179 @@
-import React, { useState, useEffect, input } from "react";
-import { Col, Container, Row } from "reactstrap";
+// ConsultPet.js (Refactorizado)
 
-import { getMascotaId, getTipoMascotaId } from "../../../../services/api";
-import Loading from "../../../components/Loading";
+import React, { useState, useEffect, useCallback } from "react";
+import { Col, Container, Row, Alert, Spinner, Button, Card, CardBody, CardTitle } from "reactstrap"; // Añadir componentes
 
-//import images
+import { getMascotaId } from "../../../../services/PetsApi"; // Verificar ruta
+import Loading from "../../../components/Loading"; // Verificar ruta
+
+// Placeholder para imagen si no hay foto
+const placeholderPetImage = "/images/placeholder-pet.png"; // Ajusta esta ruta si es diferente
 
 const ConsultarMascota = ({ onCancel, mascotaId }) => {
-    const handleCancelar = () => {
-        onCancel(); // Llama a la función onCancel pasada como prop
-    };
-    const [mascotaData, setMascotaData] = useState();
+    // Estado para los datos de la mascota, carga y errores
+    const [mascotaData, setMascotaData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchMascota = async () => {
-            const dataMascota = await getMascotaId(mascotaId);
-            if (dataMascota) {
-                if (dataMascota.castracion === true) {
-                    dataMascota.castracion = "Si";
-                } else {
-                    dataMascota.castracion = "No";
-                }
-                setMascotaData(dataMascota);
-            }
-            setIsLoading(false);
-        };
-        console.log(mascotaData);
-        fetchMascota();
-    }, [mascotaId]);
-
-
-    const keyMap = {
-        nombre: "Nombre ",
-        tipoNombre: "Tipo de mascota",
-        edadMascota: "Edad aproximada",
-        razaNombre: "Raza",
-        peso: "Peso aproximado",
-        castracion: "Castrado/a",
-        sexoMascota: "Sexo",
-        descripcion: "Descripción",
-        color: "Color",
-        foto: "Foto de la mascota",
-        tipoMascotaNombre: "Tipo de mascota"
+    // Función para cancelar (volver a la lista)
+    const handleCancelar = () => {
+        if (onCancel && typeof onCancel === 'function') {
+            onCancel(); // Llama a la función onCancel pasada como prop
+        } else {
+            console.warn("Prop 'onCancel' no fue proporcionada a ConsultarMascota");
+            // Opcional: navegar a una ruta por defecto si onCancel no existe
+            // navigate('/ruta/por/defecto');
+        }
     };
-    const excludedKeys = [
-        "id",
-        "edadId",
-        "sexoId",
-        "idUsuario",
-        "razaId",
-        "mailUsuario",
-    ];
 
-    document.title = "Agregar Mascota | Amigos Peludos";
+    // Efecto para cargar los datos de la mascota cuando el ID cambia
+    useEffect(() => {
+        // Si no hay ID, no hacer nada (o mostrar error)
+        if (!mascotaId) {
+            setError("No se especificó ninguna mascota para consultar.");
+            setIsLoading(false);
+            return;
+        }
+
+        const fetchMascota = async () => {
+            setIsLoading(true);
+            setError(null);
+            setMascotaData(null); // Limpiar datos anteriores
+            try {
+                const response = await getMascotaId(mascotaId);
+                // Asumiendo que la API devuelve { data: {...} }
+                if (response?.data) {
+                    setMascotaData(response.data);
+                } else {
+                    // Si la API devuelve el objeto directamente (sin data) - menos común
+                    if(response && typeof response === 'object' && response.id){
+                         console.warn("API getMascotaId devolvió datos directamente, sin 'data'.");
+                         setMascotaData(response);
+                    } else {
+                        throw new Error("No se encontraron datos para la mascota especificada o la respuesta de la API es inválida.");
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching mascota:", err);
+                setError(err.message || "Error al cargar los datos de la mascota.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchMascota();
+    }, [mascotaId]); // Dependencia ÚNICA Y CORRECTA: mascotaId
+
+
+    // --- Renderizado ---
+
+    if (isLoading) {
+        return <Loading />; // Mostrar componente de carga
+    }
+
+    if (error) {
+        return (
+            <Container className="mt-3">
+                <Alert color="danger">{error}</Alert>
+                {/* Botón para volver incluso si hay error */}
+                <Button color="secondary" onClick={handleCancelar} className="mt-2 d-inline-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="me-1" width="16" height="16" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 14l-4 -4l4 -4" /><path d="M5 10h11a4 4 0 1 1 0 8h-1" /></svg>
+                    Volver
+                </Button>
+            </Container>
+        );
+    }
+
+    if (!mascotaData) {
+        // Si no está cargando, no hay error, pero no hay datos (raro, pero posible)
+        return (
+            <Container className="mt-3">
+                <Alert color="warning">No hay información disponible para esta mascota.</Alert>
+                 <Button color="secondary" onClick={handleCancelar} className="mt-2 d-inline-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="me-1" width="16" height="16" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 14l-4 -4l4 -4" /><path d="M5 10h11a4 4 0 1 1 0 8h-1" /></svg>
+                    Volver
+                </Button>
+            </Container>
+        );
+    }
+
+    // Si tenemos datos, mostramos la información
+    // Establecer título del documento dinámicamente
+    document.title = `Detalles de ${mascotaData.nombre || 'Mascota'} | Amigos Peludos`;
+
     return (
         <React.Fragment>
-            {!isLoading ? (
-                <>
-                    <Container fluid>
-                        <Row className="">
-                            <Row className="">
-                                <Col
-                                    lg={6}
-                                    md={6}
-                                    sm={12}
-                                    className="container-texto"
-                                >
-                                    {Object.entries(mascotaData).map(
-                                        ([key, value]) => {
-                                            if (
-                                                key === "foto" || key=== "descripcion" ||
-                                                excludedKeys.includes(key)
-                                            ) {
-                                                return null; // Omitir el título y el valor "Foto" en el lado izquierdo
-                                            }
-                                            const modifiedKey =
-                                                keyMap[key] || key;
-                                            return (
-                                                <div
-                                                    key={key}
-                                                    className="d-flex align-items-start  container-datos-mascotas "
-                                                >
-                                                    <div className="flex-column  datos-mascotas ">
-                                                        <p className="p-2 m-0">
-                                                            <strong>
-                                                                {modifiedKey}:
-                                                            </strong>{" "}
-                                                            {value}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            );
-                                        }
-                                    )}
-                                     {/* Agregar el bloque de descripción al final */}
-    {mascotaData.descripcion && (
-        <div className="d-flex align-items-start container-datos-mascotas">
-            <div className="flex-column datos-mascotas">
-                <p className="p-2 m-0">
-                    <strong>{keyMap["descripcion"]}:</strong> {mascotaData.descripcion}
-                </p>
-            </div>
-        </div>
-    )}
-                                </Col>
-                                <Col
-                                    lg={6}
-                                    md={6}
-                                    sm={12}
-                                    className="text-center"
-                                >
-                                    <div className="container-text-foto">
-                                        <h5 className="ps-0 text-center text-foto">
-                                            {keyMap["foto"]}
-                                        </h5>
-                                    </div>
-                                    <img
-                                        className="img-fluid img-consultar-mascota"
-                                        src={mascotaData["foto"]}
-                                        alt="Imagen de la mascota"
-                                    />
-                                </Col>
-                                <div className="d-flex justify-content-end mt-5">
-                                    <button
-                                        class="button-pz btn-pz-secondary"
-                                        onClick={handleCancelar}
-                                    >
-                                        <span class="span-pz text-pz">
-                                            Volver
-                                        </span>
-                                        <span class="span-pz icon-pz">
-                                            <svg
-                                                viewBox="0 0 232 217"
-                                                className="svg-pz"
-                                            >
-                                                <g
-                                                    transform="translate(0,210) scale(0.1,-0.1)"
-                                                    fill="#ffff"
-                                                    stroke="none"
-                                                >
-                                                    <path
-                                                        d="M740 2163 c-27 -11 -705 -486 -717 -502 -7 -9 -15 -31 -19 -48 -13
-                                                                                            -65 5 -79 399 -319 319 -195 373 -224 408 -224 31 0 47 7 70 29 42 42 38 79
-                                                                                            -21 205 l-49 106 510 0 509 0 38 -34 37 -34 3 -404 c2 -441 3 -435 -57 -475
-                                                                                            l-34 -23 -571 0 -572 0 -44 -22 c-55 -28 -86 -73 -95 -138 -14 -101 16 -180
-                                                                                            83 -222 l37 -23 575 -3 c389 -2 597 1 642 8 187 32 350 169 417 353 l26 72 3
-                                                                                            425 c3 350 0 439 -12 498 -39 187 -161 330 -342 400 l-69 27 -552 5 -552 5 45
-                                                                                            108 c24 59 44 121 44 137 0 60 -85 116 -140 93z"
-                                                    />
-                                                </g>
-                                            </svg>
-                                        </span>
-                                    </button>
+            <Container fluid className="mt-3">
+                 {/* Botón Volver en la esquina superior o al final */}
+                 {/* <Row><Col className="text-end mb-2"><Button ... /></Col></Row> */}
+                <Card className="shadow-sm">
+                    <CardBody>
+                        <Row>
+                            {/* Columna Izquierda: Imagen */}
+                            <Col md={5} lg={4} className="text-center mb-4 mb-md-0">
+                                <img
+                                    className="img-fluid rounded shadow-sm" // Estilo Bootstrap
+                                    style={{ maxHeight: '400px', objectFit: 'cover' }} // Limitar altura máxima
+                                    src={mascotaData.foto || placeholderPetImage}
+                                    alt={`Foto de ${mascotaData.nombre}`}
+                                    onError={(e) => { if (e.target.src !== placeholderPetImage) { e.target.onerror = null; e.target.src = placeholderPetImage; } }}
+                                />
+                            </Col>
+
+                            {/* Columna Derecha: Datos */}
+                            <Col md={7} lg={8}>
+                                <CardTitle tag="h2" className="mb-3">
+                                    {mascotaData.nombre || "Mascota sin nombre"}
+                                </CardTitle>
+                                <hr/>
+                                {/* Usar párrafos o lista de definición para los detalles */}
+                                <Row>
+                                     <Col sm={6} className="mb-2">
+                                        <p className="mb-1"><strong>Tipo:</strong> {mascotaData.tipoMascotaNombre || 'No especificado'}</p>
+                                    </Col>
+                                    <Col sm={6} className="mb-2">
+                                        <p className="mb-1"><strong>Raza:</strong> {mascotaData.razaNombre || 'No especificada'}</p>
+                                    </Col>
+                                    <Col sm={6} className="mb-2">
+                                        <p className="mb-1"><strong>Edad Aprox.:</strong> {mascotaData.edadMascota || 'No especificada'}</p>
+                                    </Col>
+                                    <Col sm={6} className="mb-2">
+                                        <p className="mb-1"><strong>Sexo:</strong> {mascotaData.sexoMascota || 'No especificado'}</p>
+                                    </Col>
+                                     <Col sm={6} className="mb-2">
+                                        <p className="mb-1"><strong>Color:</strong> {mascotaData.color || 'No especificado'}</p>
+                                    </Col>
+                                    <Col sm={6} className="mb-2">
+                                        {/* Transformación del booleano castracion */}
+                                        <p className="mb-1"><strong>Castrado/a:</strong> {typeof mascotaData.castracion === 'boolean' ? (mascotaData.castracion ? 'Sí' : 'No') : 'No especificado'}</p>
+                                    </Col>
+                                     <Col sm={6} className="mb-2">
+                                        {/* Asegurarse de que peso se muestre bien, añadir "kg" */}
+                                        <p className="mb-1"><strong>Peso Aprox.:</strong> {mascotaData.peso ? `${mascotaData.peso} kg` : 'No especificado'}</p>
+                                    </Col>
+                                </Row>
+
+                                {/* Descripción (si existe) */}
+                                {mascotaData.descripcion && (
+                                    <>
+                                        <hr/>
+                                        <h5 className="mt-3">Descripción:</h5>
+                                        <p className="text-muted">{mascotaData.descripcion}</p>
+                                    </>
+                                )}
+
+                                {/* Botón Volver al final */}
+                                <div className="text-end mt-4">
+                                    <Button color="secondary" onClick={handleCancelar} className="d-inline-flex align-items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="me-1" width="16" height="16" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 14l-4 -4l4 -4" /><path d="M5 10h11a4 4 0 1 1 0 8h-1" /></svg>
+                                        Volver
+                                    </Button>
                                 </div>
-                            </Row>
+                            </Col>
                         </Row>
-                    </Container>
-                </>
-            ) : (
-                <>
-                    <Loading></Loading>
-                </>
-            )}
+                    </CardBody>
+                </Card>
+            </Container>
         </React.Fragment>
     );
 };

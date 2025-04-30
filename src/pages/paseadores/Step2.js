@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Col, Form, Row, Label } from "reactstrap";
-import { getExperiencia, getAllBarrio } from "../../services/api";
+import { getExperiencia, getAllBarrio } from "../../services/commonApi";
 import Loading from "../components/Loading";
 
 const Step2 = ({ onNext, onPrevious, step1Data }) => {

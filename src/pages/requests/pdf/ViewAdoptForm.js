@@ -11,8 +11,7 @@ import {
 import { useParams } from "react-router-dom";
 import logo from "../../../assets/images/logo/LogoAP.png";
 
-import { getFormulariosId } from "../../../services/api";
-
+import {getFormulariosId} from "../../../services/FormApi";
 const styles = StyleSheet.create({
     container: {
         padding: 10,
@@ -78,7 +77,7 @@ const ViewAdoptForm = () => {
             console.log(id);
             if (id) {
                 const data = await getFormulariosId(id);
-                setDataForm(data);
+                setDataForm(data.data);
                 setIsLoading(false);
             }
             console.log(dataForm);
@@ -87,7 +86,7 @@ const ViewAdoptForm = () => {
         if (id) {
             fetchForm();
         }
-    }, [id]);
+    }, [dataForm, id]);
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const day = date.getDate();

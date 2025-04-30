@@ -16,17 +16,10 @@ import {
     NavLink,
 } from "reactstrap";
 import { useAuth } from "../../services/AuthContext";
-import {
-    getTipoMascota,
-    getSexoMascota,
-    getAllEdadMascota,
-    postMascota,
-    getUserMail,
-    getAllBarrio,
-    updateUser,
-    getAllRazaId,
-    postFundacion,
-} from "../../services/api";
+
+import { getUserMail, updateUser } from "../../services/userApi";
+import { getAllBarrio, postFundacion } from "../../services/commonApi";
+
 import classnames from "classnames";
 import { uploadFilePetsUser } from "../../services/Firebase";
 import Loading from "../components/Loading";

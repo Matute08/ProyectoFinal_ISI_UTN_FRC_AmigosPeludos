@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-    getVeterinarias,
-    getUserMail,
-    getFundacion,
-    deleteFundacion,
-    updateUser
-} from "../../../services/api";
+import { getFundacion, deleteFundacion } from "../../../services/commonApi";
+import { getUserMail, updateUser } from "../../../services/userApi";
 import { Col, Row, Table, Card, CardHeader, CardBody } from "reactstrap";
 import { Link, useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";

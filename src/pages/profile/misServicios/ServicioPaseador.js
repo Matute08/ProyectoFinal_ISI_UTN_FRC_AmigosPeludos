@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-    getUserMail,
-    getPaseador,
-    getCuidadores,
-    getVeterinarias,
-    deletePaseador,
-    updateUser
-} from "../../../services/api";
+
 import { Col, Row } from "reactstrap";
 import { Link, useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";
-
+import { getUserMail, updateUser } from "../../../services/userApi";
+import { getPaseador, deletePaseador } from "../../../services/commonApi";
 const ServicioPaseador = () => {
     const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);

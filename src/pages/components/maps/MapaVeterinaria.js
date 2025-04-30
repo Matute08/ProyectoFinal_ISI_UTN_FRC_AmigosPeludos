@@ -1,133 +1,98 @@
-import React, { useEffect, useRef, useState } from "react";
-import L from "leaflet";
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import VeterinariaDetalle from "../../veterinarias/VeterinariaDetalle";
-import markerVetes from "../../../assets/images/marker/marker.png";
-import { getVeterinarias } from "../../../services/api";
-import axios from "axios";
+import React, { useRef, useEffect } from 'react';
+import L from 'leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import markerVetes from '../../../assets/images/marker/marker.png'; // Asegúrate que la ruta sea correcta
 
-const MapaVeterinaria = (props) => {
-  const [veterinariasPositionStack, setVeterinariasPositionStack] = useState([]);
-  const [selectedMarker, setSelectedMarker] = useState(null);
-  const [veterinariasRegistradas, setVeterinariasRegistradas] = useState([]);
-  const [mapCenter, setMapCenter] = useState([-31.41894, -64.19353]); // Define las coordenadas iniciales aquí
-  const mapRef = useRef(null);
-  const positionStackAPIKey = "63e57ac880f8901361290e0566840383"; // Reemplaza con tu clave de API de PositionStack
+// Configuración del icono personalizado
+const vetIcon = L.icon({
+    iconUrl: markerVetes,
+    iconSize: [50, 50], // Tamaño ajustado (era 80x80, puede ser muy grande)
+    iconAnchor: [25, 50], // Punto del icono que corresponde a la coordenada (centro inferior)
+    popupAnchor: [0, -50], // Punto donde se abrirá el popup relativo al anchor
+});
 
-  useEffect(() => {
-    cargarVeterinariasRegistradas(); // Carga las veterinarias registradas una vez al principio
-  }, []);
+// Componente para centrar mapa en marcador seleccionado
+const ChangeMapView = ({ center, zoom }) => {
+    const map = useMap();
+    useEffect(() => {
+        if (center) {
+            map.setView(center, zoom || map.getZoom()); // Usa zoom si se pasa, o el actual
+        }
+    }, [center, zoom, map]);
+    return null;
+};
 
-  // Función para cargar las veterinarias proporcionadas por PositionStack cercanas a las coordenadas dadas
-  const cargarVeterinariasPositionStack = (coordenadas) => {
-    const [lat, lng] = coordenadas;
-    axios
-      .get("https://api.positionstack.com/v1/reverse", {
-        params: {
-          access_key: positionStackAPIKey,
-          query: `${lat},${lng}`,
-        },
-      })
-      .then((response) => {
-        const data = response.data.data;
-        console.log(data);
-        setVeterinariasPositionStack(data);
-      })
-      .catch((error) => {
-        console.error(
-          "Error al obtener las veterinarias de PositionStack:",
-          error
-        );
-      });
-  };
+const MapaVeterinaria = ({ veterinariasRegistradas = [], onMarkerClick, selectedVeterinaria }) => {
+    const mapRef = useRef(null);
+    const defaultCenter = [-31.417, -64.183]; // Centro inicial (Córdoba)
+    const defaultZoom = 13;
+    
 
-  const cargarVeterinariasRegistradas = () => {
-    // Utiliza la función getVeterinarias para obtener las veterinarias registradas
-    getVeterinarias()
-      .then((data) => {
-        // Filtrar las veterinarias con estado "aceptado"
-        const veterinariasAceptadas = data.filter(
-          (veterinaria) => veterinaria.estado === "Aceptado"
-        );
-  
-        // Agregar la propiedad "fuente" para distinguir la fuente del marcador
-        const veterinariasRegistradas = veterinariasAceptadas.map(
-          (veterinaria) => ({
-            ...veterinaria,
-            fuente: "registrada",
-          })
-        );
-  
-        setVeterinariasRegistradas(veterinariasRegistradas);
-      })
-      .catch((error) => {
-        console.error("Error al obtener las veterinarias registradas:", error);
-      });
-  };
-  
+    // Calcular centro y zoom basado en la selección
+    const getMapCenter = () => {
+        if (selectedVeterinaria?.latitud && selectedVeterinaria?.longitud) {
+             const lat = parseFloat(selectedVeterinaria.latitud);
+             const lng = parseFloat(selectedVeterinaria.longitud);
+             if (!isNaN(lat) && !isNaN(lng)) {
+                 return [lat, lng];
+             }
+        }
+        return defaultCenter;
+    };
 
-  // Maneja el evento de movimiento del mapa
-  const handleMapMove = (e) => {
-    // Actualiza las coordenadas actuales del mapa cuando se mueve
-    setMapCenter(e.target.getCenter());
+    const getMapZoom = () => {
+         return selectedVeterinaria ? 16 : defaultZoom; // Más zoom si hay selección
+    };
 
-    // Llama a la función para cargar las veterinarias proporcionadas por PositionStack
-    cargarVeterinariasPositionStack(e.target.getCenter());
-  };
 
-  const handleMarkerClick = (veterinaria) => {
-    // Llama a la función proporcionada por las props para mostrar los detalles
-    if (props.onMarkerClick) {
-      props.onMarkerClick(veterinaria);
-    }
-  };
+    return (
+        <MapContainer
+            center={defaultCenter} // Centro inicial
+            zoom={defaultZoom}
+            style={{ width: '100%', height: '600px' }} // Ocupar todo el contenedor padre
+            ref={mapRef}
+            scrollWheelZoom={true} // Permitir zoom con rueda del mouse
+        >
+            <ChangeMapView center={getMapCenter()} zoom={getMapZoom()} />
 
-  return (
-    <div>
-      <MapContainer
-        center={mapCenter}
-        zoom={15}
-        style={{ width: "100%", height: "500px" }}
-        ref={mapRef}
-        onMoveend={handleMapMove} // Maneja el evento de movimiento del mapa
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        {/* Renderiza los marcadores en el mapa */}
-        {/* Veterinarias proporcionadas por PositionStack */}
-        {veterinariasPositionStack.map((veterinaria) => (
-          <Marker
-            key={veterinaria.id}
-            position={[
-              parseFloat(veterinaria.latitude),
-              parseFloat(veterinaria.longitude),
-            ]}
-          />
-        ))}
+            <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
 
-        {/* Veterinarias registradas */}
-        {veterinariasRegistradas.map((veterinaria) => (
-          <Marker
-            key={veterinaria.id}
-            position={[
-              parseFloat(veterinaria.latitud),
-              parseFloat(veterinaria.longitud),
-            ]}
-            icon={L.icon({
-              iconUrl: markerVetes,
-              iconSize: [80, 80],
+            {/* Marcadores para veterinarias registradas */}
+            {veterinariasRegistradas.map((veterinaria) => {
+                const lat = parseFloat(veterinaria.latitud);
+                const lng = parseFloat(veterinaria.longitud);
+
+                // Validar coordenadas antes de renderizar
+                if (isNaN(lat) || isNaN(lng)) {
+                    console.warn(`Coordenadas inválidas para veterinaria ID: ${veterinaria.id}, Nombre: ${veterinaria.nombre}`);
+                    return null;
+                }
+
+                return (
+                    <Marker
+                        key={veterinaria.id}
+                        position={[lat, lng]}
+                        icon={vetIcon} // Usar el icono personalizado
+                        eventHandlers={{
+                            click: () => {
+                                console.log("Marker clicked:", veterinaria.nombre); // Log para depuración
+                                onMarkerClick(veterinaria); // Llama al callback del padre
+                            },
+                        }}
+                    >
+                        {/* Popup opcional al hacer clic (se puede quitar si usas VeterinariaDetalle) */}
+                        <Popup>
+                            <strong>{veterinaria.nombre}</strong><br />
+                            {veterinaria.direccion} {veterinaria.numeroCalle}
+                        </Popup>
+                    </Marker>
+                );
             })}
-            eventHandlers={{
-              click: () => handleMarkerClick(veterinaria),
-            }}
-          />
-        ))}
-      </MapContainer>
-    </div>
-  );
+        </MapContainer>
+    );
 };
 
 export default MapaVeterinaria;

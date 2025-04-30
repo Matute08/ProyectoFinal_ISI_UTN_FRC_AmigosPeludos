@@ -1,7 +1,7 @@
 import { useAuth } from "../../services/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getUserMail } from "../../services/api";
+
 import Loading from "../components/Loading";
 
 //se utiliza para proteger aquellas páginas que solo puede acceder un usuario en particular

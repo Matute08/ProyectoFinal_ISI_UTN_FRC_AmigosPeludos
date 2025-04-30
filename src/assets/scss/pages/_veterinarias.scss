@@ -1,3 +1,40 @@
+
+.service-card {
+  position: relative;
+  overflow: hidden; // Asegura que la imagen no se salga
+  cursor: default; // O pointer si quieres indicar acción
+}
+
+.service-card .service-card-img {
+  opacity: 0.5; // Imagen semitransparente por defecto
+}
+
+.service-card:hover .service-card-img {
+  opacity: 0.2; // Más transparente en hover
+}
+
+.service-card .service-card-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2; // Encima de la imagen
+  color: white; // O un color oscuro si la imagen es clara
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); // Sombra para legibilidad
+  margin: 0;
+  padding: 5px 10px;
+  background-color: rgba(0, 0, 0, 0.3); // Fondo sutil opcional
+  border-radius: 4px;
+  text-align: center;
+  width: 90%; // Evitar que toque los bordes
+}
+
+.wallet-container .mercadopago-button-container {
+    // Estilos específicos si necesitas ajustar el botón de MP
+}
+
+
+
 /* Anula el estilo del div generado por google-maps-react */
 // div[style="position: absolute; width: 100%; height: 100%;"] {
 //   position: relative;

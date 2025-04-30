@@ -12,8 +12,8 @@ import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import Loading from "../components/Loading";
 import { useAuth } from "../../services/AuthContext";
-
-import { postPaseador,getUserMail,updateUser } from "../../services/api";
+import { postPaseador } from "../../services/commonApi";
+import { getUserMail, updateUser } from "../../services/userApi";
 import { uploadFilesPaseador } from "../../services/Firebase";
 
 // Register the plugins

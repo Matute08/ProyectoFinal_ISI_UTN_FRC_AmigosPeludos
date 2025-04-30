@@ -23,14 +23,11 @@ import classnames from "classnames";
 import Navbar from "../../landing/Navbar";
 import Footer from "../../landing/Footer";
 import { useAuth } from "../../../services/AuthContext";
-import {
-    getUserMail,
-    getBarrioUser,
-    getCiudadUser,
-    updateUser,
-    getGenero,
-    getAllBarrio,
-} from "../../../services/api.js";
+
+
+import { getUserMail, updateUser } from "../../../services/userApi.js";
+import { getBarrioUser, getCiudadUser, getGenero,getAllBarrio } from "../../../services/commonApi.js";
+
 import { deleteFileStorage, uploadFileUser } from "../../../services/Firebase";
 import Loading from "../../components/Loading";
 

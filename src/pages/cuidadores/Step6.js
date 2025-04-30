@@ -13,7 +13,8 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import Loading from "../components/Loading";
 import { useAuth } from "../../services/AuthContext";
 
-import { postCuidador,getUserMail,updateUser } from "../../services/api";
+import { postCuidador } from "../../services/commonApi";
+import { getUserMail, updateUser } from "../../services/userApi";
 import { uploadFilesCuidador } from "../../services/Firebase";
 
 // Register the plugins

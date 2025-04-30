@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Col, Form, Row, Label } from "reactstrap";
 import { useAuth } from "../../services/AuthContext";
-import { getUserMail } from "../../services/api";
+import { getUserMail } from "../../services/userApi";
 import Loading from "../components/Loading"
 import { format, parse } from "date-fns";
 import { Link } from "react-router-dom";

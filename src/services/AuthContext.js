@@ -7,114 +7,93 @@ import {
     sendPasswordResetEmail,
     GoogleAuthProvider,
     signInWithPopup,
-    deleteUser,
 } from "firebase/auth";
 import { auth } from "./Firebase";
-import { getUserMail } from "./api";
 
 //-------------------------------------------
 export const authContext = createContext();
-export const useAuth = () => {
-    const context = useContext(authContext);
 
-    return context;
-};
+export const useAuth = () => useContext(authContext);
+
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Comprobar si hay datos de usuario en caché
-    const cachedUser = localStorage.getItem("userData");
-
-    // Función para guardar datos de usuario en caché
+    // Función para manejar el caché del usuario
     const cacheUser = (userData) => {
-        localStorage.setItem("userData", JSON.stringify(userData));
+        if (userData) {
+            localStorage.setItem("userData", JSON.stringify(userData));
+        } else {
+            localStorage.removeItem("userData");
+        }
     };
 
-    //REGISTRAR
-    const signup = (email, password) => {
-        return createUserWithEmailAndPassword(auth, email, password);
+    // REGISTRAR
+    const signup = (email, password) =>
+        createUserWithEmailAndPassword(auth, email, password);
+
+    // INICIAR SESIÓN CON MAIL
+    const login = async (email, password) => {
+        try {
+            const { user } = await signInWithEmailAndPassword(auth, email, password);
+            cacheUser(user);
+            return user;
+        } catch (error) {
+            console.error("Error de inicio de sesión:", error);
+            throw error;
+        }
     };
 
-    //INICIAR SESION CON MAIL
-    const login = (email, password) => {
-        return signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                console.log("Usuario autenticado:", user);
-
-                // Guardar usuario en caché al iniciar sesión
-                cacheUser(user);
-                return user;
-            })
-            .catch((error) => {
-                console.error("Error de inicio de sesión:", error);
-                throw error;
-            });
-    };
-
-    //INICIAR SESION CON GOOGLE
+    // INICIAR SESIÓN CON GOOGLE
     const registerWithGoogle = () => {
         const googleProvider = new GoogleAuthProvider();
         return signInWithPopup(auth, googleProvider);
     };
 
-    //CERRAR SESION
+    // CERRAR SESIÓN
     const logout = () => {
-
         signOut(auth);
-        // eliminar datos de caché
-        localStorage.removeItem("userData");
+        cacheUser(null);
     };
 
     // RESTABLECER CONTRASEÑA
-const resetPassword = (email) => {
-    return sendPasswordResetEmail(auth, email);
-};
+    const resetPassword = (email) => sendPasswordResetEmail(auth, email);
 
-
-    //ELIMINAR USUARIO
+    // ELIMINAR USUARIO
     const deleteAccount = async () => {
-        const user = auth.currentUser;
-
-        if (user) {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
             try {
-                await user.getIdToken(true);
-                await user.delete();
+                await currentUser.delete();
+                cacheUser(null);
                 return { success: true };
             } catch (error) {
+                console.error("Error al eliminar la cuenta:", error);
                 return { success: false, error };
             }
         }
-
-        user.delete();
-        // deleteUser();
     };
 
-    //si está logueado, me devuelve el objeto entero con la información. Sino, me devuelve NULL
+    // Manejo del estado de autenticación
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             if (currentUser) {
-                // Guardar usuario en caché al iniciar sesión
                 cacheUser(currentUser);
-
-                // Actualizar el estado con el usuario
                 setUser(currentUser);
-                setLoading(false);
             } else {
-                // Si no hay usuario, eliminar datos de caché
-                localStorage.removeItem("userData");
-
+                cacheUser(null);
                 setUser(null);
             }
+            setLoading(false);
         });
 
-        // Si hay datos de usuario en caché, utilizarlos al cargar la aplicación
+        // Cargar usuario desde caché al iniciar
+        const cachedUser = localStorage.getItem("userData");
         if (cachedUser) {
-            const cachedUserData = JSON.parse(cachedUser);
-            setUser(cachedUserData);
+            setUser(JSON.parse(cachedUser));
             setLoading(false);
         }
+
         return () => unsubscribe();
     }, []);
 

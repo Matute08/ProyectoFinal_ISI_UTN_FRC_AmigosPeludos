@@ -4,9 +4,10 @@ import './App.css';
 import '../src/assets/scss/themes.scss';
 import { AuthProvider } from './services/AuthContext';
 import { ProtectedRoute } from './pages/autheticationInner/ProtectedRoute';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import 'leaflet/dist/leaflet.css'; 
 
-// Importa tus componentes aquí
-
+// Importación de componentes
 import Landing from './pages/landing/Index';
 import Register from './pages/autheticationInner/register/Register';
 import CompletarPerfil from './pages/autheticationInner/register/CompletarPerfil';
@@ -49,89 +50,72 @@ import SettingsVeterinaria from './pages/profile/misServicios/settingsServices/S
 import Fundaciones from './pages/fundaciones/Fundaciones';
 import SettingsFundacion from './pages/profile/misServicios/settingsServices/SettingsFundacion';
 import AddFundacion from './pages/fundaciones/AddFundaciones';
-
 import DonacionFundacion from './pages/donaciones/DonacionFundacion';
+
 function App() {
+  const authRoutes = [
+    { path: "/registrar", element: <Register /> },
+    { path: "/iniciar-sesion", element: <Login /> },
+    { path: "/modificar-perfil", element: <ProtectedRoute><UserProfileSetting /></ProtectedRoute> },
+    { path: "/perfil/:mail", element: <ProtectedRoute><Profile /></ProtectedRoute> },
+    { path: "/restablecer-contraseña", element: <PasswordReset /> },
+    { path: "/completar-perfil/:mail", element: <ProtectedRoute><CompletarPerfil /></ProtectedRoute> },
+  ];
+
+  const petRoutes = [
+    { path: "/agregar-mascota", element: <ProtectedRoute><AddPets /></ProtectedRoute> },
+    { path: "/modificar-mascota/:mascotaId", element: <ProtectedRoute><SettingsPet /></ProtectedRoute> },
+    { path: "/mascotas-perdidas", element: <LostPets /> },
+    { path: "/publicacion-mascota-perdida", element: <ProtectedRoute><AddLostPets /></ProtectedRoute> },
+    { path: "/consultar-posteo/:posteoId", element: <ProtectedRoute><ConsultPosts /></ProtectedRoute> },
+    { path: "/modificar-posteo/:posteoId", element: <ProtectedRoute><SettingsLostPets /></ProtectedRoute> },
+    { path: "/mascotas-encontradas", element: <FoundPets /> },
+    { path: "/publicacion-mascota-encontrada", element: <ProtectedRoute><AddFoundPets /></ProtectedRoute> },
+    { path: "/mascotas-adopcion", element: <AdoptPets /> },
+    { path: "/publicacion-mascota-adopcion", element: <ProtectedRoute><AddAdoptPets /></ProtectedRoute> },
+    { path: "/consultar-posteo-adopcion/:posteoId", element: <ProtectedRoute><ConsultAdoptPets /></ProtectedRoute> },
+    { path: "/modificar-posteo-adopcion/:posteoId", element: <ProtectedRoute><SettingsAdoptPets /></ProtectedRoute> },
+  ];
+
+  const serviceRoutes = [
+    { path: "/paseadores", element: <Paseadores /> },
+    { path: "/agregar-paseador", element: <ProtectedRoute><AddPaseador /></ProtectedRoute> },
+    { path: "/modificar-paseador/:paseadorId", element: <ProtectedRoute><SettingsPaseador /></ProtectedRoute> },
+    { path: "/perfilPublicoPaseador/:correoElectronico/:id", element: <ProtectedRoute><PublicProfilePaseador /></ProtectedRoute> },
+    { path: "/perfilPublicoCuidador/:correoElectronico/:id", element: <ProtectedRoute><PublicProfileCuidador /></ProtectedRoute> },
+    { path: "/veterinarias", element: <Veterinarias /> },
+    { path: "/agregar-veterinaria", element: <ProtectedRoute><AddVeterinaria /></ProtectedRoute> },
+    { path: "/veterinarias/perfil-veterinaria/:idVete", element: <ProtectedRoute><PerfilVeterinaria /></ProtectedRoute> },
+    { path: "/modificar-veterinaria/:veterinariaId", element: <ProtectedRoute><SettingsVeterinaria /></ProtectedRoute> },
+    { path: "/cuidadores", element: <Cuidadores /> },
+    { path: "/agregar-cuidador", element: <ProtectedRoute><AddCuidador /></ProtectedRoute> },
+    { path: "/modificar-cuidador/:cuidadorId", element: <ProtectedRoute><SettingsCuidador /></ProtectedRoute> },
+    { path: "/fundaciones", element: <Fundaciones /> },
+    { path: "/agregar-fundacion", element: <ProtectedRoute><AddFundacion /></ProtectedRoute> },
+    { path: "/modificar-fundacion/:fundacionId", element: <ProtectedRoute><SettingsFundacion /></ProtectedRoute> },
+    { path: "/fundaciones/donar-fundacion/:idFunda", element: <ProtectedRoute><DonacionFundacion /></ProtectedRoute> },
+  ];
+
+  const otherRoutes = [
+    { path: "/formularios", element: <ConsultAdoptForm /> },
+    { path: "/solicitudes", element: <ProtectedRoute><Solicitudes /></ProtectedRoute> },
+    { path: "/manualusuario", element: <UserManual /> },
+    { path: "/preguntas-frecuentes", element: <Questions /> },
+    { path: "/ver-formulario/:id", element: <ViewAdoptForm /> },
+    { path: "/ver-formulario-solicitud-veterinaria/:id", element: <ViewSolicitudesVeterinarias /> },
+    { path: "/ver-formulario-solicitud-fundacion/:id", element: <ViewSolicitudesFundaciones /> },
+    { path: "/datos-usuario/:id", element: <QrUsuario /> },
+  ];
+
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path='/' element={<Landing />} />
-
-          {/* Autenticación */}
-          <Route path="/registrar" element={<Register />} />
-          <Route path="/iniciar-sesion" element={<Login />} />
-          <Route path="/modificar-perfil" element={<ProtectedRoute><UserProfileSetting /></ProtectedRoute>} />
-          <Route path="/perfil/:mail" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path='/restablecer-contraseña' element={<PasswordReset />} />
-          <Route path="/completar-perfil/:mail" element={<ProtectedRoute><CompletarPerfil /></ProtectedRoute>} />
-
-          {/* Mascotas */}
-          <Route path="/agregar-mascota" element={<ProtectedRoute><AddPets /></ProtectedRoute>} />
-          <Route path="/modificar-mascota/:mascotaId" element={<ProtectedRoute><SettingsPet /></ProtectedRoute>} />
-
-          {/* Mascotas perdidas */}
-          <Route path='/mascotas-perdidas' element={<LostPets />} />
-          <Route path='/publicacion-mascota-perdida' element={<ProtectedRoute><AddLostPets /></ProtectedRoute>} />
-          <Route path="/consultar-posteo/:posteoId" element={<ProtectedRoute><ConsultPosts /></ProtectedRoute>} />
-          <Route path="/modificar-posteo/:posteoId" element={<ProtectedRoute><SettingsLostPets /></ProtectedRoute>} />
-
-          {/* Mascotas encontradas */}
-          <Route path='/mascotas-encontradas' element={<FoundPets />} />
-          <Route path='/publicacion-mascota-encontrada' element={<ProtectedRoute><AddFoundPets /></ProtectedRoute>} />
-
-          {/* Mascotas en adopcion */}
-          <Route path='/mascotas-adopcion' element={<AdoptPets />} />
-          <Route path='/publicacion-mascota-adopcion' element={<ProtectedRoute><AddAdoptPets /></ProtectedRoute>} />
-          <Route path="/consultar-posteo-adopcion/:posteoId" element={<ProtectedRoute><ConsultAdoptPets /></ProtectedRoute>} />
-          <Route path="/modificar-posteo-adopcion/:posteoId" element={<ProtectedRoute><SettingsAdoptPets /></ProtectedRoute>} />
-
-          {/* Solicitudes, Formularios*/}
-          <Route path='/formularios' element={<ConsultAdoptForm />} />
-          <Route path="/solicitudes" element={<ProtectedRoute><Solicitudes /></ProtectedRoute>} />
-
-          {/* Manual de usuario y Preguntas Frecuentes */}
-          <Route path='/manualusuario' element={<UserManual />} />
-          <Route path='/preguntas-frecuentes' element={<Questions />} />
-
-          {/* Paseadores */}
-          <Route path='/paseadores' element={<Paseadores />} />
-          <Route path="/agregar-paseador" element={<ProtectedRoute><AddPaseador /></ProtectedRoute>} />
-          <Route path="/modificar-paseador/:paseadorId" element={<ProtectedRoute><SettingsPaseador /></ProtectedRoute>} />
-
-          {/* Perfil público */}
-          <Route path="/perfilPublicoPaseador/:correoElectronico/:id" element={<ProtectedRoute><PublicProfilePaseador /></ProtectedRoute>} />
-          <Route path="/perfilPublicoCuidador/:correoElectronico/:id" element={<ProtectedRoute><PublicProfileCuidador /></ProtectedRoute>} />
-
-          {/* Veterinarias */}
-          <Route path='/veterinarias' element={<Veterinarias />} />
-          <Route path="/agregar-veterinaria" element={<ProtectedRoute><AddVeterinaria /></ProtectedRoute>} />
-          <Route path="/veterinarias/perfil-veterinaria/:idVete" element={<ProtectedRoute><PerfilVeterinaria /></ProtectedRoute>} />
-          <Route path="/modificar-veterinaria/:veterinariaId" element={<ProtectedRoute><SettingsVeterinaria /></ProtectedRoute>} />
-
-
-          {/* Cuidadores */}
-          <Route path='/cuidadores' element={<Cuidadores />} />
-          <Route path="/agregar-cuidador" element={<ProtectedRoute><AddCuidador /></ProtectedRoute>} />
-          <Route path="/modificar-cuidador/:cuidadorId" element={<ProtectedRoute><SettingsCuidador /></ProtectedRoute>} />
-
-          {/* Pdf */}
-          <Route path='/ver-formulario/:id' element={<ViewAdoptForm />} />
-          <Route path='/ver-formulario-solicitud-veterinaria/:id' element={<ViewSolicitudesVeterinarias />} />
-          <Route path='/ver-formulario-solicitud-fundacion/:id' element={<ViewSolicitudesFundaciones />} />
-
-
-          {/* Fundaciones */}
-          <Route path='/fundaciones' element={<Fundaciones />} />
-          <Route path="/agregar-fundacion" element={<ProtectedRoute><AddFundacion /></ProtectedRoute>} />
-          <Route path="/modificar-fundacion/:fundacionId" element={<ProtectedRoute><SettingsFundacion /></ProtectedRoute>} />
-d
-          {/* Donacion Fundacion */}
-          <Route path="/fundaciones/donar-fundacion/:idFunda" element={<ProtectedRoute><DonacionFundacion /></ProtectedRoute>} />
-
-          {/* QR usuario */}
-          <Route path='/datos-usuario/:id' element={<QrUsuario />} />
-
+          <Route path="/" element={<Landing />} />
+          {authRoutes.map((route, index) => <Route key={index} {...route} />)}
+          {petRoutes.map((route, index) => <Route key={index} {...route} />)}
+          {serviceRoutes.map((route, index) => <Route key={index} {...route} />)}
+          {otherRoutes.map((route, index) => <Route key={index} {...route} />)}
         </Routes>
       </AuthProvider>
     </BrowserRouter>

@@ -13,7 +13,11 @@ import {
 import Navbar from "../landing/Navbar";
 import Footer from "../landing/Footer";
 import Loading from "../components/Loading";
-import { getFundacion, getPaseador, getUserMail } from "../../services/api";
+
+
+import { getFundacion } from "../../services/commonApi";
+import { getUserMail } from "../../services/userApi";
+
 import img from "../../assets/images/user/user-random.jpg";
 
 const Fundaciones = () => {

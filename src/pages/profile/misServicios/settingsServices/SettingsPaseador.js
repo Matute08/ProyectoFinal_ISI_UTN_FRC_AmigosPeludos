@@ -17,16 +17,9 @@ import {
     NavItem,
     NavLink,
 } from "reactstrap";
-import {
-    getPaseadorPorId,
-    getExperiencia,
-    getAllBarrio,
-    getUserMail,
-    updatePaseador,
-    deleteFotoPaseador,
-    postFotoPaseador,
-    updateGrillaPaseador
-} from "../../../../services/api.js";
+
+import { getUserMail } from "../../../../services/userApi.js";
+import { getPaseadorPorId,getExperiencia,getAllBarrio,updatePaseador,deleteFotoPaseador,postFotoPaseador,updateGrillaPaseador} from "../../../../services/commonApi.js";
 import {
     uploadFilesPaseador,
     deleteFileStorage,

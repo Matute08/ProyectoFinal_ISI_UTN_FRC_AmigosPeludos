@@ -20,14 +20,16 @@ import {
     Table,
     Input,
 } from "reactstrap";
+
+
 import {
     getAllBarrio,
-    getUserMail,
     getVeterinariaId,
     updateHorarioVeterinaria,
     updateServicioVeterinaria,
     updateVeterinaria,
-} from "../../../../services/api.js";
+} from "../../../../services/commonApi.js";
+import { getUserMail } from "../../../../services/userApi.js";
 import Loading from "../../../components/Loading.js";
 import Footer from "../../../landing/Footer.js";
 import Navbar from "../../../landing/Navbar.js";

@@ -17,20 +17,8 @@ import {
     NavItem,
     NavLink,
 } from "reactstrap";
-import {
-    getCuidadorPorId,
-    getExperiencia,
-    getAllBarrio,
-    getUserMail,
-    updateCuidador,
-    getTipoVivienda,
-    getCuidadoresId,
-    deleteFotoCuidador,
-    postFotoCuidador,
-    updateGrillaCuidador,
-    getFundacionId,
-    updateFundacion,
-} from "../../../../services/api.js";
+import { getUserMail } from "../../../../services/userApi.js";
+import { getAllBarrio, getFundacionId, updateFundacion } from "../../../../services/commonApi.js";
 import {
     uploadFilescuidador,
     deleteFileStorage,

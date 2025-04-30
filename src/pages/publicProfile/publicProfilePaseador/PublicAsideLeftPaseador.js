@@ -4,15 +4,8 @@ import UiContent from "../../../assets/scss/components/Common/UiContent";
 import Swal from "sweetalert2";
 import { Card, Table, CardBody, Col } from "reactstrap";
 import { useAuth } from "../../../services/AuthContext";
-import {
-    getUserMail,
-    getBarrioUser,
-    getCiudadUser,
-    updateUser,
-    getGenero,
-    getGeneroId,
-    getRol,
-} from "../../../services/api";
+
+import { getUserMail , getRol} from "../../../services/userApi";
 //Images
 import avatar1 from "../../../assets/images/user/user-random.jpg";
 import Loading from "../../components/Loading";

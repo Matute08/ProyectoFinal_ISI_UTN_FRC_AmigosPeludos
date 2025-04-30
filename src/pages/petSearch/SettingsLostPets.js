@@ -1,1157 +1,1618 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
 import {
     Col,
+    Container,
     Form,
     Label,
     Row,
     Card,
     CardBody,
     CardHeader,
-    Container,
     Nav,
     NavItem,
     NavLink,
+    TabPane,
+    TabContent,
+    Spinner,
+    Alert,
+    Button,
 } from "reactstrap";
-import { useAuth } from "../../services/AuthContext";
+import { format } from "date-fns"; // Mantenido para formatear fecha inicial
+
+// API Imports (ajustar rutas si es necesario)
+import { useAuth } from "../../services/AuthContext"; // Cambiado para usar AuthContext
 import {
-    getTipoMascota,
-    getSexoMascota,
-    getAllEdadMascota,
-    getRaza,
-    getUserMail,
+    getRaza, // Necesario para inferir tipo inicial
     getCiudad,
-    getAllRazaId,
     getAllBarrio,
-    postPublicacion,
+    getAllRazaId,
+} from "../../services/commonApi";
+import {
+    getAllEdadMascota,
+    getSexoMascota,
+    getTipoMascota,
+} from "../../services/PetsApi";
+import { getUserMail } from "../../services/userApi";
+import {
     getPublicacionesId,
     updatePost,
     deleteFotoPosteo,
-    postFotoCuidador,
-    postFotoPosteo,
-} from "../../services/api";
-import classnames from "classnames";
-import LeafletMaps from "../components/maps/LeafletMaps";
+    postFotoPosteo, // Añadido para seguir el patrón de AdoptPets
+} from "../../services/PublicationsPetsApi";
 import {
     uploadFilesPetsLost,
     deleteFileStorage,
 } from "../../services/Firebase";
-import Loading from "../components/Loading";
 
+// Component Imports (ajustar rutas si es necesario)
+import Loading from "../components/Loading";
 import Navbar from "../landing/Navbar";
 import Footer from "../landing/Footer";
-// Import React FilePond
+import LeafletMaps from "../components/maps/LeafletMaps"; // Componente específico de LostPets
+
+// FilePond Imports
 import { FilePond, registerPlugin } from "react-filepond";
-// Import FilePond styles
 import "filepond/dist/filepond.min.css";
 import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
-import { format } from "date-fns";
 
-// Register the plugins
+// Register FilePond plugins
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
+// --- Componente Principal ---
 const SettingsLostPets = () => {
     const { posteoId } = useParams();
     const navigate = useNavigate();
-    const { user } = useAuth();
-    const [userData, setUserData] = useState();
-    const [tipoMascota, setTipoMascota] = useState();
-    const [tipoSexo, setTipoSexo] = useState();
-    const [edadMascota, setEdadMascota] = useState();
-    const [raza, setRaza] = useState();
-    const [isLoading, setIsLoading] = useState(true);
+    const { user } = useAuth(); // Usar useAuth como en AdoptPets
+
+    // --- Estados ---
+    const [posteo, setPosteo] = useState(null); // Datos originales del posteo
+    const [userData, setUserData] = useState(null);
+    const [tipoMascotaOptions, setTipoMascotaOptions] = useState([]);
+    const [razaOptions, setRazaOptions] = useState([]);
+    const [sexoOptions, setSexoOptions] = useState([]);
+    const [edadOptions, setEdadOptions] = useState([]);
+    const [ciudadOptions, setCiudadOptions] = useState([]);
+    const [barrioOptions, setBarrioOptions] = useState([]);
+    const [files, setFiles] = useState([]); // Nuevos archivos de FilePond
+    const [existingFotos, setExistingFotos] = useState([]); // Fotos existentes { id, url, isExisting, toBeDeleted }
+    const [mapCoords, setMapCoords] = useState(null); // { lat, lng } si el usuario mueve el marcador
+    const [isLoading, setIsLoading] = useState(true); // Estado general de carga/submit
+    const [error, setError] = useState(null); // Errores críticos de carga
+    const [submitError, setSubmitError] = useState(null); // Errores de envío
     const [activeTab, setActiveTab] = useState("1");
-    const [files, setFiles] = useState([]);
-    const [latitud, setLatitud] = useState();
-    const [longitud, setLongitud] = useState();
-    const [url, setUrl] = useState([]);
-    const [errorUbi, setErrorUbi] = useState("");
-    const [errorFile, setErrorFile] = useState("");
-    const [ciudad, setCiudad] = useState();
-    const [barrio, setBarrio] = useState();
-    const [post, setPost] = useState([]);
-    const [labelFecha, setLabelFecha] = useState();
-    const [fotosTemporales, setFotosTemporales] = useState([]);
+    const [charCount, setCharCount] = useState(600); // Límite de descripción
 
-    const tabChange = (tab) => {
-        if (activeTab !== tab) setActiveTab(tab);
-    };
-
-    const showLoadingOverlay = () => {
-        setIsLoading(true);
-    };
-    const hideLoadingOverlay = () => {
-        setIsLoading(false);
-    };
-
-    const handleAsyncTask = async () => {
-        showLoadingOverlay();
-    };
-
-    const handleMapClick = () => {
-        setLatitud(post.latitud);
-        setLongitud(post.longitud);
-    };
-
-    useEffect(() => {
-        const posteos = async () => {
-            const posteo = await getPublicacionesId(posteoId);
-            if (posteo) {
-                const updatedPost = { ...posteo }; // Copia del objeto publicData
-                const fechaPerdida = format(
-                    new Date(posteo.fechaPerdida),
-                    "yyyy-MM-dd"
-                );
-                updatedPost.fechaPerdida = fechaPerdida;
-
-                if (updatedPost.tipoPublicacionId === 1) {
-                    setLabelFecha("Fecha de Perdida");
-                } else {
-                    setLabelFecha("Fecha de Encuentro");
-                }
-
-                // Obtener fotos y asignar estados temporales
-                if (updatedPost.fotos && Array.isArray(updatedPost.fotos)) {
-                    const fotosConEstadoTemporal = updatedPost.fotos.map(
-                        (foto) => ({
-                            id: foto && foto.id ? foto.id : "",
-                            url: foto && foto.foto ? foto.foto : "", // Asegúrate de que foto y foto.foto no sean undefined
-                            estadoTemporal: true,
-                        })
-                    );
-
-                    setFotosTemporales(fotosConEstadoTemporal);
-                }
-
-                setPost(updatedPost);
-            }
-            console.log(post);
-            setIsLoading(false);
-        };
-
-        const fetchUserData = async () => {
-            // Obtener los datos del usuario desde el localStorage
-            const cachedUserData = localStorage.getItem("userData");
-
-            if (cachedUserData) {
-                // Parsear los datos almacenados en el localStorage
-                const dataLocalStorage = JSON.parse(cachedUserData);
-
-                // Acceder al correo electrónico del usuario
-                const userEmail = dataLocalStorage.email;
-
-                const datosUsuario = await getUserMail(userEmail);
-                setUserData(datosUsuario);
-                setIsLoading(false);
-            }
-        };
-
-        const tipoMascotas = async () => {
-            const dataTipoMascota = await getTipoMascota();
-            if (dataTipoMascota) {
-                setTipoMascota(dataTipoMascota);
-            }
-        };
-        const tipoSexo = async () => {
-            const dataTipoSexo = await getSexoMascota();
-            if (dataTipoSexo) {
-                setTipoSexo(dataTipoSexo);
-            }
-        };
-        const edadMascota = async () => {
-            const dataEdadMascota = await getAllEdadMascota();
-            if (dataEdadMascota) {
-                setEdadMascota(dataEdadMascota);
-            }
-        };
-        const ciudadMascota = async () => {
-            const dataCiudad = await getCiudad();
-            if (dataCiudad) {
-                setCiudad(dataCiudad);
-            }
-        };
-        const barrioMascota = async () => {
-            const dataBarrio = await getAllBarrio();
-            if (dataBarrio) {
-                setBarrio(dataBarrio);
-            }
-        };
-        posteos();
-        fetchUserData();
-        tipoMascotas();
-        tipoSexo();
-        edadMascota();
-        ciudadMascota();
-        barrioMascota();
-    }, []);
-
-    const eliminarFotoTemporales = (id) => {
-        setFotosTemporales((prevFotos) => {
-            return prevFotos.map((foto) => {
-                if (foto.id === id) {
-                    return { ...foto, estadoTemporal: false };
-                }
-                return foto;
-            });
-        });
-    };
-
-    //formulario Hook
+    // --- React Hook Form ---
     const {
         register,
         handleSubmit,
         setValue,
+        watch,
+        reset,
         formState: { errors },
-    } = useForm();
+    } = useForm({
+        mode: "onChange",
+        defaultValues: {
+            // Valores iniciales antes de cargar datos
+            nombre: "",
+            tipoId: "",
+            razaId: "",
+            edadId: "",
+            sexoId: "",
+            castracion: "",
+            descripcion: "",
+            color: "",
+            fechaPerdida: "",
+            ciudadId: "Cordoba", // Valor fijo deshabilitado
+            barrioId: "",
+            calle: "",
+            telefono: "",
+        },
+    });
+    const selectedTipoIdForm = watch("tipoId");
+    const descripcionValue = watch("descripcion"); // Para contador de caracteres
+
+    // --- Funciones de Carga ---
+
+    // Carga las razas según el tipo de mascota seleccionado
+    const fetchRazasByType = useCallback(async (tipoId) => {
+        if (!tipoId) {
+            setRazaOptions([]);
+            return;
+        }
+        console.log(`Cargando razas para tipoId: ${tipoId}...`);
+        try {
+            const response = await getAllRazaId(tipoId);
+            const razas = response?.data || response; // Manejar ambos casos
+            if (Array.isArray(razas)) {
+                setRazaOptions(razas);
+                console.log(`Razas cargadas (${razas.length})`);
+            } else {
+                console.error("Respuesta inválida al cargar razas:", response);
+                setRazaOptions([]);
+            }
+        } catch (err) {
+            console.error(`Error cargando razas para tipo ${tipoId}:`, err);
+            setError(
+                "No se pudieron cargar las razas para el tipo seleccionado."
+            );
+            setRazaOptions([]);
+        }
+    }, []); // Dependencia vacía
+
+    // Carga inicial de todos los datos necesarios
+    const loadInitialData = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        setSubmitError(null);
+        console.log("Iniciando carga de datos iniciales...");
+
+        try {
+            // Validar posteoId y user
+            if (!posteoId || !user?.email) {
+                throw new Error(
+                    "Falta ID de posteo o información del usuario."
+                );
+            }
+
+            // Ejecutar todas las llamadas iniciales en paralelo
+            const [
+                posteoResponse,
+                userDataResponse,
+                tipoMascotaResponse,
+                tipoSexoResponse,
+                edadMascotaResponse,
+                ciudadResponse,
+                barrioResponse,
+                todasLasRazasResponse, // Para inferir tipo inicial
+            ] = await Promise.allSettled([
+                // Usar allSettled para manejar errores individuales si es necesario
+                getPublicacionesId(posteoId),
+                getUserMail(user.email),
+                getTipoMascota(),
+                getSexoMascota(),
+                getAllEdadMascota(),
+                getCiudad(),
+                getAllBarrio(),
+                getRaza(), // Obtener todas las razas
+            ]);
+
+            // --- Procesar Resultados y Actualizar Estados ---
+
+            // Función helper para verificar resultados de Promise.allSettled
+            const checkResult = (result, name) => {
+                if (result.status === "fulfilled" && result.value?.data) {
+                    return result.value.data;
+                } else if (result.status === "fulfilled" && result.value) {
+                    // Para getUserMail que puede devolver el objeto directamente
+                    return result.value;
+                } else {
+                    console.error(
+                        `Error cargando ${name}:`,
+                        result.reason || result.value
+                    );
+                    // Lanzar error solo para datos críticos
+                    if (
+                        [
+                            "posteo",
+                            "userData",
+                            "barrios",
+                            "tipos",
+                            "sexos",
+                            "edades",
+                            "todasLasRazas",
+                        ].includes(name)
+                    ) {
+                        throw new Error(
+                            `Error crítico: No se pudo cargar ${name}.`
+                        );
+                    }
+                    return null; // Devolver null para datos no críticos (ej: ciudad)
+                }
+            };
+
+            const fetchedPosteo = checkResult(posteoResponse, "posteo");
+            const fetchedUserData = checkResult(userDataResponse, "userData");
+            const fetchedTipos = checkResult(tipoMascotaResponse, "tipos");
+            const fetchedSexos = checkResult(tipoSexoResponse, "sexos");
+            const fetchedEdades = checkResult(edadMascotaResponse, "edades");
+            const fetchedCiudades = checkResult(ciudadResponse, "ciudades");
+            const fetchedBarrios = checkResult(barrioResponse, "barrios");
+            const todasLasRazas = checkResult(
+                todasLasRazasResponse,
+                "todasLasRazas"
+            );
+
+            // Actualizar estados principales
+            setPosteo(fetchedPosteo);
+            setUserData(fetchedUserData);
+            setTipoMascotaOptions(fetchedTipos || []);
+            setSexoOptions(fetchedSexos || []);
+            setEdadOptions(fetchedEdades || []);
+            setCiudadOptions(fetchedCiudades || []);
+            setBarrioOptions(fetchedBarrios || []);
+
+            // Procesar fotos existentes
+            const initialFotos =
+                fetchedPosteo?.fotos
+                    ?.filter((foto) => foto && foto.id && foto.foto) // Filtrar inválidas
+                    .map((foto) => ({
+                        id: foto.id,
+                        url: foto.foto,
+                        isExisting: true,
+                        toBeDeleted: false, // Marcar para no borrar inicialmente
+                    })) || [];
+            setExistingFotos(initialFotos);
+
+            // --- Resetear el formulario con los datos cargados ---
+            let initialTipoId = "";
+            if (fetchedPosteo?.razaId && Array.isArray(todasLasRazas)) {
+                const razaActual = todasLasRazas.find(
+                    (r) => r.id === fetchedPosteo.razaId
+                );
+                initialTipoId = razaActual?.tipoMascotaId || "";
+                console.log(
+                    `Tipo inicial inferido de raza ${fetchedPosteo.razaId}: ${initialTipoId}`
+                );
+            }
+
+            // Formatear fecha antes de resetear
+            let formattedDate = "";
+            try {
+                if (fetchedPosteo?.fechaPerdida) {
+                    formattedDate = format(
+                        new Date(fetchedPosteo.fechaPerdida),
+                        "yyyy-MM-dd"
+                    );
+                }
+            } catch (dateError) {
+                console.error("Error formateando fecha inicial:", dateError);
+            }
+
+            reset({
+                nombre: fetchedPosteo?.nombre || "",
+                tipoId: initialTipoId || "", // Usar el tipo inferido
+                razaId: fetchedPosteo?.razaId || "", // Establecer raza inicial
+                edadId: fetchedPosteo?.edadId || "",
+                sexoId: fetchedPosteo?.sexoId || "",
+                castracion:
+                    fetchedPosteo?.castracion === true
+                        ? "1"
+                        : fetchedPosteo?.castracion === false
+                        ? "0"
+                        : "", // Manejar true/false/null
+                descripcion: fetchedPosteo?.descripcion || "",
+                color: fetchedPosteo?.color || "",
+                fechaPerdida: formattedDate, // Fecha formateada
+                ciudadId: "Cordoba", // Valor fijo
+                barrioId: fetchedPosteo?.barrioId || "",
+                calle: fetchedPosteo?.calle || "",
+                telefono: fetchedPosteo?.telefono || "",
+            });
+
+            // Actualizar contador de caracteres
+            setCharCount(600 - (fetchedPosteo?.descripcion?.length || 0));
+            console.log("Formulario reseteado con datos iniciales.");
+
+            // Cargar las razas para el tipo inicial (si se encontró)
+            if (initialTipoId) {
+                await fetchRazasByType(initialTipoId);
+                // Asegurarse de que el valor de razaId se mantenga después de cargar las opciones
+                setValue("razaId", fetchedPosteo?.razaId || "");
+                console.log(
+                    `Razas cargadas para el tipo inicial ${initialTipoId}.`
+                );
+            }
+        } catch (err) {
+            console.error("Error en loadInitialData:", err);
+            setError(
+                err.message ||
+                    "Ocurrió un error al cargar los datos. Inténtalo de nuevo."
+            );
+            setPosteo(null); // Limpiar datos si hay error crítico
+            setUserData(null);
+            setExistingFotos([]);
+        } finally {
+            setIsLoading(false);
+            console.log("Carga inicial de datos finalizada.");
+        }
+    }, [posteoId, user, reset, fetchRazasByType, setValue]); // Dependencias clave de la carga
+
+    // --- Efectos ---
+
+    // 1. Carga inicial de datos
     useEffect(() => {
-        const fetchData = async () => {
-            if (post) {
-                const valor = await obtenerRazas(post.razaId);
-                obtenerRazasPorTipo(valor);
-                setValue("nombre", `${post.nombre}`);
-                setValue("tipoId", valor);
-                setValue("edadId", post.edadId);
-                setValue("sexoId", post.sexoId);
-                const castrado = post.castracion ? "1" : "0";
-                setValue("castracion", castrado);
-                setValue("descripcion", post.descripcion);
-                setValue("color", post.color);
-                setValue("razaId", post.razaId);
-                setValue("fechaPerdida", post.fechaPerdida);
-                setValue("ciudadId", "Cordoba");
-                setValue("barrioId", post.barrioId);
-                setValue("calle", post.calle);
-                setValue("telefono", post.telefono);
+        loadInitialData();
+    }, [loadInitialData]); // Ejecutar solo al montar o si cambian sus dependencias
 
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [post, setValue]);
-
-    const obtenerRazas = async (razaId) => {
-        const razas = await getRaza();
-        if (razas) {
-            const raza = razas.find((raza) => raza.id === razaId);
-            if (raza) {
-                const valor = raza.tipoMascotaId;
-                return valor;
+    // 2. Cargar razas cuando cambia el tipo de mascota seleccionado en el form (después de la carga inicial)
+    useEffect(() => {
+        // Evitar ejecutar si aún se está cargando o si el posteo no existe (indica fallo en carga inicial)
+        if (!isLoading && posteo && selectedTipoIdForm !== undefined) {
+            // Comprobar si realmente cambió respecto al valor en posteo (o el inferido inicialmente)
+            // Esto es un poco complejo porque el valor inicial de tipoId no está directamente en posteo
+            // Una forma simple es limpiar razaId siempre que tipoId cambie *después* de la carga inicial
+            // console.log(`TipoId cambió a: ${selectedTipoIdForm}, recargando razas...`);
+            fetchRazasByType(selectedTipoIdForm);
+            // Limpiar el valor de raza si el tipo cambia (evita seleccionar una raza inválida)
+            // Podríamos ser más inteligentes y solo limpiar si el cambio no fue parte del reset inicial
+            // Por ahora, limpiamos siempre que cambie después de la carga
+            if (!isLoading) {
+                // Asegurar que no se limpie durante la carga inicial
+                setValue("razaId", "");
             }
         }
-        return null;
+    }, [selectedTipoIdForm, fetchRazasByType, setValue, isLoading, posteo]); // Depender de selectedTipoIdForm e isLoading/posteo para controlar ejecución
+
+    // 3. Efecto para actualizar contador de caracteres
+    useEffect(() => {
+        setCharCount(600 - (descripcionValue?.length || 0));
+    }, [descripcionValue]);
+
+    // --- Manejadores ---
+
+    const handleTabChange = (tab) => {
+        if (activeTab !== tab) setActiveTab(tab);
     };
 
-    const obtenerRazasPorTipo = async (tipoId) => {
-        const razas = await getAllRazaId(tipoId);
-        setRaza(razas);
-        setValue("razaId", post.razaId);
-    };
-    const handleGetRazaChange = async (e) => {
-        const tipoId = e.target.value;
-        obtenerRazasPorTipo(tipoId);
+    // Marcar/Desmarcar una foto existente para borrarla
+    const handleMarkForDeletion = (idToDelete) => {
+        setExistingFotos((prevFotos) =>
+            prevFotos.map(
+                (foto) =>
+                    foto.id === idToDelete
+                        ? { ...foto, toBeDeleted: !foto.toBeDeleted }
+                        : foto // Toggle delete status
+            )
+        );
     };
 
-    //funcion para obtener las urls de las fotos
-    const obtenerUrls = async () => {
-        const uploadFile = async (file) => {
-            const uploadedUrl = await uploadFilesPetsLost(file);
-            return { foto: uploadedUrl }; // Guarda la URL en un objeto con la propiedad "link"
-        };
-        console.log(files);
-        if (files.length > 0) {
-            const urls = [];
-            for (let i = 0; i < files.length; i++) {
-                const uploadedUrl = await uploadFile(files[i].file);
-                urls.push(uploadedUrl);
-            }
-            console.log(urls);
-            setUrl(urls);
-            return urls; // Retorna las URLs obtenidas
+    // Callback para recibir coordenadas del mapa si cambian
+    const handleMapChange = useCallback((coords) => {
+        console.log("Nuevas coordenadas del mapa:", coords);
+        setMapCoords(coords);
+    }, []);
+
+    // --- Envío del Formulario ---
+    const onSubmit = async (dataForm) => {
+        if (!posteoId || !posteo || !userData) {
+            setSubmitError("Error: Faltan datos base para actualizar.");
+            return;
         }
-        return []; // Retorna un arreglo vacío si no hay archivos
-    };
 
-    const onSubmit = async (data) => {
-        console.log(data);
-        console.log(files);
+        setIsLoading(true); // Usar isLoading general para indicar actividad
+        setSubmitError(null);
 
-        showLoadingOverlay();
-        setErrorUbi("");
-        setErrorFile("");
-        if (data.castracion === "1") {
-            data.castracion = true;
-        } else {
-            data.castracion = false;
+        // Validar que quede al menos una foto
+        const fotosVisibles =
+            existingFotos.filter((f) => !f.toBeDeleted).length + files.length;
+        if (fotosVisibles === 0) {
+            setSubmitError(
+                "Debes tener al menos una foto para la publicación."
+            );
+            setIsLoading(false);
+            return;
+        }
+        if (fotosVisibles > 4) {
+            setSubmitError("Puedes tener un máximo de 4 fotos en total.");
+            setIsLoading(false);
+            return;
         }
 
         try {
-            // Eliminar las fotos temporales con estadoTemporal igual a false
-            const fotosAEliminar = fotosTemporales.filter(
-                (foto) => !foto.estadoTemporal
+            // --- 1. Borrar Fotos Marcadas ---
+            const fotosAEliminar = existingFotos.filter(
+                (foto) => foto.toBeDeleted && foto.id && foto.url
+            );
+            if (fotosAEliminar.length > 0) {
+                console.log(
+                    "Eliminando fotos marcadas:",
+                    fotosAEliminar.map((f) => f.id)
+                );
+                const deletePromises = fotosAEliminar.map(async (foto) => {
+                    try {
+                        await deleteFotoPosteo(foto.id); // Borrar de la BD
+                        await deleteFileStorage(foto.url); // Borrar de Firebase/Storage
+                        console.log(`Foto ${foto.id} eliminada.`);
+                    } catch (err) {
+                        console.error(`Error eliminando foto ${foto.id}:`, err);
+                        // Considerar si el error de eliminación debe detener el proceso
+                        throw new Error(
+                            `Error al eliminar la foto ${foto.id}. Deteniendo.`
+                        ); // Detener si una falla
+                    }
+                });
+                await Promise.all(deletePromises); // Esperar a que todas se completen o una falle
+            }
+
+            // --- 2. Subir y Vincular Nuevas Fotos ---
+            let newPhotoUrls = [];
+            if (files.length > 0) {
+                console.log("Subiendo nuevas fotos:", files.length);
+                const uploadPromises = files.map(
+                    (fileItem) => uploadFilesPetsLost(fileItem.file) // Sube a Firebase
+                );
+                // Esperar a que todas las subidas se completen
+                newPhotoUrls = await Promise.all(uploadPromises);
+                console.log("Nuevas URLs subidas:", newPhotoUrls);
+
+                // Vincular las nuevas fotos a la publicación en la BD
+                const linkPromises = newPhotoUrls.map((url) =>
+                    postFotoPosteo({
+                        foto: url,
+                        publicacionMascotaId: parseInt(posteoId, 10), // Asegurar que el ID sea número
+                    })
+                );
+                await Promise.all(linkPromises); // Esperar a que todas se vinculen
+                console.log("Nuevas fotos vinculadas a la publicación.");
+            }
+
+            // --- 3. Determinar coordenadas finales ---
+            const finalLatitud = mapCoords ? mapCoords.lat : posteo.latitud;
+            const finalLongitud = mapCoords ? mapCoords.lng : posteo.longitud;
+
+            // --- 4. Construir payload para updatePost (sin fotos) ---
+            const parseId = (value) => (value ? parseInt(value, 10) : null); // Helper
+            let castracionValue = null;
+            if (dataForm.castracion === "1") castracionValue = true;
+            else if (dataForm.castracion === "0") castracionValue = false;
+
+            const finalData = {
+                // IDs requeridos para la actualización
+                id: parseInt(posteoId, 10), // ID de la publicación a actualizar
+                usuarioId: posteo.usuarioId, // Mantener el usuario original
+                tipoPublicacionId: posteo.tipoPublicacionId, // Mantener el tipo de publicación
+
+                // Datos del formulario
+                nombre: dataForm.nombre || null,
+                razaId: parseId(dataForm.razaId),
+                edadId: parseId(dataForm.edadId),
+                sexoId: parseId(dataForm.sexoId),
+                barrioId: parseId(dataForm.barrioId),
+                // ciudadId: 1, // Asumiendo Córdoba fijo, si es necesario enviarlo
+                castracion: castracionValue,
+                color: dataForm.color || null,
+                fechaPerdida: dataForm.fechaPerdida || null, // Asegurar formato YYYY-MM-DD o null
+                calle: dataForm.calle || null,
+                telefono: dataForm.telefono || null,
+                descripcion: dataForm.descripcion || null,
+
+                // Datos de ubicación actualizados
+                latitud: finalLatitud ? Number(finalLatitud) : null,
+                longitud: finalLongitud ? Number(finalLongitud) : null,
+
+                // Campos que no están en el form pero pueden ser necesarios (tomados del original)
+                mailUsuario: posteo.mailUsuario || userData?.mail, // Asegurar que el mail esté
+                // fechaAlta: posteo.fechaAlta // Normalmente no se actualiza
+
+                // NO incluir 'fotos' ni 'tipoId' aquí si el backend no los espera en updatePost
+                // tipoId se usa para la raza, pero la razaId es lo que se envía
+            };
+
+            // Limpiar propiedades con valor undefined si es necesario
+            Object.keys(finalData).forEach((key) => {
+                if (finalData[key] === undefined) {
+                    finalData[key] = null; // O delete finalData[key]; según prefiera el backend
+                }
+            });
+
+            console.log(
+                "Datos finales a enviar (updatePost):",
+                JSON.stringify(finalData, null, 2)
             );
 
-            // Si hay fotos para eliminar, realizar el deleteFileStorage y deleteFotoPaseador
-            if (fotosAEliminar.length > 0) {
-                for (const foto of fotosAEliminar) {
-                    try {
-                        console.log("Foto a eliminar:", foto);
+            // --- 5. Llamar a la API updatePost ---
+            await updatePost(posteoId, finalData);
 
-                        // Ajusta según cómo se almacena la URL de la foto y cómo se obtiene el ID
-                        await deleteFileStorage(foto.url);
-
-                        // Ajusta según cómo se obtiene el ID de la foto en tu servidor
-                        await deleteFotoPosteo(foto.id);
-                    } catch (error) {
-                        console.error(
-                            "Error al eliminar foto temporal:",
-                            error
-                        );
-                    }
-                }
-            }
-            // Verificar si hay fotos nuevas antes de obtener las URLs
-            if (files.length > 0) {
-                // Obtener las URLs de las nuevas fotos
-                const urls = await obtenerUrls();
-
-                // Enviar las nuevas fotos a la API
-                try {
-                    console.log(urls);
-                    await Promise.all(
-                        urls.map((url) =>
-                            postFotoPosteo({
-                                foto: url.foto,
-                                publicacionMascotaId: parseInt(posteoId, 10),
-                            })
-                        )
-                    );
-                } catch (error) {
-                    console.error(
-                        "Error al enviar nuevas fotos a la API:",
-                        error
-                    );
-                }
-            console.log(urls);
-
-            }
-
-            data.latitud = post.latitud;
-            data.longitud = post.longitud;
-            data.tipoPublicacionId = post.tipoPublicacionId;
-            data.usuarioId = userData.id;
-            data.mailUsuario = user.email;
-
-            console.log(data);
-            console.log(posteoId)
-            await updatePost(posteoId, data);
-
-            hideLoadingOverlay();
-            navigate(`/perfil/${userData && userData.mail}`);
+            console.log("Posteo actualizado exitosamente.");
+            setFiles([]); // Limpiar FilePond
+            navigate(`/perfil/${userData?.mail}`); // Navegar al perfil
         } catch (error) {
-            // Maneja cualquier error de la actualización
-            console.error("Error al realizar la publicación:", error);
+            console.error("Error al actualizar el posteo:", error);
+            let errorMsg =
+                "No se pudo guardar los cambios. Verifique los datos e inténtelo de nuevo.";
+            if (error.response) {
+                // Error desde la API
+                console.error("Error Response:", error.response);
+                // Intentar extraer mensajes de validación o error específicos
+                if (
+                    error.response.data &&
+                    typeof error.response.data === "object" &&
+                    !Array.isArray(error.response.data)
+                ) {
+                    const validationErrors = Object.values(error.response.data)
+                        .flat()
+                        .join(" ");
+                    if (validationErrors) {
+                        errorMsg = `Error de validación: ${validationErrors}`;
+                    } else if (error.response.data.title) {
+                        errorMsg = `${error.response.data.title} (Status: ${error.response.status})`;
+                    }
+                } else if (
+                    typeof error.response.data === "string" &&
+                    error.response.data.length < 200
+                ) {
+                    errorMsg = error.response.data;
+                } else {
+                    errorMsg = `Error del servidor (Status: ${error.response.status}). ${error.message}`;
+                }
+            } else if (error.request) {
+                // No hubo respuesta
+                errorMsg =
+                    "No se recibió respuesta del servidor. Verifique su conexión.";
+            } else {
+                // Error en la lógica previa o configuración de la petición
+                errorMsg =
+                    error.message ||
+                    "Error desconocido durante la actualización.";
+            }
+            setSubmitError(errorMsg);
+        } finally {
+            setIsLoading(false); // Finalizar estado de carga
         }
     };
 
-    document.title = "Modificar Posteo | Amigos Peludos";
+    // --- Renderizado ---
+
+    // Estado de Carga Inicial
+    if (isLoading && !posteo) {
+        return <Loading />;
+    }
+
+    // Estado de Error Crítico (carga fallida)
+    if (error || !posteo || !userData) {
+        // Si hay error o faltan datos esenciales post-carga
+        const userEmailForNav = userData?.mail || user?.email || "";
+        return (
+            <>
+                <Navbar />
+                <Container
+                    fluid
+                    className="page-content perfil-fondo d-flex flex-column justify-content-center align-items-center"
+                    style={{ minHeight: "calc(80vh)" }}
+                >
+                    <Alert color="danger" className="text-center">
+                        <h4 className="alert-heading">Error</h4>
+                        <p>
+                            {error ||
+                                "No se pudieron cargar los datos necesarios para editar la publicación."}
+                        </p>
+                        <p>Posteo Data: {posteo ? "OK" : "Falta"}</p>
+                        <p>User Data: {userData ? "OK" : "Falta"}</p>
+                    </Alert>
+                    <Button
+                        color="primary" // Cambiado a primary para reintentar
+                        onClick={loadInitialData} // Botón para reintentar
+                        className="mt-3 me-2"
+                    >
+                        Reintentar Carga
+                    </Button>
+                    <Button
+                        color="secondary"
+                        onClick={() =>
+                            navigate(
+                                userEmailForNav
+                                    ? `/perfil/${userEmailForNav}`
+                                    : "/"
+                            )
+                        }
+                        className="mt-3"
+                    >
+                        {userEmailForNav ? "Volver al Perfil" : "Ir al Inicio"}
+                    </Button>
+                </Container>
+                <Footer />
+            </>
+        );
+    }
+
+    // Renderizado del Formulario
+    const labelFecha =
+        posteo.tipoPublicacionId === 1
+            ? "Fecha de Pérdida"
+            : "Fecha de Encuentro";
+    document.title = `Editar Publicación | Amigos Peludos`;
+    const currentTotalFotos =
+        existingFotos.filter((f) => !f.toBeDeleted).length + files.length;
+
     return (
         <React.Fragment>
-            {!isLoading ? (
-                <>
-                    <Navbar></Navbar>
-                    <Container fluid className="page-content perfil-fondo">
-                        <Row>
-                            {/* fotos */}
-                            <Col xl={3}>
-                                <Card className="mt-n5">
-                                    <CardBody className="p-4">
-                                        <div className="text-center">
-                                             {/* NOMBRE MASCOTA */}
-                                             <h5 className="fs-16 mb-1">
-                                                Imagenes{" "}
-                                                <span className="text-danger">
-                                                    *
-                                                </span>
-                                            </h5>
-                                            {/* FOTOS DEL SERVIDOR */}
-                                            {fotosTemporales
-                                                .filter(
-                                                    (foto) =>
-                                                        foto.estadoTemporal
-                                                ) // Filtrar según el estado
-                                                .map((foto) => (
-                                                    <div
-                                                        key={foto.id}
-                                                        className="container-img-cargadas"
-                                                    >
-                                                        <img
-                                                            className="img-cargadas"
-                                                            src={foto.url}
-                                                            alt={`Foto ${foto.id}`}
-                                                        />
-                                                        <button
-                                                            className="btn-eliminar-foto"
-                                                            onClick={() =>
-                                                                eliminarFotoTemporales(
-                                                                    foto.id
-                                                                )
-                                                            }
-                                                        >
-                                                            X
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            {/* FOTO DE LA MASCOTA */}
-                                            <FilePond
-                                                files={files}
-                                                onupdatefiles={setFiles}
-                                                allowMultiple={true}
-                                                maxFiles={4}
-                                                name="files"
-                                                className="filepond filepond-input-multiple"
-                                                labelIdle="Arrastra y suelta tus archivos o buscalos "
-                                            />
-                                            <p className="text-danger">
-                                                {errorFile}
-                                            </p>
-                                        </div>
-                                    </CardBody>
-                                </Card>
-                            </Col>
+            <Navbar />
+            {isLoading && <Loading overlay={true} />}{" "}
+            {/* Overlay durante submit */}
+                <Container fluid className="page-content perfil-fondo">
+                    <Row>
+                        {/* Columna Izquierda: Fotos */}
+                        <Col xl={3}>
+                            <Card
+                                className="mt-n5 "
+                               
+                            >
+                                <CardBody className="p-4">
+                                    <div className="text-center">
+                                        <h5 className="fs-16 mb-3">
+                                            Imágenes ({currentTotalFotos}/4)
+                                            <span className="text-danger">
+                                                {" "}
+                                                *
+                                            </span>
+                                        </h5>
 
-                            <Col xl={9}>
-                                <Card className="mt-n5">
-                                    <CardHeader>
-                                        <Nav
-                                            className="nav-tabs-custom rounded card-header-tabs border-bottom-0"
-                                            role="tablist"
-                                        >
-                                            <NavItem>
-                                                <NavLink
-                                                    to="#"
-                                                    className={classnames({
-                                                        active:
-                                                            activeTab === "1",
-                                                    })}
-                                                    onClick={() => {
-                                                        tabChange("1");
+                                        {/* Fotos Existentes */}
+                                        <div className="mb-3 d-flex flex-wrap justify-content-center">
+                                            {existingFotos.map((foto) => (
+                                                <div
+                                                    key={foto.id}
+                                                    className={`position-relative m-1 ${
+                                                        foto.toBeDeleted
+                                                            ? "opacity-50"
+                                                            : ""
+                                                    }`} // Atenuar si está marcada para borrar
+                                                    style={{
+                                                        width: "80px",
+                                                        height: "80px",
                                                     }}
-                                                    type="button"
                                                 >
-                                                    Actualizar Datos Publicación
-                                                </NavLink>
-                                            </NavItem>
-                                        </Nav>
-                                    </CardHeader>
-                                    <CardBody>
-                                        {/* FORMULARIO */}
-                                        <Form onSubmit={handleSubmit(onSubmit)}>
-                                            <Row>
-                                                {/* nombre mascota */}
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Nombre de la mascota
-                                                        </Label>
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            name="nombre"
-                                                            placeholder="Nombre de la mascota"
-                                                            {...register(
-                                                                "nombre"
-                                                            )}
-                                                        />
-                                                    </div>
-                                                </Col>
-                                                {/* tipo de mascota */}
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <label className="form-label">
-                                                            Tipo de Mascota{" "}
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </label>
-                                                        <select
-                                                            name="tipoId"
-                                                            className="form-select "
-                                                            {...register(
-                                                                "tipoId",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
-                                                                }
-                                                            )}
-                                                            onChange={
-                                                                handleGetRazaChange
-                                                            }
-                                                        >
-                                                            <option value="">
-                                                                Seleccione...
-                                                            </option>
-                                                            {tipoMascota &&
-                                                                tipoMascota.map(
-                                                                    (
-                                                                        elemento
-                                                                    ) => (
-                                                                        <option
-                                                                            className="form-control"
-                                                                            key={
-                                                                                elemento.id
-                                                                            }
-                                                                            value={
-                                                                                elemento.id
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                elemento.tipo
-                                                                            }
-                                                                        </option>
-                                                                    )
-                                                                )}
-                                                        </select>
-                                                        {errors.tipoId && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .tipoId
-                                                                        .message
-                                                                }
-                                                            </span>
+                                                    <img
+                                                        className="img-thumbnail rounded"
+                                                        style={{
+                                                            width: "100%",
+                                                            height: "100%",
+                                                            objectFit: "cover",
+                                                        }}
+                                                        src={foto.url}
+                                                        alt={`Foto ${foto.id}`}
+                                                    />
+                                                    <Button
+                                                        color={
+                                                            foto.toBeDeleted
+                                                                ? "warning"
+                                                                : "danger"
+                                                        } // Cambiar color si está marcada
+                                                        size="sm"
+                                                        className="position-absolute top-0 end-0 m-1 rounded-circle"
+                                                        style={{
+                                                            lineHeight: "1",
+                                                            padding:
+                                                                "0.1rem 0.3rem",
+                                                            fontSize: "0.7rem",
+                                                        }}
+                                                        onClick={() =>
+                                                            handleMarkForDeletion(
+                                                                foto.id
+                                                            )
+                                                        }
+                                                        title={
+                                                            foto.toBeDeleted
+                                                                ? "Cancelar eliminación"
+                                                                : "Marcar para eliminar"
+                                                        }
+                                                        disabled={isLoading} // Deshabilitar durante submit
+                                                    >
+                                                        {foto.toBeDeleted ? (
+                                                            <i className="fas fa-undo"></i>
+                                                        ) : (
+                                                            <i className="fas fa-times"></i>
                                                         )}
-                                                    </div>
-                                                </Col>
-                                                {/* raza */}
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Raza
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <select
-                                                            name="razaId"
-                                                            className="form-select "
-                                                            {...register(
-                                                                "razaId",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                            {existingFotos.length === 0 &&
+                                                files.length === 0 && (
+                                                    <p className="text-muted small">
+                                                        No hay imágenes
+                                                        cargadas.
+                                                    </p>
+                                                )}
+                                        </div>
+
+                                        {/* Nuevas Fotos (FilePond) */}
+                                        {currentTotalFotos < 4 && (
+                                            <>
+                                                <h6 className="fs-15 mb-2">
+                                                    Añadir Nuevas Imágenes
+                                                </h6>
+                                                <FilePond
+                                                    files={files}
+                                                    onupdatefiles={(
+                                                        fileItems
+                                                    ) => {
+                                                        // Validar que no exceda el límite total con las nuevas
+                                                        const nuevas =
+                                                            fileItems.length;
+                                                        const existentesVisibles =
+                                                            existingFotos.filter(
+                                                                (f) =>
+                                                                    !f.toBeDeleted
+                                                            ).length;
+                                                        if (
+                                                            existentesVisibles +
+                                                                nuevas <=
+                                                            4
+                                                        ) {
+                                                            setFiles(fileItems);
+                                                        } else {
+                                                            setSubmitError(
+                                                                `Error: Máximo 4 fotos en total. Ya tienes ${existentesVisibles} y estás intentando añadir ${nuevas}.`
+                                                            );
+                                                            // Opcional: No actualizar files si excede
+                                                            // setFiles([]); // O mantener las anteriores si las había
+                                                        }
+                                                    }}
+                                                    allowMultiple={true}
+                                                    maxFiles={
+                                                        4 -
+                                                        existingFotos.filter(
+                                                            (f) =>
+                                                                !f.toBeDeleted
+                                                        ).length
+                                                    } // Limitar dinámicamente
+                                                    name="files"
+                                                    className="filepond-input-trigger"
+                                                    labelIdle='Arrastra o <span class="filepond--label-action">busca</span> nuevas fotos'
+                                                    acceptedFileTypes={[
+                                                        "image/png",
+                                                        "image/jpeg",
+                                                        "image/gif",
+                                                    ]}
+                                                    labelFileTypeNotAllowed="Archivo inválido"
+                                                    fileValidateTypeLabelExpectedTypes="Usa PNG, JPG o GIF"
+                                                    disabled={isLoading} // Deshabilitar durante submit
+                                                />
+                                            </>
+                                        )}
+                                        {currentTotalFotos > 4 && (
+                                            <Alert
+                                                color="danger"
+                                                className="small mt-1 p-2"
+                                            >
+                                                Máximo 4 imágenes en total
+                                                permitidas.
+                                            </Alert>
+                                        )}
+                                        {submitError &&
+                                            !submitError
+                                                .toLowerCase()
+                                                .includes("validación") && ( // Mostrar errores de submit aquí también si no son de validación (esos van en el form)
+                                                <Alert
+                                                    color="danger"
+                                                    className="mt-2"
+                                                >
+                                                    {submitError}
+                                                </Alert>
+                                            )}
+                                    </div>
+                                </CardBody>
+                            </Card>
+                        </Col>
+
+                        {/* Columna Derecha: Formulario y Mapa */}
+                        <Col xl={9}>
+                            <Card className="mt-xxl-n5">
+                                <CardHeader>
+                                    <Nav
+                                        className="nav-tabs-custom rounded card-header-tabs border-bottom-0"
+                                        role="tablist"
+                                    >
+                                        <NavItem>
+                                            <NavLink
+                                                className={
+                                                    activeTab === "1"
+                                                        ? "active"
+                                                        : ""
+                                                }
+                                                onClick={() =>
+                                                    handleTabChange("1")
+                                                }
+                                                href="#" // href="#" es necesario para que NavLink funcione como tab
+                                            >
+                                                <i className="fas fa-edit me-1"></i>
+                                                Editar Datos y Ubicación
+                                            </NavLink>
+                                        </NavItem>
+                                    </Nav>
+                                </CardHeader>
+                                <CardBody className="p-4">
+                                    {submitError &&
+                                        submitError
+                                            .toLowerCase()
+                                            .includes("validación") && ( // Mostrar errores de validación del backend aquí
+                                            <Alert
+                                                color="danger"
+                                                className="mt-2 mb-3"
+                                            >
+                                                {submitError}
+                                            </Alert>
+                                        )}
+                                    <TabContent activeTab={activeTab}>
+                                        <TabPane tabId="1">
+                                            <Form
+                                                onSubmit={handleSubmit(
+                                                    onSubmit
+                                                )}
+                                            >
+                                                <Row>
+                                                    {/* --- CAMPOS DEL FORMULARIO (Mantenidos de LostPets original) --- */}
+
+                                                    {/* Nombre Mascota */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="nombre"
+                                                                className="form-label"
+                                                            >
+                                                                Nombre Mascota
+                                                            </Label>
+                                                            <input
+                                                                type="text"
+                                                                id="nombre"
+                                                                className={`form-control ${
+                                                                    errors.nombre
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                placeholder="Nombre (opcional)"
+                                                                {...register(
+                                                                    "nombre",
+                                                                    {
+                                                                        maxLength:
+                                                                            {
+                                                                                value: 50,
+                                                                                message:
+                                                                                    "Máximo 50 caracteres",
+                                                                            },
+                                                                    }
+                                                                )}
+                                                                disabled={
+                                                                    isLoading
                                                                 }
+                                                            />
+                                                            {errors.nombre && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .nombre
+                                                                            .message
+                                                                    }
+                                                                </div>
                                                             )}
-                                                        >
-                                                            <option value="">
-                                                                Seleccione...
-                                                            </option>
-                                                            {raza &&
-                                                                raza.map(
-                                                                    (
-                                                                        elemento
-                                                                    ) => (
+                                                        </div>
+                                                    </Col>
+
+                                                    {/* Tipo Mascota */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="tipoId"
+                                                                className="form-label"
+                                                            >
+                                                                Tipo{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <select
+                                                                id="tipoId"
+                                                                className={`form-select ${
+                                                                    errors.tipoId
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                {...register(
+                                                                    "tipoId",
+                                                                    {
+                                                                        required:
+                                                                            "Seleccione el tipo",
+                                                                    }
+                                                                )}
+                                                                disabled={
+                                                                    isLoading
+                                                                }
+                                                            >
+                                                                <option value="">
+                                                                    Seleccione...
+                                                                </option>
+                                                                {tipoMascotaOptions.map(
+                                                                    (tipo) => (
                                                                         <option
-                                                                            className="form-control"
                                                                             key={
-                                                                                elemento.id
+                                                                                tipo.id
                                                                             }
                                                                             value={
-                                                                                elemento.id
+                                                                                tipo.id
                                                                             }
                                                                         >
                                                                             {
-                                                                                elemento.nombre
+                                                                                tipo.tipo
                                                                             }
                                                                         </option>
                                                                     )
                                                                 )}
-                                                        </select>
-                                                        {errors.razaId && (
-                                                            <span className="text-danger">
-                                                                {
+                                                            </select>
+                                                            {errors.tipoId && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .tipoId
+                                                                            .message
+                                                                    }
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </Col>
+
+                                                    {/* Raza */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="razaId"
+                                                                className="form-label"
+                                                            >
+                                                                Raza{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <select
+                                                                id="razaId"
+                                                                className={`form-select ${
                                                                     errors.razaId
-                                                                        .message
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                {...register(
+                                                                    "razaId",
+                                                                    {
+                                                                        required:
+                                                                            "Seleccione la raza",
+                                                                    }
+                                                                )}
+                                                                disabled={
+                                                                    !selectedTipoIdForm ||
+                                                                    razaOptions.length ===
+                                                                        0 ||
+                                                                    isLoading
                                                                 }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-                                                {/* edad */}
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Edad aproximada
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <select
-                                                            name="edadId"
-                                                            className="form-select "
-                                                            {...register(
-                                                                "edadId",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
-                                                                }
-                                                            )}
-                                                        >
-                                                            <option value="">
-                                                                Seleccione...
-                                                            </option>
-                                                            {edadMascota &&
-                                                                edadMascota.map(
-                                                                    (
-                                                                        elemento
-                                                                    ) => (
+                                                            >
+                                                                <option value="">
+                                                                    {selectedTipoIdForm
+                                                                        ? razaOptions.length >
+                                                                          0
+                                                                            ? "Seleccione raza..."
+                                                                            : "Cargando/No hay..."
+                                                                        : "Seleccione tipo..."}
+                                                                </option>
+                                                                {razaOptions.map(
+                                                                    (raza) => (
                                                                         <option
-                                                                            className="form-control"
                                                                             key={
-                                                                                elemento.id
+                                                                                raza.id
                                                                             }
                                                                             value={
-                                                                                elemento.id
+                                                                                raza.id
                                                                             }
                                                                         >
                                                                             {
-                                                                                elemento.descripcion
+                                                                                raza.nombre
                                                                             }
                                                                         </option>
                                                                     )
                                                                 )}
-                                                        </select>
-                                                        {errors.edadId && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .edadId
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
+                                                            </select>
+                                                            {errors.razaId && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .razaId
+                                                                            .message
+                                                                    }
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </Col>
 
-                                                {/* castrado */}
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Castrada/o
-                                                        </Label>
-                                                        <select
-                                                            name="castracion"
-                                                            className="form-select "
-                                                            {...register(
-                                                                "castracion"
-                                                            )}
-                                                        >
-                                                            <option value="">
-                                                                Seleccione...
-                                                            </option>
-                                                            <option value="1">
-                                                                Si
-                                                            </option>
-                                                            <option value="0">
-                                                                No
-                                                            </option>
-                                                            <option value="null">
-                                                                No se
-                                                            </option>
-                                                        </select>
-                                                    </div>
-                                                </Col>
-                                                {/* sexo */}
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Sexo Mascota
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <select
-                                                            name="sexoId"
-                                                            className="form-select "
-                                                            {...register(
-                                                                "sexoId",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
+                                                    {/* Edad */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="edadId"
+                                                                className="form-label"
+                                                            >
+                                                                Edad Aproximada{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <select
+                                                                id="edadId"
+                                                                className={`form-select ${
+                                                                    errors.edadId
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                {...register(
+                                                                    "edadId",
+                                                                    {
+                                                                        required:
+                                                                            "Seleccione la edad",
+                                                                    }
+                                                                )}
+                                                                disabled={
+                                                                    isLoading
                                                                 }
-                                                            )}
-                                                        >
-                                                            <option value="">
-                                                                Seleccione...
-                                                            </option>
-                                                            {tipoSexo &&
-                                                                tipoSexo.map(
-                                                                    (
-                                                                        elemento
-                                                                    ) => (
+                                                            >
+                                                                <option value="">
+                                                                    Seleccione...
+                                                                </option>
+                                                                {edadOptions.map(
+                                                                    (edad) => (
                                                                         <option
-                                                                            className="form-control"
                                                                             key={
-                                                                                elemento.id
+                                                                                edad.id
                                                                             }
                                                                             value={
-                                                                                elemento.id
+                                                                                edad.id
                                                                             }
                                                                         >
                                                                             {
-                                                                                elemento.nombre
+                                                                                edad.descripcion
                                                                             }
                                                                         </option>
                                                                     )
                                                                 )}
-                                                        </select>
-                                                        {errors.sexoId && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .sexoId
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-                                                {/* fecha de perdida */}
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            {labelFecha}
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <input
-                                                            type="date"
-                                                            className="form-control"
-                                                            name="fechaPerdida"
-                                                            {...register(
-                                                                "fechaPerdida",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
-                                                                }
+                                                            </select>
+                                                            {errors.edadId && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .edadId
+                                                                            .message
+                                                                    }
+                                                                </div>
                                                             )}
-                                                        />
-                                                        {errors.fechaPerdida && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .fechaPerdida
-                                                                        .message
+                                                        </div>
+                                                    </Col>
+
+                                                    {/* Sexo */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="sexoId"
+                                                                className="form-label"
+                                                            >
+                                                                Sexo{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <select
+                                                                id="sexoId"
+                                                                className={`form-select ${
+                                                                    errors.sexoId
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                {...register(
+                                                                    "sexoId",
+                                                                    {
+                                                                        required:
+                                                                            "Seleccione el sexo",
+                                                                    }
+                                                                )}
+                                                                disabled={
+                                                                    isLoading
                                                                 }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-                                                {/* color */}
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Color
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            name="color"
-                                                            placeholder="Color"
-                                                            {...register(
-                                                                "color",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
-                                                                }
+                                                            >
+                                                                <option value="">
+                                                                    Seleccione...
+                                                                </option>
+                                                                {sexoOptions.map(
+                                                                    (sexo) => (
+                                                                        <option
+                                                                            key={
+                                                                                sexo.id
+                                                                            }
+                                                                            value={
+                                                                                sexo.id
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                sexo.nombre
+                                                                            }
+                                                                        </option>
+                                                                    )
+                                                                )}
+                                                            </select>
+                                                            {errors.sexoId && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .sexoId
+                                                                            .message
+                                                                    }
+                                                                </div>
                                                             )}
-                                                        />
-                                                        {errors.color && (
-                                                            <span className="text-danger">
-                                                                {
+                                                        </div>
+                                                    </Col>
+
+                                                    {/* Castracion */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="castracion"
+                                                                className="form-label"
+                                                            >
+                                                                Castrado/a
+                                                            </Label>
+                                                            <select
+                                                                id="castracion"
+                                                                className="form-select"
+                                                                {...register(
+                                                                    "castracion"
+                                                                )}
+                                                                disabled={
+                                                                    isLoading
+                                                                }
+                                                            >
+                                                                <option value="">
+                                                                    No sé / No
+                                                                    aplica
+                                                                </option>
+                                                                <option value="1">
+                                                                    Sí
+                                                                </option>
+                                                                <option value="0">
+                                                                    No
+                                                                </option>
+                                                            </select>
+                                                        </div>
+                                                    </Col>
+
+                                                    {/* Color */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="color"
+                                                                className="form-label"
+                                                            >
+                                                                Color{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <input
+                                                                type="text"
+                                                                id="color"
+                                                                className={`form-control ${
                                                                     errors.color
-                                                                        .message
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                placeholder="Color predominante"
+                                                                {...register(
+                                                                    "color",
+                                                                    {
+                                                                        required:
+                                                                            "Ingrese el color",
+                                                                        maxLength:
+                                                                            {
+                                                                                value: 50,
+                                                                                message:
+                                                                                    "Máximo 50 caracteres",
+                                                                            },
+                                                                    }
+                                                                )}
+                                                                disabled={
+                                                                    isLoading
                                                                 }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-                                                {/* ciudad */}
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Ciudad
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            name="ciudadId"
-                                                            {...register(
-                                                                "ciudadId",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
-                                                                }
+                                                            />
+                                                            {errors.color && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .color
+                                                                            .message
+                                                                    }
+                                                                </div>
                                                             )}
-                                                            disabled
-                                                        />
-                                                        {/* <select
-                                                            name="ciudadId"
-                                                            className="form-select "
-                                                            {...register(
-                                                                "ciudadId",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
+                                                        </div>
+                                                    </Col>
+
+                                                    {/* Fecha Perdida/Encuentro */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="fechaPerdida"
+                                                                className="form-label"
+                                                            >
+                                                                {labelFecha}{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <input
+                                                                type="date"
+                                                                id="fechaPerdida"
+                                                                className={`form-control ${
+                                                                    errors.fechaPerdida
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                {...register(
+                                                                    "fechaPerdida",
+                                                                    {
+                                                                        required:
+                                                                            "Seleccione la fecha",
+                                                                    }
+                                                                )}
+                                                                disabled={
+                                                                    isLoading
                                                                 }
+                                                            />
+                                                            {errors.fechaPerdida && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .fechaPerdida
+                                                                            .message
+                                                                    }
+                                                                </div>
                                                             )}
-                                                            disabled
-                                                        >
-                                                            <option value="">
-                                                                Seleccione...
-                                                            </option>
-                                                            {ciudad &&
-                                                                ciudad.map(
+                                                        </div>
+                                                    </Col>
+
+                                                    {/* Teléfono */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="telefono"
+                                                                className="form-label"
+                                                            >
+                                                                Teléfono
+                                                                Contacto
+                                                                (Opcional)
+                                                            </Label>
+                                                            <input
+                                                                type="tel"
+                                                                id="telefono"
+                                                                className={`form-control ${
+                                                                    errors.telefono
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                placeholder="Ej: 3511234567"
+                                                                {...register(
+                                                                    "telefono",
+                                                                    {
+                                                                        pattern:
+                                                                            {
+                                                                                value: /^[0-9]{8,15}$/,
+                                                                                message:
+                                                                                    "Solo números (8-15 dígitos)",
+                                                                            },
+                                                                    }
+                                                                )}
+                                                                disabled={
+                                                                    isLoading
+                                                                }
+                                                            />
+                                                            {errors.telefono && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .telefono
+                                                                            .message
+                                                                    }
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </Col>
+
+                                                    {/* Ciudad (Deshabilitado) */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="ciudadId"
+                                                                className="form-label"
+                                                            >
+                                                                Ciudad{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <input
+                                                                type="text"
+                                                                id="ciudadId"
+                                                                className="form-control"
+                                                                {...register(
+                                                                    "ciudadId"
+                                                                )}
+                                                                value="Cordoba"
+                                                                disabled
+                                                            />
+                                                        </div>
+                                                    </Col>
+
+                                                    {/* Barrio */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="barrioId"
+                                                                className="form-label"
+                                                            >
+                                                                Barrio{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <select
+                                                                id="barrioId"
+                                                                className={`form-select ${
+                                                                    errors.barrioId
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                {...register(
+                                                                    "barrioId",
+                                                                    {
+                                                                        required:
+                                                                            "Seleccione el barrio",
+                                                                    }
+                                                                )}
+                                                                disabled={
+                                                                    isLoading
+                                                                }
+                                                            >
+                                                                <option value="">
+                                                                    Seleccione...
+                                                                </option>
+                                                                {barrioOptions.map(
                                                                     (
-                                                                        elemento
+                                                                        barrio
                                                                     ) => (
                                                                         <option
-                                                                            className="form-control"
                                                                             key={
-                                                                                elemento.id
+                                                                                barrio.id
                                                                             }
                                                                             value={
-                                                                                elemento.id
+                                                                                barrio.id
                                                                             }
                                                                         >
                                                                             {
-                                                                                elemento.nombre
+                                                                                barrio.nombre
                                                                             }
                                                                         </option>
                                                                     )
                                                                 )}
-                                                        </select> */}
-                                                        {/* {errors.ciudad && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .ciudad
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )} */}
-                                                    </div>
-                                                </Col>
-                                                {/* barrio */}
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Barrio
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <select
-                                                            name="barrioId"
-                                                            className="form-select "
-                                                            {...register(
-                                                                "barrioId",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
-                                                                }
+                                                            </select>
+                                                            {errors.barrioId && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .barrioId
+                                                                            .message
+                                                                    }
+                                                                </div>
                                                             )}
-                                                        >
-                                                            <option value="">
-                                                                Seleccione...
-                                                            </option>
-                                                            {barrio &&
-                                                                barrio.map(
-                                                                    (
-                                                                        elemento
-                                                                    ) => (
-                                                                        <option
-                                                                            className="form-control"
-                                                                            key={
-                                                                                elemento.id
-                                                                            }
-                                                                            value={
-                                                                                elemento.id
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                elemento.nombre
-                                                                            }
-                                                                        </option>
-                                                                    )
-                                                                )}
-                                                        </select>
-                                                        {errors.barrioId && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .barrioId
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-                                                {/* calle */}
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Calle
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            name="calle"
-                                                            placeholder="Direccion de perdida"
-                                                            {...register(
-                                                                "calle",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El campo es requerido",
-                                                                    },
-                                                                }
-                                                            )}
-                                                        />
-                                                        {errors.calle && (
-                                                            <span className="text-danger">
-                                                                {
+                                                        </div>
+                                                    </Col>
+
+                                                    {/* Calle */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="calle"
+                                                                className="form-label"
+                                                            >
+                                                                Calle y Nro
+                                                                (Aprox){" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <input
+                                                                type="text"
+                                                                id="calle"
+                                                                className={`form-control ${
                                                                     errors.calle
-                                                                        .message
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                placeholder="Ej: Av. Colón 1500"
+                                                                {...register(
+                                                                    "calle",
+                                                                    {
+                                                                        required:
+                                                                            "Ingrese la calle",
+                                                                        maxLength:
+                                                                            {
+                                                                                value: 100,
+                                                                                message:
+                                                                                    "Máximo 100 caracteres",
+                                                                            },
+                                                                    }
+                                                                )}
+                                                                disabled={
+                                                                    isLoading
                                                                 }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-                                                {/* numero de celular  */}
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Numero de Celular:
-                                                        </Label>
-                                                        <input
-                                                            type="number"
-                                                            className="form-control"
-                                                            name="telefono"
-                                                            {...register(
-                                                                "telefono"
+                                                            />
+                                                            {errors.calle && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .calle
+                                                                            .message
+                                                                    }
+                                                                </div>
                                                             )}
-                                                        />
-                                                        {errors.telefono && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .telefono
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-                                                {/* descripcion */}
-                                                <Col lg={12}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Descripción de la
-                                                            mascota
-                                                        </Label>
-                                                        <textarea
-                                                            type="text"
-                                                            className="form-control"
-                                                            name="descripcion"
-                                                            {...register(
-                                                                "descripcion",
-                                                                {
-                                                                    maxLength: {
-                                                                        value: 600,
-                                                                        message:
-                                                                            "El maximo de caracteres es 400",
-                                                                    },
-                                                                }
-                                                            )}
-                                                        />
-                                                        {errors.descripcion && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .descripcion
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-                                                {/* ubicacion */}
-                                                <Col lg={12}>
-                                                    <div className="mapa">
-                                                        <label
-                                                            htmlFor="location"
-                                                            className="form-label"
-                                                        >
-                                                            Ubicación de
-                                                            Pérdida:
-                                                        </label>
-                                                        <LeafletMaps
-                                                            latitud={
-                                                                post &&
-                                                                post.latitud
-                                                            }
-                                                            longitud={
-                                                                post &&
-                                                                post.longitud
-                                                            }
-                                                            isClickeable={true}
-                                                        ></LeafletMaps>
+                                                        </div>
+                                                    </Col>
 
-                                                        <p className="text-danger">
-                                                            {errorUbi}
-                                                        </p>
-                                                    </div>
-                                                </Col>
+                                                    {/* Descripción */}
+                                                    <Col lg={12}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="descripcion"
+                                                                className="form-label"
+                                                            >
+                                                                Descripción
+                                                                Adicional
+                                                            </Label>
+                                                            <textarea
+                                                                id="descripcion"
+                                                                rows="4"
+                                                                className={`form-control ${
+                                                                    errors.descripcion
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                placeholder="Señas particulares, carácter, cómo/dónde se perdió/encontró..."
+                                                                maxLength={600}
+                                                                {...register(
+                                                                    "descripcion",
+                                                                    {
+                                                                        maxLength:
+                                                                            {
+                                                                                value: 600,
+                                                                                message:
+                                                                                    "Máximo 600 caracteres",
+                                                                            },
+                                                                    }
+                                                                )}
+                                                                disabled={
+                                                                    isLoading
+                                                                }
+                                                            />
+                                                            <div className="d-flex justify-content-between">
+                                                                {errors.descripcion && (
+                                                                    <div className="invalid-feedback d-block">
+                                                                        {
+                                                                            errors
+                                                                                .descripcion
+                                                                                .message
+                                                                        }
+                                                                    </div>
+                                                                )}
+                                                                <small className="text-muted ms-auto mt-1">
+                                                                    Restantes:{" "}
+                                                                    {charCount}
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </Col>
 
-                                                <Col lg={12}>
-                                                    <div className="hstack gap-2 justify-content-end">
-                                                        <button
-                                                            class="button-pz btn-pz-success"
-                                                            type="submit"
-                                                        >
-                                                            <span class="span-pz text-pz">
-                                                                Actualizar
-                                                            </span>
-                                                            <span class="span-pz icon-pz">
-                                                                <svg
-                                                                    viewBox="0 0 920 922"
-                                                                    className="svg-pz"
-                                                                >
-                                                                    <g
-                                                                        transform="translate(0,922) scale(0.1,-0.1)"
-                                                                        fill="#ffff"
-                                                                        stroke="none"
-                                                                    >
-                                                                        <path
-                                                                            d="M1350 9199 c-373 -6 -423 -9 -492 -27 -119 -32 -218 -78 -331 
-                                                                                    -152 -184 -121 -321 -279 -422 -484 -54 -108 -70 -184 -86 -403 -14 -190 -21 -6170 -8 
-                                                                                    -6733 11 -490 26 -592 111 -750 154 -284 398 -492 688 -585 80 -26 102 -28 380 -38 403 
-                                                                                    -15 6439 -14 6830 0 267 10 290 12 370 38 297 95 551 318 698 611 79 157 91 246 101 724 4 
-                                                                                    190 9 1567 9 3060 l2 2715 -1017 1017 -1018 1018 -2700 -2 c-1485 -1 -2887 -5 -3115 -9z m91 
-                                                                                    -1441 c1 -1211 11 -1792 31 -1838 8 -19 38 -56 65 -82 46 -42 56 -47 119 -55 90 -11 4648 -11 
-                                                                                    4738 0 63 8 73 13 119 55 27 26 56 62 64 80 26 61 33 442 33 1735 l0 987 158 0 157 0 850 -850 850 
-                                                                                    -850 -4 -2966 -3 -2966 -45 -81 c-91 -166 -140 -213 -296 -288 l-85 -41 -212 -9 c-117 -5 -214 -8 
-                                                                                    -216 -6 -2 1 -4 682 -6 1512 -3 2060 -9 2599 -30 2645 -8 20 -44 62 -78 93 l-63 57 -2986 0 -2986 
-                                                                                    0 -64 -57 c-35 -31 -70 -72 -77 -90 -25 -58 -34 -818 -34 -2851 l0 -1313 -152 6 c-243 10 -300 20 
-                                                                                    -387 62 -105 52 -209 157 -273 276 l-48 88 0 3601 0 3601 42 78 c76 143 172 236 307 298 80 37 154 
-                                                                                    46 404 49 l107 2 1 -882z m4599 -268 l0 -1150 -2015 0 -2015 0 0 1150 0 1150 2015 0 2015 0 0 -1150z 
-                                                                                    m1145 -5036 l0 -1869 -2585 0 -2585 0 -3 1860 c-1 1023 0 1865 2 1870 2 7 873 10 2587 9 l2584 -1 0 
-                                                                                    -1869z M4980 8049 c-14 -6 -40 -24 -57 -42 l-33 -31 0 -492 0 -491 46 -36 c56 -44 101 -51 287 -45 138
-                                                                                     4 160 10 210 56 l27 26 0 491 0 491 -32 31 c-18 18 -46 37 -61 42 -36 14 -353 13 -387 0z M3240 3451
-                                                                                      c-166 -6 -189 -9 -220 -28 -87 -54 -140 -149 -140 -253 0 -81 23 -134 85 -195 86 -87 -33 -80 1335
-                                                                                       -83 1210 -3 1810 6 1862 27 47 18 116 89 135 139 12 31 18 73 17 124 -1 94 -27 152 -96 211 -43 36 
-                                                                                       -53 40 -129 48 -102 10 -2597 19 -2849 10z M3160 2010 c-121 -7 -150 -19 -208 -85 -49 -56 -72 -119
-                                                                                        -72 -199 0 -99 63 -195 162 -248 l43 -23 1460 2 c872 1 1494 5 1543 11 76 9 88 13 130 50 69 58
-                                                                                         95 116 96 210 1 51 -5 93 -17 124 -19 49 -87 120 -135 140 -16 7 -131 14 -292 18 -350 8 -2576 9 -2710 0z"
-                                                                        />
-                                                                    </g>
-                                                                </svg>
-                                                            </span>
-                                                        </button>
+                                                    {/* Mapa */}
+                                                    <Col lg={12}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="location"
+                                                                className="form-label"
+                                                            >
+                                                                Ubicación en el
+                                                                Mapa (Ajustar si
+                                                                es necesario){" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <LeafletMaps
+                                                                latitud={
+                                                                    posteo.latitud
+                                                                }
+                                                                longitud={
+                                                                    posteo.longitud
+                                                                }
+                                                                isClickeable={
+                                                                    true
+                                                                }
+                                                                onCoordsChange={
+                                                                    handleMapChange
+                                                                }
+                                                                mapHeight="300px"
+                                                            />
+                                                            {/* Validación simple: advertir si no hay coords iniciales ni nuevas */}
+                                                            {!mapCoords &&
+                                                                !posteo.latitud &&
+                                                                !posteo.longitud && (
+                                                                    <p className="text-warning small mt-1">
+                                                                        <i className="fas fa-exclamation-triangle me-1"></i>
+                                                                        Asegúrate
+                                                                        de
+                                                                        marcar
+                                                                        la
+                                                                        ubicación
+                                                                        en el
+                                                                        mapa
+                                                                        haciendo
+                                                                        clic.
+                                                                    </p>
+                                                                )}
+                                                        </div>
+                                                    </Col>
 
-                                                        <button
-                                                            class="button-pz btn-pz-secondary"
-                                                            onClick={() => {
-                                                                navigate(
-                                                                    `/perfil/${userData.mail}`
-                                                                );
-                                                            }}
-                                                        >
-                                                            <span class="span-pz text-pz">
+                                                    {/* Botones */}
+                                                    <Col lg={12}>
+                                                        <div className="hstack gap-2 justify-content-end mt-3">
+                                                            <Button
+                                                                type="submit"
+                                                                color="success"
+                                                                className="d-inline-flex align-items-center"
+                                                                disabled={
+                                                                    isLoading ||
+                                                                    currentTotalFotos >
+                                                                        4 ||
+                                                                    currentTotalFotos ===
+                                                                        0
+                                                                }
+                                                            >
+                                                                {isLoading ? (
+                                                                    <>
+                                                                        <Spinner
+                                                                            size="sm"
+                                                                            className="me-2"
+                                                                        />{" "}
+                                                                        Guardando...
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <i className="fas fa-save me-1"></i>{" "}
+                                                                        Guardar
+                                                                        Cambios
+                                                                    </>
+                                                                )}
+                                                            </Button>
+                                                            <Button
+                                                                type="button"
+                                                                color="secondary"
+                                                                className="d-inline-flex align-items-center"
+                                                                onClick={() =>
+                                                                    navigate(
+                                                                        `/perfil/${userData?.mail}`
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    isLoading
+                                                                }
+                                                            >
+                                                                <i className="fas fa-arrow-left me-1"></i>{" "}
                                                                 Volver
-                                                            </span>
-                                                            <span class="span-pz icon-pz">
-                                                                <svg
-                                                                    viewBox="0 0 232 217"
-                                                                    className="svg-pz"
-                                                                >
-                                                                    <g
-                                                                        transform="translate(0,210) scale(0.1,-0.1)"
-                                                                        fill="#ffff"
-                                                                        stroke="none"
-                                                                    >
-                                                                        <path
-                                                                            d="M740 2163 c-27 -11 -705 -486 -717 -502 -7 -9 -15 -31 -19 -48 -13
-                                                                                            -65 5 -79 399 -319 319 -195 373 -224 408 -224 31 0 47 7 70 29 42 42 38 79
-                                                                                            -21 205 l-49 106 510 0 509 0 38 -34 37 -34 3 -404 c2 -441 3 -435 -57 -475
-                                                                                            l-34 -23 -571 0 -572 0 -44 -22 c-55 -28 -86 -73 -95 -138 -14 -101 16 -180
-                                                                                            83 -222 l37 -23 575 -3 c389 -2 597 1 642 8 187 32 350 169 417 353 l26 72 3
-                                                                                            425 c3 350 0 439 -12 498 -39 187 -161 330 -342 400 l-69 27 -552 5 -552 5 45
-                                                                                            108 c24 59 44 121 44 137 0 60 -85 116 -140 93z"
-                                                                        />
-                                                                    </g>
-                                                                </svg>
-                                                            </span>
-                                                        </button>
-                                                    </div>
-                                                </Col>
-                                            </Row>
-                                        </Form>
-                                    </CardBody>
-                                </Card>
-                            </Col>
-                        </Row>
-                    </Container>
-                    <Footer></Footer>
-                </>
-            ) : (
-                <>
-                    <Loading></Loading>
-                </>
-            )}
+                                                            </Button>
+                                                        </div>
+                                                    </Col>
+                                                </Row>
+                                            </Form>
+                                        </TabPane>
+                                    </TabContent>
+                                </CardBody>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Container>
+            <Footer />
         </React.Fragment>
     );
 };

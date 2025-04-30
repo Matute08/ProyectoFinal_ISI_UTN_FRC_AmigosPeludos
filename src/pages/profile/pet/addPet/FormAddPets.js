@@ -1,802 +1,1019 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+// FormAddPets.js (Refactorizado)
+
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import {
     Col,
+    Container,
     Form,
     Label,
     Row,
     Card,
     CardBody,
     CardHeader,
-    Container,
     Nav,
     NavItem,
     NavLink,
+    TabPane,
+    TabContent,
+    Spinner,
+    Alert,
+    Button, // Añadir componentes Reactstrap
 } from "reactstrap";
-import { useAuth } from "../../../../services/AuthContext";
+// import { useAuth } from "../../../../services/AuthContext"; // user no se usa
+
+// Servicios y Componentes
+import { uploadFilePetsUser } from "../../../../services/Firebase";
+import Loading from "../../../components/Loading";
+import { getUserMail, updateUser } from "../../../../services/userApi";
 import {
+    postMascota,
     getTipoMascota,
     getSexoMascota,
     getAllEdadMascota,
-    postMascota,
-    getUserMail,
-    updateUser,
-    getAllRazaId,
-} from "../../../../services/api";
-import classnames from "classnames";
-import { uploadFilePetsUser } from "../../../../services/Firebase";
-import Loading from "../../../components/Loading";
-
-// Import React FilePond
+} from "../../../../services/PetsApi";
+import { getAllRazaId } from "../../../../services/commonApi";
+import Navbar from "../../../landing/Navbar" 
+import Footer from "../../../landing/Footer";
+// FilePond
 import { FilePond, registerPlugin } from "react-filepond";
-// Import FilePond styles
 import "filepond/dist/filepond.min.css";
 import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
-import { format } from "date-fns";
 
-// Register the plugins
+// Registrar plugins de FilePond
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
 const FormAddPets = () => {
     const navigate = useNavigate();
-    const { user } = useAuth();
-    const [userData, setUserData] = useState();
-    const [tipoMascota, setTipoMascota] = useState();
-    const [tipoSexo, setTipoSexo] = useState();
-    const [edadMascota, setEdadMascota] = useState();
-    const [raza, setRaza] = useState();
-    const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState("1");
+    // const { user } = useAuth(); // No se usa
 
-    const [files, setFiles] = useState([]);
-    const [errorFile, setErrorFile] = useState("");
-    const [url, setUrl] = useState();
-    const [fotosTemporales, setFotosTemporales] = useState([]);
+    // --- Estados ---
+    const [userData, setUserData] = useState(null); // Datos del usuario actual
+    const [tipoMascotaOptions, setTipoMascotaOptions] = useState([]);
+    const [razaOptions, setRazaOptions] = useState([]);
+    const [sexoOptions, setSexoOptions] = useState([]);
+    const [edadOptions, setEdadOptions] = useState([]);
+    const [files, setFiles] = useState([]); // FilePond state
+    const [isLoading, setIsLoading] = useState(true); // Carga inicial de datos (tipos, sexo, etc.)
+    const [isLoadingRazas, setIsLoadingRazas] = useState(false); // Carga específica de razas
+    const [isSubmitting, setIsSubmitting] = useState(false); // Envío del formulario
+    const [error, setError] = useState(null); // Error en carga inicial
+    const [submitError, setSubmitError] = useState(null); // Error al enviar formulario
+    const [activeTab, setActiveTab] = useState("1"); // Solo una pestaña
 
+    // --- React Hook Form ---
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        watch,
+        formState: { errors },
+    } = useForm({ mode: "onChange" });
+    const selectedTipoIdForm = watch("tipoId"); // Observar cambios en Tipo
+
+    // Validaciones (igual que antes)
+    const nameValidation = /^[A-Za-zÀ-ÿ\s']+$/u;
+    const numberValidation = /^[0-9]+$/;
+
+    // --- CARGA DE DATOS INICIAL ---
+    useEffect(() => {
+        const loadInitialData = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                // Cargar datos necesarios en paralelo
+                const results = await Promise.allSettled([
+                    getUserMail(
+                        JSON.parse(localStorage.getItem("userData") || "{}")
+                            ?.email || ""
+                    ),
+                    getTipoMascota(),
+                    getSexoMascota(),
+                    getAllEdadMascota(),
+                ]);
+
+                const [userResult, tipoResult, sexoResult, edadResult] =
+                    results;
+
+                // Procesar Usuario (necesario para idUsuario y tieneMascota)
+                if (
+                    userResult.status === "fulfilled" &&
+                    userResult.value?.data
+                ) {
+                    setUserData(userResult.value.data);
+                } else if (
+                    userResult.status === "fulfilled" &&
+                    userResult.value
+                ) {
+                    setUserData(userResult.value); // Fallback si no viene en .data
+                } else {
+                    // Si no se puede cargar el usuario, es un error crítico para agregar mascota
+                    throw new Error(
+                        "No se pudieron cargar los datos del usuario."
+                    );
+                }
+
+                // Procesar Tipos
+                if (
+                    tipoResult.status === "fulfilled" &&
+                    tipoResult.value?.data
+                ) {
+                    setTipoMascotaOptions(tipoResult.value.data);
+                } else {
+                    throw new Error("Error al cargar tipos de mascota.");
+                }
+
+                // Procesar Sexos
+                if (
+                    sexoResult.status === "fulfilled" &&
+                    sexoResult.value?.data
+                ) {
+                    setSexoOptions(sexoResult.value.data);
+                } else {
+                    console.warn(
+                        "Warn: Error al cargar sexos.",
+                        sexoResult.reason
+                    );
+                } // No crítico?
+
+                // Procesar Edades
+                if (
+                    edadResult.status === "fulfilled" &&
+                    edadResult.value?.data
+                ) {
+                    setEdadOptions(edadResult.value.data);
+                } else {
+                    console.warn(
+                        "Warn: Error al cargar edades.",
+                        edadResult.reason
+                    );
+                } // No crítico?
+            } catch (err) {
+                console.error("Error cargando datos iniciales:", err);
+                setError(err.message || "Error al cargar datos necesarios.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadInitialData();
+    }, []); // Cargar solo una vez al montar
+
+    // --- CARGA DINÁMICA DE RAZAS ---
+    const handleTipoChange = useCallback(
+        async (event) => {
+            const tipoId = event.target.value;
+            setValue("razaId", ""); // Resetear selección de raza al cambiar tipo
+            setRazaOptions([]); // Limpiar opciones anteriores
+
+            if (tipoId) {
+                setIsLoadingRazas(true); // Indicar carga de razas
+                try {
+                    const razasResponse = await getAllRazaId(tipoId);
+                    const razas = razasResponse?.data || razasResponse;
+                    if (Array.isArray(razas)) {
+                        setRazaOptions(razas);
+                    } else {
+                        console.error(
+                            "Respuesta inválida al cargar razas:",
+                            razasResponse
+                        );
+                    }
+                } catch (err) {
+                    console.error(
+                        `Error al cargar razas para tipo ${tipoId}:`,
+                        err
+                    );
+                    // Podrías mostrar un error específico al usuario aquí
+                } finally {
+                    setIsLoadingRazas(false);
+                }
+            }
+        },
+        [setValue]
+    );
+
+    // --- MANEJADORES Y OTRAS FUNCIONES ---
     const tabChange = (tab) => {
         if (activeTab !== tab) setActiveTab(tab);
     };
 
-    const showLoadingOverlay = () => {
-        setIsLoading(true);
-    };
-    const hideLoadingOverlay = () => {
-        setIsLoading(false);
-    };
-
-    const handleAsyncTask = async () => {
-        showLoadingOverlay();
-    };
-
-// Definir reglas de validación para el campo texto
-const nameValidation = /^[A-Za-z\s]+$/; // Acepta letras y espacios
-const numberValidation = /^[0-9]+$/;
-
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            // Obtener los datos del usuario desde el localStorage
-            const cachedUserData = localStorage.getItem("userData");
-
-            if (cachedUserData) {
-                // Parsear los datos almacenados en el localStorage
-                const dataLocalStorage = JSON.parse(cachedUserData);
-
-                // Acceder al correo electrónico del usuario
-                const userEmail = dataLocalStorage.email;
-
-                const datosUsuario = await getUserMail(userEmail);
-                datosUsuario.calle = `${datosUsuario.calle + " " + datosUsuario.nroCalle}`;
-                setUserData(datosUsuario);
-                setIsLoading(false);
-            }
-        };
-        const tipoMascotas = async () => {
-            const dataTipoMascota = await getTipoMascota();
-            if (dataTipoMascota) {
-                setTipoMascota(dataTipoMascota);
-            }
-        };
-        const tipoSexo = async () => {
-            const dataTipoSexo = await getSexoMascota();
-            if (dataTipoSexo) {
-                setTipoSexo(dataTipoSexo);
-            }
-        };
-        const edadMascota = async () => {
-            const dataEdadMascota = await getAllEdadMascota();
-            if (dataEdadMascota) {
-                setEdadMascota(dataEdadMascota);
-            }
-        };
-        fetchUserData();
-        tipoMascotas();
-        tipoSexo();
-        edadMascota();
-    }, []);
-
-    const getRaza = async (e) => {
-        const op = e.target.value;
-        setRaza(await getAllRazaId(op));
-        if (raza) {
-            console.log(raza);
+    // Función para subir la foto a Firebase
+    const uploadPetPhoto = async () => {
+        if (!files || files.length === 0) {
+            // Lanzar error si la foto es obligatoria
+            throw new Error("Debes seleccionar una foto para la mascota.");
+            // return null; // O devolver null si es opcional
+        }
+        const fileToUpload = files[0].file;
+        try {
+            // Usar ID de usuario y timestamp para nombre único si es necesario
+            const fileName = `pet_${userData?.id}_${Date.now()}`;
+            const uploadedUrl = await uploadFilePetsUser(
+                fileToUpload,
+                fileName
+            ); // Asume que acepta nombre
+            return uploadedUrl;
+        } catch (uploadError) {
+            console.error("Error al subir foto de mascota:", uploadError);
+            throw new Error("Error al subir la imagen.");
         }
     };
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm();
-
-
-    //funcion para obtener las urls de las fotos
-    const obtenerUrls = async () => {
-        const uploadFile = async (file) => {
-            const uploadedUrl = await uploadFilePetsUser(file);
-            return { foto: uploadedUrl }; // Guarda la URL en un objeto con la propiedad "link"
-        };
-        console.log(files);
-        if (files.length > 0) {
-            const urls = [];
-            for (let i = 0; i < files.length; i++) {
-                const uploadedUrl = await uploadFile(files[i].file);
-                urls.push(uploadedUrl);
-            }
-            console.log(urls);
-            setUrl(urls);
-            return urls; // Retorna las URLs obtenidas
+    // --- SUBMIT DEL FORMULARIO ---
+    const onSubmit = async (dataForm) => {
+        if (!userData?.id) {
+            setSubmitError("Error: No se pudo identificar al usuario.");
+            return;
         }
-        return []; // Retorna un arreglo vacío si no hay archivos
-    };
-
-
-    const onSubmit = async (data) => {
-        setErrorFile("");
-        data.idUsuario = `${userData.id}`;
-        userData.tieneMascota = true;
-
-        if (data.castracion === "1") {
-            data.castracion = true;
-        } else {
-            data.castracion = false;
+        // Validar que se haya seleccionado un archivo (FilePond no se integra fácil con RHF required)
+        if (files.length === 0) {
+            setSubmitError("Debes seleccionar una foto para la mascota.");
+            // Opcional: Foco en FilePond (requiere ref)
+            return;
         }
+
+        setIsSubmitting(true);
+        setSubmitError(null);
 
         try {
-            // Verificar si hay fotos nuevas antes de obtener las URLs
-            if (files.length > 0) {
-                showLoadingOverlay();
-
-                // Obtener las URLs de las nuevas fotos
-                const urls = await obtenerUrls();
-
-                // Verificar si hay al menos una URL en el array
-                if (urls.length > 0) {
-                    // Acceder a la primera URL del array
-                    const primeraUrl = urls[0];
-
-                    // Verificar si la URL tiene la propiedad 'foto'
-                    if (primeraUrl.foto) {
-                        // Asignar la URL al campo 'foto' en data
-                        data.foto = primeraUrl.foto;
-                    }
-                }
-                await postMascota(data);
-                await updateUser(userData.id, userData);
-                hideLoadingOverlay();
-                navigate(`/perfil/${userData&& userData.mail}`);
-            } else {
-                setErrorFile("El campo es obligatorio");
+            // 1. Subir la foto PRIMERO
+            const fotoUrl = await uploadPetPhoto();
+            if (!fotoUrl) {
+                // El error ya se lanzó en uploadPetPhoto si era obligatorio
+                // throw new Error("Falló la subida de la foto."); // Redundante si uploadPetPhoto lanza error
+                return; // Salir si falla la subida
             }
+
+            // 2. Preparar datos para la API postMascota
+            const payload = {
+                nombre: dataForm.nombre,
+                edadId: dataForm.edadId ? parseInt(dataForm.edadId, 10) : null,
+                sexoId: dataForm.sexoId ? parseInt(dataForm.sexoId, 10) : null,
+                castracion: dataForm.castracion === "1",
+                peso: String(dataForm.peso ?? ""), // Enviar como string según modelo C#
+                descripcion: dataForm.descripcion || null,
+                idUsuario: userData.id, // ID del usuario logueado
+                foto: fotoUrl, // URL de Firebase
+                color: dataForm.color || null,
+                razaId: parseInt(dataForm.razaId, 10), // Es int no nullable
+                // id: No se envía, lo genera la BD
+                // tipoId: No existe en el modelo C#
+            };
+
+            console.log("Payload para postMascota:", payload);
+
+            // 3. Crear la mascota en la BD
+            await postMascota(payload);
+            console.log("Mascota creada exitosamente.");
+
+            // 4. Actualizar 'tieneMascota' del usuario SI es necesario
+            if (!userData.tieneMascota) {
+                console.log(
+                    "Usuario no tenía mascotas, actualizando 'tieneMascota' a true..."
+                );
+                try {
+                    await updateUser(userData.id, { tieneMascota: true });
+                    console.log(
+                        "Estado 'tieneMascota' del usuario actualizado."
+                    );
+                    // Opcional: Actualizar estado local userData si se sigue usando después
+                    // setUserData(prev => ({...prev, tieneMascota: true}));
+                } catch (userUpdateError) {
+                    console.error(
+                        "Error al actualizar 'tieneMascota' del usuario:",
+                        userUpdateError
+                    );
+                    // Considerar esto como un error no crítico o mostrar una advertencia
+                    setSubmitError(
+                        "Mascota agregada, pero hubo un problema al actualizar el estado del usuario."
+                    );
+                }
+            }
+
+            setFiles([]); // Limpiar FilePond
+            navigate(`/perfil/${userData.mail}`); // Volver al perfil
         } catch (error) {
-            // Manejar cualquier error de la actualización
-            console.error("Error al actualizar el usuario:", error);
+            console.error("Error al agregar la mascota:", error);
+            setSubmitError(error.message || "No se pudo agregar la mascota.");
+            // Considerar borrar la foto subida a Firebase si falla el postMascota? (Complejo)
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
+    // --- RENDERIZADO ---
+
+    if (isLoading) {
+        return <Loading />;
+    }
+
+    // Error crítico si no se cargaron datos esenciales (usuario, tipos)
+    if (error || !userData || tipoMascotaOptions.length === 0) {
+        const userEmailForNav = userData?.mail || "";
+        return (
+            <>
+                <Navbar />
+                <Container
+                    className="page-content perfil-fondo d-flex flex-column justify-content-center align-items-center"
+                    style={{ minHeight: "calc(80vh)" }}
+                >
+                    <Alert color="danger" className="text-center">
+                        <h4 className="alert-heading">Error</h4>
+                        <p>
+                            {error ||
+                                "No se pudieron cargar datos esenciales para agregar mascotas."}
+                        </p>
+                    </Alert>
+                    <Button
+                        color="secondary"
+                        onClick={() => navigate(`/perfil/${userEmailForNav}`)}
+                        className="mt-3"
+                    >
+                        Volver al Perfil
+                    </Button>
+                </Container>
+                <Footer />
+            </>
+        );
+    }
+
+    document.title = "Agregar Mascota | Amigos Peludos";
     return (
         <React.Fragment>
-            {!isLoading ? (
-                <>
-                    <Container fluid className="page-content perfil-fondo">
-                        <Row>
-                            <Col xl={3}>
-                                <Card className="mt-n5">
-                                    <CardBody className="p-4">
+            {/* Asumiendo que Navbar y Footer están en un layout superior */}
+            {/* <Navbar /> */}
+            <div className="page-content perfil-fondo">
+                {" "}
+                {/* Quitar page-content si Navbar/Footer no están aquí */}
+                <Container fluid>
+                    <Row>
+                        {/* Columna Izquierda: Foto */}
+                        <Col xl={3}>
+                            <Card
+                                className="mt-n5 sticky-top"
+                                style={{ top: "20px" }}
+                            >
+                                <CardBody className="p-4">
                                     <div className="text-center">
-                                    <h5 className="fs-16 mb-1">
-                                                Foto de la mascota{" "}
-                                                <span className="text-danger">
-                                                    *
-                                                </span>
-                                            </h5>
-
-                                                {/* FOTO DE LA MASCOTA */}
-                                                <FilePond
-                                                    files={files}
-                                                    onupdatefiles={setFiles}
-                                                    allowMultiple={false}
-                                                    maxFiles={4}
-                                                    name="files"
-                                                    className="filepond filepond-input-multiple"
-                                                    labelIdle="Arrastra y suelta tus archivos o buscalos "
-                                                />
-                                                <p className="text-danger">
-                                                    {errorFile}
-                                                </p>
-                                            </div>
-
-                                    </CardBody>
-                                </Card>
-                            </Col>
-
-                            <Col xl={9} >
-                                <Card className="mt-n5">
-                                    <CardHeader>
-                                        <Nav
-                                            className="nav-tabs-custom rounded card-header-tabs border-bottom-0"
-                                            role="tablist"
-                                        >
-                                            <NavItem>
-                                                <NavLink
-                                                    to="#"
-                                                    className={classnames({
-                                                        active:
-                                                            activeTab === "1",
-                                                    })}
-                                                    onClick={() => {
-                                                        tabChange("1");
-                                                    }}
-                                                    type="button"
+                                        <h5 className="fs-16 mb-2">
+                                            Foto de la Mascota{" "}
+                                            <span className="text-danger">
+                                                *
+                                            </span>
+                                        </h5>
+                                        <FilePond
+                                            files={files}
+                                            onupdatefiles={setFiles}
+                                            allowMultiple={false} // Solo una foto
+                                            maxFiles={1}
+                                            name="petPhoto" // Nombre del campo
+                                            required={true} // Marcar como requerido visualmente
+                                            className="filepond-input-trigger"
+                                            labelIdle='Arrastra o <span class="filepond--label-action">busca</span> la foto'
+                                            acceptedFileTypes={[
+                                                "image/png",
+                                                "image/jpeg",
+                                                "image/gif",
+                                            ]}
+                                            labelFileTypeNotAllowed="Archivo inválido"
+                                            fileValidateTypeLabelExpectedTypes="Usa PNG, JPG o GIF"
+                                        />
+                                        {/* Mostrar error de submit relacionado a la foto */}
+                                        {submitError &&
+                                            submitError
+                                                .toLowerCase()
+                                                .includes("foto") && (
+                                                <Alert
+                                                    color="danger"
+                                                    className="mt-2 p-2 small"
                                                 >
-                                                    Agregar Mascota
-                                                </NavLink>
-                                            </NavItem>
-                                        </Nav>
-                                    </CardHeader>
-                                    <CardBody>
-                                        {/* FORMULARIO */}
-                                        <Form onSubmit={handleSubmit(onSubmit)}>
-                                            <Row>
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Nombre de la mascota
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <input
-                                                            type="text"
-                                                            className={`form-control ${
-                                                                errors.nombre ? "is-invalid" : ""
-                                                            }`}
-                                                            name="nombre"
-                                                            placeholder="Nombre de la mascota"
-                                                            {...register(
-                                                                "nombre",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El nombre de la mascota es requerido",
-                                                                    },
-                                                                    pattern:
+                                                    {submitError}
+                                                </Alert>
+                                            )}
+                                        {/* O mostrar un error genérico si files está vacío al intentar submit */}
+                                    </div>
+                                </CardBody>
+                            </Card>
+                        </Col>
+
+                        {/* Columna Derecha: Formulario */}
+                        <Col xl={9}>
+                            <Card className="mt-n5">
+                                <CardHeader>
+                                    {/* Tab simple, se podría quitar si no hay más pestañas */}
+                                    <Nav
+                                        className="nav-tabs-custom rounded card-header-tabs border-bottom-0"
+                                        role="tablist"
+                                    >
+                                        <NavItem>
+                                            <NavLink
+                                                className={
+                                                    activeTab === "1"
+                                                        ? "active"
+                                                        : ""
+                                                }
+                                                onClick={() => tabChange("1")}
+                                                href="#"
+                                            >
+                                                <i className="fas fa-paw me-1"></i>{" "}
+                                                Datos de la Mascota
+                                            </NavLink>
+                                        </NavItem>
+                                    </Nav>
+                                </CardHeader>
+                                <CardBody>
+                                    {submitError &&
+                                        !submitError
+                                            .toLowerCase()
+                                            .includes("foto") && (
+                                            <Alert color="danger">
+                                                {submitError}
+                                            </Alert>
+                                        )}
+                                    <TabContent activeTab={activeTab}>
+                                        <TabPane tabId="1" className="p-3">
+                                            <Form
+                                                onSubmit={handleSubmit(
+                                                    onSubmit
+                                                )}
+                                            >
+                                                <Row>
+                                                    {/* --- Campos del formulario --- */}
+                                                    {/* Nombre */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="nombre"
+                                                                className="form-label"
+                                                            >
+                                                                Nombre{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <input
+                                                                type="text"
+                                                                id="nombre"
+                                                                placeholder="Nombre mascota"
+                                                                className={`form-control ${
+                                                                    errors.nombre
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                {...register(
+                                                                    "nombre",
                                                                     {
-                                                                        value: nameValidation,
-                                                                        message:
-                                                                            "El nombre solo debe contener letras y espacios.",
-                                                                    },
-                                                                }
-                                                            )}
-                                                        />
-                                                        {errors.nombre && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .nombre
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <label className="form-label">
-                                                            Tipo de Mascota{" "}
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </label>
-                                                        <select
-                                                            name="tipoId"
-                                                            className={`form-select ${
-                                                                errors.tipoId ? "is-invalid" : ""
-                                                            }`}
-                                                            {...register(
-                                                                "tipoId",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El tipo de la mascota es requerido.",
-                                                                    },
-                                                                }
-                                                            )}
-                                                            onChange={getRaza}
-                                                        >
-                                                            <option value="">
-                                                                Seleccione un
-                                                                tipo de mascota
-                                                            </option>
-                                                            {tipoMascota &&
-                                                                tipoMascota.map(
-                                                                    (
-                                                                        elemento
-                                                                    ) => (
-                                                                        <option
-                                                                            className="form-control"
-                                                                            key={
-                                                                                elemento.id
-                                                                            }
-                                                                            value={
-                                                                                elemento.id
-                                                                            }
-                                                                        >
+                                                                        required:
+                                                                            "Requerido",
+                                                                        pattern:
                                                                             {
-                                                                                elemento.tipo
-                                                                            }
-                                                                        </option>
-                                                                    )
+                                                                                value: nameValidation,
+                                                                                message:
+                                                                                    "Solo letras/espacios",
+                                                                            },
+                                                                        maxLength: 50,
+                                                                    }
                                                                 )}
-                                                        </select>
-                                                        {errors.tipoId && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .tipoId
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Raza
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <select
-                                                            name="raza"
-                                                            className={`form-select ${
-                                                                errors.razaId ? "is-invalid" : ""
-                                                            }`}
-                                                            {...register(
-                                                                "razaId",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "La raza de la mascota es requerida.",
-                                                                    },
-                                                                }
-                                                            )}
-                                                        >
-                                                            <option value="">
-                                                                Seleccione...
-                                                            </option>
-                                                            {raza &&
-                                                                raza.map(
-                                                                    (
-                                                                        elemento
-                                                                    ) => (
-                                                                        <option
-                                                                            className="form-control"
-                                                                            key={
-                                                                                elemento.id
-                                                                            }
-                                                                            value={
-                                                                                elemento.id
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                elemento.nombre
-                                                                            }
-                                                                        </option>
-                                                                    )
-                                                                )}
-                                                        </select>
-                                                        {errors.razaId && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .razaId
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Edad aproximada
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <select
-                                                            name="edadId"
-                                                            className={`form-select ${
-                                                                errors.edadId ? "is-invalid" : ""
-                                                            }`}
-                                                            {...register(
-                                                                "edadId",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "La edad de la mascota es requerida.",
-                                                                    },
-                                                                }
-                                                            )}
-                                                        >
-                                                            <option value="">
-                                                                Seleccione...
-                                                            </option>
-                                                            {edadMascota &&
-                                                                edadMascota.map(
-                                                                    (
-                                                                        elemento
-                                                                    ) => (
-                                                                        <option
-                                                                            className="form-control"
-                                                                            key={
-                                                                                elemento.id
-                                                                            }
-                                                                            value={
-                                                                                elemento.id
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                elemento.descripcion
-                                                                            }
-                                                                        </option>
-                                                                    )
-                                                                )}
-                                                        </select>
-                                                        {errors.edadId && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .edadId
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Peso Aproximado en KG
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <input
-                                                            type="text"
-                                                            className={`form-control ${
-                                                                errors.peso ? "is-invalid" : ""
-                                                            }`}
-                                                            maxLength={3}
-                                                            name="peso"
-                                                            placeholder="Peso aproximado"
-                                                            {...register(
-                                                                "peso",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El peso de la mascota es requerido",
-                                                                    },
-                                                                    pattern:
+                                                            />
+                                                            {errors.nombre && (
+                                                                <div className="invalid-feedback">
                                                                     {
-                                                                        value: numberValidation,
-                                                                        message:
-                                                                            "El peso solo debe contener numeros.",
-                                                                    },
-                                                                }
+                                                                        errors
+                                                                            .nombre
+                                                                            .message
+                                                                    }
+                                                                </div>
                                                             )}
-                                                        />
-                                                        {errors.peso && (
-                                                            <span className="text-danger">
-                                                                {
+                                                        </div>
+                                                    </Col>
+                                                    {/* Tipo */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="tipoId"
+                                                                className="form-label"
+                                                            >
+                                                                Tipo{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <select
+                                                                id="tipoId"
+                                                                className={`form-select ${
+                                                                    errors.tipoId
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                {...register(
+                                                                    "tipoId",
+                                                                    {
+                                                                        required:
+                                                                            "Requerido",
+                                                                    }
+                                                                )}
+                                                                onChange={
+                                                                    handleTipoChange
+                                                                }
+                                                            >
+                                                                <option value="">
+                                                                    Seleccione...
+                                                                </option>
+                                                                {tipoMascotaOptions.map(
+                                                                    (tipo) => (
+                                                                        <option
+                                                                            key={
+                                                                                tipo.id
+                                                                            }
+                                                                            value={
+                                                                                tipo.id
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                tipo.tipo
+                                                                            }
+                                                                        </option>
+                                                                    )
+                                                                )}
+                                                            </select>
+                                                            {errors.tipoId && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .tipoId
+                                                                            .message
+                                                                    }
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </Col>
+                                                    {/* Raza */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="razaId"
+                                                                className="form-label"
+                                                            >
+                                                                Raza{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <select
+                                                                id="razaId"
+                                                                className={`form-select ${
+                                                                    errors.razaId
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                {...register(
+                                                                    "razaId",
+                                                                    {
+                                                                        required:
+                                                                            "Requerido",
+                                                                    }
+                                                                )}
+                                                                disabled={
+                                                                    !selectedTipoIdForm ||
+                                                                    isLoadingRazas ||
+                                                                    razaOptions.length ===
+                                                                        0
+                                                                }
+                                                            >
+                                                                <option value="">
+                                                                    {selectedTipoIdForm
+                                                                        ? isLoadingRazas
+                                                                            ? "Cargando..."
+                                                                            : razaOptions.length >
+                                                                              0
+                                                                            ? "Seleccione raza..."
+                                                                            : "No hay razas"
+                                                                        : "Seleccione tipo..."}
+                                                                </option>
+                                                                {razaOptions.map(
+                                                                    (raza) => (
+                                                                        <option
+                                                                            key={
+                                                                                raza.id
+                                                                            }
+                                                                            value={
+                                                                                raza.id
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                raza.nombre
+                                                                            }
+                                                                        </option>
+                                                                    )
+                                                                )}
+                                                            </select>
+                                                            {isLoadingRazas && (
+                                                                <Spinner
+                                                                    size="sm"
+                                                                    className="ms-2"
+                                                                />
+                                                            )}
+                                                            {errors.razaId && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .razaId
+                                                                            .message
+                                                                    }
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </Col>
+                                                    {/* Edad */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="edadId"
+                                                                className="form-label"
+                                                            >
+                                                                Edad{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <select
+                                                                id="edadId"
+                                                                className={`form-select ${
+                                                                    errors.edadId
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                {...register(
+                                                                    "edadId",
+                                                                    {
+                                                                        required:
+                                                                            "Requerido",
+                                                                    }
+                                                                )}
+                                                            >
+                                                                <option value="">
+                                                                    Seleccione...
+                                                                </option>
+                                                                {edadOptions.map(
+                                                                    (edad) => (
+                                                                        <option
+                                                                            key={
+                                                                                edad.id
+                                                                            }
+                                                                            value={
+                                                                                edad.id
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                edad.descripcion
+                                                                            }
+                                                                        </option>
+                                                                    )
+                                                                )}
+                                                            </select>
+                                                            {errors.edadId && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .edadId
+                                                                            .message
+                                                                    }
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </Col>
+                                                    {/* Peso */}
+                                                    <Col lg={2} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="peso"
+                                                                className="form-label"
+                                                            >
+                                                                Peso(kg){" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <input
+                                                                type="number"
+                                                                id="peso"
+                                                                step="0.1"
+                                                                className={`form-control ${
                                                                     errors.peso
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-
-                                                <Col lg={2}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Castrada/o
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <select
-                                                            name="castracion"
-                                                            className={`form-select ${
-                                                                errors.castracion ? "is-invalid" : ""
-                                                            }`}
-                                                            {...register(
-                                                                "castracion",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "Debe seleccionar si se encuentra castrada/o.",
-                                                                    },
-                                                                }
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                placeholder="Ej: 5.5"
+                                                                {...register(
+                                                                    "peso",
+                                                                    {
+                                                                        required:
+                                                                            "Requerido",
+                                                                        valueAsNumber: true,
+                                                                        min: {
+                                                                            value: 0.1,
+                                                                            message:
+                                                                                "> 0",
+                                                                        },
+                                                                        max: {
+                                                                            value: 150,
+                                                                            message:
+                                                                                "Excesivo",
+                                                                        },
+                                                                    }
+                                                                )}
+                                                            />
+                                                            {errors.peso && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .peso
+                                                                            .message
+                                                                    }
+                                                                </div>
                                                             )}
-                                                        >
-                                                            <option value="">
-                                                                Seleccione...
-                                                            </option>
-                                                            <option value="1">
-                                                                Si
-                                                            </option>
-                                                            <option value="0">
-                                                                No
-                                                            </option>
-                                                        </select>
-                                                        {errors.castracion && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .castracion
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-                                                <Col lg={2}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Sexo Mascota
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <select
-                                                            name="sexoId"
-                                                            className={`form-select ${
-                                                                errors.sexoId ? "is-invalid" : ""
-                                                            }`}
-                                                            {...register(
-                                                                "sexoId",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El sexo de la mascota es requerido.",
-                                                                    },
-                                                                }
+                                                        </div>
+                                                    </Col>
+                                                    {/* Castracion */}
+                                                    <Col lg={3} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="castracion"
+                                                                className="form-label"
+                                                            >
+                                                                Castrado/a{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <select
+                                                                id="castracion"
+                                                                className={`form-select ${
+                                                                    errors.castracion
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                {...register(
+                                                                    "castracion",
+                                                                    {
+                                                                        required:
+                                                                            "Requerido",
+                                                                    }
+                                                                )}
+                                                            >
+                                                                <option value="">
+                                                                    Seleccione...
+                                                                </option>
+                                                                <option value="1">
+                                                                    Sí
+                                                                </option>
+                                                                <option value="0">
+                                                                    No
+                                                                </option>
+                                                            </select>
+                                                            {errors.castracion && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .castracion
+                                                                            .message
+                                                                    }
+                                                                </div>
                                                             )}
-                                                        >
-                                                            <option value="">
-                                                                Seleccione...
-                                                            </option>
-                                                            {tipoSexo &&
-                                                                tipoSexo.map(
-                                                                    (
-                                                                        elemento
-                                                                    ) => (
+                                                        </div>
+                                                    </Col>
+                                                    {/* Sexo */}
+                                                    <Col lg={3} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="sexoId"
+                                                                className="form-label"
+                                                            >
+                                                                Sexo{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <select
+                                                                id="sexoId"
+                                                                className={`form-select ${
+                                                                    errors.sexoId
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                {...register(
+                                                                    "sexoId",
+                                                                    {
+                                                                        required:
+                                                                            "Requerido",
+                                                                    }
+                                                                )}
+                                                            >
+                                                                <option value="">
+                                                                    Seleccione...
+                                                                </option>
+                                                                {sexoOptions.map(
+                                                                    (sexo) => (
                                                                         <option
-                                                                            className="form-control"
                                                                             key={
-                                                                                elemento.id
+                                                                                sexo.id
                                                                             }
                                                                             value={
-                                                                                elemento.id
+                                                                                sexo.id
                                                                             }
                                                                         >
                                                                             {
-                                                                                elemento.nombre
+                                                                                sexo.nombre
                                                                             }
                                                                         </option>
                                                                     )
                                                                 )}
-                                                        </select>
-                                                        {errors.sexoId && (
-                                                            <span className="text-danger">
-                                                                {
-                                                                    errors
-                                                                        .sexoId
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-
-                                                <Col lg={3}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Color
-                                                            <span className="text-danger">
-                                                                *
-                                                            </span>
-                                                        </Label>
-                                                        <input
-                                                            type="text"
-                                                            className={`form-control ${
-                                                                errors.color ? "is-invalid" : ""
-                                                            }`}
-                                                            name="color"
-                                                            placeholder="Color"
-                                                            {...register(
-                                                                "color",
-                                                                {
-                                                                    required: {
-                                                                        value: true,
-                                                                        message:
-                                                                            "El color de la mascota es requerido",
-                                                                    },
-                                                                    pattern:
+                                                            </select>
+                                                            {errors.sexoId && (
+                                                                <div className="invalid-feedback">
                                                                     {
-                                                                        value: nameValidation,
-                                                                        message:
-                                                                            "El color solo debe contener letras y espacios.",
-                                                                    },
-                                                                }
+                                                                        errors
+                                                                            .sexoId
+                                                                            .message
+                                                                    }
+                                                                </div>
                                                             )}
-                                                        />
-                                                        {errors.color && (
-                                                            <span className="text-danger">
-                                                                {
+                                                        </div>
+                                                    </Col>
+                                                    {/* Color */}
+                                                    <Col lg={4} md={6}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="color"
+                                                                className="form-label"
+                                                            >
+                                                                Color{" "}
+                                                                <span className="text-danger">
+                                                                    *
+                                                                </span>
+                                                            </Label>
+                                                            <input
+                                                                type="text"
+                                                                id="color"
+                                                                placeholder="Color predominante"
+                                                                className={`form-control ${
                                                                     errors.color
-                                                                        .message
-                                                                }
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </Col>
-
-                                                <Col lg={12}>
-                                                    <div className="mb-3">
-                                                        <Label className="form-label">
-                                                            Descripción de la
-                                                            mascota
-                                                        </Label>
-                                                        <textarea
-                                                            type="text"
-                                                            className="form-control"
-                                                            name="descripcion"
-                                                            {...register(
-                                                                "descripcion",
-                                                                {
-                                                                    maxLength: {
-                                                                        value: 400,
-                                                                        message:
-                                                                            "El maximo de caracteres es 400",
-                                                                    },
-                                                                }
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                {...register(
+                                                                    "color",
+                                                                    {
+                                                                        required:
+                                                                            "Requerido",
+                                                                        maxLength:
+                                                                            {
+                                                                                value: 50,
+                                                                                message:
+                                                                                    "Max 50",
+                                                                            },
+                                                                    }
+                                                                )}
+                                                            />
+                                                            {errors.color && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .color
+                                                                            .message
+                                                                    }
+                                                                </div>
                                                             )}
-                                                        />
-                                                    
-                                                    </div>
-                                                </Col>
-                                                <Col lg={12}>
-                                                    <div className="hstack gap-2 justify-content-end">
-                                                        <button
-                                                            class="button-pz btn-pz-success"
-                                                            type="submit"
-                                                        >
-                                                            <span class="span-pz text-pz">
-                                                                Agregar Mascota
-                                                            </span>
-                                                            <span class="span-pz icon-pz">
-                                                                <svg
-                                                                    viewBox="0 0 920 922"
-                                                                    className="svg-pz"
-                                                                >
-                                                                    <g
-                                                                        transform="translate(0,922) scale(0.1,-0.1)"
-                                                                        fill="#ffff"
-                                                                        stroke="none"
-                                                                    >
-                                                                        <path
-                                                                            d="M1350 9199 c-373 -6 -423 -9 -492 -27 -119 -32 -218 -78 -331 
-                                                                                    -152 -184 -121 -321 -279 -422 -484 -54 -108 -70 -184 -86 -403 -14 -190 -21 -6170 -8 
-                                                                                    -6733 11 -490 26 -592 111 -750 154 -284 398 -492 688 -585 80 -26 102 -28 380 -38 403 
-                                                                                    -15 6439 -14 6830 0 267 10 290 12 370 38 297 95 551 318 698 611 79 157 91 246 101 724 4 
-                                                                                    190 9 1567 9 3060 l2 2715 -1017 1017 -1018 1018 -2700 -2 c-1485 -1 -2887 -5 -3115 -9z m91 
-                                                                                    -1441 c1 -1211 11 -1792 31 -1838 8 -19 38 -56 65 -82 46 -42 56 -47 119 -55 90 -11 4648 -11 
-                                                                                    4738 0 63 8 73 13 119 55 27 26 56 62 64 80 26 61 33 442 33 1735 l0 987 158 0 157 0 850 -850 850 
-                                                                                    -850 -4 -2966 -3 -2966 -45 -81 c-91 -166 -140 -213 -296 -288 l-85 -41 -212 -9 c-117 -5 -214 -8 
-                                                                                    -216 -6 -2 1 -4 682 -6 1512 -3 2060 -9 2599 -30 2645 -8 20 -44 62 -78 93 l-63 57 -2986 0 -2986 
-                                                                                    0 -64 -57 c-35 -31 -70 -72 -77 -90 -25 -58 -34 -818 -34 -2851 l0 -1313 -152 6 c-243 10 -300 20 
-                                                                                    -387 62 -105 52 -209 157 -273 276 l-48 88 0 3601 0 3601 42 78 c76 143 172 236 307 298 80 37 154 
-                                                                                    46 404 49 l107 2 1 -882z m4599 -268 l0 -1150 -2015 0 -2015 0 0 1150 0 1150 2015 0 2015 0 0 -1150z 
-                                                                                    m1145 -5036 l0 -1869 -2585 0 -2585 0 -3 1860 c-1 1023 0 1865 2 1870 2 7 873 10 2587 9 l2584 -1 0 
-                                                                                    -1869z M4980 8049 c-14 -6 -40 -24 -57 -42 l-33 -31 0 -492 0 -491 46 -36 c56 -44 101 -51 287 -45 138
-                                                                                     4 160 10 210 56 l27 26 0 491 0 491 -32 31 c-18 18 -46 37 -61 42 -36 14 -353 13 -387 0z M3240 3451
-                                                                                      c-166 -6 -189 -9 -220 -28 -87 -54 -140 -149 -140 -253 0 -81 23 -134 85 -195 86 -87 -33 -80 1335
-                                                                                       -83 1210 -3 1810 6 1862 27 47 18 116 89 135 139 12 31 18 73 17 124 -1 94 -27 152 -96 211 -43 36 
-                                                                                       -53 40 -129 48 -102 10 -2597 19 -2849 10z M3160 2010 c-121 -7 -150 -19 -208 -85 -49 -56 -72 -119
-                                                                                        -72 -199 0 -99 63 -195 162 -248 l43 -23 1460 2 c872 1 1494 5 1543 11 76 9 88 13 130 50 69 58
-                                                                                         95 116 96 210 1 51 -5 93 -17 124 -19 49 -87 120 -135 140 -16 7 -131 14 -292 18 -350 8 -2576 9 -2710 0z"
-                                                                        />
-                                                                    </g>
-                                                                </svg>
-                                                            </span>
-                                                        </button>
-
-                                                        <button
-                                                            class="button-pz btn-pz-secondary"
-                                                            onClick={() => {
-                                                                navigate(
-                                                                    `/perfil/${userData && userData.mail}`
-                                                                );
-                                                            }}
-                                                        >
-                                                            <span class="span-pz text-pz">
+                                                        </div>
+                                                    </Col>
+                                                    {/* Descripcion */}
+                                                    <Col lg={12}>
+                                                        <div className="mb-3">
+                                                            <Label
+                                                                htmlFor="descripcion"
+                                                                className="form-label"
+                                                            >
+                                                                Descripción
+                                                            </Label>
+                                                            <textarea
+                                                                id="descripcion"
+                                                                rows="4"
+                                                                className={`form-control ${
+                                                                    errors.descripcion
+                                                                        ? "is-invalid"
+                                                                        : ""
+                                                                }`}
+                                                                placeholder="Carácter, señas..."
+                                                                maxLength={400}
+                                                                {...register(
+                                                                    "descripcion",
+                                                                    {
+                                                                        maxLength:
+                                                                            {
+                                                                                value: 400,
+                                                                                message:
+                                                                                    "Max 400",
+                                                                            },
+                                                                    }
+                                                                )}
+                                                            />{" "}
+                                                            {errors.descripcion && (
+                                                                <div className="invalid-feedback">
+                                                                    {
+                                                                        errors
+                                                                            .descripcion
+                                                                            .message
+                                                                    }
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </Col>{" "}
+                                                    {/* Contador quitado por simplicidad, se puede re-añadir si es necesario */}
+                                                    {/* Botones */}
+                                                    <Col lg={12}>
+                                                        <div className="hstack gap-2 justify-content-end mt-3">
+                                                            {/* Botón Agregar Mascota (Bootstrap) */}
+                                                            <Button
+                                                                type="submit"
+                                                                color="success"
+                                                                className="d-inline-flex align-items-center"
+                                                                disabled={
+                                                                    isSubmitting ||
+                                                                    isLoadingRazas
+                                                                }
+                                                            >
+                                                                {isSubmitting ? (
+                                                                    <>
+                                                                        <Spinner
+                                                                            size="sm"
+                                                                            className="me-2"
+                                                                        />{" "}
+                                                                        Agregando...
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                    <svg
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            className="me-1"
+                                                                            width="16"
+                                                                            height="16"
+                                                                            viewBox="0 0 24 24"
+                                                                            strokeWidth="2"
+                                                                            stroke="currentColor"
+                                                                            fill="none"
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                        >
+                                                                            <path
+                                                                                stroke="none"
+                                                                                d="M0 0h24v24H0z"
+                                                                                fill="none"
+                                                                            />
+                                                                            <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+                                                                            <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                                                            <path d="M14 4l0 4l-6 0l0 -4" />
+                                                                        </svg>{" "}
+                                                                        Agregar
+                                                                        Mascota
+                                                                    </>
+                                                                )}
+                                                            </Button>
+                                                            {/* Botón Volver (Bootstrap) */}
+                                                            <Button
+                                                                type="button"
+                                                                color="secondary"
+                                                                className="d-inline-flex align-items-center"
+                                                                onClick={() =>
+                                                                    navigate(
+                                                                        `/perfil/${
+                                                                            userData?.mail ||
+                                                                            ""
+                                                                        }`
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    isSubmitting
+                                                                }
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="me-1" width="16" height="16" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 14l-4 -4l4 -4" /><path d="M5 10h11a4 4 0 1 1 0 8h-1" /></svg>
                                                                 Volver
-                                                            </span>
-                                                            <span class="span-pz icon-pz">
-                                                                <svg
-                                                                    viewBox="0 0 232 217"
-                                                                    className="svg-pz"
-                                                                >
-                                                                    <g
-                                                                        transform="translate(0,210) scale(0.1,-0.1)"
-                                                                        fill="#ffff"
-                                                                        stroke="none"
-                                                                    >
-                                                                        <path
-                                                                            d="M740 2163 c-27 -11 -705 -486 -717 -502 -7 -9 -15 -31 -19 -48 -13
-                                                                                            -65 5 -79 399 -319 319 -195 373 -224 408 -224 31 0 47 7 70 29 42 42 38 79
-                                                                                            -21 205 l-49 106 510 0 509 0 38 -34 37 -34 3 -404 c2 -441 3 -435 -57 -475
-                                                                                            l-34 -23 -571 0 -572 0 -44 -22 c-55 -28 -86 -73 -95 -138 -14 -101 16 -180
-                                                                                            83 -222 l37 -23 575 -3 c389 -2 597 1 642 8 187 32 350 169 417 353 l26 72 3
-                                                                                            425 c3 350 0 439 -12 498 -39 187 -161 330 -342 400 l-69 27 -552 5 -552 5 45
-                                                                                            108 c24 59 44 121 44 137 0 60 -85 116 -140 93z"
-                                                                        />
-                                                                    </g>
-                                                                </svg>
-                                                            </span>
-                                                        </button>
-                                                    </div>
-                                                </Col>
-                                            </Row>
-                                        </Form>
-                                    </CardBody>
-                                </Card>
-                            </Col>
-                        </Row>
-                    </Container>
-                </>
-            ) : (
-                <>
-                    <Loading></Loading>
-                </>
-            )}
+                                                            </Button>
+                                                        </div>
+                                                    </Col>
+                                                </Row>
+                                            </Form>
+                                        </TabPane>
+                                    </TabContent>
+                                </CardBody>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
+            {/* <Footer /> */}
         </React.Fragment>
     );
 };

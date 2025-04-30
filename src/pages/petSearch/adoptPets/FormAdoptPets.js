@@ -10,13 +10,11 @@ import {
     Row,
 } from "reactstrap";
 import Swal from "sweetalert2";
-import {
-    getUserMail,
-    getCiudad,
-    getAllBarrio,
-    postFormularioAdopcion,
-    getPublicacionesId,
-} from "../../../services/api";
+import { getCiudad,getAllBarrio } from "../../../services/commonApi";
+import { getUserMail } from "../../../services/userApi";
+import { getPublicacionesId } from "../../../services/PublicationsPetsApi";
+import { postFormularioAdopcion } from "../../../services/FormApi";
+
 import { useAuth } from "../../../services/AuthContext";
 import { useForm } from "react-hook-form";
 
@@ -51,19 +49,19 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
         const ciudadMascota = async () => {
             const dataCiudad = await getCiudad();
             if (dataCiudad) {
-                setCiudad(dataCiudad);
+                setCiudad(dataCiudad.data);
             }
         };
         const barrioMascota = async () => {
             const dataBarrio = await getAllBarrio();
             if (dataBarrio) {
-                setBarrio(dataBarrio);
+                setBarrio(dataBarrio.data);
             }
         };
         const publicacion = async () => {
             const publiData = await getPublicacionesId(posteoId);
             if (publiData) {
-                setPubli(publiData);
+                setPubli(publiData.data);
             }
         };
 
@@ -71,7 +69,7 @@ const FormAdoptPets = ({ isOpen, toggle, posteoId }) => {
         ciudadMascota();
         barrioMascota();
         publicacion();
-    }, []);
+    }, [posteoId]);
 
     const handleUpdateState = async () => {
         // Muestra el mensaje de éxito con temporizador y barra de progreso
