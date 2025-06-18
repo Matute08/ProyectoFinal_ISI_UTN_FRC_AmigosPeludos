@@ -1,0 +1,499 @@
+import React, { useState, useEffect } from "react";
+import {
+    Box,
+    Button,
+    Container,
+    Grid,
+    MenuItem,
+    Paper,
+    TextField,
+    Typography,
+} from "@mui/material";
+import { useForm } from "react-hook-form";
+import { FilePond, registerPlugin } from "react-filepond";
+import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+import "filepond/dist/filepond.min.css";
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+import { useNavigate } from "react-router-dom";
+import { getUserMail, updateUser } from "../../api/userApi";
+import { postFundacion } from "../../api/fundacionesApi";
+import { uploadFilesPetsFound } from "../../api/firebaseUploads";
+import { mostrarAlertaExito, mostrarAlertaError } from "../../utils/showAlert";
+import CustomLoader from "../../components/CustomLoader";
+import Maps from "../../components/Maps";
+
+import SelectBarrio from "../../components/select/SelectBarrio";
+import SelectCiudad from "../../components/select/SelectCiudad";
+import SelectProvincia from "../../components/select/SelectProvincia";
+
+registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
+
+export default function AgregarFundacion() {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        watch,
+        setValue,
+    } = useForm();
+    const [files, setFiles] = useState([]);
+    const [latLng, setLatLng] = useState(null);
+    const [subiendo, setSubiendo] = useState(false);
+    const [usuarioReal, setUsuarioReal] = useState(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const cached = localStorage.getItem("userData");
+        if (cached) {
+            const { email } = JSON.parse(cached);
+            getUserMail(email)
+                .then((datos) => setUsuarioReal(datos))
+                .catch((e) => console.error(e));
+        }
+    }, []);
+    const onMapClick = ({ lat, lng }) => {
+        setLatLng({ lat, lng });
+    };
+
+
+    const onSubmit = async (data) => {
+        if (files.length === 0)
+            return mostrarAlertaError(
+                "Subí al menos una imagen de la fundación"
+            );
+        setSubiendo(true);
+        try {
+            const uploads = [];
+            for (const f of files) {
+                const url = await uploadFilesPetsFound(f.file);
+                uploads.push(url);
+            }
+            // DATOS DE LA FUNDACION
+            const payload = {
+                nombre: data.nombre,
+                direccion: data.direccion,
+                nroCalle: parseInt(data.nroCalle, 10),
+                barrioId: parseInt(data.barrioId, 10),
+                cuit: data.cuit,
+                aliasCbu: data.aliasCbu,
+                cbu: data.cbu,
+                telefono: data.telefono,
+                paginaUrl: data.paginaUrl,
+                facebook: data.facebook,
+                latitud: latLng.lat || null,
+                longitud: latLng.lng || null,
+                instagram: data.instagram,
+                descripcion: data.descripcion,
+                motivoDonaciones: data.motivoDonaciones,
+                estadoId: 1,
+                usuarioId: usuarioReal?.id,
+                imagen: uploads[0],
+                
+            };
+
+            // DATOS PARA ACTUALIZAR USUARIO
+            const payloadActualizacionUsuario = {
+                id: usuarioReal.id,
+                nombreCompleto:
+                    usuarioReal.nombreCompleto || usuarioReal.nombre || null,
+                fechaNacimiento: usuarioReal.fechaNacimiento || null,
+                mail: usuarioReal.mail || usuarioReal.email || null,
+                username: usuarioReal.username || null,
+                tieneMascota: usuarioReal.tieneMascota ?? false,
+                mailVerificado: usuarioReal.mailVerificado ?? false,
+                habilitada: usuarioReal.habilitada ?? true,
+                foto: usuarioReal.foto || null,
+                generoId: usuarioReal.generoId,
+                barrioId: usuarioReal.barrioId,
+                rolId: usuarioReal.rolId,
+                tipoAutenticacionId: usuarioReal.tipoAutenticacionId,
+                celular:
+                    usuarioReal.celular || usuarioReal.numeroTelefono || null,
+                calle: usuarioReal.calle || usuarioReal.direccion || null,
+                nroCalle: usuarioReal.nroCalle
+                    ? parseInt(usuarioReal.nroCalle, 10)
+                    : usuarioReal.numeroCalle
+                      ? parseInt(usuarioReal.numeroCalle, 10)
+                      : null, // Int nullable
+                codigoPostal: usuarioReal.codigoPostal || null,
+                cuentaVerificada: usuarioReal.cuentaVerificada ?? false,
+                esPaseador: usuarioReal.esPaseador ?? null,
+                esCuidador: usuarioReal.esCuidador ?? null,
+                esVeterinaria: usuarioReal.esVeterinaria ?? null,
+                qr: usuarioReal.qr ?? null,
+                esFundacion: true,
+                fechaAlta: new Date().toISOString(),
+
+            };
+
+            await postFundacion(payload);
+            await updateUser(usuarioReal.id, payloadActualizacionUsuario);
+
+            mostrarAlertaExito("Fundación creada exitosamente y esta pendiente de aceptación", "/fundaciones");
+        } catch (err) {
+            console.error(err);
+            mostrarAlertaError("No se pudo crear la fundación");
+        } finally {
+            setSubiendo(false);
+        }
+    };
+
+    return (
+        <>
+            {subiendo && (
+                <Box
+                    sx={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100vw",
+                        height: "100vh",
+                        bgcolor: "rgba(0,0,0,0.3)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1300,
+                    }}
+                >
+                    <CustomLoader text="Creando fundación..." />
+                </Box>
+            )}
+            <Container
+                maxWidth="md"
+                sx={{
+                    mt: 4,
+                    mb: 4,
+                    backgroundColor: "#e0d0b8",
+                    borderRadius: 4,
+                }}
+            >
+                <Box
+                    sx={{
+                        backgroundColor: "primary.main",
+                        p: 2,
+                        borderRadius: 2,
+                        textAlign: "center",
+                        boxShadow: 2,
+                        mb: 4,
+                    }}
+                >
+                    <Typography variant="h5" color="primary.contrastText">
+                        Agregar Fundación
+                    </Typography>
+                </Box>
+                <Grid spacing={3}>
+                    <Grid item size={{ xs: 12 }}>
+                        <Paper sx={{ p: 3 }}>
+                            <Typography variant="subtitle1" gutterBottom>
+                                Foto de la Fundación *
+                            </Typography>
+                            <FilePond
+                                files={files}
+                                onupdatefiles={setFiles}
+                                allowMultiple={false}
+                                maxFiles={1}
+                                labelIdle="Arrastrá o hacé click para subir imagen"
+                            />
+                            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                                <Grid container spacing={2} mt={2}>
+                                    <Grid item size={{ xs: 12, sm: 4 }}>
+                                        <TextField
+                                            label="Nombre"
+                                            fullWidth
+                                            {...register("nombre", {
+                                                required: "Requerido",
+                                            })}
+                                            error={!!errors.nombre}
+                                            helperText={errors.nombre?.message}
+                                        />
+                                    </Grid>
+
+                                    {/* Provincia */}
+                                    <Grid size={{ xs: 12, md: 4 }}>
+                                        <SelectProvincia
+                                            value={watch("provinciaId")}
+                                            onChange={(e) =>
+                                                setValue(
+                                                    "provinciaId",
+                                                    e.target.value
+                                                )
+                                            }
+                                            error={!!errors.provinciaId}
+                                            helperText={
+                                                errors.provinciaId?.message
+                                            }
+                                        />
+                                    </Grid>
+                                    {/* Ciudad */}
+                                    <Grid size={{ xs: 12, md: 4 }}>
+                                        <SelectCiudad
+                                            provinciaId={watch("provinciaId")}
+                                            value={watch("ciudadId")}
+                                            onChange={(e) =>
+                                                setValue(
+                                                    "ciudadId",
+                                                    e.target.value
+                                                )
+                                            }
+                                            error={!!errors.ciudadId}
+                                            helperText={
+                                                errors.ciudadId?.message
+                                            }
+                                        />
+                                    </Grid>
+                                    {/* Barrio */}
+                                    <Grid size={{ xs: 12, md: 4 }}>
+                                        <SelectBarrio
+                                            ciudadId={watch("ciudadId")}
+                                            value={watch("barrioId")}
+                                            onChange={(e) =>
+                                                setValue(
+                                                    "barrioId",
+                                                    e.target.value
+                                                )
+                                            }
+                                            error={!!errors.barrioId}
+                                            helperText={
+                                                errors.barrioId?.message
+                                            }
+                                        ></SelectBarrio>
+                                    </Grid>
+                                    <Grid item size={{ xs: 12, sm: 4}}>
+                                        <TextField
+                                            label="Dirección"
+                                            fullWidth
+                                            {...register("direccion", {
+                                                required: "Requerido",
+                                            })}
+                                            error={!!errors.direccion}
+                                            helperText={
+                                                errors.direccion?.message
+                                            }
+                                        />
+                                    </Grid>
+                                    <Grid item size={{ xs: 6, sm: 4 }}>
+                                        <TextField
+                                            label="Altura"
+                                            fullWidth
+                                            {...register("nroCalle", {
+                                                required: "Requerido",
+                                                pattern: {
+                                                    value: /^[0-9]+$/,
+                                                    message: "Solo números",
+                                                },
+                                            })}
+                                            error={!!errors.nroCalle}
+                                            helperText={
+                                                errors.nroCalle?.message
+                                            }
+                                        />
+                                    </Grid>
+
+                                    <Grid item size={{ xs: 12, sm: 4 }}>
+                                        <TextField
+                                            label="CUIT"
+                                            fullWidth
+                                            inputProps={{ maxLength: 11 }}
+                                            {...register("cuit", {
+                                                required: "Requerido",
+                                                pattern: {
+                                                    value: /^[0-9]+$/,
+                                                    message: "Solo números",
+                                                },
+                                                minLength: {
+                                                    value: 11,
+                                                    message:
+                                                        "El CUIT debe tener exactamente 11 dígitos",
+                                                },
+                                                maxLength: {
+                                                    value: 11,
+                                                    message:
+                                                        "El CUIT debe tener exactamente 11 dígitos",
+                                                },
+                                            })}
+                                            error={!!errors.cuit}
+                                            helperText={errors.cuit?.message}
+                                        />
+                                    </Grid>
+                                    <Grid item size={{ xs: 12, sm: 4 }}>
+                                        <TextField
+                                            label="CBU"
+                                            fullWidth
+                                            inputProps={{ maxLength: 22 }}
+                                            {...register("cbu", {
+                                                required: "Requerido",
+                                                pattern: {
+                                                    value: /^[0-9]+$/,
+                                                    message: "Solo números",
+                                                },
+                                                minLength: {
+                                                    value: 22,
+                                                    message:
+                                                        "El CBU debe tener exactamente 22 dígitos",
+                                                },
+                                                maxLength: {
+                                                    value: 22,
+                                                    message:
+                                                        "El CBU debe tener exactamente 22 dígitos",
+                                                },
+                                            })}
+                                            error={!!errors.cbu}
+                                            helperText={errors.cbu?.message}
+                                        />
+                                    </Grid>
+                                    <Grid item size={{ xs: 12, sm: 4 }}>
+                                        <TextField
+                                            label="Alias CBU"
+                                            fullWidth
+                                            {...register("aliasCbu", {
+                                                required: "Requerido",
+                                            })}
+                                            error={!!errors.aliasCbu}
+                                            helperText={
+                                                errors.aliasCbu?.message
+                                            }
+                                        />
+                                    </Grid>
+                                    <Grid item size={{ xs: 12, sm: 6 }}>
+                                        <TextField
+                                            label="Teléfono"
+                                            fullWidth
+                                            {...register("telefono", {
+                                                required: "Requerido",
+                                            })}
+                                            error={!!errors.telefono}
+                                            helperText={
+                                                errors.telefono?.message
+                                            }
+                                        />
+                                    </Grid>
+                                    <Grid item size={{ xs: 12, sm: 6 }}>
+                                        <TextField
+                                            label="Página Web"
+                                            fullWidth
+                                            placeholder="https://www.tufundacion.org"
+                                            {...register("paginaUrl")}
+                                        />
+                                    </Grid>
+                                    <Grid item size={{ xs: 12, sm: 6 }}>
+                                        <TextField
+                                            label="Facebook"
+                                            fullWidth
+                                            placeholder="https://www.facebook.com/tu_fundacion"
+                                            {...register("facebook")}
+                                        />
+                                    </Grid>
+                                    <Grid item size={{ xs: 12, sm: 6 }}>
+                                        <TextField
+                                            label="Instagram"
+                                            fullWidth
+                                            placeholder="https://www.instagram.com/tu_fundacion"
+                                            {...register("instagram")}
+                                        />
+                                    </Grid>
+                                    <Grid item size={{ xs: 12 }}>
+                                        <TextField
+                                            label="Descripción"
+                                            fullWidth
+                                            multiline
+                                            rows={3}
+                                            inputProps={{ maxLength: 400 }}
+                                            {...register("descripcion", {
+                                                required: "Requerido",
+                                                maxLength: {
+                                                    value: 400,
+                                                    message:
+                                                        "Máx 400 caracteres",
+                                                },
+                                            })}
+                                            error={!!errors.descripcion}
+                                            helperText={
+                                                errors.descripcion?.message
+                                            }
+                                        />
+                                    </Grid>
+                                    <Grid item size={{ xs: 12 }}>
+                                        <TextField
+                                            label="Uso de Donaciones"
+                                            fullWidth
+                                            multiline
+                                            rows={3}
+                                            inputProps={{ maxLength: 400 }}
+                                            {...register("motivoDonaciones", {
+                                                required: "Requerido",
+                                                maxLength: {
+                                                    value: 400,
+                                                    message:
+                                                        "Máx 400 caracteres",
+                                                },
+                                            })}
+                                            error={!!errors.motivoDonaciones}
+                                            helperText={
+                                                errors.motivoDonaciones?.message
+                                            }
+                                        />
+                                    </Grid>
+
+                                    {/* Ubicacion */}
+                                    <Grid size={{ xs: 12 }}>
+                                        <Box mb={2}>
+                                            <Typography
+                                                variant="subtitle1"
+                                                gutterBottom
+                                            >
+                                                Ubicación de la Fundación (opcional):
+                                            </Typography>
+                                            <Box
+                                                sx={{
+                                                    borderRadius: 2,
+                                                    overflow: "hidden",
+                                                }}
+                                            >
+                                                <Maps
+                                                    seleccionable={true}
+                                                    onMapClick={onMapClick}
+                                                    markerSeleccionado={latLng} // Mostrá el marker donde el usuario clickeó
+                                                    center={
+                                                        latLng
+                                                            ? [
+                                                                  latLng.lat,
+                                                                  latLng.lng,
+                                                              ]
+                                                            : [
+                                                                  -31.4167,
+                                                                  -64.1833,
+                                                              ]
+                                                    }
+                                                    zoom={16}
+                                                />
+                                            </Box>
+                                            
+                                        </Box>
+                                    </Grid>
+                                </Grid>
+                                <Box textAlign="right" mt={3}>
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        type="submit"
+                                    >
+                                        Registrar
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="info"
+                                        onClick={() => navigate(-1)}
+                                        sx={{ ml: 2 }}
+                                    >
+                                        Volver
+                                    </Button>
+                                </Box>
+                            </form>
+                        </Paper>
+                    </Grid>
+                </Grid>
+            </Container>
+        </>
+    );
+}

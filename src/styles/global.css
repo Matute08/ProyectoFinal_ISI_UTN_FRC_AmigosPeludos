@@ -1,0 +1,31 @@
+#root {
+  background-color: #d1aa72;
+  min-height: 100vh;
+}
+
+.page-flipbook {
+  width: 100%;
+  height: 100%;
+  background-color: #cac6c6ce;
+  background-image: url('/gatoyperrocarnet.png'); /* ajustá según tu ruta real */
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: 90px;
+  padding: 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  font-family: 'Segoe UI', sans-serif;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.page-flipbook.cover {
+  background-color: #f57c00 !important;
+  background-image: none;
+  color: white;
+  align-items: center;
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
+}

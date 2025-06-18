@@ -1,0 +1,28 @@
+import Swal from "sweetalert2";
+
+export const mostrarAlertaExito = (mensaje, redireccionar) => {
+  Swal.fire({
+    title: "¡Éxito!",
+    text: mensaje,
+    icon: "success",
+    timer: 2500,
+    showConfirmButton: false,
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didClose: () => {
+      window.location.href = redireccionar;
+    },
+  });
+};
+
+export const mostrarAlertaError = (mensaje) => {
+  Swal.fire({
+    title: "Error",
+    text: mensaje || "Ocurrió un problema al guardar la publicación.",
+    icon: "error",
+    timer: 3000,
+    showConfirmButton: false,
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+  });
+};
