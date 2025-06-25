@@ -1,7 +1,39 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      manifest: {
+        name: 'Amigos Peludos',
+        short_name: 'AP',
+        description: 'Ayuda a encontrar, adoptar y cuidar mascotas',
+        theme_color: '#ff7b00',
+        background_color: '#ffffff',
+        display: 'standalone',
+        start_url: '/',
+        icons: [
+          {
+            src: "public/logo-amigos-peludos.png",
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: "public/logo-amigos-peludos.png",
+            sizes: '512x512',
+            type: 'image/png'
+          },
+          {
+            src: "public/logo-amigos-peludos.png",
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
+      }
+    })
+  ]
 })
