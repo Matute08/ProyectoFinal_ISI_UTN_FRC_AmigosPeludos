@@ -429,7 +429,16 @@ export default function NuevaMascotaPerdida() {
                                     </Grid>
                                 </Grid>
 
-                                <Box textAlign="right" mt={3}>
+                                <Box display="flex" alignItems="center" width="100%" mt={3}>
+                                    <Button
+                                        variant="contained"
+                                        color="info"
+                                        disabled={subiendo}
+                                        onClick={() => navigate(-1)}
+                                    >
+                                        Volver
+                                    </Button>
+                                    <Box sx={{ flexGrow: 1 }} />
                                     <Button
                                         variant="contained"
                                         color="success"
@@ -437,15 +446,6 @@ export default function NuevaMascotaPerdida() {
                                         disabled={subiendo}
                                     >
                                         Publicar
-                                    </Button>
-                                    <Button
-                                        variant="contained"
-                                        color="info"
-                                        disabled={subiendo}
-                                        onClick={() => navigate(-1)}
-                                        sx={{ ml: 2 }}
-                                    >
-                                        Volver
                                     </Button>
                                 </Box>
                             </form>
