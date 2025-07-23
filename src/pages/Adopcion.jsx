@@ -20,6 +20,7 @@ import Grid from "@mui/material/Grid";
 import FloatingActionButton from "../components/FloatingActionButton";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
+import Denuncias from "../components/Denuncias"; 
 
 export default function Adopcion() {
     const [mascotasOriginales, setMascotasOriginales] = useState([]);
@@ -262,8 +263,13 @@ export default function Adopcion() {
                                     justifyContent: "space-between",
                                     borderRadius: 2,
                                     boxShadow: 3,
+                                    position: "relative",  // importante para el menú denuncia
                                 }}
                             >
+                                {/* Aquí se agrega el menú de denuncia */}
+                                <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 10 }}>
+                                    <Denuncias idEntidad={mascota.id} tipoEntidad="mascotaEnAdopcion" />
+                                </Box>
                                 <CardMedia
                                     component="img"
                                     height="200"

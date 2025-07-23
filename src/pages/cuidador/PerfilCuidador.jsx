@@ -17,6 +17,8 @@ import { getCuidadoresId } from "../../api/cuidadoresApi";
 import CustomLoader from "../../components/CustomLoader";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import Valoraciones from "../../components/valoraciones";
+
 
 const PerfilCuidador = () => {
     const { id } = useParams();
@@ -24,21 +26,21 @@ const PerfilCuidador = () => {
     const [cuidador, setCuidador] = useState(null);
     const [tabIndex, setTabIndex] = useState(0);
     const [loading, setLoading] = useState(true);
+    
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await getCuidadoresId(id);
-                setCuidador(res.data);
-            } catch (error) {
-                console.error("Error al cargar cuidador:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, [id]);
-
+    const fetchData = async () => {
+        try {
+            const res = await getCuidadoresId(id);
+            setCuidador(res.data);
+            } 
+        catch (error) {
+            console.error("Error al cargar cuidador:", error);
+            } 
+        finally { setLoading(false);}
+    };
+    fetchData();}, [id]);
+    
     const openWhatsApp = () => {
         const telefono = cuidador?.datosUsuario?.celular;
         const mensaje = "¡Hola! Necesito tu servicio de cuidador!";
@@ -132,6 +134,7 @@ const PerfilCuidador = () => {
                         <Tab label="Datos Cuidador" />
                         <Tab label="Imágenes" />
                         <Tab label="Horarios" />
+                        <Tab label="Valoraciones" /> 
                     </Tabs>
 
                     {tabIndex === 0 && (
@@ -289,6 +292,14 @@ const PerfilCuidador = () => {
                             </Box>
                         </Box>
                     )}
+                    {tabIndex === 3 && (
+                    <Box mt={3}>
+                        
+                        <Valoraciones idCuidador={cuidador.id}  />
+                                                
+                    </Box>
+                    )}
+                    
                 </Grid>
             </Grid>
             <Box sx={{ display: "flex", justifyContent: "end", mt: 2 }}>

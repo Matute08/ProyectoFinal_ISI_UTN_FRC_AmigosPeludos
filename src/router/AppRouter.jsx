@@ -43,6 +43,8 @@ import ModificarPerfil from "../pages/perfil/ModificarPerfil";
 import VacunacionMascota from "../pages/perfil/mascotas/vacunas/VacunacionMascota";
 import ModificarPaseador from "../pages/perfil/servicios/modificar/ModificarPaseador";
 
+import PanelDenuncias from "../pages/denuncias/PanelDenuncias";
+
 export default function AppRouter() {
     return (
         <>
@@ -189,7 +191,14 @@ export default function AppRouter() {
                         </PrivateRoute>
                     }
                 />
-
+                <Route
+                    path="/denuncias"
+                    element={
+                        <PrivateRoute>
+                            <PanelDenuncias />
+                        </PrivateRoute>
+                    }
+                />
                 <Route
                     path="/agregar-veterinaria"
                     element={

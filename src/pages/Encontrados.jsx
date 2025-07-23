@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
     Container,
     Typography,
-    
     Grid,
     Card,
     CardMedia,
@@ -20,6 +19,7 @@ import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import FloatingActionButton from "../components/FloatingActionButton";
 import { getMascotasEncontradas } from "../api/publicacionesApi";
+import Denuncias from "../components/Denuncias"; 
 
 export default function Encontrados() {
     const [mascotas, setMascotas] = useState([]);
@@ -110,7 +110,7 @@ export default function Encontrados() {
 
     return (
         <>
-            <Container sx={{ mt: 4,  backgroundColor:"#e0d0b8", borderRadius: 4  }}>
+            <Container sx={{ mt: 4, backgroundColor: "#e0d0b8", borderRadius: 4 }}>
                 <Typography
                     variant="h4"
                     gutterBottom
@@ -136,10 +136,8 @@ export default function Encontrados() {
                         gap: 1,
                         mb: 3,
                     }}
-
                 >
-                    Aquí puedes encontrar mascotas que han sido reportadas como
-                    perdidas.
+                    Aquí puedes encontrar mascotas que han sido reportadas como perdidas.
                 </Typography>
 
                 {/* Filtros */}
@@ -158,13 +156,11 @@ export default function Encontrados() {
                                 }
                             >
                                 <MenuItem value="Todos">Todos</MenuItem>
-                                {valoresUnicos("tipoMascotaNombre").map(
-                                    (tipo) => (
-                                        <MenuItem key={tipo} value={tipo}>
-                                            {tipo}
-                                        </MenuItem>
-                                    )
-                                )}
+                                {valoresUnicos("tipoMascotaNombre").map((tipo) => (
+                                    <MenuItem key={tipo} value={tipo}>
+                                        {tipo}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Grid>
@@ -206,13 +202,11 @@ export default function Encontrados() {
                                 }
                             >
                                 <MenuItem value="Todas">Todas</MenuItem>
-                                {valoresUnicos("ciudadPublicacion").map(
-                                    (ciudad) => (
-                                        <MenuItem key={ciudad} value={ciudad}>
-                                            {ciudad}
-                                        </MenuItem>
-                                    )
-                                )}
+                                {valoresUnicos("ciudadPublicacion").map((ciudad) => (
+                                    <MenuItem key={ciudad} value={ciudad}>
+                                        {ciudad}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Grid>
@@ -231,13 +225,11 @@ export default function Encontrados() {
                                 }
                             >
                                 <MenuItem value="Todos">Todos</MenuItem>
-                                {valoresUnicos("barrioPublicacion").map(
-                                    (barrio) => (
-                                        <MenuItem key={barrio} value={barrio}>
-                                            {barrio}
-                                        </MenuItem>
-                                    )
-                                )}
+                                {valoresUnicos("barrioPublicacion").map((barrio) => (
+                                    <MenuItem key={barrio} value={barrio}>
+                                        {barrio}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Grid>
@@ -254,9 +246,9 @@ export default function Encontrados() {
                 </Grid>
 
                 {/* Cards */}
-                <Grid container spacing={3} >
+                <Grid container spacing={3}>
                     {mascotasPagina.map((m) => (
-                        <Grid item key={m.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                        <Grid item key={m.id} size={{ xs: 12, sm: 6, md: 4 }} sx={{ position: "relative" }}>
                             <Card
                                 sx={{
                                     height: "100%",
@@ -265,14 +257,18 @@ export default function Encontrados() {
                                     justifyContent: "space-between",
                                     borderRadius: 2,
                                     boxShadow: 3,
+                                    position: "relative",  // importante para el menú denuncia
                                 }}
                             >
+                                {/* Aquí se agrega el menú de denuncia */}
+                                <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 10 }}>
+                                    <Denuncias idEntidad={m.id} tipoEntidad="mascotaEncontrada" />
+                                </Box>
+
                                 <CardMedia
                                     component="img"
                                     height="200"
-                                    image={
-                                        m.fotos?.[0]?.foto || "/placeholder.png"
-                                    }
+                                    image={m.fotos?.[0]?.foto || "/placeholder.png"}
                                     alt={m.nombre || "Mascota"}
                                     sx={{ objectFit: "cover" }}
                                 />
@@ -280,33 +276,20 @@ export default function Encontrados() {
                                     <Typography fontWeight="bold">
                                         {m.nombre || "Mascota Encontrada"}
                                     </Typography>
-                                    <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                    >
+                                    <Typography variant="caption" color="text.secondary">
                                         Publicado: {formatearFecha(m.fechaAlta)}
                                     </Typography>
                                     <Typography variant="body2" mt={1}>
                                         {m.descripcion?.length > 100
-                                            ? m.descripcion.slice(0, 100) +
-                                              "..."
-                                            : m.descripcion ||
-                                              "Sin descripción."}
+                                            ? m.descripcion.slice(0, 100) + "..."
+                                            : m.descripcion || "Sin descripción."}
                                     </Typography>
                                 </CardContent>
                                 <Box sx={{ textAlign: "left", px: 2, pb: 2 }}>
                                     <Button
                                         variant="outlined"
-                                        endIcon={
-                                            <span style={{ fontSize: "1rem" }}>
-                                                →
-                                            </span>
-                                        }
-                                        onClick={() =>
-                                            navigate(
-                                                `/consultar-posteo-encontrada/${m.id}`
-                                            )
-                                        }
+                                        endIcon={<span style={{ fontSize: "1rem" }}>→</span>}
+                                        onClick={() => navigate(`/consultar-posteo-encontrada/${m.id}`)}
                                     >
                                         Ver Detalles
                                     </Button>
