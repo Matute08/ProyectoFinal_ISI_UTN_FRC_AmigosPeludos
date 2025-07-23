@@ -104,6 +104,8 @@ export default function NuevaMascotaEncontrada() {
                 color: data.color,
             };
 
+            console.log(payload);
+
             await postMascotaEncontrada(payload);
             mostrarAlertaExito(
                 "La publicación fue creada exitosamente",
@@ -440,11 +442,16 @@ export default function NuevaMascotaEncontrada() {
                                     </Grid>
 
                                     {/* BOTONES */}
-                                    <Box
-                                        mt={3}
-                                        display="flex"
-                                        justifyContent="space-between"
-                                    >
+                                    <Box mt={3} display="flex" alignItems="center" width="100%">
+                                        <Button
+                                            variant="contained"
+                                            color="info"
+                                            onClick={() => navigate(-1)}
+                                            disabled={subiendo}
+                                        >
+                                            Volver
+                                        </Button>
+                                        <Box sx={{ flexGrow: 1 }} />
                                         <Button
                                             variant="contained"
                                             color="success"
@@ -452,15 +459,6 @@ export default function NuevaMascotaEncontrada() {
                                             disabled={subiendo}
                                         >
                                             Publicar
-                                        </Button>
-                                        <Button
-                                            variant="contained"
-                                            color="info"
-                                            onClick={() => navigate(-1)}
-                                            sx={{ ml: 2 }}
-                                            disabled={subiendo}
-                                        >
-                                            Volver
                                         </Button>
                                     </Box>
                                 </Grid>

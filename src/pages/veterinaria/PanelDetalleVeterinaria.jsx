@@ -9,7 +9,8 @@ import {
   Tabs,
   Tab,
   Slide,
-  Avatar
+  Avatar,
+  useMediaQuery
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
@@ -35,11 +36,19 @@ const NOMBRES_SERVICIOS = {
   vacunaciones: "Vacunaciones",
 };
 
-const PanelDetalleVeterinaria = ({ veterinaria, onClose, open }) => {
+const PanelDetalleVeterinaria = ({ veterinaria, onClose, open, containerRef }) => {
   const [tab, setTab] = useState(0);
   const hoy = new Date().getDay();
+  const isMobile = useMediaQuery('(max-width:900px)');
 
   if (!open || !veterinaria) return null;
+
+  // Overlay para cerrar al hacer click fuera
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
   // --- TABS ---
   const TABS = [
@@ -186,80 +195,115 @@ const PanelDetalleVeterinaria = ({ veterinaria, onClose, open }) => {
 //     </Box>
 //   );
 
+  // Panel flotante dentro del contenedor del mapa
   return (
-<Slide direction="left" in={open} mountOnEnter unmountOnExit>
-  <Box
-    sx={{
-      position: "fixed",
-      top: 0,
-      right: 0,
-      width: { xs: "100%", md: 410 },
-      height: { xs: "100%", md: "calc(100% - 48px)" },
-      maxWidth: { xs: "100%", md: 410 },
-      bgcolor: "#fff",
-      boxShadow: 7,
-      borderTopLeftRadius: { xs: 0, md: 24 },
-      borderBottomLeftRadius: { xs: 0, md: 24 },
-      p: { xs: 2, md: 3 },
-      zIndex: 1300,
-      overflowY: "auto",
-    }}
-  >
-
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-          <Typography variant="h5" fontWeight={700} color="primary" sx={{ letterSpacing: 0.5 }}>
-            {veterinaria.nombre}
-          </Typography>
-          <Avatar
-  src={veterinaria.fotoUrl || "/images/veterinaria-placeholder.png"}
-  alt={veterinaria.nombre}
-  sx={{ width: 64, height: 64 }}
-/>
-
-          <IconButton size="small" onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
-        </Box>
-        {/* Datos principales */}
-        <Box mb={2}>
-          <Typography variant="body1" display="flex" alignItems="center" gap={1}>
-            <PlaceIcon fontSize="small" /> {veterinaria.direccion} {veterinaria.numeroCalle}
-          </Typography>
-          <Typography variant="body1" display="flex" alignItems="center" gap={1}>
-            <LocalPhoneIcon fontSize="small" /> {veterinaria.numeroTelefono}
-          </Typography>
-        </Box>
-        <Divider sx={{ mb: 2 }} />
-
-        {/* TABS */}
-        <Tabs
-          value={tab}
-          onChange={(_, v) => setTab(v)}
-          variant="scrollable"
-          scrollButtons="auto"
-          aria-label="Tabs veterinaria"
-          sx={{
-            mb: 2,
-            borderBottom: 1,
-            borderColor: "divider",
-            '.Mui-selected': { color: "primary.main" }
-          }}
+    <Box
+      sx={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 20,
+        pointerEvents: open ? 'auto' : 'none',
+      }}
+      ref={containerRef}
+    >
+      {/* Overlay */}
+      <Box
+        onClick={handleOverlayClick}
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          bgcolor: open ? 'rgba(0,0,0,0.25)' : 'transparent',
+          zIndex: 21,
+          transition: 'background 0.3s',
+        }}
+      >
+        <Slide
+          direction={isMobile ? 'up' : 'left'}
+          in={open}
+          mountOnEnter
+          unmountOnExit
         >
-          {TABS.map((t, idx) => (
-            <Tab key={t.label} icon={t.icon} iconPosition="start" label={t.label} value={idx} />
-          ))}
-        </Tabs>
-
-        {/* PANEL SEGÚN TAB */}
-        <Box>
-          {tab === 0 && renderHorarios()}
-          {tab === 1 && renderServicios()}
-          {tab === 2 && renderDonacion()}
-          {tab === 3 && renderRedes()}
-          {/* {tab === 3 && renderResenas()} */}
-        </Box>
+          <Box
+            sx={{
+              position: 'absolute',
+              right: isMobile ? 'auto' : 0,
+              left: isMobile ? 0 : 'auto',
+              bottom: isMobile ? 0 : 'auto',
+              width: { xs: '100%', md: 410 },
+              maxWidth: { xs: '100%', md: 410 },
+              height: isMobile ? '70%' : '100%',
+              maxHeight: isMobile ? '80%' : '100%',
+              bgcolor: '#fff',
+              boxShadow: 7,
+              borderRadius: isMobile ? '24px 24px 0 0' : '24px 0 0 24px',
+              p: { xs: 2, md: 3 },
+              zIndex: 22,
+              overflowY: 'auto',
+              transition: 'border-radius 0.3s',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* --- CONTENIDO DEL PANEL (igual que antes) --- */}
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+              <Typography variant="h5" fontWeight={700} color="primary" sx={{ letterSpacing: 0.5 }}>
+                {veterinaria.nombre}
+              </Typography>
+              <Avatar
+                src={veterinaria.fotoUrl || "/images/veterinaria-placeholder.png"}
+                alt={veterinaria.nombre}
+                sx={{ width: 64, height: 64 }}
+              />
+              <IconButton size="small" onClick={onClose}>
+                <CloseIcon />
+              </IconButton>
+            </Box>
+            {/* Datos principales */}
+            <Box mb={2}>
+              <Typography variant="body1" display="flex" alignItems="center" gap={1}>
+                <PlaceIcon fontSize="small" /> {veterinaria.direccion} {veterinaria.numeroCalle}
+              </Typography>
+              <Typography variant="body1" display="flex" alignItems="center" gap={1}>
+                <LocalPhoneIcon fontSize="small" /> {veterinaria.numeroTelefono}
+              </Typography>
+            </Box>
+            <Divider sx={{ mb: 2 }} />
+            {/* TABS */}
+            <Tabs
+              value={tab}
+              onChange={(_, v) => setTab(v)}
+              variant="scrollable"
+              scrollButtons="auto"
+              aria-label="Tabs veterinaria"
+              sx={{
+                mb: 2,
+                borderBottom: 1,
+                borderColor: "divider",
+                '.Mui-selected': { color: "primary.main" }
+              }}
+            >
+              {TABS.map((t, idx) => (
+                <Tab key={t.label} icon={t.icon} iconPosition="start" label={t.label} value={idx} />
+              ))}
+            </Tabs>
+            {/* PANEL SEGÚN TAB */}
+            <Box>
+              {tab === 0 && renderHorarios()}
+              {tab === 1 && renderServicios()}
+              {tab === 2 && renderDonacion()}
+              {tab === 3 && renderRedes()}
+            </Box>
+          </Box>
+        </Slide>
       </Box>
-    </Slide>
+    </Box>
   );
 };
 
