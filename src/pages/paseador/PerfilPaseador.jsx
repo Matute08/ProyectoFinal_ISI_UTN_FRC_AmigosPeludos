@@ -15,6 +15,7 @@ import { getPaseadorPorId } from "../../api/paseadoresApi";
 import CustomLoader from "../../components/CustomLoader";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import Valoraciones from "../../components/valoraciones";
 
 const PerfilPaseador = () => {
     const { id } = useParams();
@@ -127,6 +128,7 @@ const PerfilPaseador = () => {
                         <Tab label="Datos Paseador" />
                         <Tab label="Imágenes" />
                         <Tab label="Horarios" />
+                        <Tab label="Valoraciones" /> 
                     </Tabs>
 
                     {tabIndex === 0 && (
@@ -272,6 +274,12 @@ const PerfilPaseador = () => {
                             </Box>
                         </Box>
                     )}
+
+                     {tabIndex === 3 && (
+                        <Box mt={3}>
+                            <Valoraciones idPaseador={paseador.id} />
+                        </Box>
+                    )} 
                 </Grid>
             </Grid>
             <Box sx={{ display: "flex", justifyContent: "end", mt: 2 }}>

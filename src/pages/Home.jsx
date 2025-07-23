@@ -2,6 +2,7 @@ import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import React from "react";
 import fondoGato from "../assets/landing.jpg"; // Asegurate de tener esta imagen
 import Servicios from "../components/Servicios";
+import Denuncias from "../components/Denuncias";
 
 const Home = () => {
     const theme = useTheme();

@@ -427,7 +427,21 @@ const Navbar = () => {
                                         />
                                     )}
                                 </MenuItem>
+                                
                             )}
+                            {userData?.rolId === 1 && (
+                                <MenuItem
+                                    onClick={() => {
+                                    navigate("/denuncias");
+                                    handleCloseUserMenu();
+                                    }}
+                                >
+                                    <ReportProblem fontSize="small" sx={{ mr: 1 }} />
+                                    Denuncias
+                                </MenuItem>
+                            )}
+
+
                             <MenuItem onClick={handleLogout}>
                                 <Logout fontSize="small" sx={{ mr: 1 }} />{" "}
                                 Cerrar Sesión

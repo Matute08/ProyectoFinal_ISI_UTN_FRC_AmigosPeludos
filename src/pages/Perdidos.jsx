@@ -20,6 +20,7 @@ import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import { getMascotasPerdidas } from "../api/publicacionesApi";
 import FloatingActionButton from "../components/FloatingActionButton";
+import Denuncias from "../components/Denuncias";
 
 export default function Perdidos() {
     const [mascotas, setMascotas] = useState([]);
@@ -255,15 +256,20 @@ export default function Perdidos() {
                     {mascotasPagina.map((m) => (
                         <Grid item key={m.id} size={{ xs: 12, sm: 6, md: 4 }}>
                             <Card
-                                sx={{
+                               sx={{
                                     height: "100%",
                                     display: "flex",
                                     flexDirection: "column",
                                     justifyContent: "space-between",
                                     borderRadius: 2,
                                     boxShadow: 3,
+                                    position: "relative",  // importante para el menú denuncia
                                 }}
                             >
+                                {/* Aquí se agrega el menú de denuncia */}
+                                <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 10 }}>
+                                    <Denuncias idEntidad={m.id} tipoEntidad="mascotaPerdida" />
+                                </Box>
                                 <CardMedia
                                     component="img"
                                     height="200"
@@ -291,6 +297,7 @@ export default function Perdidos() {
                                               "Sin descripción."}
                                     </Typography>
                                 </CardContent>
+                                
                                 <Box sx={{ textAlign: "left", px: 2, pb: 2 }}>
                                     <Button
                                         variant="outlined"
