@@ -164,7 +164,7 @@ export default function NuevaMascotaEncontrada() {
                 </Box>
 
                 <Grid spacing={3}>
-                    <Grid item xs={12} md={8}>
+                    <Grid item size={{ xs: 12, md: 8 }}>
                         <Paper sx={{ p: 3 }}>
                             <Typography variant="h6" mb={2}>
                                 Fotos de la mascota

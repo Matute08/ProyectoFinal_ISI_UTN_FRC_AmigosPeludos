@@ -49,8 +49,11 @@ const MascotasTab = ({ userData }) => {
     const fetchMascotas = async () => {
         try {
             const res = await getMascotasUsuario(userData.id);
-            setPets(res?.data || []);
-        } catch {
+            
+            const mascotas = res?.data || [];
+            setPets(mascotas);
+        } catch (error) {
+            console.error("Error al cargar mascotas:", error);
             setError("No se pudieron cargar las mascotas.");
         } finally {
             setLoading(false);
@@ -71,7 +74,8 @@ const MascotasTab = ({ userData }) => {
             }
             if (imageUrl) await deleteFileStorage(imageUrl);
 
-            setPets((prev) => prev.filter((p) => p.id !== id));
+            // Recargar las mascotas desde el servidor en lugar de solo filtrar
+            await fetchMascotas();
             setConfirmDialog({ open: false, petId: null });
         } catch (err) {
             console.error("Error al eliminar mascota:", err);
@@ -107,7 +111,8 @@ const MascotasTab = ({ userData }) => {
     if (pets.length === 0) {
         return (
             <Alert severity="info" sx={{ mt: 2 }}>
-                ¡Todavía no cargaste ninguna mascota!
+                ¡Todavía no cargaste ninguna mascota habilitada! 
+                {userData?.tieneMascota && " Es posible que tus mascotas estén deshabilitadas temporalmente."}
             </Alert>
         );
     }
@@ -178,11 +183,14 @@ const MascotasTab = ({ userData }) => {
 
                                     <Tooltip title="Vacunas">
                                         <IconButton
-                                            onClick={() =>
-                                                navigate(
-                                                    `/vacunas-mascota/${pet.id}`
-                                                )
-                                            }
+                                            onClick={() => {
+                                                if (pet.id) {
+                                                    navigate(`/vacunas-mascota/${pet.id}`);
+                                                } else {
+                                                    console.error("ID de mascota no válido:", pet);
+                                                    mostrarAlertaError("No se pudo acceder a las vacunas. ID de mascota no válido.");
+                                                }
+                                            }}
                                         >
                                             <VaccinesIcon />
                                         </IconButton>
