@@ -135,13 +135,15 @@ const MascotasTab = ({ userData }) => {
                         >
                             <CardMedia
                                 component="img"
-                                height="180"
+                                height="200"
                                 image={
                                     pet.foto || "/images/placeholder-pet.png"
                                 }
                                 alt={pet.nombre}
                                 sx={{
-                                    objectFit: "cover",
+                                    objectFit: "contain",
+                                    width: "100%",
+                                    backgroundColor: "#f5f5f5"
                                 }}
                             />
 

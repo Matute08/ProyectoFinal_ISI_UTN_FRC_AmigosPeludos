@@ -16,7 +16,7 @@ const Paso2Descripcion = ({ user }) => {
 
     useEffect(() => {
         if (user) {
-            console.log(user);
+            // Usuario disponible
         }
     }, [user, setValue]);
 

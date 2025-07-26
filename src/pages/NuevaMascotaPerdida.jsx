@@ -101,7 +101,7 @@ export default function NuevaMascotaPerdida() {
                 color: data.color,
             };
 
-            console.log("Payload a enviar:", payload);
+
             await postMascotaPerdida(payload);
             mostrarAlertaExito(
                 "La publicación fue creada exitosamente",

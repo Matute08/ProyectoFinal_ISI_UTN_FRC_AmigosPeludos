@@ -104,7 +104,7 @@ export default function NuevaMascotaEncontrada() {
                 color: data.color,
             };
 
-            console.log(payload);
+
 
             await postMascotaEncontrada(payload);
             mostrarAlertaExito(

@@ -52,12 +52,10 @@ const PanelDenuncias = () => {
   };
 
   const eliminarPublicacion = (idPublicacion) => {
-    console.log("Eliminar publicación:", idPublicacion);
     // TODO: Llamar a la API para eliminar publicación y refrescar la lista
   };
 
   const descartarDenuncia = (idDenuncia) => {
-    console.log("Descartar denuncia:", idDenuncia);
     // TODO: Llamar a la API para ocultar o marcar como revisada la denuncia y refrescar la lista
   };
 

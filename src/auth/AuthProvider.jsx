@@ -58,10 +58,8 @@ export function AuthProvider({ children }) {
         try {
             const res = await getUserMail(user.email);
             const usuarioExistente = res.data;
-            console.log("Usuario ya existe en BD:", usuarioExistente);
         } catch (error) {
             if (error?.response?.status === 404) {
-                console.log("Usuario no existe. Creando en BD...");
                 const nuevoUsuario = {
                     nombre: user.displayName || "Sin nombre",
                     mail: user.email,
@@ -69,7 +67,6 @@ export function AuthProvider({ children }) {
                     rolId: 2,
                 };
                 await postNuevoUsuario(nuevoUsuario);
-                console.log("✅ Usuario creado");
             } else {
                 console.error("❌ Error inesperado al verificar usuario:", error);
             }

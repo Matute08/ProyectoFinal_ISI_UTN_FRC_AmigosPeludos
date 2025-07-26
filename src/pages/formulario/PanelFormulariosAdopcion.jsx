@@ -55,7 +55,6 @@ const PanelFormulariosAdopcion = () => {
 
     const fetchEstados = async () => {
         const res = await getEstadosFormularios();
-        console.log(res.data);
         setEstados(res.data);
     };
 
@@ -89,7 +88,7 @@ const PanelFormulariosAdopcion = () => {
             confirmButtonText: "Actualizar",
         });
 
-        console.log(estadoId);
+
 
         if (estadoId) {
             try {

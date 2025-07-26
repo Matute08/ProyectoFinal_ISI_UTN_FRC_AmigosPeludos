@@ -101,6 +101,14 @@ const AgregarCuidador = () => {
 
     const onSubmit = async (data) => {
         try {
+            // Validar que haya fotos
+            if (!data.fotos || data.fotos.length === 0) {
+                mostrarAlertaError("Debes subir al menos una imagen para continuar");
+                return;
+            }
+
+
+
             // Datos finales Cuidador
 
             const payload = {
@@ -117,9 +125,11 @@ const AgregarCuidador = () => {
                 patioBalcon: Boolean(data.patioBalcon),
                 transportePropio: Boolean(data.transportePropio),
                 precioCuidado: Number(data.precioCuidado),
-                fotos: data.fotos.map((f) => ({ foto: f })),
+                fotos: data.fotos ? data.fotos.map((f) => ({ foto: f })) : [],
                 grilla: { scheduleData: data.grilla },
             };
+
+
 
             // Datos finales usuario
             const payloadActualizacionUsuario = {
@@ -152,7 +162,7 @@ const AgregarCuidador = () => {
 
                 esCuidador: true,
             };
-            console.log(payload);
+
             await postCuidador(payload);
             await updateUser(user.id, payloadActualizacionUsuario);
 
