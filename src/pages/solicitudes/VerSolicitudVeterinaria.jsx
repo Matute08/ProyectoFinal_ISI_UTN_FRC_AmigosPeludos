@@ -132,16 +132,12 @@ const VerSolicitudVeterinaria = () => {
         fetchData();
     }, [id]);
 
-    console.log(solicitud);
-
     const getEstadoNombre = (id) => {
         if (id === 1) return "Revisión";
         if (id === 2) return "Aceptado";
         if (id === 3) return "Rechazado";
         return "Desconocido";
     };
-
-    console.log(solicitud);
     // Horarios: mostrar como tabla día/horario
     const renderHorarios = (horarios = {}) => {
         const diasConAtencion = DIAS.filter(

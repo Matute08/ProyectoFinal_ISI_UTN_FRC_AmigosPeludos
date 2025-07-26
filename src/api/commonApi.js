@@ -34,3 +34,9 @@ export const updateEstadoVeterinaria = (id, data) => apiClient.put(`/Veterinaria
 
 export const postVeterinaria = (data) => apiClient.post('/veterinaria', data);
 export const deleteVeterinaria = (id) => apiClient.delete(`/veterinaria/${id}`);
+
+// Comparaciones automáticas de mascotas
+export const getComparacionesByPublicacion = async (publicacionId) => {
+  const response = await apiClient.get(`/publicacionmascota/comparaciones/${publicacionId}`);
+  return response.data;
+};

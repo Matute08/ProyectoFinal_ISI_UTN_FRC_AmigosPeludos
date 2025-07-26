@@ -55,7 +55,7 @@ const AgregarVeterinaria = () => {
         setLoading(true);
         setError("");
         try {
-            console.log("Datos del formulario:", data);
+
             let url = null;
             if (data.foto) {
                 url = await uploadFilesVeterinaria(data.foto);
@@ -147,8 +147,7 @@ const AgregarVeterinaria = () => {
                 qr: userData.qr ?? null,
                 esVeterinaria: true,
             };
-            console.log(
-                "Datos de veterinaria para enviar:",veterinariaParaBack)
+
             // --- POST ---
             await postVeterinaria(veterinariaParaBack);
             await updateUser(userData.id, payloadActualizacionUsuario);

@@ -42,8 +42,10 @@ import AgregarCuidador from "../pages/cuidador/agregarCuidador/AgregarCuidador";
 import ModificarPerfil from "../pages/perfil/ModificarPerfil";
 import VacunacionMascota from "../pages/perfil/mascotas/vacunas/VacunacionMascota";
 import ModificarPaseador from "../pages/perfil/servicios/modificar/ModificarPaseador";
+import ModificarCuidador from "../pages/perfil/servicios/modificar/ModificarCuidador";
 
 import PanelDenuncias from "../pages/denuncias/PanelDenuncias";
+import ComparacionesMascotaPage from "../pages/ComparacionesMascotaPage";
 
 export default function AppRouter() {
     return (
@@ -257,6 +259,18 @@ export default function AppRouter() {
                             <ModificarPaseador />
                         </PrivateRoute>
                     }
+                />
+                <Route
+                    path="/modificar-cuidador/:cuidadorId"
+                    element={
+                        <PrivateRoute>
+                            <ModificarCuidador />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/comparaciones/:id"
+                    element={<ComparacionesMascotaPage />}
                 />
                 {/* Puedes agregar más rutas aquí */}
             </Routes>

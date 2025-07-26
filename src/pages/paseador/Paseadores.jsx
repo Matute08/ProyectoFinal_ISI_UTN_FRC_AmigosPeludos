@@ -129,12 +129,13 @@ const Paseadores = () => {
                     sx={{
                       maxHeight: 170,
                       maxWidth: "80%",
-                      objectFit: "cover",
+                      objectFit: "contain",
                       mx: "auto",
                       my: 2,
                       mt: 4,
                       borderRadius: 3,
                       boxShadow: "0 1px 6px rgba(0,0,0,0.07)",
+                      backgroundColor: "#f5f5f5"
                     }}
                   />
                 </Box>

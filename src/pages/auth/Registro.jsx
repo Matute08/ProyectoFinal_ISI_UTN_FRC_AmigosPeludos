@@ -51,7 +51,7 @@ const Register = () => {
         setError(null);
         setLoading(true);
 
-        console.log(data)
+
         try {
             const isUser = await getUserMail(data.mail);
             const userCredential = await register(data.mail, data.password);

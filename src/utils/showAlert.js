@@ -26,3 +26,13 @@ export const mostrarAlertaError = (mensaje) => {
     allowEscapeKey: false,
   });
 };
+
+export const mostrarAlertaInfo = (titulo, mensaje) => {
+  Swal.fire({
+    title: titulo,
+    text: mensaje,
+    icon: "info",
+    confirmButtonText: "Entendido",
+    confirmButtonColor: "#3085d6",
+  });
+};

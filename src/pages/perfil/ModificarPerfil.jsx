@@ -92,8 +92,6 @@ const EditarPerfil = () => {
         setLoading(true);
         try {
             let nuevaFoto = user.foto;
-            console.log(nuevaFoto);
-            console.log(foto);
 
             if (
                 foto.length > 0 &&
