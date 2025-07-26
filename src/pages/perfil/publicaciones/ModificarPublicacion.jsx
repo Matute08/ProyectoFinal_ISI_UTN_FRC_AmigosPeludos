@@ -60,6 +60,7 @@ const ModificarPublicacion = () => {
     const [barrio, setBarrios] = useState([]);
     //const [fotosEliminadas, setFotosEliminadas] = useState([]);
     const [usuarioReal, setUsuarioReal] = useState(null);
+    const [publicacionOriginal, setPublicacionOriginal] = useState(null);
 
     const {
         control,
@@ -78,6 +79,8 @@ const ModificarPublicacion = () => {
             castracion: "",
             peso: "",
             barrioId: "",
+            ciudadId: "",
+            tipoPublicacionId: "",
             color: "",
             descripcion: "",
         },
@@ -112,6 +115,7 @@ const ModificarPublicacion = () => {
                     ]);
 
                 const post = postRes;
+                setPublicacionOriginal(post); // Guardar datos originales
                 setTipoPublicacion(post.publicacionTipo);
                 setFotoActual(
                     post.fotos?.map((f) => ({
@@ -153,8 +157,10 @@ const ModificarPublicacion = () => {
                     castracion: post.castrado ? "1" : "0",
                     descripcion: post.descripcion,
                     barrioId: post.barrioId,
+                    ciudadId: post.ciudadId, // Agregar ciudadId
                     ciudad: post.ciudad,
                     fechaPerdida: fechaPerdidaFormateada,
+                    tipoPublicacionId: post.tipoPublicacionId, // Agregar tipoPublicacionId
                 });
             } catch (error) {
                 console.error(error);
@@ -177,8 +183,13 @@ const ModificarPublicacion = () => {
             // 1. Eliminar fotos marcadas
             const fotosAEliminar = fotoActual.filter((f) => f.toBeDeleted);
             for (const foto of fotosAEliminar) {
-                await deleteFotoPosteo(foto.id); // desde BD
-                await deleteFileStorage(foto.url); // desde Firebase
+                try {
+                    await deleteFotoPosteo(foto.id); // desde BD
+                    await deleteFileStorage(foto.url); // desde Firebase
+                } catch (error) {
+                    console.error(`Error al eliminar foto ${foto.id}:`, error);
+                    // Continuar con el proceso aunque falle la eliminación de una foto
+                }
             }
 
             // 2. Subir y vincular nuevas fotos
@@ -199,24 +210,29 @@ const ModificarPublicacion = () => {
             const payload = {
                 id: parseInt(publicacionId, 10),
                 nombre: data.nombre,
-                razaId: parseInt(data.razaId),
-                edadId: parseInt(data.edadId),
-                sexoId: parseInt(data.sexoId),
+                razaId: data.razaId ? parseInt(data.razaId) : publicacionOriginal.razaId,
+                edadId: data.edadId ? parseInt(data.edadId) : publicacionOriginal.edadId,
+                sexoId: data.sexoId ? parseInt(data.sexoId) : publicacionOriginal.sexoId,
                 castracion: data.castracion === "1",
-                color: data.color || null,
-                descripcion: data.descripcion,
-                barrioId: parseInt(data.barrioId),
-                ciudadId: parseInt(data.ciudadId),
-                telefono: data.telefono || null,
-                calle: data.calle || null,
-                fechaPerdida: data.fechaPerdida || null,
-                latitud: coordenadas.lat || null,
-                longitud: coordenadas.lng || null,
-                usuarioId: usuarioReal.id,
-                tipoPublicacionId: data.tipoPublicacionId, // si lo tenés disponible
+                color: data.color || publicacionOriginal.color,
+                descripcion: data.descripcion || publicacionOriginal.descripcion,
+                barrioId: data.barrioId ? parseInt(data.barrioId) : publicacionOriginal.barrioId,
+                ciudadId: data.ciudadId ? parseInt(data.ciudadId) : publicacionOriginal.ciudadId,
+                telefono: data.telefono || publicacionOriginal.telefono,
+                calle: data.calle || publicacionOriginal.calle,
+                fechaPerdida: data.fechaPerdida ? new Date(data.fechaPerdida + 'T00:00:00.000Z').toISOString() : publicacionOriginal.fechaPerdida,
+                latitud: coordenadas.lat || publicacionOriginal.lat || publicacionOriginal.latitud,
+                longitud: coordenadas.lng || publicacionOriginal.lng || publicacionOriginal.longitud,
+                usuarioId: usuarioReal?.id || publicacionOriginal.usuarioId,
+                tipoPublicacionId: data.tipoPublicacionId ? parseInt(data.tipoPublicacionId) : publicacionOriginal.tipoPublicacionId,
             };
-
-            await updatePublicacion(publicacionId, payload);
+            
+            // Asegurar que todos los campos requeridos estén presentes
+            if (!payload.ciudadId) payload.ciudadId = 1;
+            if (!payload.latitud) payload.latitud = publicacionOriginal.lat || publicacionOriginal.latitud || 0;
+            if (!payload.longitud) payload.longitud = publicacionOriginal.lng || publicacionOriginal.longitud || 0;
+            
+            const updateResponse = await updatePublicacion(publicacionId, payload);
             mostrarAlertaExito(
                 "Publicación actualizada correctamente",
                 "/perfil"

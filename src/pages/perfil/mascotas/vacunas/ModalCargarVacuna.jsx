@@ -9,12 +9,13 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { postVacunaMascota, getVacunasPorTipo } from "../../../../api/vacunaApi";
+import { postVacunaMascota, getVacunasPorTipo, getVacunas } from "../../../../api/vacunaApi";
 import { getMascotaId } from "../../../../api/mascotasApi";
 import { mostrarAlertaExito, mostrarAlertaError } from "../../../../utils/showAlert";
 
 export default function ModalCargarVacuna({ open, handleClose, idMascota, onSuccess }) {
     const [vacunas, setVacunas] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
         vacunaId: "",
         fechaAplicacion: dayjs().format("YYYY-MM-DD"),
@@ -24,13 +25,34 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
 
     useEffect(() => {
         const fetch = async () => {
+            if (!idMascota || idMascota === "undefined") {
+                console.error("ID de mascota no válido en modal:", idMascota);
+                setVacunas([]);
+                setLoading(false);
+                return;
+            }
+            
+            setLoading(true);
             try {
                 const resMascota = await getMascotaId(idMascota);
+                
+                // Verificar que la mascota y sus propiedades existan
+                if (!resMascota.data || !resMascota.data.raza || !resMascota.data.raza.tipoMascota) {
+                    console.warn("La mascota no tiene información completa de tipo, cargando todas las vacunas disponibles");
+                    // Si no hay información de tipo, cargar todas las vacunas disponibles
+                    const resVacunas = await getVacunas();
+                    setVacunas(resVacunas.data);
+                    return;
+                }
+                
                 const tipoMascotaId = resMascota.data.raza.tipoMascota.id;
                 const resVacunas = await getVacunasPorTipo(tipoMascotaId);
                 setVacunas(resVacunas.data);
             } catch (err) {
                 console.error("Error al cargar vacunas por tipo de mascota", err);
+                setVacunas([]);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -66,16 +88,21 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
     };
 
     const handleGuardar = async () => {
+        if (!idMascota || idMascota === "undefined") {
+            mostrarAlertaError("ID de mascota no válido. No se puede guardar la vacuna.");
+            return;
+        }
+        
         try {
             const data = {
                 MascotaId: parseInt(idMascota),
                 VacunaId: parseInt(form.vacunaId),
                 FechaAplicacion: new Date(form.fechaAplicacion).toISOString(),
                 Observaciones: form.observacion || "",
-                FechaProxima: new Date(fechaProxima).toISOString(),
+                FechaProxima: fechaProxima ? new Date(fechaProxima).toISOString() : null,
             };
             await postVacunaMascota(data);
-            mostrarAlertaExito("Vacuna registrada correctamente");
+            mostrarAlertaExito("Vacuna registrada correctamente", "/vacunas-mascota/" + idMascota);
             
             onSuccess();
             handleClose();
@@ -97,12 +124,26 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
                     value={form.vacunaId}
                     onChange={handleChange}
                     sx={{ mt: 2 }}
+                    disabled={loading || vacunas.length === 0}
+                    helperText={
+                        loading 
+                            ? "Cargando vacunas..." 
+                            : vacunas.length === 0 
+                                ? "No hay vacunas disponibles para este tipo de mascota" 
+                                : ""
+                    }
                 >
-                    {vacunas.map((v) => (
-                        <MenuItem key={v.id} value={v.id}>
-                            {v.nombre}
-                        </MenuItem>
-                    ))}
+                    {loading ? (
+                        <MenuItem disabled>Cargando...</MenuItem>
+                    ) : vacunas.length === 0 ? (
+                        <MenuItem disabled>No hay vacunas disponibles</MenuItem>
+                    ) : (
+                        vacunas.map((v) => (
+                            <MenuItem key={v.id} value={v.id}>
+                                {v.nombre}
+                            </MenuItem>
+                        ))
+                    )}
                 </TextField>
 
                 <TextField
@@ -141,7 +182,11 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
 
             <DialogActions>
                 <Button onClick={handleClose}>Cancelar</Button>
-                <Button variant="contained" onClick={handleGuardar}>
+                <Button 
+                    variant="contained" 
+                    onClick={handleGuardar}
+                    disabled={loading || !form.vacunaId || vacunas.length === 0}
+                >
                     Guardar
                 </Button>
             </DialogActions>

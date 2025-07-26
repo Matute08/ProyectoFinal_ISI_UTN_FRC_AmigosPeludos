@@ -87,6 +87,8 @@ export const updatePublicacion = async (id, data) => {
     return response;
   } catch (error) {
     console.error("Error al actualizar mascota:", error);
+    console.error("URL de la petición:", error.config?.url);
+    console.error("Datos enviados:", error.config?.data);
     throw error;
   }
 };
@@ -97,6 +99,7 @@ export const deleteFotoPosteo = async (id) => {
     return response;
   } catch (error) {
     console.error("Error al eliminar foto:", error);
+    console.error("URL de la petición:", error.config?.url);
     throw error;
   }
 };

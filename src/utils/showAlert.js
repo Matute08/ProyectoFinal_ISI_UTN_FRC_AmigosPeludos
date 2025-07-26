@@ -10,7 +10,9 @@ export const mostrarAlertaExito = (mensaje, redireccionar) => {
     allowOutsideClick: false,
     allowEscapeKey: false,
     didClose: () => {
-      window.location.href = redireccionar;
+      if (redireccionar) {
+        window.location.href = redireccionar;
+      }
     },
   });
 };

@@ -27,7 +27,6 @@ export default function Login() {
       await login(email, password);
       mostrarAlertaExito("Bienvenido de nuevo! :)", "/")
     } catch (err) {
-      console.log("error",err)
       mostrarAlertaError("No se encuentra registrado")
       //alert("Error al iniciar sesión: " + err.message);
     }
