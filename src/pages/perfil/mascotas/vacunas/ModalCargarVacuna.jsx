@@ -6,6 +6,8 @@ import {
     Button,
     TextField,
     MenuItem,
+    Box,
+    Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
@@ -177,7 +179,22 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
                     multiline
                     minRows={2}
                     sx={{ mt: 2 }}
+                    inputProps={{
+                        maxLength: 150
+                    }}
+                    helperText={
+                        form.observacion?.length > 120 
+                            ? `Máximo 150 caracteres` 
+                            : ""
+                    }
                 />
+                <Typography 
+                    variant="caption" 
+                    color={form.observacion?.length > 120 ? "error" : "text.secondary"}
+                    sx={{ mt: 0.5, display: 'block' }}
+                >
+                    {form.observacion?.length || 0}/150 caracteres
+                </Typography>
             </DialogContent>
 
             <DialogActions>

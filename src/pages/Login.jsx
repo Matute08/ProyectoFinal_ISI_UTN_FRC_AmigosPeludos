@@ -12,14 +12,20 @@ import {
   FormControlLabel,
   Checkbox,
   Link,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { mostrarAlertaError, mostrarAlertaExito } from "../utils/showAlert"; 
 
 export default function Login() {
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, resetPassword } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [openResetDialog, setOpenResetDialog] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -38,6 +44,28 @@ export default function Login() {
       navigate("/");
     } catch (err) {
       alert("Error con Google: " + err.message);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!resetEmail) {
+      mostrarAlertaError("Por favor ingresa tu correo electrónico");
+      return;
+    }
+
+    try {
+      await resetPassword(resetEmail);
+      mostrarAlertaExito("Se ha enviado un correo de recuperación a tu email");
+      setOpenResetDialog(false);
+      setResetEmail("");
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        mostrarAlertaError("No existe una cuenta con este correo electrónico");
+      } else if (error.code === 'auth/invalid-email') {
+        mostrarAlertaError("El formato del correo electrónico no es válido");
+      } else {
+        mostrarAlertaError("Error al enviar el correo de recuperación");
+      }
     }
   };
 
@@ -61,7 +89,7 @@ export default function Login() {
             style={{ height: 80, marginBottom: 8 }}
           />
           <Typography variant="h5" fontWeight="bold" gutterBottom>
-            Bienvenido de nuevo !
+            ¡Bienvenido de nuevo!
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Iniciá sesión para continuar en Amigos Peludos
@@ -101,7 +129,12 @@ export default function Login() {
             }
             label="Recordarme"
           /> */}
-          <Link href="#" variant="body2">
+          <Link 
+            component="button"
+            variant="body2"
+            onClick={() => setOpenResetDialog(true)}
+            sx={{ textDecoration: 'none', cursor: 'pointer' }}
+          >
             ¿Olvidó su contraseña?
           </Link>
         </Box>
@@ -137,6 +170,39 @@ export default function Login() {
           </Link>
         </Typography>
       </Paper>
+
+      {/* Modal para reset de contraseña */}
+      <Dialog open={openResetDialog} onClose={() => setOpenResetDialog(false)}>
+        <DialogTitle>Recuperar Contraseña</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ mb: 2 }}>
+            Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
+          </Typography>
+          <TextField
+            fullWidth
+            label="Correo Electrónico"
+            type="email"
+            value={resetEmail}
+            onChange={(e) => setResetEmail(e.target.value)}
+            placeholder="ejemplo@gmail.com"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenResetDialog(false)}>
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleResetPassword}
+            variant="contained"
+            sx={{
+              backgroundColor: "#2e7d32",
+              "&:hover": { backgroundColor: "#27642a" },
+            }}
+          >
+            Enviar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

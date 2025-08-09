@@ -47,8 +47,7 @@ const Navbar = () => {
     const navigate = useNavigate();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const { user, logout } = useAuth();
-    const [userData, setUserData] = useState(null);
+    const { user, userData, logout } = useAuth();
 
     const [anchorElUser, setAnchorElUser] = useState(null);
     const [anchorElMascotas, setAnchorElMascotas] = useState(null);
@@ -73,33 +72,23 @@ const Navbar = () => {
     const toggleDrawer = () => setDrawerOpen(!drawerOpen);
     const [isLoading, setIsLoading] = useState(true);
     const handleLogout = async () => {
+        setAnchorElUser(null);
         await logout();
         navigate("/");
     };
 
     useEffect(() => {
-        const fetchUserData = async () => {
-            setIsLoading(true); // Inicia carga
-            setAnchorElUser(null)
-            const cachedUserData = localStorage.getItem("userData");
-            if (user?.email) {
-                try {
-                    // Intenta obtener del localStorage primero para carga rápida
-                    if (cachedUserData) {
-                        const parsedData = JSON.parse(cachedUserData);
-                        const response = await getUserMail(parsedData.email);
-                        setUserData(response);
+        if (user) {
+            setIsLoading(false);
+        } else {
+            setIsLoading(true);
+        }
+    }, [user]);
 
-                        setIsLoading(false); // Termina carga
-                    }
-                } catch (error) {
-                    console.error("Error fetching user data:", error);
-                }
-            }
-        };
-
-        fetchUserData();
-    }, [user?.email]); // Depende del email del usuario de useAuth
+    // Cerrar el menú cuando cambien los datos del usuario o el usuario
+    useEffect(() => {
+        setAnchorElUser(null);
+    }, [userData, user]);
 
     useEffect(() => {
         const fetchNotificaciones = async () => {

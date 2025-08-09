@@ -11,6 +11,7 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
 import StoreIcon from "@mui/icons-material/Store";
 import FoundationIcon from "@mui/icons-material/Foundation";
+import VaccinesIcon from "@mui/icons-material/Vaccines";
 import ServicioCard from "./ServicioCard";
 
 const servicios = [
@@ -32,7 +33,7 @@ const servicios = [
         icon: <FavoriteIcon color="success" fontSize="inherit" />,
         titulo: "Mascotas en adopción",
         descripcion:
-            "No lo dudes más! Adoptá a esa mascota que tanto anhelas y dale un hogar",
+            "¡No lo dudes más! Adoptá a esa mascota que tanto anhelas y dale un hogar",
         ruta: "/adopcion",
     },
     {
@@ -60,7 +61,7 @@ const servicios = [
         icon: <LocalHospitalIcon color="success" fontSize="inherit" />,
         titulo: "Veterinarias",
         descripcion:
-            "Consultá las veterinarias disponibles en tu zona para atención gratuita",
+            "Consultá las veterinarias disponibles en tu zona y contactá a la que necesites",
         ruta: "/veterinarias",
     },
     {
@@ -71,11 +72,11 @@ const servicios = [
         ruta: "/fundaciones",
     },
     {
-        icon: <LocalShippingIcon color="success" fontSize="inherit" />,
-        titulo: "Traslados",
+        icon: <VaccinesIcon color="success" fontSize="inherit" />,
+        titulo: "Carnet de vacunación",
         descripcion:
-            "Nos encargamos de poner en contacto a usuarios dispuestos a trasladar mascotas",
-        ruta: "/traslados",
+            "Generá tu carnet de vacunación para tu mascota y lleva el control de las vacunas de tu mascota",
+        ruta: "/perfil",
     },
 ];
 
