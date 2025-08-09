@@ -32,6 +32,48 @@ import SelectRaza from "../../../components/select/SelectRaza";
 import SelectSexoMascota from "../../../components/select/SelectSexoMascota";
 import SelectCastracion from "../../../components/select/SelectCastracion";
 
+// Estilos CSS personalizados para FilePond
+const filePondStyles = `
+    .filepond--root {
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+    .filepond--panel-root {
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+    .filepond--drop-label {
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+    .filepond--label-action {
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    /* Efectos hover */
+    .filepond--root:hover {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        transform: translateY(-2px) !important;
+    }
+    
+    .filepond--panel-root:hover {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
+    
+    .filepond--drop-label:hover {
+        color:rgb(0, 0, 0) !important;
+        font-weight: bold !important;
+    }
+    
+    .filepond--label-action:hover {
+        color:rgb(0, 0, 0) !important;
+        text-decoration: underline !important;
+        font-weight: bold !important;
+    }
+`;
+
 const AgregarMascota = () => {
     const navigate = useNavigate();
     const [files, setFiles] = useState([]);
@@ -72,6 +114,18 @@ const AgregarMascota = () => {
         };
         fetchUserData();
     }, []);
+
+    // Agregar estilos CSS al DOM
+    useEffect(() => {
+        const styleElement = document.createElement('style');
+        styleElement.textContent = filePondStyles;
+        document.head.appendChild(styleElement);
+
+        return () => {
+            document.head.removeChild(styleElement);
+        };
+    }, []);
+
     const onSubmit = async (data) => {
         setSubmitError(null);
         setLoading(true);
@@ -257,14 +311,34 @@ const AgregarMascota = () => {
                         <Controller
                             name="descripcion"
                             control={control}
+                            rules={{ 
+                                maxLength: {
+                                    value: 300,
+                                    message: "La descripción no puede tener más de 300 caracteres"
+                                }
+                            }}
                             render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    fullWidth
-                                    label="Descripción"
-                                    multiline
-                                    rows={4}
-                                />
+                                <Box>
+                                    <TextField
+                                        {...field}
+                                        fullWidth
+                                        label="Descripción"
+                                        multiline
+                                        rows={4}
+                                        error={!!errors.descripcion}
+                                        helperText={errors.descripcion?.message}
+                                        inputProps={{
+                                            maxLength: 300
+                                        }}
+                                    />
+                                    <Typography 
+                                        variant="caption" 
+                                        color={field.value?.length > 250 ? "error" : "text.secondary"}
+                                        sx={{ mt: 0.5, display: 'block' }}
+                                    >
+                                        {field.value?.length || 0}/300 caracteres
+                                    </Typography>
+                                </Box>
                             )}
                         />
                     </Grid>

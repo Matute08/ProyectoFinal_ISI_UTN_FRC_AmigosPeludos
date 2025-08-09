@@ -34,6 +34,48 @@ import SelectCiudad from "../components/select/SelectCiudad";
 import SelectProvincia from "../components/select/SelectProvincia";
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
+// Estilos CSS personalizados para FilePond
+const filePondStyles = `
+    .filepond--root {
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+    .filepond--panel-root {
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+    .filepond--drop-label {
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+    .filepond--label-action {
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    /* Efectos hover */
+    .filepond--root:hover {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        transform: translateY(-2px) !important;
+    }
+    
+    .filepond--panel-root:hover {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
+    
+    .filepond--drop-label:hover {
+        color:rgb(0, 0, 0) !important;
+        font-weight: bold !important;
+    }
+    
+    .filepond--label-action:hover {
+        color:rgb(0, 0, 0) !important;
+        text-decoration: underline !important;
+        font-weight: bold !important;
+    }
+`;
+
 export default function NuevaMascotaEncontrada() {
     const {
         register,
@@ -62,6 +104,17 @@ export default function NuevaMascotaEncontrada() {
             }
         };
         fetchUserData();
+    }, []);
+
+    // Agregar estilos CSS al DOM
+    useEffect(() => {
+        const styleElement = document.createElement('style');
+        styleElement.textContent = filePondStyles;
+        document.head.appendChild(styleElement);
+
+        return () => {
+            document.head.removeChild(styleElement);
+        };
     }, []);
 
     const onMapClick = ({ lat, lng }) => {
@@ -184,7 +237,17 @@ export default function NuevaMascotaEncontrada() {
                                     <Grid size={{ xs: 6 }}>
                                         <TextField
                                             label="Nombre (opcional)"
-                                            {...register("nombre")}
+                                            {...register("nombre", {
+                                                maxLength: {
+                                                    value: 50,
+                                                    message: "El nombre no puede tener más de 50 caracteres"
+                                                }
+                                            })}
+                                            error={!!errors.nombre}
+                                            helperText={errors.nombre?.message}
+                                            inputProps={{
+                                                maxLength: 50
+                                            }}
                                             sx={{ flex: 1 }}
                                         />
                                     </Grid>
@@ -194,9 +257,16 @@ export default function NuevaMascotaEncontrada() {
                                             label="Color"
                                             {...register("color", {
                                                 required: "Campo obligatorio",
+                                                maxLength: {
+                                                    value: 30,
+                                                    message: "El color no puede tener más de 30 caracteres"
+                                                }
                                             })}
                                             error={!!errors.color}
                                             helperText={errors.color?.message}
+                                            inputProps={{
+                                                maxLength: 30
+                                            }}
                                             sx={{ flex: 1 }}
                                         />
                                     </Grid>
@@ -388,13 +458,32 @@ export default function NuevaMascotaEncontrada() {
                                     </Grid>
                                     {/* Observaciones */}
                                     <Grid size={{ xs: 12 }}>
-                                        <TextField
-                                            label="Observaciones"
-                                            multiline
-                                            rows={3}
-                                            {...register("descripcion")}
-                                            sx={{ flex: 1 }}
-                                        />
+                                        <Box>
+                                            <TextField
+                                                label="Observaciones"
+                                                multiline
+                                                rows={3}
+                                                {...register("descripcion", {
+                                                    maxLength: {
+                                                        value: 300,
+                                                        message: "Las observaciones no pueden tener más de 300 caracteres"
+                                                    }
+                                                })}
+                                                error={!!errors.descripcion}
+                                                helperText={errors.descripcion?.message}
+                                                inputProps={{
+                                                    maxLength: 300
+                                                }}
+                                                sx={{ flex: 1, mb: 1 }}
+                                            />
+                                            <Typography 
+                                                variant="caption" 
+                                                color={watch("descripcion")?.length > 250 ? "error" : "text.secondary"}
+                                                sx={{ display: 'block' }}
+                                            >
+                                                {watch("descripcion")?.length || 0}/300 caracteres
+                                            </Typography>
+                                        </Box>
                                     </Grid>
                                     {/* Ubicacion */}
                                     <Grid size={{ xs: 12 }}>

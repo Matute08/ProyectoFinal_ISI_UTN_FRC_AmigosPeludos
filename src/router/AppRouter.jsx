@@ -13,6 +13,7 @@ import Fundaciones from "../pages/fundacion/Fundaciones";
 import Ayuda from "../pages/Ayuda";
 import PreguntasFrecuentes from "../pages/PreguntasFrecuentes";
 import Registro from "../pages/auth/Registro";
+import ResetPassword from "../pages/auth/ResetPassword";
 import DetallePublicacionAdopcion from "../pages/DetallePublicacionAdopcion";
 import DetallePublicacionGeneral from "../pages/DetallePublicacionGeneral";
 import NuevaMascotaEncontrada from "../pages/NuevaMascotaEncontrada";
@@ -64,6 +65,7 @@ export default function AppRouter() {
                 <Route path="/ayuda" element={<Ayuda />} />
                 <Route path="/faq" element={<PreguntasFrecuentes />} />
                 <Route path="/registro" element={<Registro />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/datos-usuario/:id" element={<UsuarioQrVista />} />
                 <Route path="/donacion-fundacion/:idFunda" element={<DonacionFundacion />} />
 
