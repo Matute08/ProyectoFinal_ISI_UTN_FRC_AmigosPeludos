@@ -37,6 +37,7 @@ const Valoraciones = ({ idCuidador = null, idPaseador = null }) => {
   const [menuValoracionId, setMenuValoracionId] = useState(null);
   const open = Boolean(anchorEl);
 
+  // Cargar usuario desde localStorage y backend
   useEffect(() => {
     const cargarUsuario = async () => {
       const local = localStorage.getItem("userData");
@@ -64,6 +65,7 @@ const Valoraciones = ({ idCuidador = null, idPaseador = null }) => {
     cargarUsuario();
   }, []);
 
+  // Cargar valoraciones siempre que cambien idCuidador o idPaseador
   useEffect(() => {
     const cargarValoraciones = async () => {
       if (!idCuidador && !idPaseador) {
@@ -72,6 +74,7 @@ const Valoraciones = ({ idCuidador = null, idPaseador = null }) => {
         return;
       }
       try {
+        setLoadingValoraciones(true);
         const response = idCuidador
           ? await getValoracionesPorCuidador(idCuidador)
           : await getValoracionesPorPaseador(idPaseador);
@@ -84,12 +87,8 @@ const Valoraciones = ({ idCuidador = null, idPaseador = null }) => {
         setLoadingValoraciones(false);
       }
     };
-
-    if (userData) {
-      setLoadingValoraciones(true);
-      cargarValoraciones();
-    }
-  }, [idCuidador, idPaseador, userData]);
+    cargarValoraciones();
+  }, [idCuidador, idPaseador]);
 
   const handleEnviar = async () => {
     if (!user || !userData?.id) return;
@@ -164,24 +163,23 @@ const Valoraciones = ({ idCuidador = null, idPaseador = null }) => {
     setMenuValoracionId(null);
   };
 
-  // Ordenar de mas reciente a la mas antigua y muestra la valoración del usuario actual al principio
-const listaOrdenada = React.useMemo(() => {
-  if (!userData) return lista;
+  // Ordenar de más reciente a más antigua y mostrar la valoración del usuario actual al principio
+  const listaOrdenada = React.useMemo(() => {
+    // No importa si userData es null, solo ordenamos por fecha
+    const listaPorFecha = [...lista].sort((a, b) => {
+      const fechaA = new Date(a.fechaValoracion || a.fecha || 0);
+      const fechaB = new Date(b.fechaValoracion || b.fecha || 0);
+      return fechaB - fechaA;
+    });
 
-  // Ordenar por fecha de más reciente a más antigua
-  const listaPorFecha = [...lista].sort((a, b) => {
-    const fechaA = new Date(a.fechaValoracion || a.fecha || 0);
-    const fechaB = new Date(b.fechaValoracion || b.fecha || 0);
-    return fechaB - fechaA;
-  });
+    if (!userData) return listaPorFecha;
 
-  const miVal = listaPorFecha.find((v) => v.idUsuario === userData.id);
-  if (!miVal) return listaPorFecha;
+    const miVal = listaPorFecha.find((v) => v.idUsuario === userData.id);
+    if (!miVal) return listaPorFecha;
 
-  const otros = listaPorFecha.filter((v) => v.id !== miVal.id);
-  return [miVal, ...otros];
-}, [lista, userData]);
-
+    const otros = listaPorFecha.filter((v) => v.id !== miVal.id);
+    return [miVal, ...otros];
+  }, [lista, userData]);
 
   // Calcular promedio de valoraciones
   const promedioValoraciones = React.useMemo(() => {
@@ -192,8 +190,8 @@ const listaOrdenada = React.useMemo(() => {
 
   return (
     <Box mt={3}>
-      {(listaOrdenada.find((v) => v.idUsuario === userData?.id) && editando) ||
-      !listaOrdenada.find((v) => v.idUsuario === userData?.id) ? (
+      {/* Formulario de calificar y opinar - solo si está logueado */}
+      {userData ? (
         <>
           <Typography variant="h6" fontWeight={600} mb={2}>
             {editando ? "Editar tu valoración" : "Calificar y opinar"}
@@ -213,7 +211,11 @@ const listaOrdenada = React.useMemo(() => {
             sx={{ mt: 2 }}
           />
           <Box display="flex" gap={2} mt={2}>
-            <Button variant="contained" onClick={handleEnviar}>
+            <Button
+              variant="contained"
+              onClick={handleEnviar}
+              disabled={!userData?.id || puntaje === 0}
+            >
               {editando ? "Guardar cambios" : "Enviar valoración"}
             </Button>
             {editando && (
@@ -231,7 +233,11 @@ const listaOrdenada = React.useMemo(() => {
             )}
           </Box>
         </>
-      ) : null}
+      ) : (
+        <Typography variant="body2" color="text.secondary" mb={2}>
+          Debes iniciar sesión para calificar y opinar.
+        </Typography>
+      )}
 
       {/* Resumen de valoraciones */}
       <Box mt={4}>
@@ -293,15 +299,18 @@ const listaOrdenada = React.useMemo(() => {
                         open={menuValoracionId === val.id && open}
                         onClose={handleCloseMenu}
                       >
-                        <MenuItem onClick={() => handleEditarClick(val)}>✏️ Editar</MenuItem>
-                        <MenuItem onClick={() => handleEliminar(val.id)}>🗑️ Eliminar</MenuItem>
+                        <MenuItem onClick={() => handleEditarClick(val)}>
+                          ✏️ Editar
+                        </MenuItem>
+                        <MenuItem onClick={() => handleEliminar(val.id)}>
+                          🗑️ Eliminar
+                        </MenuItem>
                       </Menu>
                     </>
                   )}
                 </Box>
 
                 {/* Fecha arriba de las estrellas */}
-                
                 <Box
                   display="flex"
                   flexDirection="column"
@@ -309,11 +318,7 @@ const listaOrdenada = React.useMemo(() => {
                   sx={{ mb: 0.5 }}
                 >
                   {fechaFormateada && (
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ mb: 0.3 }}
-                    >
+                    <Typography variant="caption" color="text.secondary" sx={{ mb: 0.3 }}>
                       {fechaFormateada}
                     </Typography>
                   )}

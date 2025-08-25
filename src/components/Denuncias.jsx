@@ -32,10 +32,10 @@ const motivos = [
   "Otro motivo",
 ];
 
-const Denuncias = ({ idEntidad }) => {
+const Denuncias = ({ idEntidad, tipoEntidad }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalYaReportado, setModalYaReportado] = useState(false); // 🆕
+  const [modalYaReportado, setModalYaReportado] = useState(false);
   const [motivo, setMotivo] = useState("");
   const [enviado, setEnviado] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -51,7 +51,7 @@ const Denuncias = ({ idEntidad }) => {
 
       try {
         const res = await getUserMail(email);
-        setUserData(res);
+        setUserData(res.data || res);
       } catch (error) {
         console.error("Error cargando usuario backend:", error);
         setUserData(null);
@@ -66,7 +66,7 @@ const Denuncias = ({ idEntidad }) => {
       if (!userData?.id || !idEntidad) return;
 
       try {
-        const res = await verificarDenuncia(userData.id, idEntidad);
+        const res = await verificarDenuncia(userData.id, idEntidad, tipoEntidad);
         setYaDenuncio(res.data);
       } catch (error) {
         console.error("Error al verificar denuncia:", error);
@@ -74,7 +74,7 @@ const Denuncias = ({ idEntidad }) => {
     };
 
     verificar();
-  }, [userData, idEntidad]);
+  }, [userData, idEntidad, tipoEntidad]);
 
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
@@ -82,7 +82,7 @@ const Denuncias = ({ idEntidad }) => {
   const handleAbrirModal = () => {
     handleMenuClose();
     if (yaDenuncio) {
-      setModalYaReportado(true); // 🆕 abre modal de aviso
+      setModalYaReportado(true);
     } else {
       setModalOpen(true);
     }
@@ -108,12 +108,24 @@ const Denuncias = ({ idEntidad }) => {
 
     const nuevaDenuncia = {
       idUsuario: userData.id,
-      idPublicacion: idEntidad,
       motivo,
     };
 
+    if (tipoEntidad === "paseador") {
+      nuevaDenuncia.idPaseador = idEntidad;
+    } else if (tipoEntidad === "cuidador") {
+      nuevaDenuncia.idCuidador = idEntidad;
+    } else if (tipoEntidad === "fundacion") {
+      nuevaDenuncia.idFundacion = idEntidad;
+    } else if (tipoEntidad === "veterinaria") {
+      nuevaDenuncia.idVeterinaria = idEntidad;
+    } else {
+      nuevaDenuncia.idPublicacion = idEntidad;
+    }
+
+
     try {
-      await postDenuncia(nuevaDenuncia);
+      await postDenuncia(nuevaDenuncia, tipoEntidad);
       setEnviado(true);
       setYaDenuncio(true);
     } catch (error) {
@@ -162,7 +174,6 @@ const Denuncias = ({ idEntidad }) => {
         </MenuItem>
       </Menu>
 
-      {/* Modal de reporte */}
       <Dialog
         open={modalOpen}
         onClose={handleCerrarModal}
@@ -260,7 +271,6 @@ const Denuncias = ({ idEntidad }) => {
         )}
       </Dialog>
 
-      {/* 🆕 Modal si ya reportó */}
       <Dialog open={modalYaReportado} onClose={handleCerrarYaReportado}>
         <DialogTitle sx={{ textAlign: "center" }}>
           Ya reportaste esta publicación

@@ -1,73 +1,51 @@
+import React, { useState, useEffect } from "react";
+import { Container, Typography, Box, Tabs, Tab } from "@mui/material";
 import {
-  Container,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Link as MuiLink,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
-import CancelIcon from "@mui/icons-material/Cancel";
-import { useEffect, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
-import { getDenuncias } from "../../api/denunciasApi";
+  getDenuncias,
+  getDenunciasPaseadores,
+  getDenunciasCuidadores,
+  getDenunciasFundaciones,
+  getDenunciasVeterinarias, 
+} from "../../api/denunciasApi";
 import CustomLoader from "../../components/CustomLoader";
+import VerDenunciasPublicaciones from "./VerDenunciasPublicaciones";
+import VerDenunciasPaseadores from "./VerDenunciasPaseadores";
+import VerDenunciasCuidadores from "./VerDenunciasCuidadores";
+import VerDenunciasFundaciones from "./VerDenunciasFundaciones"; 
+import VerDenunciasVeterinarias from "./VerDenunciasVeterinarias"; 
 
 const PanelDenuncias = () => {
-  const [denuncias, setDenuncias] = useState([]);
+  const [denunciasPublicaciones, setDenunciasPublicaciones] = useState([]);
+  const [denunciasPaseadores, setDenunciasPaseadores] = useState([]);
+  const [denunciasCuidadores, setDenunciasCuidadores] = useState([]);
+  const [denunciasFundaciones, setDenunciasFundaciones] = useState([]); 
+  const [denunciasVeterinarias, setDenunciasVeterinarias] = useState([]); 
   const [loading, setLoading] = useState(true);
-
-  const fetchDenuncias = async () => {
-    try {
-      const res = await getDenuncias();
-      setDenuncias(res.data || []);
-    } catch (error) {
-      console.error("Error al obtener denuncias:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [tabIndex, setTabIndex] = useState(0);
 
   useEffect(() => {
-    fetchDenuncias();
+    const fetchAll = async () => {
+      setLoading(true);
+      try {
+        const [resPub, resPas, resCui, resFun, resVet] = await Promise.all([
+          getDenuncias(),
+          getDenunciasPaseadores(),
+          getDenunciasCuidadores(),
+          getDenunciasFundaciones(), 
+          getDenunciasVeterinarias(),
+        ]);
+        setDenunciasPublicaciones(resPub.data || []);
+        setDenunciasPaseadores(resPas.data || []);
+        setDenunciasCuidadores(resCui.data || []);
+        setDenunciasFundaciones(resFun.data || []); 
+        setDenunciasVeterinarias(resVet.data || []); 
+      } catch (error) {
+        console.error("Error al cargar denuncias:", error);
+      }
+      setLoading(false);
+    };
+    fetchAll();
   }, []);
-
-  const obtenerRutaPublicacion = (tipo, idPublicacion) => {
-    switch (tipo) {
-      case "Perdida":
-        return `/consultar-posteo-perdida/${idPublicacion}`;
-      case "Encontrada":
-        return `/consultar-posteo-encontrada/${idPublicacion}`;
-      case "Adopcion":
-        return `/consultar-posteo-adopcion/${idPublicacion}`;
-      default:
-        return `/publicacion/${idPublicacion}`;
-    }
-  };
-
-  const eliminarPublicacion = (idPublicacion) => {
-    console.log("Eliminar publicación:", idPublicacion);
-    // TODO: Llamar a la API para eliminar publicación y refrescar la lista
-  };
-
-  const descartarDenuncia = (idDenuncia) => {
-    console.log("Descartar denuncia:", idDenuncia);
-    // TODO: Llamar a la API para ocultar o marcar como revisada la denuncia y refrescar la lista
-  };
-
-  if (loading) {
-    return (
-      <Container sx={{ textAlign: "center", mt: 5 }}>
-        <CustomLoader />
-      </Container>
-    );
-  }
 
   return (
     <Container sx={{ py: 4 }}>
@@ -75,73 +53,39 @@ const PanelDenuncias = () => {
         Panel de Denuncias
       </Typography>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Fecha</TableCell>
-              <TableCell>Motivo</TableCell>
-              <TableCell>Usuario denunciante</TableCell>
-              <TableCell>Tipo Publicación</TableCell>
-              <TableCell>Ver Publicación</TableCell>
-              <TableCell align="center">Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {denuncias.length > 0 ? (
-              denuncias.map((denuncia) => (
-                <TableRow key={denuncia.id}>
-                  <TableCell>
-                    {new Date(denuncia.fechaDenuncia).toLocaleString()}
-                  </TableCell>
-                  <TableCell>{denuncia.motivo}</TableCell>
-                  <TableCell>{denuncia.usuarioDenunciante}</TableCell>
-                  <TableCell>{denuncia.tipoPublicacion}</TableCell>
-                  <TableCell>
-                    <MuiLink
-                      component={RouterLink}
-                      to={obtenerRutaPublicacion(
-                        denuncia.tipoPublicacion,
-                        denuncia.idPublicacion
-                      )}
-                      underline="hover"
-                      color="primary"
-                    >
-                      Ver
-                    </MuiLink>
-                  </TableCell>
-                  <TableCell align="center">
-                    <Tooltip title="Aceptar denuncia y eliminar publicación">
-                      <IconButton
-                        color="success"
-                        onClick={() =>
-                          eliminarPublicacion(denuncia.idPublicacion)
-                        }
-                      >
-                        <CheckIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Descartar denuncia">
-                      <IconButton
-                        color="error"
-                        onClick={() => descartarDenuncia(denuncia.id)}
-                      >
-                        <CancelIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  No hay denuncias para mostrar.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+        <Tabs value={tabIndex} onChange={(e, v) => setTabIndex(v)} centered>
+          <Tab label="Publicaciones" />
+          <Tab label="Paseadores" />
+          <Tab label="Cuidadores" />
+          <Tab label="Fundaciones" /> 
+          <Tab label="Veterinarias" /> 
+        </Tabs>
+      </Box>
+
+      {loading ? (
+        <Box sx={{ textAlign: "center", mt: 5 }}>
+          <CustomLoader />
+        </Box>
+      ) : (
+        <>
+          {tabIndex === 0 && (
+            <VerDenunciasPublicaciones denuncias={denunciasPublicaciones} />
+          )}
+          {tabIndex === 1 && (
+            <VerDenunciasPaseadores denuncias={denunciasPaseadores} />
+          )}
+          {tabIndex === 2 && (
+            <VerDenunciasCuidadores denuncias={denunciasCuidadores} />
+          )}
+          {tabIndex === 3 && (
+            <VerDenunciasFundaciones denuncias={denunciasFundaciones} /> 
+          )}
+          {tabIndex === 4 && (
+            <VerDenunciasVeterinarias denuncias={denunciasVeterinarias} /> 
+          )}
+        </>
+      )}
     </Container>
   );
 };

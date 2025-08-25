@@ -5,11 +5,10 @@ import {
   IconButton,
   Chip,
   Divider,
-  Button,
   Tabs,
   Tab,
   Slide,
-  Avatar
+  Avatar,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
@@ -17,8 +16,9 @@ import PlaceIcon from "@mui/icons-material/Place";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import PetsIcon from "@mui/icons-material/Pets";
-import ReviewsIcon from "@mui/icons-material/Reviews";
 import ShareIcon from "@mui/icons-material/Share";
+
+import Denuncias from "../../components/Denuncias"; 
 
 const DIAS = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
 const DIAS_LABEL = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -41,16 +41,13 @@ const PanelDetalleVeterinaria = ({ veterinaria, onClose, open }) => {
 
   if (!open || !veterinaria) return null;
 
-  // --- TABS ---
   const TABS = [
     { label: "Horarios", icon: <AccessTimeIcon /> },
     { label: "Servicios", icon: <PetsIcon /> },
     { label: "Donar", icon: <MonetizationOnIcon /> },
-    // { label: "Reseñas", icon: <ReviewsIcon /> },
     { label: "Redes", icon: <ShareIcon /> },
   ];
 
-  // --- HORARIOS ---
   const renderHorarios = () => (
     <Box>
       <Typography variant="subtitle1" fontWeight={600} mb={2} sx={{ color: "primary.main" }}>
@@ -83,7 +80,6 @@ const PanelDetalleVeterinaria = ({ veterinaria, onClose, open }) => {
     </Box>
   );
 
-  // --- SERVICIOS ---
   const renderServicios = () => {
     const servicios = veterinaria.servicios || {};
     const serviciosArray = Object.entries(servicios)
@@ -106,7 +102,6 @@ const PanelDetalleVeterinaria = ({ veterinaria, onClose, open }) => {
     );
   };
 
-  // --- DONAR ---
   const renderDonacion = () => (
     <Box>
       <Typography variant="subtitle1" fontWeight={600} mb={2} sx={{ color: "primary.main" }}>
@@ -124,7 +119,6 @@ const PanelDetalleVeterinaria = ({ veterinaria, onClose, open }) => {
     </Box>
   );
 
-    // --- DONAR ---
   const renderRedes = () => (
     <Box>
       <Typography variant="subtitle1" fontWeight={600} mb={2} sx={{ color: "primary.main" }}>
@@ -162,65 +156,44 @@ const PanelDetalleVeterinaria = ({ veterinaria, onClose, open }) => {
       </Typography>
     </Box>
   );
-  // --- RESEÑAS (próximamente) ---
-//   const renderResenas = () => (
-//     <Box>
-//       <Typography variant="subtitle1" fontWeight={600} mb={2} sx={{ color: "primary.main" }}>
-//         Reseñas de usuarios
-//       </Typography>
-//       <Typography variant="body2" color="text.secondary">
-//         Próximamente vas a poder ver y dejar reseñas para esta veterinaria.
-//       </Typography>
-//     </Box>
-//   );
-
-  // --- REDES SOCIALES (próximamente) ---
-//   const renderRedes = () => (
-//     <Box>
-//       <Typography variant="subtitle1" fontWeight={600} mb={2} sx={{ color: "primary.main" }}>
-//         Redes sociales y contacto
-//       </Typography>
-//       <Typography variant="body2" color="text.secondary">
-//         Próximamente vas a poder ver los perfiles sociales y otros medios de contacto de la veterinaria.
-//       </Typography>
-//     </Box>
-//   );
 
   return (
-<Slide direction="left" in={open} mountOnEnter unmountOnExit>
-  <Box
-    sx={{
-      position: "fixed",
-      top: 0,
-      right: 0,
-      width: { xs: "100%", md: 410 },
-      height: { xs: "100%", md: "calc(100% - 48px)" },
-      maxWidth: { xs: "100%", md: 410 },
-      bgcolor: "#fff",
-      boxShadow: 7,
-      borderTopLeftRadius: { xs: 0, md: 24 },
-      borderBottomLeftRadius: { xs: 0, md: 24 },
-      p: { xs: 2, md: 3 },
-      zIndex: 1300,
-      overflowY: "auto",
-    }}
-  >
-
+    <Slide direction="left" in={open} mountOnEnter unmountOnExit>
+      <Box
+        sx={{
+          position: "fixed",
+          top: 0,
+          right: 0,
+          width: { xs: "100%", md: 410 },
+          height: { xs: "100%", md: "calc(100% - 48px)" },
+          maxWidth: { xs: "100%", md: 410 },
+          bgcolor: "#fff",
+          boxShadow: 7,
+          borderTopLeftRadius: { xs: 0, md: 24 },
+          borderBottomLeftRadius: { xs: 0, md: 24 },
+          p: { xs: 2, md: 3 },
+          zIndex: 1300,
+          overflowY: "auto",
+        }}
+      >
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
           <Typography variant="h5" fontWeight={700} color="primary" sx={{ letterSpacing: 0.5 }}>
             {veterinaria.nombre}
           </Typography>
           <Avatar
-  src={veterinaria.fotoUrl || "/images/veterinaria-placeholder.png"}
-  alt={veterinaria.nombre}
-  sx={{ width: 64, height: 64 }}
-/>
+            src={veterinaria.fotoUrl || "/images/veterinaria-placeholder.png"}
+            alt={veterinaria.nombre}
+            sx={{ width: 64, height: 64 }}
+          />
 
-          <IconButton size="small" onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Denuncias idEntidad={veterinaria.id} tipoEntidad="veterinaria" />
+            <IconButton size="small" onClick={onClose}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
         </Box>
-        {/* Datos principales */}
+
         <Box mb={2}>
           <Typography variant="body1" display="flex" alignItems="center" gap={1}>
             <PlaceIcon fontSize="small" /> {veterinaria.direccion} {veterinaria.numeroCalle}
@@ -231,7 +204,6 @@ const PanelDetalleVeterinaria = ({ veterinaria, onClose, open }) => {
         </Box>
         <Divider sx={{ mb: 2 }} />
 
-        {/* TABS */}
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
@@ -250,13 +222,11 @@ const PanelDetalleVeterinaria = ({ veterinaria, onClose, open }) => {
           ))}
         </Tabs>
 
-        {/* PANEL SEGÚN TAB */}
         <Box>
           {tab === 0 && renderHorarios()}
           {tab === 1 && renderServicios()}
           {tab === 2 && renderDonacion()}
           {tab === 3 && renderRedes()}
-          {/* {tab === 3 && renderResenas()} */}
         </Box>
       </Box>
     </Slide>
