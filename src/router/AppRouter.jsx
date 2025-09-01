@@ -48,6 +48,8 @@ import ModificarCuidador from "../pages/perfil/servicios/modificar/ModificarCuid
 import PanelDenuncias from "../pages/denuncias/PanelDenuncias";
 import ComparacionesMascotaPage from "../pages/ComparacionesMascotaPage";
 
+import Stats from "../pages/stats/Stats";
+
 export default function AppRouter() {
     return (
         <>
@@ -274,6 +276,12 @@ export default function AppRouter() {
                     path="/comparaciones/:id"
                     element={<ComparacionesMascotaPage />}
                 />
+
+                <Route 
+                    path="/stats"
+                    element={<Stats />}
+                />
+
                 {/* Puedes agregar más rutas aquí */}
             </Routes>
         </>
