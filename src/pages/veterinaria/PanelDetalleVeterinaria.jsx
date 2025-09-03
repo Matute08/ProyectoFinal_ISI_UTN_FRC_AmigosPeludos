@@ -5,7 +5,6 @@ import {
   IconButton,
   Chip,
   Divider,
-  Button,
   Tabs,
   Tab,
   Slide,
@@ -18,8 +17,9 @@ import PlaceIcon from "@mui/icons-material/Place";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import PetsIcon from "@mui/icons-material/Pets";
-import ReviewsIcon from "@mui/icons-material/Reviews";
 import ShareIcon from "@mui/icons-material/Share";
+
+import Denuncias from "../../components/Denuncias";
 
 const DIAS = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
 const DIAS_LABEL = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -55,7 +55,6 @@ const PanelDetalleVeterinaria = ({ veterinaria, onClose, open, containerRef }) =
     { label: "Horarios", icon: <AccessTimeIcon /> },
     { label: "Servicios", icon: <PetsIcon /> },
     { label: "Donar", icon: <MonetizationOnIcon /> },
-    // { label: "Reseñas", icon: <ReviewsIcon /> },
     { label: "Redes", icon: <ShareIcon /> },
   ];
 
@@ -133,7 +132,6 @@ const PanelDetalleVeterinaria = ({ veterinaria, onClose, open, containerRef }) =
     </Box>
   );
 
-    // --- DONAR ---
   const renderRedes = () => (
     <Box>
       <Typography variant="subtitle1" fontWeight={600} mb={2} sx={{ color: "primary.main" }}>
@@ -171,29 +169,6 @@ const PanelDetalleVeterinaria = ({ veterinaria, onClose, open, containerRef }) =
       </Typography>
     </Box>
   );
-  // --- RESEÑAS (próximamente) ---
-//   const renderResenas = () => (
-//     <Box>
-//       <Typography variant="subtitle1" fontWeight={600} mb={2} sx={{ color: "primary.main" }}>
-//         Reseñas de usuarios
-//       </Typography>
-//       <Typography variant="body2" color="text.secondary">
-//         Próximamente vas a poder ver y dejar reseñas para esta veterinaria.
-//       </Typography>
-//     </Box>
-//   );
-
-  // --- REDES SOCIALES (próximamente) ---
-//   const renderRedes = () => (
-//     <Box>
-//       <Typography variant="subtitle1" fontWeight={600} mb={2} sx={{ color: "primary.main" }}>
-//         Redes sociales y contacto
-//       </Typography>
-//       <Typography variant="body2" color="text.secondary">
-//         Próximamente vas a poder ver los perfiles sociales y otros medios de contacto de la veterinaria.
-//       </Typography>
-//     </Box>
-//   );
 
   // Panel flotante dentro del contenedor del mapa
   return (
@@ -251,7 +226,7 @@ const PanelDetalleVeterinaria = ({ veterinaria, onClose, open, containerRef }) =
             }}
             onClick={e => e.stopPropagation()}
           >
-            {/* --- CONTENIDO DEL PANEL (igual que antes) --- */}
+            {/* --- CONTENIDO DEL PANEL --- */}
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
               <Typography variant="h5" fontWeight={700} color="primary" sx={{ letterSpacing: 0.5 }}>
                 {veterinaria.nombre}
@@ -261,9 +236,12 @@ const PanelDetalleVeterinaria = ({ veterinaria, onClose, open, containerRef }) =
                 alt={veterinaria.nombre}
                 sx={{ width: 64, height: 64 }}
               />
-              <IconButton size="small" onClick={onClose}>
-                <CloseIcon />
-              </IconButton>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Denuncias idEntidad={veterinaria.id} tipoEntidad="veterinaria" />
+                <IconButton size="small" onClick={onClose}>
+                  <CloseIcon />
+                </IconButton>
+              </Box>
             </Box>
             {/* Datos principales */}
             <Box mb={2}>
