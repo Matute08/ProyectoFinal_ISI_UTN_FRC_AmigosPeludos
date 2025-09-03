@@ -55,7 +55,7 @@ const ConsultarPublicacion = ({ id, onCancel }) => {
         return `${day}/${month}/${year}`;
     };
 
-    console.log(post);
+
     return (
         <Box mt={2}>
             <Typography

@@ -6,11 +6,13 @@ import {
     createUserWithEmailAndPassword,
     signInWithPopup,
     sendPasswordResetEmail,
+    confirmPasswordReset,
     deleteUser,
     reauthenticateWithCredential,
     EmailAuthProvider 
 } from "firebase/auth";
 import { auth, googleProvider } from "./firebase";
+import { sendCustomPasswordResetEmail } from "./firebaseConfig";
 import { getUserMail, postNuevoUsuario } from "../api/userApi";
 
 const AuthContext = createContext();
@@ -19,23 +21,46 @@ export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
+    const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
+            
+            if (!currentUser) {
+                setUserData(null);
+                localStorage.removeItem("userData");
+            }
+            
             setLoading(false);
         });
 
         return () => unsubscribe();
     }, []);
 
+    // Cargar datos del usuario cuando ya existe una sesión
+    useEffect(() => {
+        if (user && !userData) {
+            const loadUserData = async () => {
+                try {
+                    const data = await getUserMail(user.email);
+                    if (data) {
+                        setUserData(data);
+                        localStorage.setItem("userData", JSON.stringify(data));
+                    }
+                } catch (error) {
+                    console.error("Error al cargar datos del usuario:", error);
+                }
+            };
+            loadUserData();
+        }
+    }, [user, userData]);
+
     const login = async (email, password) => {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-
         setUser(user);
-        localStorage.setItem("userData", JSON.stringify({ email: user.email }));
     };
 
     const register = async (email, password) => {
@@ -43,7 +68,19 @@ export function AuthProvider({ children }) {
         const user = userCredential.user;
 
         setUser(user);
-        localStorage.setItem("userData", JSON.stringify({ email: user.email }));
+        
+        // Esperar un poco para que el usuario se cree en la base de datos
+        setTimeout(async () => {
+            try {
+                const userData = await getUserMail(email);
+                if (userData) {
+                    setUserData(userData);
+                    localStorage.setItem("userData", JSON.stringify(userData));
+                }
+            } catch (error) {
+                console.error("Error al obtener datos del usuario después del registro:", error);
+            }
+        }, 1000);
 
         return userCredential;
     };
@@ -53,15 +90,15 @@ export function AuthProvider({ children }) {
         const user = result.user;
 
         setUser(user);
-        localStorage.setItem("userData", JSON.stringify({ email: user.email }));
 
         try {
             const res = await getUserMail(user.email);
             const usuarioExistente = res.data;
-            console.log("Usuario ya existe en BD:", usuarioExistente);
-        } catch (error) {
-            if (error?.response?.status === 404) {
-                console.log("Usuario no existe. Creando en BD...");
+            
+            if (usuarioExistente) {
+                localStorage.setItem("userData", JSON.stringify(usuarioExistente));
+            } else {
+                // Si no existe, crear el usuario
                 const nuevoUsuario = {
                     nombre: user.displayName || "Sin nombre",
                     mail: user.email,
@@ -69,9 +106,41 @@ export function AuthProvider({ children }) {
                     rolId: 2,
                 };
                 await postNuevoUsuario(nuevoUsuario);
-                console.log("✅ Usuario creado");
+                
+                // Obtener los datos del usuario recién creado
+                const userData = await getUserMail(user.email);
+                if (userData) {
+                    localStorage.setItem("userData", JSON.stringify(userData));
+                } else {
+                    localStorage.setItem("userData", JSON.stringify({ email: user.email }));
+                }
+            }
+        } catch (error) {
+            if (error?.response?.status === 404) {
+                // Si no existe, crear el usuario
+                const nuevoUsuario = {
+                    nombre: user.displayName || "Sin nombre",
+                    mail: user.email,
+                    telefono: "",
+                    rolId: 2,
+                };
+                await postNuevoUsuario(nuevoUsuario);
+                
+                // Obtener los datos del usuario recién creado
+                try {
+                    const userData = await getUserMail(user.email);
+                    if (userData) {
+                        localStorage.setItem("userData", JSON.stringify(userData));
+                    } else {
+                        localStorage.setItem("userData", JSON.stringify({ email: user.email }));
+                    }
+                } catch (getError) {
+                    console.error("Error al obtener datos del usuario después de crear:", getError);
+                    localStorage.setItem("userData", JSON.stringify({ email: user.email }));
+                }
             } else {
                 console.error("❌ Error inesperado al verificar usuario:", error);
+                localStorage.setItem("userData", JSON.stringify({ email: user.email }));
             }
         }
     };
@@ -80,10 +149,17 @@ export function AuthProvider({ children }) {
         await signOut(auth);
         localStorage.clear();
         setUser(null);
+        setUserData(null);
     };
 
     // RESTABLECER CONTRASEÑA
-    const resetPassword = (email) => sendPasswordResetEmail(auth, email);
+    const resetPassword = async (email) => {
+        const result = await sendCustomPasswordResetEmail(email);
+        if (!result.success) {
+            throw result.error;
+        }
+        return result;
+    };
 
     // ELIMINAR USUARIO
 
@@ -109,6 +185,7 @@ const deleteAccount = async (password) => {
         <AuthContext.Provider
             value={{
                 user,
+                userData,
                 login,
                 register,
                 resetPassword,

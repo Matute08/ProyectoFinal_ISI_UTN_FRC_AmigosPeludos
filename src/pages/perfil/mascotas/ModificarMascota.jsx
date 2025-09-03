@@ -14,13 +14,14 @@ import {
     CircularProgress,
     Alert,
     Box,
+    IconButton,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { FilePond } from "react-filepond";
 import CustomLoader from "../../../components/CustomLoader";
 import "filepond/dist/filepond.min.css";
-import { getMascotaId, updatePets } from "../../../api/mascotasApi";
+import { getMascotaId, updatePets, getRazaById } from "../../../api/mascotasApi";
 
 import {
     uploadFilePetsUser,
@@ -41,9 +42,10 @@ const ModificarMascota = () => {
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
+    const [submitLoading, setSubmitLoading] = useState(false);
     const [submitError, setSubmitError] = useState(null);
     const [initialData, setInitialData] = useState(null);
-    const [fotoPreview, setFotoPreview] = useState("");
+    const [fotoActual, setFotoActual] = useState(null);
     const [files, setFiles] = useState([]);
 
     const {
@@ -61,11 +63,32 @@ const ModificarMascota = () => {
             try {
                 const [mascota] = await Promise.all([getMascotaId(mascotaId)]);
                 setInitialData(mascota.data);
-                setFotoPreview(mascota.data.foto);
+                
+                // Configurar foto actual
+                if (mascota.data.foto) {
+                    setFotoActual({
+                        url: mascota.data.foto,
+                        estadoTemporal: true
+                    });
+                }
+                
+                // Obtener el tipoMascotaId basándose en el razaId
+                let tipoMascotaId = "";
+                if (mascota.data.razaId) {
+                    try {
+                        const razaResponse = await getRazaById(mascota.data.razaId);
+                        if (razaResponse.data) {
+                            tipoMascotaId = razaResponse.data.tipoMascotaId;
+                        }
+                    } catch (error) {
+                        console.warn("No se pudo obtener la información de la raza:", error);
+                    }
+                }
+                
                 reset({
                     nombre: mascota.data.nombre,
-                    tipoMascotaId: mascota.data.raza.tipoMascotaId ,
-                    razaId: mascota.data.raza.id,
+                    tipoMascotaId: tipoMascotaId,
+                    razaId: mascota.data.razaId || "",
                     sexoId: mascota.data.sexoId,
                     peso: mascota.data.peso,
                     castracion: mascota.data.castracion ? "1" : "0",
@@ -85,20 +108,25 @@ const ModificarMascota = () => {
 
     const onSubmit = async (data) => {
         setSubmitError(null);
+        setSubmitLoading(true);
         let newPhotoUrl = null;
+        
         try {
+            // 1. Subir nueva foto si se seleccionó
             if (files.length > 0) {
-                if (initialData.foto) {
-                    try {
-                        await deleteFileStorage(initialData.foto);
-                    } catch (e) {
-                        console.warn(
-                            "No se pudo borrar imagen anterior (posiblemente no existe):",
-                            e.message
-                        );
-                    }
-                }
                 newPhotoUrl = await uploadFilePetsUser(files[0].file);
+            }
+
+            // 2. Eliminar foto actual si el usuario la marcó para eliminar
+            if (fotoActual && !fotoActual.estadoTemporal) {
+                try {
+                    await deleteFileStorage(fotoActual.url);
+                } catch (e) {
+                    console.warn(
+                        "No se pudo borrar imagen anterior (posiblemente no existe):",
+                        e.message
+                    );
+                }
             }
 
             const payload = {
@@ -110,7 +138,7 @@ const ModificarMascota = () => {
                 peso: String(data.peso),
                 descripcion: data.descripcion || null,
                 idUsuario: initialData.idUsuario,
-                foto: newPhotoUrl !== null ? newPhotoUrl : initialData.foto,
+                foto: newPhotoUrl !== null ? newPhotoUrl : (fotoActual?.estadoTemporal ? fotoActual.url : null),
                 color: data.color,
                 razaId: parseInt(data.razaId),
             };
@@ -124,6 +152,8 @@ const ModificarMascota = () => {
         } catch (e) {
             console.error(e);
             mostrarAlertaError("No se pudo modificar la mascota");
+        } finally {
+            setSubmitLoading(false);
         }
     };
 
@@ -145,20 +175,55 @@ const ModificarMascota = () => {
                 <Grid container spacing={2}>
                     <Grid item size={{ xs: 12 }}>
                         <Typography variant="subtitle1">Foto actual</Typography>
-                        <Box my={2}>
-                            <img
-                                src={
-                                    fotoPreview || "/images/placeholder-pet.png"
-                                }
-                                alt="Mascota"
-                                style={{
-                                    width: 150,
-                                    height: 150,
-                                    objectFit: "cover",
-                                    borderRadius: 8,
-                                }}
-                            />
-                        </Box>
+                        {fotoActual ? (
+                            <Box sx={{ display: 'inline-block', position: 'relative', mr: 1, mb: 2 }}>
+                                <img
+                                    src={fotoActual.url}
+                                    alt="Mascota"
+                                    style={{
+                                        width: 150,
+                                        height: 150,
+                                        objectFit: "cover",
+                                        borderRadius: 8,
+                                        opacity: fotoActual.estadoTemporal ? 1 : 0.5,
+                                        border: fotoActual.estadoTemporal ? '2px solid green' : '2px solid red'
+                                    }}
+                                />
+                                <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                        setFotoActual(prev => ({
+                                            ...prev,
+                                            estadoTemporal: !prev.estadoTemporal
+                                        }));
+                                    }}
+                                    sx={{
+                                        position: 'absolute',
+                                        top: -8,
+                                        right: -8,
+                                        backgroundColor: fotoActual.estadoTemporal ? 'error.main' : 'success.main',
+                                        color: 'white',
+                                        '&:hover': {
+                                            backgroundColor: fotoActual.estadoTemporal ? 'error.dark' : 'success.dark',
+                                        }
+                                    }}
+                                >
+                                    {fotoActual.estadoTemporal ? '✕' : '✓'}
+                                </IconButton>
+                            </Box>
+                        ) : (
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                No hay foto actual. Puedes agregar una nueva imagen abajo.
+                            </Typography>
+                        )}
+                        
+                        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                            {fotoActual ? 
+                                "Haz clic en el botón ✕ para eliminar la foto actual, o ✓ para mantenerla" : 
+                                "Agregar nueva foto"
+                            }
+                        </Typography>
+                        
                         <FilePond
                             files={files}
                             onupdatefiles={setFiles}
@@ -310,8 +375,10 @@ const ModificarMascota = () => {
                             variant="contained"
                             color="primary"
                             type="submit"
+                            disabled={submitLoading}
+                            startIcon={submitLoading ? <CircularProgress size={20} color="inherit" /> : null}
                         >
-                            Guardar Cambios
+                            {submitLoading ? "Guardando..." : "Guardar Cambios"}
                         </Button>
                     </Grid>
                 </Grid>

@@ -43,7 +43,7 @@ const FormularioAdopcion = ({ mascotaId, onClose }) => {
                 const resUser = await getUserMail(email);
                 setUsuario(resUser);
 
-                console.log(resUser);
+
             }
 
             const resPublicacion = await getPublicacionPorId(mascotaId);

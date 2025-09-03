@@ -7,9 +7,47 @@ const CarnetDigitalMascota = ({
     open,
     onClose,
     vacunas = [],
-    mascota = [],
+    mascota = null,
 }) => {
-    if (!open || !mascota || !vacunas) return null;
+    if (!open || !mascota || !vacunas || !mascota.nombre) return null;
+
+    // Función para agrupar vacunas por tipo
+    const agruparVacunasPorTipo = (vacunas) => {
+        const grupos = {};
+        
+        vacunas.forEach(vacuna => {
+            const nombreVacuna = vacuna?.nombreVacuna || "Sin nombre";
+            if (!grupos[nombreVacuna]) {
+                grupos[nombreVacuna] = [];
+            }
+            grupos[nombreVacuna].push(vacuna);
+        });
+        
+        return grupos;
+    };
+
+    // Función para dividir las vacunas en páginas (máximo 3 dosis por página)
+    const dividirVacunasEnPaginas = (vacunasAgrupadas) => {
+        const paginas = [];
+        
+        Object.entries(vacunasAgrupadas).forEach(([nombreVacuna, dosis]) => {
+            // Dividir las dosis en grupos de máximo 3
+            for (let i = 0; i < dosis.length; i += 3) {
+                const dosisEnPagina = dosis.slice(i, i + 3);
+                paginas.push({
+                    nombreVacuna,
+                    dosis: dosisEnPagina,
+                    inicioDosis: i + 1, // Número de la primera dosis en esta página
+                    totalDosis: dosis.length // Total de dosis para este tipo de vacuna
+                });
+            }
+        });
+        
+        return paginas;
+    };
+
+    const vacunasAgrupadas = agruparVacunasPorTipo(vacunas);
+    const paginasVacunas = dividirVacunasEnPaginas(vacunasAgrupadas);
 
     return (
         <Box
@@ -68,7 +106,7 @@ const CarnetDigitalMascota = ({
                             }}
                         >
                             <Avatar
-                                src={mascota.foto}
+                                src={mascota.foto || "/placeholder.png"}
                                 sx={{
                                     width: 230,
                                     height: 230,
@@ -85,7 +123,7 @@ const CarnetDigitalMascota = ({
                                 {mascota.nombre}
                             </Typography>
                             <Typography variant="body1">
-                                Tipo: {mascota.raza.tipoMascota.tipo || "-"} |
+                                Tipo: {mascota.raza?.tipoMascota?.tipo || mascota.tipoMascotaNombre || "-"} |
                                 Sexo: {mascota.sexoMascota || "-"}
                             </Typography>
                         </div>
@@ -136,7 +174,6 @@ const CarnetDigitalMascota = ({
                     </div>
 
                     {/* DESCRIPCION */}
-
                     <div className="page-flipbook">
                         <Typography
                             variant="h6"
@@ -178,33 +215,39 @@ const CarnetDigitalMascota = ({
                         </Typography>
                     </div>
 
-                    {/* PÁGINAS DE VACUNAS */}
-                    {vacunas.map((v, i) => (
+                    {/* PÁGINAS DE VACUNAS AGRUPADAS */}
+                    {paginasVacunas.map((pagina, i) => (
                         <div key={i} className="page-flipbook">
                             <Typography
                                 variant="h6"
                                 gutterBottom
                                 sx={{ fontWeight: "bold", mb: 2 }}
                             >
-                                Vacuna: {v?.nombreVacuna || "-"}
+                                Vacuna: {pagina.nombreVacuna}
                             </Typography>
-                            <Typography variant="body1" sx={{ mb: 1 }}>
-                                Fecha aplicación:{" "}
-                                {new Date(
-                                    v.fechaAplicacion
-                                ).toLocaleDateString()}
-                            </Typography>
-                            <Typography variant="body1" sx={{ mb: 1 }}>
-                                Próxima dosis:{" "}
-                                {v.fechaProxima
-                                    ? new Date(
-                                          v.fechaProxima
-                                      ).toLocaleDateString()
-                                    : "-"}
-                            </Typography>
-                            <Typography variant="body1" sx={{ mb: 1 }}>
-                                Observaciones: {v.observaciones || "-"}
-                            </Typography>
+                            
+                            {pagina.dosis.map((dosis, index) => (
+                                <Box key={index} sx={{ mb: 2, p: 1, border: "1px solid #ddd", borderRadius: 1 }}>
+                                    <Typography variant="body2" sx={{ fontWeight: "bold", mb: 1 }}>
+                                        Dosis {pagina.inicioDosis + index} de {pagina.totalDosis}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ mb: 0.5 }}>
+                                        Fecha aplicación:{" "}
+                                        {dosis.fechaAplicacion
+                                            ? new Date(dosis.fechaAplicacion).toLocaleDateString()
+                                            : "-"}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ mb: 0.5 }}>
+                                        Próxima dosis:{" "}
+                                        {dosis.fechaProxima
+                                            ? new Date(dosis.fechaProxima).toLocaleDateString()
+                                            : "-"}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ mb: 0.5 }}>
+                                        Observaciones: {dosis.observaciones || "-"}
+                                    </Typography>
+                                </Box>
+                            ))}
                         </div>
                     ))}
                 </HTMLFlipBook>

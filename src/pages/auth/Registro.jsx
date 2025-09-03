@@ -51,7 +51,7 @@ const Register = () => {
         setError(null);
         setLoading(true);
 
-        console.log(data)
+
         try {
             const isUser = await getUserMail(data.mail);
             const userCredential = await register(data.mail, data.password);
@@ -202,8 +202,30 @@ const Register = () => {
                             <TextField
                                 fullWidth
                                 label="Número de celular"
+                                inputProps={{
+                                    maxLength: 15,
+                                    pattern: "[0-9]*"
+                                }}
+                                onKeyPress={(e) => {
+                                    const charCode = e.which ? e.which : e.keyCode;
+                                    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                                        e.preventDefault();
+                                    }
+                                }}
                                 {...registerField("celular", {
                                     required: "El celular es obligatorio",
+                                    pattern: {
+                                        value: /^[0-9]+$/,
+                                        message: "Solo se permiten números"
+                                    },
+                                    minLength: {
+                                        value: 10,
+                                        message: "Mínimo 10 dígitos"
+                                    },
+                                    maxLength: {
+                                        value: 15,
+                                        message: "Máximo 15 dígitos"
+                                    }
                                 })}
                                 error={!!errors.celular}
                                 helperText={errors.celular?.message}
@@ -260,8 +282,30 @@ const Register = () => {
                             <TextField
                                 fullWidth
                                 label="Altura"
+                                inputProps={{
+                                    maxLength: 5,
+                                    pattern: "[0-9]*"
+                                }}
+                                onKeyPress={(e) => {
+                                    const charCode = e.which ? e.which : e.keyCode;
+                                    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                                        e.preventDefault();
+                                    }
+                                }}
                                 {...registerField("nroCalle", {
                                     required: "La altura es obligatoria",
+                                    pattern: {
+                                        value: /^[0-9]+$/,
+                                        message: "Solo se permiten números"
+                                    },
+                                    minLength: {
+                                        value: 1,
+                                        message: "La altura es obligatoria"
+                                    },
+                                    maxLength: {
+                                        value: 5,
+                                        message: "Máximo 5 dígitos"
+                                    }
                                 })}
                                 error={!!errors.nroCalle}
                                 helperText={errors.nroCalle?.message}

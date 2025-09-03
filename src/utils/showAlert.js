@@ -10,7 +10,9 @@ export const mostrarAlertaExito = (mensaje, redireccionar) => {
     allowOutsideClick: false,
     allowEscapeKey: false,
     didClose: () => {
-      window.location.href = redireccionar;
+      if (redireccionar) {
+        window.location.href = redireccionar;
+      }
     },
   });
 };
@@ -24,5 +26,15 @@ export const mostrarAlertaError = (mensaje) => {
     showConfirmButton: false,
     allowOutsideClick: false,
     allowEscapeKey: false,
+  });
+};
+
+export const mostrarAlertaInfo = (titulo, mensaje) => {
+  Swal.fire({
+    title: titulo,
+    text: mensaje,
+    icon: "info",
+    confirmButtonText: "Entendido",
+    confirmButtonColor: "#3085d6",
   });
 };

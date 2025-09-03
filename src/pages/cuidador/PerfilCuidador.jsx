@@ -189,19 +189,22 @@ const PerfilCuidador = () => {
                                     autoPlay
                                     infiniteLoop
                                 >
-                                    {cuidador.fotos.map((foto) => (
-                                        <div key={foto.id}>
-                                            <img
-                                                src={foto.foto}
-                                                alt="Imagen Cuidador"
-                                                style={{
-                                                    borderRadius: 8,
-                                                    maxHeight: 350,
-                                                    objectFit: "contain",
-                                                }}
-                                            />
-                                        </div>
-                                    ))}
+                                    {cuidador.fotos.map((foto, index) => {
+                                        const fotoUrl = typeof foto === 'object' ? foto.foto : foto;
+                                        return (
+                                            <div key={foto.id || index}>
+                                                <img
+                                                    src={fotoUrl}
+                                                    alt="Imagen Cuidador"
+                                                    style={{
+                                                        borderRadius: 8,
+                                                        maxHeight: 350,
+                                                        objectFit: "contain",
+                                                    }}
+                                                />
+                                            </div>
+                                        );
+                                    })}
                                 </Carousel>
                             ) : (
                                 <Typography>

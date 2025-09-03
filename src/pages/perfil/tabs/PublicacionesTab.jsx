@@ -102,27 +102,33 @@ const PublicacionesTab = () => {
                     )}
                     {posts.map((post) => (
                         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={post.id}>
-                            <Card>
+                            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                                 <CardMedia
                                     component="img"
-                                    height="180"
+                                    height="200"
                                     image={
                                         post.fotos[0].foto ||
                                         "/images/placeholder-post.png"
                                     }
                                     alt={post.nombre}
-                                    sx={{ objectFit: "cover" }}
+                                    sx={{ 
+                                        objectFit: "contain",
+                                        width: "100%",
+                                        backgroundColor: "#f5f5f5"
+                                    }}
                                 />
-                                <CardContent>
+                                <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '120px' }}>
                                     <Typography
                                         variant="subtitle1"
                                         gutterBottom
+                                        sx={{ minHeight: '24px', display: 'flex', alignItems: 'center' }}
                                     >
-                                        {post.nombre}
+                                        {post.nombre || "-"}
                                     </Typography>
                                     <Box
                                         display="flex"
                                         justifyContent="space-between"
+                                        mt="auto"
                                     >
                                         <Tooltip title="Ver detalles">
                                             <IconButton

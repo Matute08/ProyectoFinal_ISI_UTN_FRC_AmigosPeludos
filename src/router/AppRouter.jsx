@@ -13,6 +13,7 @@ import Fundaciones from "../pages/fundacion/Fundaciones";
 import Ayuda from "../pages/Ayuda";
 import PreguntasFrecuentes from "../pages/PreguntasFrecuentes";
 import Registro from "../pages/auth/Registro";
+import ResetPassword from "../pages/auth/ResetPassword";
 import DetallePublicacionAdopcion from "../pages/DetallePublicacionAdopcion";
 import DetallePublicacionGeneral from "../pages/DetallePublicacionGeneral";
 import NuevaMascotaEncontrada from "../pages/NuevaMascotaEncontrada";
@@ -42,8 +43,10 @@ import AgregarCuidador from "../pages/cuidador/agregarCuidador/AgregarCuidador";
 import ModificarPerfil from "../pages/perfil/ModificarPerfil";
 import VacunacionMascota from "../pages/perfil/mascotas/vacunas/VacunacionMascota";
 import ModificarPaseador from "../pages/perfil/servicios/modificar/ModificarPaseador";
+import ModificarCuidador from "../pages/perfil/servicios/modificar/ModificarCuidador";
 
 import PanelDenuncias from "../pages/denuncias/PanelDenuncias";
+import ComparacionesMascotaPage from "../pages/ComparacionesMascotaPage";
 
 export default function AppRouter() {
     return (
@@ -62,6 +65,7 @@ export default function AppRouter() {
                 <Route path="/ayuda" element={<Ayuda />} />
                 <Route path="/faq" element={<PreguntasFrecuentes />} />
                 <Route path="/registro" element={<Registro />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/datos-usuario/:id" element={<UsuarioQrVista />} />
                 <Route path="/donacion-fundacion/:idFunda" element={<DonacionFundacion />} />
 
@@ -257,6 +261,18 @@ export default function AppRouter() {
                             <ModificarPaseador />
                         </PrivateRoute>
                     }
+                />
+                <Route
+                    path="/modificar-cuidador/:cuidadorId"
+                    element={
+                        <PrivateRoute>
+                            <ModificarCuidador />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/comparaciones/:id"
+                    element={<ComparacionesMascotaPage />}
                 />
                 {/* Puedes agregar más rutas aquí */}
             </Routes>

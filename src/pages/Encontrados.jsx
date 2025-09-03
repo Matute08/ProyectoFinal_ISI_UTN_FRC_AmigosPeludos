@@ -270,7 +270,11 @@ export default function Encontrados() {
                                     height="200"
                                     image={m.fotos?.[0]?.foto || "/placeholder.png"}
                                     alt={m.nombre || "Mascota"}
-                                    sx={{ objectFit: "cover" }}
+                                    sx={{ 
+                                        objectFit: "contain",
+                                        width: "100%",
+                                        backgroundColor: "#f5f5f5"
+                                    }}
                                 />
                                 <CardContent sx={{ flexGrow: 1 }}>
                                     <Typography fontWeight="bold">
@@ -290,8 +294,16 @@ export default function Encontrados() {
                                         variant="outlined"
                                         endIcon={<span style={{ fontSize: "1rem" }}>→</span>}
                                         onClick={() => navigate(`/consultar-posteo-encontrada/${m.id}`)}
+                                        sx={{ mr: 1 }}
                                     >
                                         Ver Detalles
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        color="info"
+                                        onClick={() => navigate(`/comparaciones/${m.id}`)}
+                                    >
+                                        Ver comparaciones
                                     </Button>
                                 </Box>
                             </Card>

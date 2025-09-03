@@ -1,7 +1,3 @@
-// Componente SettingsPaseador.jsx (adaptado al diseño moderno)
-// Incluye presentación, horario, experiencia, barrio, precio y carga de fotos con FilePond
-// Requiere Material UI, React Hook Form, Firebase utils, y tus APIs personalizadas
-
 import React, { useEffect, useState } from "react";
 import {
     Box,
@@ -28,14 +24,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getUserMail } from "../../../../api/userApi";
 import { getBarrios } from "../../../../api/commonApi";
 import {
-    getPaseadorPorId,
-    updateGrillaPaseador,
-    deleteFotoPaseador,
-    postFotoPaseador,
-    updatePaseador,
-} from "../../../../api/paseadoresApi";
+    getCuidadoresId,
+    updateCuidador,
+    postFotoCuidador,
+    deleteFotoCuidador,
+} from "../../../../api/cuidadoresApi";
 import {
-    uploadFilesPaseador,
+    uploadFilesCuidador,
     deleteFileStorage,
 } from "../../../../api/firebaseUploads";
 import { FilePond, registerPlugin } from "react-filepond";
@@ -45,11 +40,12 @@ import "filepond/dist/filepond.min.css";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import SelectBarrio from "../../../../components/select/SelectBarrio";
 import SelectExperiencia from "../../../../components/select/SelectExperiencia";
+import SelectTipoVivienda from "../../../../components/select/SelectTipoVivienda";
 import { mostrarAlertaError, mostrarAlertaExito } from "../../../../utils/showAlert";
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview);
 
-const ModificarPaseador = () => {
-    const { paseadorId } = useParams();
+const ModificarCuidador = () => {
+    const { cuidadorId } = useParams();
     const navigate = useNavigate();
     const diasSemana = [
         "lunes",
@@ -63,7 +59,7 @@ const ModificarPaseador = () => {
     const etiquetas = { manana: "Mañana", tarde: "Tarde", noche: "Noche" };
     const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
     const [userData, setUserData] = useState(null);
-    const [paseador, setPaseador] = useState(null);
+    const [cuidador, setCuidador] = useState(null);
     const [horario, setHorario] = useState({});
     const [fotos, setFotos] = useState([]);
     const [fotosTemporales, setFotosTemporales] = useState([]);
@@ -91,14 +87,14 @@ const ModificarPaseador = () => {
             if (!local) return;
 
             const user = await getUserMail(JSON.parse(local).email);
-            const paseadorData = await getPaseadorPorId(paseadorId);
+            const cuidadorData = await getCuidadoresId(cuidadorId);
             const barriosRes = await getBarrios();
             
 
             
             setBarrios(barriosRes.data);
             setUserData(user);
-            setPaseador(paseadorData.data);
+            setCuidador(cuidadorData.data);
 
             // Armar estructura base
             const horarioBase = {};
@@ -111,7 +107,7 @@ const ModificarPaseador = () => {
             });
 
             // Combinar con lo que venga de la base
-            const horariosBD = paseadorData?.data?.grilla?.scheduleData || {};
+            const horariosBD = cuidadorData?.data?.grilla?.scheduleData || {};
             const horarioFinal = { ...horarioBase };
 
             for (const dia in horariosBD) {
@@ -125,26 +121,33 @@ const ModificarPaseador = () => {
 
             // Setear valores del formulario
             reset({
-                titulo: paseadorData.data.titulo,
-                precioPaseo: paseadorData.data.precioPaseo,
-                presentacion: paseadorData.data.presentacion,
-                experienciaId: paseadorData.data.experienciaId,
-                barrioId: paseadorData.data.barrioTrabajoId,
+                titulo: cuidadorData.data.titulo,
+                precioCuidado: cuidadorData.data.precioCuidado,
+                presentacion: cuidadorData.data.presentacion,
+                experienciaId: cuidadorData.data.experienciaId,
+                barrioId: cuidadorData.data.barrioId,
+                calle: cuidadorData.data.calle,
+                nroCalle: cuidadorData.data.nroCalle,
+                piso: cuidadorData.data.piso,
+                tipoViviendaId: cuidadorData.data.tipoViviendaId,
+                patioBalcon: cuidadorData.data.patioBalcon,
+                transportePropio: cuidadorData.data.transportePropio,
             });
 
             // Cargar fotos existentes
-            if (paseadorData.data.fotos && paseadorData.data.fotos.length > 0) {
-                const fotosExistentes = paseadorData.data.fotos.map(foto => ({
+            if (cuidadorData.data.fotos && cuidadorData.data.fotos.length > 0) {
+                const fotosExistentes = cuidadorData.data.fotos.map(foto => ({
                     id: foto.id,
                     foto: typeof foto === 'object' ? foto.foto : foto,
                     estadoTemporal: true
                 }));
                 setFotosTemporales(fotosExistentes);
             }
+
         };
 
         init();
-    }, [paseadorId, reset]);
+    }, [cuidadorId, reset]);
 
     const toggleCheck = (dia, turno) => {
         setHorario((prev) => ({
@@ -155,51 +158,56 @@ const ModificarPaseador = () => {
 
     const onSubmit = async (data) => {
         try {
-            const dataGrilla = {
-                idPaseador: parseInt(paseadorId),
-                scheduleData: horario,
-            };
+            // Manejo de fotos nuevas - subir a Firebase y obtener URLs
             const nuevasFotos = [];
 
             for (let file of fotos) {
-                const upload = await uploadFilesPaseador(file.file);
+                const upload = await uploadFilesCuidador(file.file);
                 nuevasFotos.push({ foto: upload });
             }
+            
+            // Subir nuevas fotos al backend
             await Promise.all(
                 nuevasFotos.map((f) =>
-                    postFotoPaseador({
+                    postFotoCuidador({
                         foto: f.foto,
-                        paseadorId: parseInt(paseadorId),
+                        cuidadorId: parseInt(cuidadorId),
                     })
                 )
             );
 
+            // Eliminar fotos marcadas para eliminar
             const fotosAEliminar = fotosTemporales.filter(
                 (f) => !f.estadoTemporal
             );
             for (let f of fotosAEliminar) {
                 await deleteFileStorage(f.foto);
-                await deleteFotoPaseador(f.id);
+                await deleteFotoCuidador(f.id);
             }
 
             const payload = {
-                // Mantener todos los campos existentes del paseador
-                ...paseador,
+                // Mantener todos los campos existentes del cuidador
+                ...cuidador,
                 // Actualizar solo los campos modificados
                 titulo: data.titulo,
                 presentacion: data.presentacion,
                 experienciaId: Number(data.experienciaId),
-                barrioTrabajoId: Number(data.barrioId),
-                precioPaseo: Number(data.precioPaseo),
+                barrioId: Number(data.barrioId),
+                calle: data.calle,
+                nroCalle: Number(data.nroCalle),
+                piso: data.piso || "",
+                tipoViviendaId: Number(data.tipoViviendaId),
+                patioBalcon: Boolean(data.patioBalcon),
+                transportePropio: Boolean(data.transportePropio),
+                precioCuidado: Number(data.precioCuidado),
             };
 
 
             
-            await updatePaseador(paseadorId, payload);
-            await updateGrillaPaseador(paseadorId, dataGrilla);
+            await updateCuidador(cuidadorId, payload);
             
             // Mostrar mensaje de éxito
-            mostrarAlertaExito("Perfil de paseador actualizado exitosamente", "/perfil");
+            mostrarAlertaExito("Perfil de cuidador actualizado exitosamente", "/perfil");
 
         } catch (error) {
             console.error("Error en onSubmit:", error);
@@ -218,7 +226,7 @@ const ModificarPaseador = () => {
             <Container sx={{ mt: 4, borderRadius: 4 }} maxWidth="md">
                 <Box sx={{ p: 3 }}>
                     <Typography variant="h5" mb={2}>
-                        Editar Perfil Paseador
+                        Editar Perfil Cuidador
                     </Typography>
 
                     <form onSubmit={handleSubmit(onSubmit)}>
@@ -226,51 +234,51 @@ const ModificarPaseador = () => {
                             {/* fotos */}
                             <Grid item size={{ xs: 12 }}>
                                 <Typography variant="subtitle1">
-                                    Imágenes de Paseos
+                                    Imágenes del Servicio
                                 </Typography>
                                 {fotosTemporales?.length > 0 ? (
                                     fotosTemporales.map((f) => (
-                                        <Box key={f.id} sx={{ display: 'inline-block', position: 'relative', mr: 1, mb: 1 }}>
-                                            <img
-                                                src={f.foto}
-                                                alt="foto"
-                                                width="100"
-                                                style={{ 
-                                                    opacity: f.estadoTemporal ? 1 : 0.5,
-                                                    border: f.estadoTemporal ? '2px solid green' : '2px solid red'
-                                                }}
-                                            />
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => {
-                                                    setFotosTemporales(prev => 
-                                                        prev.map(foto => 
-                                                            foto.id === f.id 
-                                                                ? { ...foto, estadoTemporal: !foto.estadoTemporal }
-                                                                : foto
-                                                        )
-                                                    );
-                                                }}
-                                                sx={{
-                                                    position: 'absolute',
-                                                    top: -8,
-                                                    right: -8,
-                                                    backgroundColor: f.estadoTemporal ? 'error.main' : 'success.main',
-                                                    color: 'white',
-                                                    '&:hover': {
-                                                        backgroundColor: f.estadoTemporal ? 'error.dark' : 'success.dark',
-                                                    }
-                                                }}
-                                            >
-                                                {f.estadoTemporal ? '✕' : '✓'}
-                                            </IconButton>
-                                        </Box>
-                                    ))
-                                ) : (
-                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                        No hay imágenes subidas. Puedes agregar nuevas imágenes abajo.
-                                    </Typography>
-                                )}
+                                    <Box key={f.id} sx={{ display: 'inline-block', position: 'relative', mr: 1, mb: 1 }}>
+                                        <img
+                                            src={f.foto}
+                                            alt="foto"
+                                            width="100"
+                                            style={{ 
+                                                opacity: f.estadoTemporal ? 1 : 0.5,
+                                                border: f.estadoTemporal ? '2px solid green' : '2px solid red'
+                                            }}
+                                        />
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => {
+                                                setFotosTemporales(prev => 
+                                                    prev.map(foto => 
+                                                        foto.id === f.id 
+                                                            ? { ...foto, estadoTemporal: !foto.estadoTemporal }
+                                                            : foto
+                                                    )
+                                                );
+                                            }}
+                                            sx={{
+                                                position: 'absolute',
+                                                top: -8,
+                                                right: -8,
+                                                backgroundColor: f.estadoTemporal ? 'error.main' : 'success.main',
+                                                color: 'white',
+                                                '&:hover': {
+                                                    backgroundColor: f.estadoTemporal ? 'error.dark' : 'success.dark',
+                                                }
+                                            }}
+                                        >
+                                            {f.estadoTemporal ? '✕' : '✓'}
+                                        </IconButton>
+                                    </Box>
+                                ))
+                            ) : (
+                                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                    No hay imágenes subidas. Puedes agregar nuevas imágenes abajo.
+                                </Typography>
+                            )}
                                 <FilePond
                                     files={fotos}
                                     onupdatefiles={setFotos}
@@ -278,6 +286,7 @@ const ModificarPaseador = () => {
                                     maxFiles={4}
                                 />
                             </Grid>
+                            
                             {/* titulo */}
                             <Grid item size={{ xs: 12, sm: 6 }}>
                                 <Controller
@@ -294,16 +303,17 @@ const ModificarPaseador = () => {
                                     )}
                                 />
                             </Grid>
+                            
                             {/* precio */}
                             <Grid item size={{ xs: 12, sm: 6 }}>
                                 <Controller
-                                    name="precioPaseo"
+                                    name="precioCuidado"
                                     control={control}
                                     defaultValue=""
                                     render={({ field }) => (
                                         <TextField
                                             {...field}
-                                            label="Precio por paseo"
+                                            label="Precio por hora"
                                             type="number"
                                             fullWidth
                                             required
@@ -326,6 +336,7 @@ const ModificarPaseador = () => {
                                     helperText={errors.experienciaId?.message}
                                 />
                             </Grid>
+                            
                             {/* barrio */}
                             <Grid item size={{ xs: 12, md: 6 }}>
                                 <Controller
@@ -356,6 +367,115 @@ const ModificarPaseador = () => {
                                 />
                             </Grid>
 
+                            {/* calle */}
+                            <Grid item size={{ xs: 12, sm: 8 }}>
+                                <Controller
+                                    name="calle"
+                                    control={control}
+                                    defaultValue=""
+                                    render={({ field }) => (
+                                        <TextField
+                                            {...field}
+                                            label="Calle"
+                                            fullWidth
+                                            required
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+                            {/* número de calle */}
+                            <Grid item size={{ xs: 12, sm: 4 }}>
+                                <Controller
+                                    name="nroCalle"
+                                    control={control}
+                                    defaultValue=""
+                                    render={({ field }) => (
+                                        <TextField
+                                            {...field}
+                                            label="Número"
+                                            type="number"
+                                            fullWidth
+                                            required
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+                            {/* piso */}
+                            <Grid item size={{ xs: 12, sm: 6 }}>
+                                <Controller
+                                    name="piso"
+                                    control={control}
+                                    defaultValue=""
+                                    render={({ field }) => (
+                                        <TextField
+                                            {...field}
+                                            label="Piso (opcional)"
+                                            fullWidth
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+                            {/* tipo de vivienda */}
+                            <Grid item size={{ xs: 12, sm: 6 }}>
+                                <SelectTipoVivienda
+                                    value={watch("tipoViviendaId")}
+                                    onChange={(e) =>
+                                        setValue(
+                                            "tipoViviendaId",
+                                            e.target.value
+                                        )
+                                    }
+                                    error={!!errors.tipoViviendaId}
+                                    helperText={errors.tipoViviendaId?.message}
+                                />
+                            </Grid>
+
+                            {/* checkboxes */}
+                            <Grid item size={{ xs: 12, sm: 6 }}>
+                                <FormGroup>
+                                    <FormControlLabel
+                                        control={
+                                            <Controller
+                                                name="patioBalcon"
+                                                control={control}
+                                                defaultValue={false}
+                                                render={({ field }) => (
+                                                    <Checkbox
+                                                        {...field}
+                                                        checked={field.value}
+                                                    />
+                                                )}
+                                            />
+                                        }
+                                        label="Patio o Balcón"
+                                    />
+                                </FormGroup>
+                            </Grid>
+
+                            <Grid item size={{ xs: 12, sm: 6 }}>
+                                <FormGroup>
+                                    <FormControlLabel
+                                        control={
+                                            <Controller
+                                                name="transportePropio"
+                                                control={control}
+                                                defaultValue={false}
+                                                render={({ field }) => (
+                                                    <Checkbox
+                                                        {...field}
+                                                        checked={field.value}
+                                                    />
+                                                )}
+                                            />
+                                        }
+                                        label="Transporte Propio"
+                                    />
+                                </FormGroup>
+                            </Grid>
+
                             {/* presentacion */}
                             <Grid item size={{ xs: 12 }}>
                                 <Controller
@@ -374,6 +494,7 @@ const ModificarPaseador = () => {
                                     )}
                                 />
                             </Grid>
+                            
                             {/* horario */}
                             <Grid item size={{ xs: 12 }}>
                                 <Typography variant="subtitle1">
@@ -460,4 +581,4 @@ const ModificarPaseador = () => {
     );
 };
 
-export default ModificarPaseador;
+export default ModificarCuidador; 

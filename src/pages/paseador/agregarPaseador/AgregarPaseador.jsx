@@ -83,7 +83,6 @@ const AgregarPaseador = () => {
     }, []);
 
     const onSubmit = async (data) => {
-        console.log(data);
         try {
             const payload = {
                 idUsuario: user.id,
@@ -129,8 +128,7 @@ const AgregarPaseador = () => {
                 esPaseador: true,
             };
 
-            console.log(payload);
-            console.log(payloadActualizacionUsuario);
+
             await postPaseador(payload);
             await updateUser(user.id, payloadActualizacionUsuario);
 

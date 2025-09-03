@@ -28,10 +28,8 @@ const ServicioFundacion = () => {
       if (userData) {
         try {
           const data = await getFundacion();
-          console.log("Datos de fundaciones:", data);
           const filtradas = data.data.filter((f) => f.usuarioId === userData.id);
           setFundaciones(filtradas);
-          console.log("Fundaciones:", filtradas);
         } catch (error) {
           console.error("Error al obtener fundaciones", error);
         } finally {

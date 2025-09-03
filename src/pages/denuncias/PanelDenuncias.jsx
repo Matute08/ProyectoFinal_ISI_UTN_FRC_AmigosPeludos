@@ -47,6 +47,35 @@ const PanelDenuncias = () => {
     fetchAll();
   }, []);
 
+  const obtenerRutaPublicacion = (tipo, idPublicacion) => {
+    switch (tipo) {
+      case "Perdida":
+        return `/consultar-posteo-perdida/${idPublicacion}`;
+      case "Encontrada":
+        return `/consultar-posteo-encontrada/${idPublicacion}`;
+      case "Adopcion":
+        return `/consultar-posteo-adopcion/${idPublicacion}`;
+      default:
+        return `/publicacion/${idPublicacion}`;
+    }
+  };
+
+  const eliminarPublicacion = (idPublicacion) => {
+    // TODO: Llamar a la API para eliminar publicación y refrescar la lista
+  };
+
+  const descartarDenuncia = (idDenuncia) => {
+    // TODO: Llamar a la API para ocultar o marcar como revisada la denuncia y refrescar la lista
+  };
+
+  if (loading) {
+    return (
+      <Container sx={{ textAlign: "center", mt: 5 }}>
+        <CustomLoader />
+      </Container>
+    );
+  }
+
   return (
     <Container sx={{ py: 4 }}>
       <Typography variant="h4" align="center" gutterBottom>

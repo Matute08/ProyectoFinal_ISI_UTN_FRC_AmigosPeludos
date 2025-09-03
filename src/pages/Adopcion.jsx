@@ -278,7 +278,11 @@ export default function Adopcion() {
                                         "/placeholder.png"
                                     }
                                     alt={mascota.nombre || "Mascota"}
-                                    sx={{ objectFit: "cover" }}
+                                    sx={{ 
+                                        objectFit: "contain",
+                                        width: "100%",
+                                        backgroundColor: "#f5f5f5"
+                                    }}
                                 />
                                 <CardContent sx={{ flexGrow: 1 }}>
                                     <Typography fontWeight="bold">

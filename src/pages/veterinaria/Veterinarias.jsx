@@ -8,6 +8,7 @@ import FloatingActionButton from "../../components/FloatingActionButton";
 const Veterinarias = () => {
     const [registeredVets, setRegisteredVets] = useState([]);
     const [selectedVeterinaria, setSelectedVeterinaria] = useState(null);
+    const mapContainerRef = React.useRef(null); // Referencia al contenedor del mapa
 
     useEffect(() => {
         const fetchVeterinarias = async () => {
@@ -59,6 +60,7 @@ const Veterinarias = () => {
 
                 {/* Contenedor Mapa + Panel */}
                 <Box
+                    ref={mapContainerRef} // Referencia aquí
                     sx={{
                         width: "100%",
                         minHeight: "80vh",
@@ -104,6 +106,7 @@ const Veterinarias = () => {
                         veterinaria={selectedVeterinaria}
                         onClose={() => setSelectedVeterinaria(null)}
                         open={!!selectedVeterinaria}
+                        containerRef={mapContainerRef} // Nueva prop
                     />
                 </Box>
             </Box>

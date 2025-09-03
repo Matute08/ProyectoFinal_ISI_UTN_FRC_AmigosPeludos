@@ -38,23 +38,23 @@ const QrTab = () => {
                 }
 
                 if (qrGenerado != null && canvasRef.current) {
-                    // QRCode.toCanvas(
-                    //     canvasRef.current,
-                    //     `https://amigos-peludos.vercel.app/datos-usuario/${data.id}`,
-                    //     { width: 200 },
-                    //     function (error) {
-                    //         if (error) console.error(error);
-                    //     }
-                    // );
-
-                     QRCode.toCanvas(
+                    QRCode.toCanvas(
                         canvasRef.current,
-                        `localhost:5173/datos-usuario/${data.id}`,
+                        `https://amigos-peludos.vercel.app/datos-usuario/${data.id}`,
                         { width: 200 },
                         function (error) {
                             if (error) console.error(error);
                         }
                     );
+
+                    //  QRCode.toCanvas(
+                    //     canvasRef.current,
+                    //     `localhost:5173/datos-usuario/${data.id}`,
+                    //     { width: 200 },
+                    //     function (error) {
+                    //         if (error) console.error(error);
+                    //     }
+                    // );
                 }
             } catch (err) {
                 console.error("Error al obtener datos del usuario:", err);
@@ -69,15 +69,15 @@ const QrTab = () => {
 const handleGenerarQR = async () => {
   setLoading(true);
   try {
-    // const qrDataUrl = await QRCode.toDataURL(
-    //   `https://amigos-peludos.vercel.app/datos-usuario/${userData.id}`,
-    //   { width: 300, margin: 2 }
-    // );
-
     const qrDataUrl = await QRCode.toDataURL(
-      `localhost:5173/datos-usuario/${userData.id}`,
+      `https://amigos-peludos.vercel.app/datos-usuario/${userData.id}`,
       { width: 300, margin: 2 }
     );
+
+    // const qrDataUrl = await QRCode.toDataURL(
+    //   `localhost:5173/datos-usuario/${userData.id}`,
+    //   { width: 300, margin: 2 }
+    // );
 
     const qrFirebaseUrl = await subirQRUsuario(qrDataUrl, `qr_${userData.id}.png`);
     await updateUser(userData.id, { ...userData, qr: qrFirebaseUrl });

@@ -19,6 +19,7 @@ import { useParams } from "react-router-dom";
 import { getFundacionId } from "../../api/fundacionesApi";
 import Maps from "../../components/Maps";
 import MP_LOGO from "../../assets/mercadopago.png";
+import Swal from "sweetalert2";
 
 const MP_MONTOS = [1000, 2000, 5000, 10000];
 
@@ -44,8 +45,39 @@ const DonacionFundacion = () => {
     const corregirUrl = (url) =>
         url?.startsWith("http") ? url : `https://${url}`;
 
-    const handleCopy = (text) => {
-        navigator.clipboard.writeText(text);
+    const handleCopy = async (text, tipo) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            Swal.fire({
+                title: "¡Copiado!",
+                text: `${tipo} copiado al portapapeles`,
+                icon: "success",
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                background: "#4caf50",
+                color: "white",
+                customClass: {
+                    popup: "swal2-toast",
+                },
+            });
+        } catch (error) {
+            console.error("Error al copiar:", error);
+            Swal.fire({
+                title: "Error",
+                text: "No se pudo copiar al portapapeles",
+                icon: "error",
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                background: "#f44336",
+                color: "white",
+            });
+        }
     };
 
     if (!fundacion) {
@@ -273,7 +305,7 @@ const DonacionFundacion = () => {
                                             <IconButton
                                                 size="small"
                                                 onClick={() =>
-                                                    handleCopy(fundacion.cbu)
+                                                    handleCopy(fundacion.cbu, "CBU")
                                                 }
                                                 sx={{ ml: 1 }}
                                             >
@@ -303,7 +335,8 @@ const DonacionFundacion = () => {
                                                 size="small"
                                                 onClick={() =>
                                                     handleCopy(
-                                                        fundacion.aliasCbu
+                                                        fundacion.aliasCbu,
+                                                        "Alias"
                                                     )
                                                 }
                                                 sx={{ ml: 1 }}

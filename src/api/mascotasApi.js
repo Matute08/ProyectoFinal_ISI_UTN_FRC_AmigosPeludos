@@ -12,6 +12,17 @@ export const getRazasPorTipo = async (tipoId) => {
   }
 };
 
+// Obtener una raza por su ID
+export const getRazaById = async (razaId) => {
+  try {
+    const response = await apiClient.get(`/raza/${razaId}`);
+    return response;
+  } catch (error) {
+    console.error("Error al obtener raza por ID:", error);
+    return { data: null };
+  }
+};
+
 
 // Obtener todas las mascotas de un usuario
 export const getMascotasUsuario = async (userId) => {
@@ -19,7 +30,8 @@ export const getMascotasUsuario = async (userId) => {
     const response = await apiClient.get(`/mascotaFull/usuario/${userId}`);
     return response;
   } catch (error) {
-    console.error("Error al obtener mascotas:", error);
+    console.error("API: Error al obtener mascotas:", error);
+    console.error("API: Detalles del error:", error.response?.data);
     return { data: [] };
   }
 };

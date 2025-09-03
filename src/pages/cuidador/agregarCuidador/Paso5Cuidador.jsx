@@ -23,25 +23,41 @@ const Paso5Cuidador = () => {
   useEffect(() => {
     const subirFotos = async () => {
       if (files.length === 0) {
+        setValue("fotos", []);
         setError("Debes subir al menos una imagen.");
         return;
       }
+      
+      // Solo procesar archivos que no han sido subidos aún
+      const archivosNuevos = files.filter(file => !file.serverId);
+      
+      if (archivosNuevos.length === 0) {
+        return;
+      }
+      
       try {
         const urls = [];
-        for (let i = 0; i < files.length; i++) {
-          const result = await uploadFilesCuidador(files[i].file);
+        for (let i = 0; i < archivosNuevos.length; i++) {
+          const result = await uploadFilesCuidador(archivosNuevos[i].file);
           urls.push(result);
         }
-        setValue("fotos", urls);
+        
+        // Obtener URLs existentes y agregar las nuevas
+        const urlsExistentes = files
+          .filter(file => file.serverId)
+          .map(file => file.serverId);
+        
+        const todasLasUrls = [...urlsExistentes, ...urls];
+        setValue("fotos", todasLasUrls);
         await trigger("fotos");
         setError("");
       } catch (err) {
-        setError("Error al subir las imágenes",err);
+        setError("Error al subir las imágenes: " + err.message);
       }
     };
 
     subirFotos();
-  }, [files]);
+  }, [files, setValue, trigger]);
 
   return (
     <Box>

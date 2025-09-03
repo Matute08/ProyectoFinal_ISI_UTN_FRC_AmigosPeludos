@@ -18,6 +18,7 @@ import ModalCargarVacuna from "./ModalCargarVacuna";
 import CarnetDigitalMascota from "./CarnetDigitalMascota";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import CustomLoader from "../../../../components/CustomLoader";
 const VacunacionMascota = () => {
     const { mascotaId } = useParams();
     const [vacunas, setVacunas] = useState([]);
@@ -25,6 +26,7 @@ const VacunacionMascota = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [openCarnet, setOpenCarnet] = useState(false);
     const [expandedVacunas, setExpandedVacunas] = useState({});
+    const [loading, setLoading] = useState(true);
     const fetchVacunas = async () => {
         try {
             const res = await getVacunasMascota(mascotaId);
@@ -32,6 +34,16 @@ const VacunacionMascota = () => {
         } catch (err) {
             console.error("Error cargando vacunas aplicadas", err);
             setVacunas([]);
+        }
+    };
+
+    const handleVacunaCreada = async () => {
+        // Solo recargar las vacunas sin cambiar la navegación
+        try {
+            const res = await getVacunasMascota(mascotaId);
+            setVacunas(res.data);
+        } catch (err) {
+            console.error("Error recargando vacunas:", err);
         }
     };
 
@@ -44,11 +56,19 @@ const VacunacionMascota = () => {
         }
     };
 
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            await Promise.all([fetchVacunas(), fetchMascota()]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         const id = parseInt(mascotaId, 10);
         if (!isNaN(id)) {
-            fetchVacunas(id);
-            fetchMascota(id);
+            fetchData();
         }
     }, [mascotaId]);
     const toggleExpand = (nombre) => {
@@ -76,6 +96,10 @@ const VacunacionMascota = () => {
             (a, b) => new Date(b.fechaAplicacion) - new Date(a.fechaAplicacion)
         );
     });
+
+    if (loading) {
+        return <CustomLoader text="Cargando datos de la mascota..." />;
+    }
 
     return (
         <Container sx={{ mt: 4, backgroundColor:"#e0d0b8", borderRadius: 4 }}>
@@ -133,6 +157,7 @@ const VacunacionMascota = () => {
                         color="primary"
                         startIcon={<Assignment />}
                         onClick={() => setOpenCarnet(true)}
+                        disabled={loading || !mascota || !mascota.nombre}
                     >
                         Visualizar carnet
                     </Button>
@@ -362,7 +387,7 @@ const VacunacionMascota = () => {
                     open={modalOpen}
                     handleClose={() => setModalOpen(false)}
                     idMascota={mascotaId}
-                    onSuccess={fetchVacunas}
+                    onSuccess={handleVacunaCreada}
                 />
             </Box>
         </Container>
