@@ -26,3 +26,11 @@ export const getAdoptionFunnel = () =>
 
 export const getRiskProfiles = () =>
   apiClient.get(`/stats/risk/profiles`).then(r => r.data);
+//Cantidad total
+export const getUsersTotal = (onlyEnabled = true) =>
+  apiClient.get(`/stats/growth/users-total?onlyEnabled=${onlyEnabled}`)
+    .then(r => r.data);
+
+export const getOrgsTotals = (onlyEnabled = true) =>
+  apiClient.get(`/stats/orgs/totals?onlyEnabled=${onlyEnabled}`).then(r => r.data);
+
