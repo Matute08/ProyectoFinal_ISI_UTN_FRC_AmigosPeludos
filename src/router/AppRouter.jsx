@@ -277,10 +277,14 @@ export default function AppRouter() {
                     element={<ComparacionesMascotaPage />}
                 />
 
-                <Route 
-                    path="/stats"
-                    element={<Stats />}
-                />
+               <Route
+                path="/stats"
+                element={
+                    <PrivateRoute>
+                    <Stats />
+                    </PrivateRoute>
+                }
+/>
 
                 {/* Puedes agregar más rutas aquí */}
             </Routes>
