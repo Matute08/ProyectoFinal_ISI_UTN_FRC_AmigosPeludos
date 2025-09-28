@@ -29,32 +29,34 @@ const QrTab = () => {
             if (!user.user?.email) return;
             try {
                 const res = await getUserMail(user.user.email);
-                const data = res;
-                const direccionCompleta =
-                    `${data.calle || ""} ${data.nroCalle || ""}`.trim();
-                setUserData({ ...data, direccionCompleta });
-                if (data.qr) {
-                    setQrGenerado(data.qr);
-                }
+                if (res) {
+                    const data = res;
+                    const direccionCompleta =
+                        `${data.calle || ""} ${data.nroCalle || ""}`.trim();
+                    setUserData({ ...data, direccionCompleta });
+                    if (data.qr) {
+                        setQrGenerado(data.qr);
+                    }
 
-                if (qrGenerado != null && canvasRef.current) {
-                    QRCode.toCanvas(
-                        canvasRef.current,
-                        `https://amigos-peludos.vercel.app/datos-usuario/${data.id}`,
-                        { width: 200 },
-                        function (error) {
-                            if (error) console.error(error);
-                        }
-                    );
+                    if (qrGenerado != null && canvasRef.current) {
+                        QRCode.toCanvas(
+                            canvasRef.current,
+                            `https://amigos-peludos.vercel.app/datos-usuario/${data.id}`,
+                            { width: 200 },
+                            function (error) {
+                                if (error) console.error(error);
+                            }
+                        );
 
-                    //  QRCode.toCanvas(
-                    //     canvasRef.current,
-                    //     `localhost:5173/datos-usuario/${data.id}`,
-                    //     { width: 200 },
-                    //     function (error) {
-                    //         if (error) console.error(error);
-                    //     }
-                    // );
+                        //  QRCode.toCanvas(
+                        //     canvasRef.current,
+                        //     `localhost:5173/datos-usuario/${data.id}`,
+                        //     { width: 200 },
+                        //     function (error) {
+                        //         if (error) console.error(error);
+                        //     }
+                        // );
+                    }
                 }
             } catch (err) {
                 console.error("Error al obtener datos del usuario:", err);

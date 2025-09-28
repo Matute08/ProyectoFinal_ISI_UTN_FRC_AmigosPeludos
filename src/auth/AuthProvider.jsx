@@ -31,6 +31,20 @@ export function AuthProvider({ children }) {
             if (!currentUser) {
                 setUserData(null);
                 localStorage.removeItem("userData");
+            } else if (currentUser?.email) {
+                // Si hay un usuario autenticado, intentar cargar sus datos
+                const loadInitialUserData = async () => {
+                    try {
+                        const data = await getUserMail(currentUser.email);
+                        if (data) {
+                            setUserData(data);
+                            localStorage.setItem("userData", JSON.stringify(data));
+                        }
+                    } catch (error) {
+                        console.error("Error al cargar datos iniciales del usuario:", error);
+                    }
+                };
+                loadInitialUserData();
             }
             
             setLoading(false);
@@ -39,28 +53,41 @@ export function AuthProvider({ children }) {
         return () => unsubscribe();
     }, []);
 
-    // Cargar datos del usuario cuando ya existe una sesión
-    useEffect(() => {
-        if (user && !userData) {
-            const loadUserData = async () => {
-                try {
-                    const data = await getUserMail(user.email);
-                    if (data) {
-                        setUserData(data);
-                        localStorage.setItem("userData", JSON.stringify(data));
+                    // Cargar datos del usuario cuando ya existe una sesión
+                useEffect(() => {
+                    if (user && !userData && user?.email) {
+                        const loadUserData = async () => {
+                            try {
+                                const data = await getUserMail(user.email);
+                                if (data) {
+                                    setUserData(data);
+                                    localStorage.setItem("userData", JSON.stringify(data));
+                                }
+                            } catch (error) {
+                                console.error("Error al cargar datos del usuario:", error);
+                            }
+                        };
+                        loadUserData();
                     }
-                } catch (error) {
-                    console.error("Error al cargar datos del usuario:", error);
-                }
-            };
-            loadUserData();
-        }
-    }, [user, userData]);
+                }, [user, userData]);
 
     const login = async (email, password) => {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         setUser(user);
+        
+        // Cargar datos del usuario inmediatamente después del login
+        if (email && user?.email) {
+            try {
+                const userData = await getUserMail(email);
+                if (userData) {
+                    setUserData(userData);
+                    localStorage.setItem("userData", JSON.stringify(userData));
+                }
+            } catch (error) {
+                console.error("Error al cargar datos del usuario después del login:", error);
+            }
+        }
     };
 
     const register = async (email, password) => {
@@ -70,17 +97,19 @@ export function AuthProvider({ children }) {
         setUser(user);
         
         // Esperar un poco para que el usuario se cree en la base de datos
-        setTimeout(async () => {
-            try {
-                const userData = await getUserMail(email);
-                if (userData) {
-                    setUserData(userData);
-                    localStorage.setItem("userData", JSON.stringify(userData));
+        if (email && user?.email) {
+            setTimeout(async () => {
+                try {
+                    const userData = await getUserMail(email);
+                    if (userData) {
+                        setUserData(userData);
+                        localStorage.setItem("userData", JSON.stringify(userData));
+                    }
+                } catch (error) {
+                    console.error("Error al obtener datos del usuario después del registro:", error);
                 }
-            } catch (error) {
-                console.error("Error al obtener datos del usuario después del registro:", error);
-            }
-        }, 1000);
+            }, 1000);
+        }
 
         return userCredential;
     };
@@ -92,10 +121,14 @@ export function AuthProvider({ children }) {
         setUser(user);
 
         try {
+            if (!user?.email) {
+                throw new Error("Email del usuario no disponible");
+            }
             const res = await getUserMail(user.email);
             const usuarioExistente = res.data;
             
             if (usuarioExistente) {
+                setUserData(usuarioExistente);
                 localStorage.setItem("userData", JSON.stringify(usuarioExistente));
             } else {
                 // Si no existe, crear el usuario
@@ -108,11 +141,16 @@ export function AuthProvider({ children }) {
                 await postNuevoUsuario(nuevoUsuario);
                 
                 // Obtener los datos del usuario recién creado
-                const userData = await getUserMail(user.email);
-                if (userData) {
-                    localStorage.setItem("userData", JSON.stringify(userData));
-                } else {
-                    localStorage.setItem("userData", JSON.stringify({ email: user.email }));
+                if (user?.email) {
+                    const userData = await getUserMail(user.email);
+                    if (userData) {
+                        setUserData(userData);
+                        localStorage.setItem("userData", JSON.stringify(userData));
+                    } else {
+                        const fallbackData = { email: user.email };
+                        setUserData(fallbackData);
+                        localStorage.setItem("userData", JSON.stringify(fallbackData));
+                    }
                 }
             }
         } catch (error) {
@@ -128,19 +166,32 @@ export function AuthProvider({ children }) {
                 
                 // Obtener los datos del usuario recién creado
                 try {
-                    const userData = await getUserMail(user.email);
-                    if (userData) {
-                        localStorage.setItem("userData", JSON.stringify(userData));
-                    } else {
-                        localStorage.setItem("userData", JSON.stringify({ email: user.email }));
+                    if (user?.email) {
+                        const userData = await getUserMail(user.email);
+                        if (userData) {
+                            setUserData(userData);
+                            localStorage.setItem("userData", JSON.stringify(userData));
+                        } else {
+                            const fallbackData = { email: user.email };
+                            setUserData(fallbackData);
+                            localStorage.setItem("userData", JSON.stringify(fallbackData));
+                        }
                     }
                 } catch (getError) {
                     console.error("Error al obtener datos del usuario después de crear:", getError);
-                    localStorage.setItem("userData", JSON.stringify({ email: user.email }));
+                    if (user?.email) {
+                        const fallbackData = { email: user.email };
+                        setUserData(fallbackData);
+                        localStorage.setItem("userData", JSON.stringify(fallbackData));
+                    }
                 }
             } else {
                 console.error("❌ Error inesperado al verificar usuario:", error);
-                localStorage.setItem("userData", JSON.stringify({ email: user.email }));
+                if (user?.email) {
+                    const fallbackData = { email: user.email };
+                    setUserData(fallbackData);
+                    localStorage.setItem("userData", JSON.stringify(fallbackData));
+                }
             }
         }
     };
@@ -186,6 +237,7 @@ const deleteAccount = async (password) => {
             value={{
                 user,
                 userData,
+                loading,
                 login,
                 register,
                 resetPassword,

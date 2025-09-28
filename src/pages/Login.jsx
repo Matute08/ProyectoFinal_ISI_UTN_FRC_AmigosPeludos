@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import {
@@ -28,13 +28,82 @@ export default function Login() {
   const [openResetDialog, setOpenResetDialog] = useState(false);
   const navigate = useNavigate();
 
+  // Cargar credenciales guardadas al montar el componente
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("loginEmail");
+    const savedPassword = localStorage.getItem("loginPassword");
+    const savedRemember = localStorage.getItem("loginRemember");
+    
+    if (savedRemember === "true" && savedEmail && savedPassword) {
+      setEmail(savedEmail);
+      setPassword(savedPassword);
+      setRemember(true);
+    }
+  }, []);
+
+  // Limpiar credenciales solo cuando se desmarca "recordarme"
+  useEffect(() => {
+    if (!remember) {
+      // Solo limpiar si ya había credenciales guardadas
+      const savedEmail = localStorage.getItem("loginEmail");
+      const savedPassword = localStorage.getItem("loginPassword");
+      
+      if (savedEmail || savedPassword) {
+        setEmail("");
+        setPassword("");
+        localStorage.removeItem("loginEmail");
+        localStorage.removeItem("loginPassword");
+      }
+    }
+  }, [remember]);
+
   const handleLogin = async () => {
+    // Validaciones básicas
+    if (!email.trim()) {
+      mostrarAlertaError("Por favor ingresa tu correo electrónico");
+      return;
+    }
+    
+    if (!password.trim()) {
+      mostrarAlertaError("Por favor ingresa tu contraseña");
+      return;
+    }
+
     try {
-      await login(email, password);
+      await login(email.trim(), password);
+      
+      // Guardar credenciales solo si se marca "recordarme"
+      if (remember && email && password) {
+        localStorage.setItem("loginEmail", email);
+        localStorage.setItem("loginPassword", password);
+        localStorage.setItem("loginRemember", "true");
+      } else if (!remember) {
+        // Limpiar credenciales si no se marca "recordarme"
+        localStorage.removeItem("loginEmail");
+        localStorage.removeItem("loginPassword");
+        localStorage.removeItem("loginRemember");
+      }
+      
       mostrarAlertaExito("Bienvenido de nuevo! :)", "/")
     } catch (err) {
-      mostrarAlertaError("No se encuentra registrado")
-      //alert("Error al iniciar sesión: " + err.message);
+      console.error("Error de login:", err);
+      
+      // Manejo específico de errores de Firebase
+      if (err.code === 'auth/user-not-found') {
+        mostrarAlertaError("No existe una cuenta con este correo electrónico");
+      } else if (err.code === 'auth/wrong-password') {
+        mostrarAlertaError("La contraseña es incorrecta");
+      } else if (err.code === 'auth/invalid-email') {
+        mostrarAlertaError("El formato del correo electrónico no es válido");
+      } else if (err.code === 'auth/too-many-requests') {
+        mostrarAlertaError("Demasiados intentos fallidos. Intenta más tarde");
+      } else if (err.code === 'auth/user-disabled') {
+        mostrarAlertaError("Esta cuenta ha sido deshabilitada");
+      } else if (err.code === 'auth/network-request-failed') {
+        mostrarAlertaError("Error de conexión. Verifica tu internet");
+      } else {
+        mostrarAlertaError("Error al iniciar sesión: " + (err.message || "Credenciales incorrectas"));
+      }
     }
   };
 
@@ -119,7 +188,7 @@ export default function Login() {
           alignItems="center"
           mt={1}
         >
-          {/* <FormControlLabel
+          <FormControlLabel
             control={
               <Checkbox
                 checked={remember}
@@ -128,7 +197,7 @@ export default function Login() {
               />
             }
             label="Recordarme"
-          /> */}
+          />
           <Link 
             component="button"
             variant="body2"

@@ -20,6 +20,8 @@ import { useNavigate } from "react-router-dom";
 import FloatingActionButton from "../components/FloatingActionButton";
 import { getMascotasEncontradas } from "../api/publicacionesApi";
 import Denuncias from "../components/Denuncias"; 
+import BotonComparaciones from "../components/BotonComparaciones";
+import BadgeProcesandoIA from "../components/BadgeProcesandoIA";
 
 export default function Encontrados() {
     const [mascotas, setMascotas] = useState([]);
@@ -249,64 +251,60 @@ export default function Encontrados() {
                 <Grid container spacing={3}>
                     {mascotasPagina.map((m) => (
                         <Grid item key={m.id} size={{ xs: 12, sm: 6, md: 4 }} sx={{ position: "relative" }}>
-                            <Card
-                                sx={{
-                                    height: "100%",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    justifyContent: "space-between",
-                                    borderRadius: 2,
-                                    boxShadow: 3,
-                                    position: "relative",  // importante para el menú denuncia
-                                }}
-                            >
-                                {/* Aquí se agrega el menú de denuncia */}
-                                <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 10 }}>
-                                    <Denuncias idEntidad={m.id} tipoEntidad="mascotaEncontrada" />
-                                </Box>
-
-                                <CardMedia
-                                    component="img"
-                                    height="200"
-                                    image={m.fotos?.[0]?.foto || "/placeholder.png"}
-                                    alt={m.nombre || "Mascota"}
-                                    sx={{ 
-                                        objectFit: "contain",
-                                        width: "100%",
-                                        backgroundColor: "#f5f5f5"
+                            <BadgeProcesandoIA publicacionId={m.id}>
+                                <Card
+                                    sx={{
+                                        height: "100%",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "space-between",
+                                        borderRadius: 2,
+                                        boxShadow: 3,
+                                        position: "relative",  // importante para el menú denuncia
                                     }}
-                                />
-                                <CardContent sx={{ flexGrow: 1 }}>
-                                    <Typography fontWeight="bold">
-                                        {m.nombre || "Mascota Encontrada"}
-                                    </Typography>
-                                    <Typography variant="caption" color="text.secondary">
-                                        Publicado: {formatearFecha(m.fechaAlta)}
-                                    </Typography>
-                                    <Typography variant="body2" mt={1}>
-                                        {m.descripcion?.length > 100
-                                            ? m.descripcion.slice(0, 100) + "..."
-                                            : m.descripcion || "Sin descripción."}
-                                    </Typography>
-                                </CardContent>
-                                <Box sx={{ textAlign: "left", px: 2, pb: 2 }}>
-                                    <Button
-                                        variant="outlined"
-                                        endIcon={<span style={{ fontSize: "1rem" }}>→</span>}
-                                        onClick={() => navigate(`/consultar-posteo-encontrada/${m.id}`)}
-                                        sx={{ mr: 1 }}
-                                    >
-                                        Ver Detalles
-                                    </Button>
-                                    <Button
-                                        variant="outlined"
-                                        color="info"
-                                        onClick={() => navigate(`/comparaciones/${m.id}`)}
-                                    >
-                                        Ver comparaciones
-                                    </Button>
-                                </Box>
-                            </Card>
+                                >
+                                    {/* Aquí se agrega el menú de denuncia */}
+                                    <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 10 }}>
+                                        <Denuncias idEntidad={m.id} tipoEntidad="mascotaEncontrada" />
+                                    </Box>
+
+                                    <CardMedia
+                                        component="img"
+                                        height="200"
+                                        image={m.fotos?.[0]?.foto || "/placeholder.png"}
+                                        alt={m.nombre || "Mascota"}
+                                        sx={{ 
+                                            objectFit: "contain",
+                                            width: "100%",
+                                            backgroundColor: "#f5f5f5"
+                                        }}
+                                    />
+                                    <CardContent sx={{ flexGrow: 1 }}>
+                                        <Typography fontWeight="bold">
+                                            {m.nombre || "Mascota Encontrada"}
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Publicado: {formatearFecha(m.fechaAlta)}
+                                        </Typography>
+                                        <Typography variant="body2" mt={1}>
+                                            {m.descripcion?.length > 100
+                                                ? m.descripcion.slice(0, 100) + "..."
+                                                : m.descripcion || "Sin descripción."}
+                                        </Typography>
+                                    </CardContent>
+                                    <Box sx={{ textAlign: "left", px: 2, pb: 2 }}>
+                                        <Button
+                                            variant="outlined"
+                                            endIcon={<span style={{ fontSize: "1rem" }}>→</span>}
+                                            onClick={() => navigate(`/consultar-posteo-encontrada/${m.id}`)}
+                                            sx={{ mr: 1 }}
+                                        >
+                                            Ver Detalles
+                                        </Button>
+                                        <BotonComparaciones publicacionId={m.id} />
+                                    </Box>
+                                </Card>
+                            </BadgeProcesandoIA>
                         </Grid>
                     ))}
                 </Grid>

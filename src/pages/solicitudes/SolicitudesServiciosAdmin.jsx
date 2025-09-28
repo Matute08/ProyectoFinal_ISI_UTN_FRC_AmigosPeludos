@@ -19,7 +19,6 @@ import {
 } from "@mui/material";
 import Swal from "sweetalert2";
 import { useAuth } from "../../auth/AuthProvider";
-import { getUserMail } from "../../api/userApi";
 import {
     getVeterinarias,
     updateEstadoVeterinaria,
@@ -168,8 +167,7 @@ const TablaSolicitudes = ({
 );
 
 const SolicitudesServiciosAdmin = () => {
-    const { user } = useAuth();
-    const [userData, setUserData] = useState(null);
+    const { user, userData } = useAuth();
     const [tab, setTab] = useState(0);
 
     const [veterinarias, setVeterinarias] = useState([]);
@@ -178,17 +176,6 @@ const SolicitudesServiciosAdmin = () => {
     const [loadingFunda, setLoadingFunda] = useState(true);
 
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            const local = JSON.parse(localStorage.getItem("userData"));
-            if (local?.email) {
-                const res = await getUserMail(local.email);
-                setUserData(res);
-            }
-        };
-        fetchUserData();
-    }, [user?.email]);
 
     useEffect(() => {
         if (!userData?.rolId || userData.rolId !== 1) return;
@@ -227,16 +214,28 @@ const SolicitudesServiciosAdmin = () => {
 
         if (estadoId) {
             try {
+                console.log("Intentando actualizar estado:", { tipo, rowId: row.id, nuevoEstado: estadoId });
+                
                 if (tipo === "vete") {
-                    await updateEstadoVeterinaria(row.id, {
-                        ...row,
+                    console.log("Llamando a updateEstadoVeterinaria...");
+                    
+                    const resultado = await updateEstadoVeterinaria(row.id, {
                         estadoId: Number(estadoId),
                     });
+                    
+                    console.log("Resultado de la API:", resultado);
+                    console.log("Estado de veterinaria actualizado exitosamente");
                 } else {
-                    await updateEstadoFundacion(row.id, {
+                    console.log("Llamando a updateEstadoFundacion...");
+                    console.log("Datos a enviar:", { id: row.id, data: { ...row, estadoId: Number(estadoId) } });
+                    
+                    const resultado = await updateEstadoFundacion(row.id, {
                         ...row,
                         estadoId: Number(estadoId),
                     });
+                    
+                    console.log("Resultado de la API:", resultado);
+                    console.log("Estado de fundación actualizado exitosamente");
                 }
                 Swal.fire({
                     title: "Estado actualizado",
@@ -253,9 +252,32 @@ const SolicitudesServiciosAdmin = () => {
                             ).toFixed(1);
                         }, 100);
                     },
-                    willClose: () => window.location.reload(),
+                    willClose: () => {
+                        // Solo refrescar los datos en lugar de recargar la página
+                        if (tipo === "vete") {
+                            setVeterinarias(prev => 
+                                prev.map(v => 
+                                    v.id === row.id 
+                                        ? { ...v, estadoId: Number(estadoId) }
+                                        : v
+                                )
+                            );
+                        } else {
+                            setFundaciones(prev => 
+                                prev.map(f => 
+                                    f.id === row.id 
+                                        ? { ...f, estadoId: Number(estadoId) }
+                                        : f
+                                )
+                            );
+                        }
+                    },
                 });
-            } catch {
+            } catch (error) {
+                console.error("Error completo:", error);
+                console.error("Error response:", error.response);
+                console.error("Error message:", error.message);
+                
                 Swal.fire("Error", "No se pudo actualizar el estado.", "error");
             }
         }
@@ -263,12 +285,12 @@ const SolicitudesServiciosAdmin = () => {
 
     const handleVerPDF = (id, tipo) => {
         if (tipo === "vete") {
-            window.open(`/ver-solicitud-veterinaria/${id} `, "_blank");
-            //navigate(`/ver-solicitud-veterinaria/${id} `, "_blank" );
+            //window.open(`/ver-solicitud-veterinaria/${id} `, "_blank");
+            navigate(`/ver-solicitud-veterinaria/${id} `, "_blank" );
         } else {
-            window.open(`/ver-solicitud-fundacion/${id}`, "_blank");
+            //window.open(`/ver-solicitud-fundacion/${id}`, "_blank");
 
-            //navigate(`/ver-solicitud-fundacion/${id}` ,"_blank");
+            navigate(`/ver-solicitud-fundacion/${id}` ,"_blank");
         }
     };
 
@@ -292,8 +314,8 @@ const SolicitudesServiciosAdmin = () => {
 
     return (
         // TABLA
-        <Container maxWidth="xl" sx={{ py: 4 }}>
-            <Typography variant="h4" align="center" gutterBottom>
+                        <Container maxWidth="xl" sx={{ py: 4 }}>
+                    <Typography variant="h4" align="center" gutterBottom>
                 Solicitudes de Servicios
             </Typography>
             <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>

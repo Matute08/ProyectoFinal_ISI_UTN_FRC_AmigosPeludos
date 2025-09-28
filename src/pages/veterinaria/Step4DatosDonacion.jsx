@@ -55,7 +55,15 @@ const Step4DatosDonacion = () => {
                                     label="CBU"
                                     fullWidth
                                     required
+                                    inputProps={{
+                                        maxLength: 22,
+                                        inputMode: 'numeric'
+                                    }}
                                     {...field}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, '');
+                                        field.onChange(value);
+                                    }}
                                     error={!!fieldState.error}
                                     helperText={
                                         fieldState.error?.message ||
@@ -82,13 +90,27 @@ const Step4DatosDonacion = () => {
                         <Controller
                             name="observacionesDonacion"
                             control={control}
-                            render={({ field }) => (
+                            rules={{
+                                maxLength: {
+                                    value: 500,
+                                    message: "Máximo 500 caracteres"
+                                }
+                            }}
+                            render={({ field, fieldState }) => (
                                 <TextField
                                     label="Observaciones para la donación"
                                     fullWidth
                                     multiline
                                     minRows={2}
+                                    inputProps={{
+                                        maxLength: 500
+                                    }}
                                     {...field}
+                                    error={!!fieldState.error}
+                                    helperText={
+                                        fieldState.error?.message ||
+                                        `${field.value?.length || 0}/500 caracteres`
+                                    }
                                 />
                             )}
                         />

@@ -113,3 +113,16 @@ export const postFotoPosteo = async (photoData) => {
   }
 };
 
+/**
+ * Obtener estado del procesamiento IA de una publicación
+ */
+export const getEstadoIA = async (id) => {
+  try {
+    const response = await apiClient.get(`/publicaciones/${id}/estado-ia`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener estado IA:", error);
+    return { ia_indexed: false, ia_matched: false };
+  }
+};
+

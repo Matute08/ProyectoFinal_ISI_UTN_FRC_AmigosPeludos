@@ -20,8 +20,8 @@ import { mostrarAlertaExito, mostrarAlertaError } from "../utils/showAlert";
 import Maps from "../components/Maps";
 import { uploadFilesPetsLost } from "../api/firebaseUploads";
 import { postMascotaAdopcion } from "../api/publicacionesApi";
-import { getUserMail } from "../api/userApi";
 import CustomLoader from "../components/CustomLoader";
+import { useAuth } from "../auth/AuthProvider";
 import SelectTipoMascota from "../components/select/SelectTipoMascota";
 import SelectEdadMascota from "../components/select/SelectEdadMascota";
 import SelectRaza from "../components/select/SelectRaza";
@@ -85,23 +85,10 @@ export default function NuevaMascotaAdopcion() {
     } = useForm();
 
     const [files, setFiles] = useState([]);
-    const [usuarioReal, setUsuarioReal] = useState(null);
     const [subiendo, setSubiendo] = useState(false);
 
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            const cachedUserData = localStorage.getItem("userData");
-            if (cachedUserData) {
-                const dataLocalStorage = JSON.parse(cachedUserData);
-                const userEmail = dataLocalStorage.email;
-                const datosUsuario = await getUserMail(userEmail);
-                setUsuarioReal(datosUsuario);
-            }
-        };
-        fetchUserData();
-    }, []);
+    const { userData } = useAuth();
 
     // Agregar estilos CSS al DOM
     useEffect(() => {
@@ -136,7 +123,7 @@ export default function NuevaMascotaAdopcion() {
                 ciudadId: parseInt(data.ciudadId),
                 barrioId: parseInt(data.barrioId),
                 tipoPublicacionId: 3,
-                usuarioId: usuarioReal?.id,
+                usuarioId: userData?.id,
                 fotos: urls,
                 color: data.color,
 

@@ -56,7 +56,9 @@ const EditarPerfil = () => {
                 const cached = localStorage.getItem("userData");
                 if (!cached) return;
                 const { email } = JSON.parse(cached);
+                if (!email) return;
                 const res = await getUserMail(email);
+                if (!res) return;
                 setUser(res);
                 setValue("nombreCompleto", res.nombreCompleto);
                 setValue("generoId", res.generoId);

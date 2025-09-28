@@ -2,6 +2,12 @@ import apiClient from "./apiClient";
 
 // Obtener datos del usuario a partir del email
 export const getUserMail = async (mail) => {
+  // Validar que el email no sea undefined, null o vacío
+  if (!mail || mail === 'undefined' || mail === 'null') {
+    console.warn('getUserMail: Email inválido proporcionado:', mail);
+    return null;
+  }
+  
   try {
     const response = await apiClient.get(`/usuarioFull/email/${mail}`);
     return response.data;

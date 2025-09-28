@@ -26,13 +26,18 @@ const Perfil = () => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            if (!user?.email) return;
+            if (!user?.email) {
+                setLoading(false);
+                return;
+            }
             try {
                 const res = await getUserMail(user.email);
-                const data = res;
-                const direccionCompleta =
-                    `${data.calle || ""} ${data.nroCalle || ""}`.trim();
-                setUserData({ ...data, direccionCompleta });
+                if (res) {
+                    const data = res;
+                    const direccionCompleta =
+                        `${data.calle || ""} ${data.nroCalle || ""}`.trim();
+                    setUserData({ ...data, direccionCompleta });
+                }
             } catch (err) {
                 console.error("Error al obtener datos del usuario:", err);
             } finally {

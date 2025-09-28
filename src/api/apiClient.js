@@ -18,7 +18,7 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-axios.interceptors.response.use(
+apiClient.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status !== 404) {

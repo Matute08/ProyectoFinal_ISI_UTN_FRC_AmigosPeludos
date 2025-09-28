@@ -10,8 +10,9 @@ import {
     Paper,
 } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
-import { getUserMail, updateUser } from "../../../api/userApi";
+import { updateUser } from "../../../api/userApi";
 import { postPaseador } from "../../../api/paseadoresApi";
+import { useAuth } from "../../../auth/AuthProvider";
 import Paso1DatosPersonales from "./Paso1DatosPersonales";
 // Importar los siguientes pasos una vez creados
 import Paso2Descripcion from "./Paso2Descripcion";
@@ -65,22 +66,14 @@ const AgregarPaseador = () => {
         ["precioPaseo"], // validación de grilla se puede implementar adicional si querés
         ["fotos"],
     ];
+    const { userData } = useAuth();
+
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const cached = localStorage.getItem("userData");
-                if (!cached) return;
-                const { email } = JSON.parse(cached);
-                const res = await getUserMail(email);
-                setUser(res);
-            } catch (e) {
-                mostrarAlertaError("Error al cargar usuario", e);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUser();
-    }, []);
+        if (userData) {
+            setUser(userData);
+            setLoading(false);
+        }
+    }, [userData]);
 
     const onSubmit = async (data) => {
         try {

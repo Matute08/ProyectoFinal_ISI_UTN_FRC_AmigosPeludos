@@ -21,9 +21,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { uploadFilesPetsFound } from "../api/firebaseUploads";
 import { postMascotaEncontrada } from "../api/publicacionesApi";
-import { getUserMail } from "../api/userApi";
 import { mostrarAlertaExito, mostrarAlertaError } from "../utils/showAlert";
 import CustomLoader from "../components/CustomLoader";
+import { useAuth } from "../auth/AuthProvider";
 import SelectTipoMascota from "../components/select/SelectTipoMascota";
 import SelectEdadMascota from "../components/select/SelectEdadMascota";
 import SelectRaza from "../components/select/SelectRaza";
@@ -88,23 +88,10 @@ export default function NuevaMascotaEncontrada() {
     const [files, setFiles] = useState([]);
     const [latLng, setLatLng] = useState(null);
     const [subiendo, setSubiendo] = useState(false);
-    const [usuarioReal, setUsuarioReal] = useState(null);
     const navigate = useNavigate();
+    const { userData } = useAuth();
     //const theme = useTheme();
     //const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            const cachedUserData = localStorage.getItem("userData");
-            if (cachedUserData) {
-                const dataLocalStorage = JSON.parse(cachedUserData);
-                const userEmail = dataLocalStorage.email;
-                const datosUsuario = await getUserMail(userEmail);
-                setUsuarioReal(datosUsuario);
-            }
-        };
-        fetchUserData();
-    }, []);
 
     // Agregar estilos CSS al DOM
     useEffect(() => {
@@ -152,7 +139,7 @@ export default function NuevaMascotaEncontrada() {
                 latitud: latLng.lat,
                 longitud: latLng.lng,
                 tipoPublicacionId: 2,
-                usuarioId: usuarioReal?.id,
+                usuarioId: userData?.id,
                 fotos: urls,
                 color: data.color,
             };

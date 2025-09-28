@@ -10,8 +10,9 @@ import {
     Paper,
 } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
-import { getUserMail, updateUser } from "../../../api/userApi";
+import { updateUser } from "../../../api/userApi";
 import { postCuidador } from "../../../api/cuidadoresApi";
+import { useAuth } from "../../../auth/AuthProvider";
 import Paso1Cuidador from "./Paso1Cuidador";
 import Paso2Cuidador from "./Paso2Cuidador";
 import Paso3Cuidador from "./Paso3Cuidador";
@@ -83,21 +84,11 @@ const AgregarCuidador = () => {
     });
 
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const cached = localStorage.getItem("userData");
-                if (!cached) return;
-                const { email } = JSON.parse(cached);
-                const res = await getUserMail(email);
-                setUser(res);
-            } catch (e) {
-                mostrarAlertaError("Error al cargar usuario", e);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUser();
-    }, []);
+        if (userData) {
+            setUser(userData);
+            setLoading(false);
+        }
+    }, [userData]);
 
     const onSubmit = async (data) => {
         try {

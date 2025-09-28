@@ -17,16 +17,17 @@ import Step3Servicios from "./Step3Servicios";
 import Step4DatosDonacion from "./Step4DatosDonacion";
 import { postVeterinaria } from "../../api/commonApi"; // tu función de POST
 import { mostrarAlertaExito, mostrarAlertaError } from "../../utils/showAlert";
-import { getUserMail, updateUser } from "../../api/userApi";
+import { updateUser } from "../../api/userApi";
 import { uploadFilesVeterinaria } from "../../api/firebaseUploads";
+import { useAuth } from "../../auth/AuthProvider";
 
 const AgregarVeterinaria = () => {
     const methods = useForm({ defaultValues: { horarios: {}, servicios: {} } });
     const [activeStep, setActiveStep] = useState(0);
-    const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const isMobile = useMediaQuery("(max-width:600px)");
+    const { userData } = useAuth();
 
     const onNext = async () => {
         const valid = await methods.trigger();
@@ -36,20 +37,6 @@ const AgregarVeterinaria = () => {
     const steps = isMobile
         ? ["Datos", "Horarios", "Servicios", "Donación"]
         : ["Datos Generales", "Horarios", "Servicios", "Datos de Donación"];
-
-    // Cargar datos del usuario al inicio
-    useEffect(() => {
-        const fetchUserData = async () => {
-            const cachedUserData = localStorage.getItem("userData");
-            if (cachedUserData) {
-                const dataLocalStorage = JSON.parse(cachedUserData);
-                const userEmail = dataLocalStorage.email;
-                const datosUsuario = await getUserMail(userEmail);
-                setUserData(datosUsuario);
-            }
-        };
-        fetchUserData();
-    }, []);
 
     const onSubmit = async (data) => {
         setLoading(true);

@@ -16,8 +16,9 @@ import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import "filepond/dist/filepond.min.css";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import { useNavigate } from "react-router-dom";
-import { getUserMail, updateUser } from "../../api/userApi";
+import { updateUser } from "../../api/userApi";
 import { postFundacion } from "../../api/fundacionesApi";
+import { useAuth } from "../../auth/AuthProvider";
 import { uploadFilesPetsFound } from "../../api/firebaseUploads";
 import { mostrarAlertaExito, mostrarAlertaError } from "../../utils/showAlert";
 import CustomLoader from "../../components/CustomLoader";
@@ -40,18 +41,8 @@ export default function AgregarFundacion() {
     const [files, setFiles] = useState([]);
     const [latLng, setLatLng] = useState(null);
     const [subiendo, setSubiendo] = useState(false);
-    const [usuarioReal, setUsuarioReal] = useState(null);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const cached = localStorage.getItem("userData");
-        if (cached) {
-            const { email } = JSON.parse(cached);
-            getUserMail(email)
-                .then((datos) => setUsuarioReal(datos))
-                .catch((e) => console.error(e));
-        }
-    }, []);
+    const { userData } = useAuth();
     const onMapClick = ({ lat, lng }) => {
         setLatLng({ lat, lng });
     };
@@ -87,48 +78,48 @@ export default function AgregarFundacion() {
                 descripcion: data.descripcion,
                 motivoDonaciones: data.motivoDonaciones,
                 estadoId: 1,
-                usuarioId: usuarioReal?.id,
+                usuarioId: userData?.id,
                 imagen: uploads[0],
                 
             };
 
             // DATOS PARA ACTUALIZAR USUARIO
             const payloadActualizacionUsuario = {
-                id: usuarioReal.id,
+                id: userData.id,
                 nombreCompleto:
-                    usuarioReal.nombreCompleto || usuarioReal.nombre || null,
-                fechaNacimiento: usuarioReal.fechaNacimiento || null,
-                mail: usuarioReal.mail || usuarioReal.email || null,
-                username: usuarioReal.username || null,
-                tieneMascota: usuarioReal.tieneMascota ?? false,
-                mailVerificado: usuarioReal.mailVerificado ?? false,
-                habilitada: usuarioReal.habilitada ?? true,
-                foto: usuarioReal.foto || null,
-                generoId: usuarioReal.generoId,
-                barrioId: usuarioReal.barrioId,
-                rolId: usuarioReal.rolId,
-                tipoAutenticacionId: usuarioReal.tipoAutenticacionId,
+                    userData.nombreCompleto || userData.nombre || null,
+                fechaNacimiento: userData.fechaNacimiento || null,
+                mail: userData.mail || userData.email || null,
+                username: userData.username || null,
+                tieneMascota: userData.tieneMascota ?? false,
+                mailVerificado: userData.mailVerificado ?? false,
+                habilitada: userData.habilitada ?? true,
+                foto: userData.foto || null,
+                generoId: userData.generoId,
+                barrioId: userData.barrioId,
+                rolId: userData.rolId,
+                tipoAutenticacionId: userData.tipoAutenticacionId,
                 celular:
-                    usuarioReal.celular || usuarioReal.numeroTelefono || null,
-                calle: usuarioReal.calle || usuarioReal.direccion || null,
-                nroCalle: usuarioReal.nroCalle
-                    ? parseInt(usuarioReal.nroCalle, 10)
-                    : usuarioReal.numeroCalle
-                      ? parseInt(usuarioReal.numeroCalle, 10)
+                    userData.celular || userData.numeroTelefono || null,
+                calle: userData.calle || userData.direccion || null,
+                nroCalle: userData.nroCalle
+                    ? parseInt(userData.nroCalle, 10)
+                    : userData.numeroCalle
+                      ? parseInt(userData.numeroCalle, 10)
                       : null, // Int nullable
-                codigoPostal: usuarioReal.codigoPostal || null,
-                cuentaVerificada: usuarioReal.cuentaVerificada ?? false,
-                esPaseador: usuarioReal.esPaseador ?? null,
-                esCuidador: usuarioReal.esCuidador ?? null,
-                esVeterinaria: usuarioReal.esVeterinaria ?? null,
-                qr: usuarioReal.qr ?? null,
+                codigoPostal: userData.codigoPostal || null,
+                cuentaVerificada: userData.cuentaVerificada ?? false,
+                esPaseador: userData.esPaseador ?? null,
+                esCuidador: userData.esCuidador ?? null,
+                esVeterinaria: userData.esVeterinaria ?? null,
+                qr: userData.qr ?? null,
                 esFundacion: true,
                 fechaAlta: new Date().toISOString(),
 
             };
 
             await postFundacion(payload);
-            await updateUser(usuarioReal.id, payloadActualizacionUsuario);
+            await updateUser(userData.id, payloadActualizacionUsuario);
 
             mostrarAlertaExito("Fundación creada exitosamente y esta pendiente de aceptación", "/fundaciones");
         } catch (err) {

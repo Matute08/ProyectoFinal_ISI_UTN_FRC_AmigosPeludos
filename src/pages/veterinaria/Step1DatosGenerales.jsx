@@ -60,13 +60,31 @@ const Step1DatosGenerales = () => {
                     <Controller
                         name="telefono"
                         control={control}
-                        rules={{ required: "El teléfono es obligatorio" }}
+                        rules={{ 
+                            required: "El teléfono es obligatorio",
+                            pattern: {
+                                value: /^\d+$/,
+                                message: "Solo se permiten números"
+                            },
+                            maxLength: {
+                                value: 15,
+                                message: "Máximo 15 caracteres"
+                            }
+                        }}
                         render={({ field, fieldState }) => (
                             <TextField
                                 label="Teléfono"
                                 fullWidth
                                 required
+                                inputProps={{
+                                    maxLength: 15,
+                                    inputMode: 'numeric'
+                                }}
                                 {...field}
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/\D/g, '');
+                                    field.onChange(value);
+                                }}
                                 error={!!fieldState.error}
                                 helperText={fieldState.error?.message}
                             />
@@ -113,7 +131,7 @@ const Step1DatosGenerales = () => {
                         rules={{ required: "La dirección es obligatoria" }}
                         render={({ field, fieldState }) => (
                             <TextField
-                                label="Dirección"
+                                label="Calle"
                                 fullWidth
                                 required
                                 {...field}
@@ -127,13 +145,22 @@ const Step1DatosGenerales = () => {
                     <Controller
                         name="numeroCalle"
                         control={control}
-                        rules={{ required: "La altura es obligatoria" }}
+                        rules={{ 
+                            required: "La altura es obligatoria",
+                            maxLength: {
+                                value: 10,
+                                message: "Máximo 10 caracteres"
+                            }
+                        }}
                         render={({ field, fieldState }) => (
                             <TextField
                                 label="Altura"
                                 fullWidth
                                 required
                                 type="number"
+                                inputProps={{
+                                    maxLength: 10
+                                }}
                                 {...field}
                                 error={!!fieldState.error}
                                 helperText={fieldState.error?.message}
@@ -188,7 +215,15 @@ const Step1DatosGenerales = () => {
                                 label="CUIT"
                                 fullWidth
                                 required
+                                inputProps={{
+                                    maxLength: 11,
+                                    inputMode: 'numeric'
+                                }}
                                 {...field}
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/\D/g, '');
+                                    field.onChange(value);
+                                }}
                                 error={!!fieldState.error}
                                 helperText={
                                     fieldState.error?.message ||

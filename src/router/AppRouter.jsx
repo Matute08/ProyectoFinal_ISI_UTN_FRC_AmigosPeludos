@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
+import AdminRoute from "./AdminRoute";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Perfil from "../pages/perfil/Perfil";
@@ -47,6 +48,7 @@ import ModificarCuidador from "../pages/perfil/servicios/modificar/ModificarCuid
 
 import PanelDenuncias from "../pages/denuncias/PanelDenuncias";
 import ComparacionesMascotaPage from "../pages/ComparacionesMascotaPage";
+import NotFound from "../pages/NotFound";
 
 export default function AppRouter() {
     return (
@@ -174,33 +176,33 @@ export default function AppRouter() {
                  <Route
                     path="/solicitudes"
                     element={
-                        <PrivateRoute>
+                        <AdminRoute>
                             <SolicitudesServiciosAdmin />
-                        </PrivateRoute>
+                        </AdminRoute>
                     }
                 />
                 <Route
                     path="/ver-solicitud-veterinaria/:id"
                     element={
-                        <PrivateRoute>
+                        <AdminRoute>
                             <VerSolicitudVeterinaria />
-                        </PrivateRoute>
+                        </AdminRoute>
                     }
                 />
                 <Route
                     path="/ver-solicitud-fundacion/:id"
                     element={
-                        <PrivateRoute>
+                        <AdminRoute>
                             <VerSolicitudFundacion />
-                        </PrivateRoute>
+                        </AdminRoute>
                     }
                 />
                 <Route
                     path="/denuncias"
                     element={
-                        <PrivateRoute>
+                        <AdminRoute>
                             <PanelDenuncias />
-                        </PrivateRoute>
+                        </AdminRoute>
                     }
                 />
                 <Route
@@ -275,6 +277,7 @@ export default function AppRouter() {
                     element={<ComparacionesMascotaPage />}
                 />
                 {/* Puedes agregar más rutas aquí */}
+                <Route path="*" element={<NotFound />} />
             </Routes>
         </>
     );

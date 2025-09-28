@@ -54,7 +54,9 @@ const Valoraciones = ({ idCuidador = null, idPaseador = null }) => {
       }
       try {
         const res = await getUserMail(email);
-        setUserData(res);
+        if (res) {
+          setUserData(res);
+        }
       } catch (error) {
         console.error("Error cargando usuario backend:", error);
         setUserData(null);

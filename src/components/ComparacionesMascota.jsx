@@ -16,8 +16,9 @@ import {
 import { getComparacionesByPublicacion } from "../api/commonApi";
 
 const getColorByPorcentaje = (porcentaje) => {
-  if (porcentaje > 70) return "success";
-  if (porcentaje >= 40) return "warning";
+  if (!porcentaje || porcentaje === 0) return "error";
+  if (porcentaje > 75) return "success";
+  if (porcentaje >= 50) return "warning";
   return "error";
 };
 
@@ -86,7 +87,11 @@ const ComparacionesMascota = ({ publicacionId }) => {
       .then((data) => {
         setMascotaOrigen({ ...data.mascotaOrigen, esOrigen: true });
         setComparaciones(
-          (data.comparaciones || []).sort((a, b) => b.porcentajeSimilitud - a.porcentajeSimilitud)
+          (data.comparaciones || []).sort((a, b) => {
+            const aValue = a.porcentajesimilitud || 0;
+            const bValue = b.porcentajesimilitud || 0;
+            return bValue - aValue;
+          })
         );
         setLoading(false);
       })
@@ -102,12 +107,37 @@ const ComparacionesMascota = ({ publicacionId }) => {
         <CircularProgress />
       </Box>
     );
-  if (error)
+
+  if (error) {
+    // Manejo especial para error 404
+    if (error.includes('404') || error.includes('Not Found')) {
+      return (
+        <Box display="flex" flexDirection="column" alignItems="center" my={4}>
+          <Typography variant="h6" color="text.secondary" align="center" gutterBottom>
+            No se encontraron comparaciones
+          </Typography>
+          <Typography variant="body2" color="text.secondary" align="center">
+            Esta publicación aún no tiene comparaciones automáticas registradas en el sistema.
+          </Typography>
+          <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 1 }}>
+            Las comparaciones se generan automáticamente cuando se registran mascotas encontradas.
+          </Typography>
+        </Box>
+      );
+    }
+
+    // Para otros tipos de errores
     return (
-      <Typography color="error" align="center" my={4}>
-        {error}
-      </Typography>
+      <Box display="flex" flexDirection="column" alignItems="center" my={4}>
+        <Typography variant="h6" color="error" align="center" gutterBottom>
+          Error al cargar comparaciones
+        </Typography>
+        <Typography variant="body2" color="text.secondary" align="center">
+          {error}
+        </Typography>
+      </Box>
     );
+  }
 
   return (
     <Box my={3}>
@@ -127,7 +157,8 @@ const ComparacionesMascota = ({ publicacionId }) => {
         <Stack spacing={4}>
           {comparaciones.map((comp, idx) => {
             // Color de borde según resultado
-            const borde = comp.resultado === "coincide" ? "#4caf50" : "#e57373";
+            const resultado = comp.resultado || "indeterminado";
+            const borde = resultado === "coincide" ? "#4caf50" : "#e57373";
             return (
               <Card key={idx} sx={{ p: { xs: 1, sm: 3 }, borderRadius: 4, boxShadow: 3, background: '#fff' }}>
                 <Grid container spacing={2} alignItems="center" justifyContent="center">
@@ -147,17 +178,17 @@ const ComparacionesMascota = ({ publicacionId }) => {
                       <Box flex={1} minWidth={180}>
                         <Box display="flex" alignItems="center" gap={2} mb={1}>
                           <Chip
-                            label={`${comp.porcentajeSimilitud.toFixed(2)} %`}
-                            color={getColorByPorcentaje(comp.porcentajeSimilitud)}
+                            label={`${(comp.porcentajesimilitud || 0).toFixed(2)} %`}
+                            color={getColorByPorcentaje(comp.porcentajesimilitud || 0)}
                             sx={{ fontWeight: "bold", fontSize: 16, px: 2, py: 1 }}
                           />
                           <Typography variant="body2" color="textSecondary">
-                            Distancia: {comp.distanciaKM?.toFixed(2) || "-"} km
+                            Distancia: {comp.distanciakm ? comp.distanciakm.toFixed(2) : "-"} km
                           </Typography>
                         </Box>
                         <Divider sx={{ my: 1 }} />
                         <Box display="flex" alignItems="center" gap={1} mb={1}>
-                          {getEstadoLabel(comp.resultado)}
+                          {getEstadoLabel(resultado)}
                           <Button
                             variant="outlined"
                             size="small"
@@ -171,12 +202,12 @@ const ComparacionesMascota = ({ publicacionId }) => {
                             Ver publicación
                           </Button>
                         </Box>
-                        {comp.resultado === "no coincide" && (
+                        {resultado === "no coincide" && (
                           <Alert severity="error" sx={{ mt: 1 }}>
                             El motor de comparaciones determinó incompatibilidad.
                           </Alert>
                         )}
-                        {comp.resultado === "indeterminado" && (
+                        {resultado === "indeterminado" && (
                           <Alert severity="warning" sx={{ mt: 1 }}>
                             El motor de comparaciones no pudo determinar coincidencia.
                           </Alert>
@@ -208,4 +239,4 @@ const ComparacionesMascota = ({ publicacionId }) => {
   );
 };
 
-export default ComparacionesMascota; 
+export default ComparacionesMascota;

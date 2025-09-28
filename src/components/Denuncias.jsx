@@ -51,7 +51,9 @@ const Denuncias = ({ idEntidad, tipoEntidad }) => {
 
       try {
         const res = await getUserMail(email);
-        setUserData(res.data || res);
+        if (res) {
+          setUserData(res.data || res);
+        }
       } catch (error) {
         console.error("Error cargando usuario backend:", error);
         setUserData(null);

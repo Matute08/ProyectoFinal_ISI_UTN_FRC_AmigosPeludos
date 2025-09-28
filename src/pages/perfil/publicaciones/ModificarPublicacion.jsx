@@ -33,11 +33,11 @@ import {
     getBarrios,
 } from "../../../api/commonApi";
 import { getRazasPorTipo } from "../../../api/mascotasApi";
-import { getUserMail } from "../../../api/userApi";
 import {
     uploadFilePetsUser,
     deleteFileStorage,
 } from "../../../api/firebaseUploads";
+import { useAuth } from "../../../auth/AuthProvider";
 import {
     mostrarAlertaExito,
     mostrarAlertaError,
@@ -59,7 +59,7 @@ const ModificarPublicacion = () => {
     const [loading, setLoading] = useState(true);
     const [barrio, setBarrios] = useState([]);
     //const [fotosEliminadas, setFotosEliminadas] = useState([]);
-    const [usuarioReal, setUsuarioReal] = useState(null);
+    const { userData } = useAuth();
     const [publicacionOriginal, setPublicacionOriginal] = useState(null);
 
     const {
@@ -89,18 +89,7 @@ const ModificarPublicacion = () => {
 
     const tipoSeleccionado = watch("tipoId");
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            const cachedUserData = localStorage.getItem("userData");
-            if (cachedUserData) {
-                const dataLocalStorage = JSON.parse(cachedUserData);
-                const userEmail = dataLocalStorage.email;
-                const datosUsuario = await getUserMail(userEmail);
-                setUsuarioReal(datosUsuario.data);
-            }
-        };
-        fetchUserData();
-    }, []);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -223,7 +212,7 @@ const ModificarPublicacion = () => {
                 fechaPerdida: data.fechaPerdida ? new Date(data.fechaPerdida + 'T00:00:00.000Z').toISOString() : publicacionOriginal.fechaPerdida,
                 latitud: coordenadas.lat || publicacionOriginal.lat || publicacionOriginal.latitud,
                 longitud: coordenadas.lng || publicacionOriginal.lng || publicacionOriginal.longitud,
-                usuarioId: usuarioReal?.id || publicacionOriginal.usuarioId,
+                usuarioId: userData?.id || publicacionOriginal.usuarioId,
                 tipoPublicacionId: data.tipoPublicacionId ? parseInt(data.tipoPublicacionId) : publicacionOriginal.tipoPublicacionId,
             };
             

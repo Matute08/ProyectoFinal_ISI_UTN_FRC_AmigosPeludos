@@ -13,39 +13,44 @@ import VerDenunciasPaseadores from "./VerDenunciasPaseadores";
 import VerDenunciasCuidadores from "./VerDenunciasCuidadores";
 import VerDenunciasFundaciones from "./VerDenunciasFundaciones"; 
 import VerDenunciasVeterinarias from "./VerDenunciasVeterinarias"; 
+import { useAuth } from "../../auth/AuthProvider";
 
 const PanelDenuncias = () => {
+  const { userData } = useAuth();
   const [denunciasPublicaciones, setDenunciasPublicaciones] = useState([]);
   const [denunciasPaseadores, setDenunciasPaseadores] = useState([]);
   const [denunciasCuidadores, setDenunciasCuidadores] = useState([]);
   const [denunciasFundaciones, setDenunciasFundaciones] = useState([]); 
-  const [denunciasVeterinarias, setDenunciasVeterinarias] = useState([]); 
+  const [denunciasVeterinarias, setDenunciasVeterinarias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tabIndex, setTabIndex] = useState(0);
 
   useEffect(() => {
-    const fetchAll = async () => {
-      setLoading(true);
-      try {
-        const [resPub, resPas, resCui, resFun, resVet] = await Promise.all([
-          getDenuncias(),
-          getDenunciasPaseadores(),
-          getDenunciasCuidadores(),
-          getDenunciasFundaciones(), 
-          getDenunciasVeterinarias(),
-        ]);
-        setDenunciasPublicaciones(resPub.data || []);
-        setDenunciasPaseadores(resPas.data || []);
-        setDenunciasCuidadores(resCui.data || []);
-        setDenunciasFundaciones(resFun.data || []); 
-        setDenunciasVeterinarias(resVet.data || []); 
-      } catch (error) {
-        console.error("Error al cargar denuncias:", error);
-      }
-      setLoading(false);
-    };
-    fetchAll();
-  }, []);
+    // Solo cargar denuncias si es administrador
+    if (userData?.rolId === 1) {
+      const fetchAll = async () => {
+        setLoading(true);
+        try {
+          const [resPub, resPas, resCui, resFun, resVet] = await Promise.all([
+            getDenuncias(),
+            getDenunciasPaseadores(),
+            getDenunciasCuidadores(),
+            getDenunciasFundaciones(), 
+            getDenunciasVeterinarias(),
+          ]);
+          setDenunciasPublicaciones(resPub.data || []);
+          setDenunciasPaseadores(resPas.data || []);
+          setDenunciasCuidadores(resCui.data || []);
+          setDenunciasFundaciones(resFun.data || []); 
+          setDenunciasVeterinarias(resVet.data || []); 
+        } catch (error) {
+          console.error("Error al cargar denuncias:", error);
+        }
+        setLoading(false);
+      };
+      fetchAll();
+    }
+  }, [userData]);
 
   const obtenerRutaPublicacion = (tipo, idPublicacion) => {
     switch (tipo) {
@@ -67,6 +72,17 @@ const PanelDenuncias = () => {
   const descartarDenuncia = (idDenuncia) => {
     // TODO: Llamar a la API para ocultar o marcar como revisada la denuncia y refrescar la lista
   };
+
+  // Verificar si es administrador
+  if (!userData || userData.rolId !== 1) {
+    return (
+      <Container sx={{ mt: 8 }}>
+        <Typography variant="h5" color="error" align="center">
+          Acceso solo para administradores.
+        </Typography>
+      </Container>
+    );
+  }
 
   if (loading) {
     return (

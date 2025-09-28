@@ -28,7 +28,7 @@ export const getAllEdadMascota = async () => apiClient.get("/edadMascota");
 
 
 
-export const updateEstadoVeterinaria = (id, data) => apiClient.put(`/Veterinaria/estado/${id}`, data); // ¿Solo estado o datos completos? PUT usualmente reemplaza. Considera PATCH.
+export const updateEstadoVeterinaria = (id, data) => apiClient.put(`/veterinaria/estado/${id}`, data);
 
 
 

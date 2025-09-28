@@ -14,18 +14,18 @@ import {
     FormControl,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
-import { getUserMail } from "../api/userApi";
 import {
     getPublicacionPorId,
     postFormularioAdopcion,
 } from "../api/formulariosApi";
+import { useAuth } from "../auth/AuthProvider";
 import SelectBarrio from "../components/select/SelectBarrio";
 import SelectCiudad from "../components/select/SelectCiudad";
 import SelectProvincia from "../components/select/SelectProvincia";
 import { mostrarAlertaExito, mostrarAlertaError } from "../utils/showAlert";
 const FormularioAdopcion = ({ mascotaId, onClose }) => {
-    const [usuario, setUsuario] = useState(null);
     const [publicacion, setPublicacion] = useState(null);
+    const { userData } = useAuth();
 
     const {
         register,
@@ -37,15 +37,6 @@ const FormularioAdopcion = ({ mascotaId, onClose }) => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const cache = localStorage.getItem("userData");
-            if (cache) {
-                const email = JSON.parse(cache)?.email;
-                const resUser = await getUserMail(email);
-                setUsuario(resUser);
-
-
-            }
-
             const resPublicacion = await getPublicacionPorId(mascotaId);
             setPublicacion(resPublicacion);
         };
@@ -66,7 +57,7 @@ const FormularioAdopcion = ({ mascotaId, onClose }) => {
             aceptaMascota: data.aceptaMascota === "1",
             viviendaCerrada: data.viviendaCerrada === "1",
             estadoFormularioId: 1,
-            usuarioIdSolicitante: usuario?.id,
+            usuarioIdSolicitante: userData?.id,
             usuarioIdSolicitado: publicacion?.usuarioId,
             publicacionMascotaId: mascotaId,
             fechaAlta: new Date().toISOString(),

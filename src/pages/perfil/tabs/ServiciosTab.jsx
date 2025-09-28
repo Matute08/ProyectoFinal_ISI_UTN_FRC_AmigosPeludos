@@ -35,8 +35,10 @@ const ServiciosTab = () => {
         const localUser = JSON.parse(localStorage.getItem("userData"));
         if (localUser?.email) {
           const response = await getUserMail(localUser.email);
-          setUserData(response);
-          await fetchServicios(response);
+          if (response) {
+            setUserData(response);
+            await fetchServicios(response);
+          }
         }
       } catch (error) {
         console.error("Error al obtener datos del usuario:", error);
