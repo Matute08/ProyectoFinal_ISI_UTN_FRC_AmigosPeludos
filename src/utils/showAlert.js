@@ -1,6 +1,6 @@
 import Swal from "sweetalert2";
 
-export const mostrarAlertaExito = (mensaje, redireccionar) => {
+export const mostrarAlertaExito = (mensaje, redireccionar = null) => {
   Swal.fire({
     title: "¡Éxito!",
     text: mensaje,

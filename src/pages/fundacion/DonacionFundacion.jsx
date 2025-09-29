@@ -270,7 +270,7 @@ const DonacionFundacion = () => {
                             textAlign="center"
                         >
                             <Typography variant="h5" fontWeight={700} mb={2}>
-                                Doná con tu banco o Mercado Pago
+                                Doná a la fundación
                             </Typography>
                             <Paper
                                 variant="outlined"
@@ -347,103 +347,7 @@ const DonacionFundacion = () => {
                                     </Box>
                                 </Stack>
                             </Paper>
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                mb={2}
-                            >
-                                Transferí directo con tus datos bancarios, ¡o
-                                doná fácil con Mercado Pago!
-                            </Typography>
-                            <Box mb={2}>
-                                <Stack
-                                    direction="row"
-                                    justifyContent="center"
-                                    spacing={2}
-                                    flexWrap="wrap"
-                                    rowGap={1}
-                                >
-                                    {MP_MONTOS.map((amount) => (
-                                        <Button
-                                            key={amount}
-                                            variant={
-                                                selectedAmount === amount
-                                                    ? "contained"
-                                                    : "outlined"
-                                            }
-                                            startIcon={
-                                                <Box
-                                                    sx={{
-                                                        width: 50,
-                                                        height: 50,
-                                                        display: "flex",
-                                                        alignItems: "center",
-                                                        justifyContent:
-                                                            "center",
-                                                    }}
-                                                >
-                                                    <img
-                                                        src={MP_LOGO}
-                                                        alt="Mercado Pago"
-                                                        style={{
-                                                            maxWidth: "100%",
-                                                            maxHeight: "100%",
-                                                            objectFit:
-                                                                "contain",
-                                                            display: "block",
-                                                        }}
-                                                    />
-                                                </Box>
-                                            }
-                                            sx={{
-                                                bgcolor:
-                                                    selectedAmount === amount
-                                                        ? "#00a6ff"
-                                                        : "white",
-                                                color:
-                                                    selectedAmount === amount
-                                                        ? "white"
-                                                        : "#00a6ff",
-                                                borderColor: "#00a6ff",
-                                                fontWeight: 600,
-                                                px: 3,
-                                                fontSize: 18,
-                                                borderRadius: 99,
-                                                "&:hover": {
-                                                    bgcolor: "#0091d4",
-                                                    color: "white",
-                                                },
-                                            }}
-                                            onClick={() =>
-                                                setSelectedAmount(amount)
-                                            }
-                                        >
-                                            ${amount}
-                                        </Button>
-                                    ))}
-                                </Stack>
-                                {selectedAmount && (
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        size="large"
-                                        sx={{
-                                            mt: 3,
-                                            px: 5,
-                                            borderRadius: 99,
-                                            fontWeight: 700,
-                                            fontSize: 18,
-                                            textTransform: "none",
-                                            boxShadow: "0 2px 8px #00a6ff33",
-                                        }}
-                                        // onClick={() => ... integración Mercado Pago }
-                                        href="https://www.mercadopago.com.ar/" // luego ponés la URL de preferencia
-                                        target="_blank"
-                                    >
-                                        Donar ${selectedAmount}
-                                    </Button>
-                                )}
-                            </Box>
+                           
 
                             <Typography variant="h5" fontWeight={700} mb={2}>
                                 Ubicación

@@ -32,19 +32,18 @@ export function AuthProvider({ children }) {
                 setUserData(null);
                 localStorage.removeItem("userData");
             } else if (currentUser?.email) {
-                // Si hay un usuario autenticado, intentar cargar sus datos
-                const loadInitialUserData = async () => {
+                // Solo cargar datos si no hay datos en localStorage (sesión persistente)
+                // Esto evita cargar datos durante el proceso de login
+                const cachedData = localStorage.getItem("userData");
+                if (cachedData) {
                     try {
-                        const data = await getUserMail(currentUser.email);
-                        if (data) {
-                            setUserData(data);
-                            localStorage.setItem("userData", JSON.stringify(data));
-                        }
+                        const parsedData = JSON.parse(cachedData);
+                        setUserData(parsedData);
                     } catch (error) {
-                        console.error("Error al cargar datos iniciales del usuario:", error);
+                        console.error("Error al parsear datos del usuario:", error);
+                        localStorage.removeItem("userData");
                     }
-                };
-                loadInitialUserData();
+                }
             }
             
             setLoading(false);
@@ -53,41 +52,34 @@ export function AuthProvider({ children }) {
         return () => unsubscribe();
     }, []);
 
-                    // Cargar datos del usuario cuando ya existe una sesión
-                useEffect(() => {
-                    if (user && !userData && user?.email) {
-                        const loadUserData = async () => {
-                            try {
-                                const data = await getUserMail(user.email);
-                                if (data) {
-                                    setUserData(data);
-                                    localStorage.setItem("userData", JSON.stringify(data));
-                                }
-                            } catch (error) {
-                                console.error("Error al cargar datos del usuario:", error);
-                            }
-                        };
-                        loadUserData();
+    // Cargar datos del usuario cuando ya existe una sesión
+    useEffect(() => {
+        if (user && !userData && user?.email) {
+            const loadUserData = async () => {
+                try {
+                    const data = await getUserMail(user.email);
+                    if (data) {
+                        setUserData(data);
+                        localStorage.setItem("userData", JSON.stringify(data));
                     }
-                }, [user, userData]);
+                } catch (error) {
+                    console.error("Error al cargar datos del usuario:", error);
+                }
+            };
+            // Pequeño delay para evitar cargar datos inmediatamente después del login
+            const timer = setTimeout(loadUserData, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [user, userData]);
 
     const login = async (email, password) => {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         setUser(user);
         
-        // Cargar datos del usuario inmediatamente después del login
-        if (email && user?.email) {
-            try {
-                const userData = await getUserMail(email);
-                if (userData) {
-                    setUserData(userData);
-                    localStorage.setItem("userData", JSON.stringify(userData));
-                }
-            } catch (error) {
-                console.error("Error al cargar datos del usuario después del login:", error);
-            }
-        }
+        // No cargar datos del usuario inmediatamente después del login
+        // Los datos se cargarán cuando el usuario navegue a otra página
+        // Esto evita que se muestre la imagen del usuario en el navbar durante el modal de éxito
     };
 
     const register = async (email, password) => {
@@ -247,7 +239,7 @@ const deleteAccount = async (password) => {
                 isAuthenticated: !!user,
             }}
         >
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     );
 }

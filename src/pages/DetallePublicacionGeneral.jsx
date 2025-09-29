@@ -83,10 +83,7 @@ export default function DetallePublicacionGeneral({ tipo }) {
                             <Typography>
                                 <b>Color:</b> {detalle.color || "No informado"}
                             </Typography>
-                            <Typography>
-                                <b>Castrado/a:</b>{" "}
-                                {detalle.castracion ? "Sí" : "No"}
-                            </Typography>
+                            
                             <Typography>
                                 <b>{tipo} el:</b>{" "}
                                 {formatDate(detalle.fechaAlta)}
