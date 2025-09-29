@@ -16,8 +16,10 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Backdrop,
 } from "@mui/material";
-import { mostrarAlertaError, mostrarAlertaExito } from "../utils/showAlert"; 
+import { mostrarAlertaError, mostrarAlertaExito } from "../utils/showAlert";
+import CustomLoader from "../components/CustomLoader"; 
 
 export default function Login() {
   const { login, loginWithGoogle, resetPassword } = useAuth();
@@ -26,6 +28,7 @@ export default function Login() {
   const [remember, setRemember] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [openResetDialog, setOpenResetDialog] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const navigate = useNavigate();
 
   // Cargar credenciales guardadas al montar el componente
@@ -84,7 +87,13 @@ export default function Login() {
         localStorage.removeItem("loginRemember");
       }
       
-      mostrarAlertaExito("Bienvenido de nuevo! :)", "/")
+      // Mostrar mensaje de éxito y redirigir
+      mostrarAlertaExito("Sesión iniciada correctamente", "/")
+      
+      // Activar overlay de bloqueo después de un pequeño delay
+      setTimeout(() => {
+        setIsRedirecting(true);
+      }, 200);
     } catch (err) {
       console.error("Error de login:", err);
       
@@ -272,6 +281,18 @@ export default function Login() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Overlay de bloqueo durante redirección */}
+      <Backdrop
+        sx={{ 
+          color: '#fff', 
+          zIndex: 1050, // Menor que SweetAlert2 (1060) pero mayor que otros elementos
+          backgroundColor: 'rgba(48, 46, 46, 0.7)'
+        }}
+        open={isRedirecting}
+      >
+        <CustomLoader text="Redirigiendo..." />
+      </Backdrop>
     </Box>
   );
 }

@@ -221,7 +221,7 @@ export default function NuevaMascotaEncontrada() {
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 <Grid container spacing={2}>
                                     {/* Nombre */}
-                                    <Grid size={{ xs: 6 }}>
+                                    <Grid size={{ xs: 4 }}>
                                         <TextField
                                             label="Nombre (opcional)"
                                             {...register("nombre", {
@@ -239,7 +239,7 @@ export default function NuevaMascotaEncontrada() {
                                         />
                                     </Grid>
                                     {/* Color */}
-                                    <Grid size={{ xs: 6 }}>
+                                    <Grid size={{ xs: 4 }}>
                                         <TextField
                                             label="Color"
                                             {...register("color", {
@@ -320,22 +320,7 @@ export default function NuevaMascotaEncontrada() {
                                             helperText={errors.sexoId?.message}
                                         />
                                     </Grid>
-                                    {/* Castracion */}
-                                    <Grid size={{ xs: 12, md: 4 }}>
-                                        <SelectCastracion
-                                            value={watch("castracion")}
-                                            onChange={(e) =>
-                                                setValue(
-                                                    "castracion",
-                                                    parseInt(e.target.value)
-                                                )
-                                            }
-                                            error={!!errors.castracion}
-                                            helperText={
-                                                errors.castracion?.message
-                                            }
-                                        />
-                                    </Grid>
+                                   
                                     {/* Fecha */}
                                     <Grid size={{ xs: 12, md: 4 }}>
                                         <TextField

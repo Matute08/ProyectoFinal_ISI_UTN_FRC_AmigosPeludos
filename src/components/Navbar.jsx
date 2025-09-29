@@ -47,7 +47,8 @@ const Navbar = () => {
     const navigate = useNavigate();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const { user, userData, logout } = useAuth();
+    const authContext = useAuth();
+    const { user, userData, logout } = authContext || {};
 
     const [anchorElUser, setAnchorElUser] = useState(null);
     const [anchorElMascotas, setAnchorElMascotas] = useState(null);

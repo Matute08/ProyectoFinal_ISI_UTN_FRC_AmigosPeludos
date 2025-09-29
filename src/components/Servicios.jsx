@@ -75,7 +75,7 @@ const servicios = [
         icon: <VaccinesIcon color="success" fontSize="inherit" />,
         titulo: "Carnet de vacunación",
         descripcion:
-            "Generá tu carnet de vacunación para tu mascota y lleva el control de las vacunas de tu mascota",
+            "Crea y gestiona el carnet de vacunación de tu mascota. Mantén un registro completo y actualizado de todas sus vacunas",
         ruta: "/perfil",
     },
 ];

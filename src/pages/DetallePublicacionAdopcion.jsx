@@ -1,6 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getDetallePublicacion } from "../api/publicacionesApi";
+import { getFormulariosPosibleAdoptante } from "../api/formulariosApi";
+import { useAuth } from "../auth/AuthProvider";
 import { Carousel } from "react-responsive-carousel";
 import {
     Container,
@@ -16,28 +18,88 @@ import {
     DialogTitle,
     DialogContent,
     IconButton,
+    Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import FormularioAdopcion from "./FormularioAdopcion";
 import CustomLoader from "../components/CustomLoader";
+
 export default function DetallePublicacionAdopcion() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { userData } = useAuth();
     const [detalle, setDetalle] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
+    const [solicitudExistente, setSolicitudExistente] = useState(null);
+    const [verificandoSolicitud, setVerificandoSolicitud] = useState(true);
+    const [loading, setLoading] = useState(true);
+
     const handleOpenModal = () => setModalOpen(true);
     const handleCloseModal = () => setModalOpen(false);
-        const [loading, setLoading] = useState(true);
+    
+    const handleFormularioEnviado = async () => {
+        handleCloseModal();
+        // Verificar nuevamente si existe una solicitud después del envío
+        if (userData?.id && detalle?.id) {
+            setVerificandoSolicitud(true);
+            try {
+                const response = await getFormulariosPosibleAdoptante(userData.id);
+                if (response.data && response.data.length > 0) {
+                    // Buscar si existe una solicitud para esta mascota específica
+                    const solicitudParaEstaMascota = response.data.find(
+                        formulario => formulario.publicacionMascotaId === detalle.id
+                    );
+                    setSolicitudExistente(solicitudParaEstaMascota || null);
+                } else {
+                    setSolicitudExistente(null);
+                }
+            } catch (error) {
+                console.error("Error al verificar solicitud:", error);
+            } finally {
+                setVerificandoSolicitud(false);
+            }
+        }
+    };
     
 
     useEffect(() => {
         const fetch = async () => {
             const data = await getDetallePublicacion(id);
             setDetalle(data);
-            setLoading(false)
+            setLoading(false);
         };
         fetch();
     }, [id]);
+
+    useEffect(() => {
+        const verificarSolicitud = async () => {
+            if (userData?.id && detalle?.id) {
+                try {
+                    const response = await getFormulariosPosibleAdoptante(userData.id);
+                    if (response.data && response.data.length > 0) {
+                        // Buscar si existe una solicitud para esta mascota específica
+                        const solicitudParaEstaMascota = response.data.find(
+                            formulario => formulario.publicacionMascotaId === detalle.id
+                        );
+                        setSolicitudExistente(solicitudParaEstaMascota || null);
+                    } else {
+                        setSolicitudExistente(null);
+                    }
+                } catch (error) {
+                    console.error("Error al verificar solicitud:", error);
+                    setSolicitudExistente(null);
+                } finally {
+                    setVerificandoSolicitud(false);
+                }
+            } else {
+                setVerificandoSolicitud(false);
+            }
+        };
+
+        verificarSolicitud();
+    }, [userData?.id, detalle?.id]);
 
     if (loading) {
         return (
@@ -168,17 +230,49 @@ export default function DetallePublicacionAdopcion() {
                                 <Typography variant="h6" gutterBottom>
                                     Postularse para Adoptar
                                 </Typography>
-                                <Typography variant="body2" sx={{ mb: 2 }}>
-                                    Si querés brindarle un hogar a esta mascota,
-                                    completá el formulario.
-                                </Typography>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleOpenModal}
-                                >
-                                    📄 Completar Formulario
-                                </Button>
+                                
+                                {verificandoSolicitud ? (
+                                    <Box sx={{ textAlign: "center", py: 2 }}>
+                                        <CustomLoader />
+                                        <Typography variant="body2" sx={{ mt: 1 }}>
+                                            Verificando estado de solicitud...
+                                        </Typography>
+                                    </Box>
+                                ) : solicitudExistente ? (
+                                    <Box>
+                                        <Alert 
+                                            severity={solicitudExistente.estadoFormularioId === 1 ? "info" : 
+                                                    solicitudExistente.estadoFormularioId === 2 ? "success" : "warning"}
+                                            icon={solicitudExistente.estadoFormularioId === 1 ? <HourglassEmptyIcon /> : 
+                                                  solicitudExistente.estadoFormularioId === 2 ? <CheckCircleIcon /> : <HourglassEmptyIcon />}
+                                            sx={{ mb: 2 }}
+                                        >
+                                            {solicitudExistente.estadoFormularioId === 1 && 
+                                                "Tu solicitud está siendo revisada. Te notificaremos cuando tengamos una respuesta."}
+                                            {solicitudExistente.estadoFormularioId === 2 && 
+                                                "¡Felicitaciones! Tu solicitud ha sido aprobada. Contacta al dueño para coordinar la adopción."}
+                                            {solicitudExistente.estadoFormularioId === 3 && 
+                                                "Tu solicitud fue rechazada. Puedes intentar con otra mascota."}
+                                        </Alert>
+                                        <Typography variant="body2" color="text.secondary">
+                                            Fecha de solicitud: {new Date(solicitudExistente.fechaAlta).toLocaleDateString()}
+                                        </Typography>
+                                    </Box>
+                                ) : (
+                                    <Box>
+                                        <Typography variant="body2" sx={{ mb: 2 }}>
+                                            Si querés brindarle un hogar a esta mascota,
+                                            completá el formulario.
+                                        </Typography>
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={handleOpenModal}
+                                        >
+                                            📄 Completar Formulario
+                                        </Button>
+                                    </Box>
+                                )}
                             </CardContent>
                         </Card>
                     </Grid>
@@ -216,6 +310,7 @@ export default function DetallePublicacionAdopcion() {
                     <FormularioAdopcion
                         mascotaId={id}
                         onClose={handleCloseModal}
+                        onEnviado={handleFormularioEnviado}
                     />
                 </DialogContent>
             </Dialog>

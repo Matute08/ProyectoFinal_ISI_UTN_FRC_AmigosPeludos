@@ -21,7 +21,22 @@ export const postVacunaMascota = async (data) => {
   return await apiClient.post("/CarnetVacunacion", data);
 };
 
-// (Opcional) Eliminar una vacuna de una mascota
-export const deleteVacunaMascota = async (idVacunaAplicada) => {
-  return await apiClient.delete(`/CarnetVacunacion/${idVacunaAplicada}`);
+// Eliminar una dosis específica de vacuna
+export const deleteDosisVacuna = async (idDosis) => {
+  return await apiClient.delete(`/CarnetVacunacion/${idDosis}`);
+};
+
+// Eliminar todas las dosis de una vacuna específica para una mascota
+export const deleteVacunaMascota = async (mascotaId, vacunaId) => {
+  return await apiClient.delete(`/CarnetVacunacion/mascota/${mascotaId}/vacuna/${vacunaId}`);
+};
+
+// Eliminar todas las dosis de una mascota
+export const deleteTodasLasDosisMascota = async (mascotaId) => {
+  return await apiClient.delete(`/CarnetVacunacion/mascota/${mascotaId}`);
+};
+
+// Actualizar una dosis de vacuna (para funcionalidad de editar)
+export const updateDosisVacuna = async (idDosis, data) => {
+  return await apiClient.put(`/CarnetVacunacion/${idDosis}`, data);
 };

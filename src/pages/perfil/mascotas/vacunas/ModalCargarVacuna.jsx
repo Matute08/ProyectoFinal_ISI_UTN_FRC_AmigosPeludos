@@ -104,10 +104,15 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
                 FechaProxima: fechaProxima ? new Date(fechaProxima).toISOString() : null,
             };
             await postVacunaMascota(data);
-            mostrarAlertaExito("Vacuna registrada correctamente", "/vacunas-mascota/" + idMascota);
             
-            onSuccess();
+            // Cerrar el modal primero
             handleClose();
+            
+            // Actualizar la lista de vacunas sin redireccionar
+            await onSuccess();
+            
+            // Mostrar mensaje de éxito SIN redirección
+            mostrarAlertaExito("Vacuna registrada correctamente");
         } catch (err) {
             console.error("Error al guardar vacuna", err);
             mostrarAlertaError("No se pudo registrar la vacuna. Intente nuevamente.");
