@@ -69,3 +69,11 @@ export const deletePost = async (publicacionId) => {
     return { data: null };
   }
 };
+export const markPublicacionEncontrada = async (publicacionId, graciasSitio) => {
+  // Consumimos el endpoint nuevo del backend
+  // PATCH /api/publicacionMascota/{id}/encontrada
+  return apiClient.patch(`/publicacionMascota/${publicacionId}/encontrada`, {
+    encontrada: true,
+    graciasSitio: Boolean(graciasSitio),
+  });
+};
