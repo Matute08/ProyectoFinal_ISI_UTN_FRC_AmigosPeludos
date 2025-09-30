@@ -36,6 +36,7 @@ import {
     SupportAgent,
     Menu as MenuIcon,
 } from "@mui/icons-material";
+import BarChartRounded from "@mui/icons-material/BarChartRounded";
 import { useNavigate } from "react-router-dom";
 import { getUserMail } from "../api/userApi";
 import { getFormulariosDuenoPosteo } from "../api/formulariosApi";
@@ -429,6 +430,17 @@ const Navbar = () => {
                                     <ReportProblem fontSize="small" sx={{ mr: 1 }} />
                                     Denuncias
                                 </MenuItem>
+                            )}
+                            {userData?.rolId === 1 && (
+                            <MenuItem
+                                onClick={() => {
+                                navigate("/stats");
+                                handleCloseUserMenu();
+                                }}
+                            >
+                                <BarChartRounded fontSize="small" sx={{ mr: 1 }} />
+                                Estadísticas
+                            </MenuItem>
                             )}
 
 

@@ -50,6 +50,8 @@ import PanelDenuncias from "../pages/denuncias/PanelDenuncias";
 import ComparacionesMascotaPage from "../pages/ComparacionesMascotaPage";
 import NotFound from "../pages/NotFound";
 
+import Stats from "../pages/stats/Stats";
+
 export default function AppRouter() {
     return (
         <>
@@ -276,6 +278,16 @@ export default function AppRouter() {
                     path="/comparaciones/:id"
                     element={<ComparacionesMascotaPage />}
                 />
+
+               <Route
+                path="/stats"
+                element={
+                    <PrivateRoute>
+                    <Stats />
+                    </PrivateRoute>
+                }
+/>
+
                 {/* Puedes agregar más rutas aquí */}
                 <Route path="*" element={<NotFound />} />
             </Routes>
