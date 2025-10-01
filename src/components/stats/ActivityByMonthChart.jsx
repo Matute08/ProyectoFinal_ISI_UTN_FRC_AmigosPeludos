@@ -66,49 +66,6 @@ export default function ActivityByMonthChart({ months = 12 }) {
     };
   }), [rows]);
 
-<<<<<<< HEAD
-  return (
-    <Card>
-      <CardHeader title="Actividad mensual" subheader="Activos vs. no activos (barras) y tasa de actividad (línea)" />
-      <CardContent>
-        <ResponsiveContainer width="100%" height={340}>
-          <ComposedChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
-            <defs>
-              <linearGradient id="gAct" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={theme.palette.success.main} stopOpacity="0.9"/>
-                <stop offset="100%" stopColor={theme.palette.success.main} stopOpacity="0.5"/>
-              </linearGradient>
-              <linearGradient id="gInact" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={theme.palette.grey[400]} stopOpacity="0.9"/>
-                <stop offset="100%" stopColor={theme.palette.grey[400]} stopOpacity="0.4"/>
-              </linearGradient>
-            </defs>
-
-            <CartesianGrid stroke={theme.palette.divider} strokeDasharray="3 3"/>
-            <XAxis dataKey="month" tickMargin={8}/>
-            <YAxis yAxisId="left" allowDecimals={false} label={{ value: "Usuarios", angle: -90, position: "insideLeft" }}/>
-            <YAxis yAxisId="right" orientation="right" domain={[0,100]} tickFormatter={(v)=>`${v}%`}
-                   label={{ value: "Tasa (%)", angle: -90, position: "insideRight" }}/>
-            <Tooltip
-              formatter={(v,n) => {
-                if (n === "Tasa de actividad (%)") return [`${v}%`, n];
-                return [v, n];
-              }}
-            />
-            <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: 8 }} />
-
-            {/* Barras apiladas = usuarios totales (activos + inactivos) */}
-            <Bar yAxisId="left" dataKey="inactivos" name="No activos" stackId="u" fill="url(#gInact)" radius={[8,8,0,0]} maxBarSize={50}/>
-            <Bar yAxisId="left" dataKey="activos"   name="Activos"    stackId="u" fill="url(#gAct)"   radius={[8,8,0,0]} maxBarSize={50}/>
-
-            {/* Línea: tasa sobre total */}
-            <Line yAxisId="right" type="monotone" dataKey="tasa" name="Tasa de actividad (%)"
-                  stroke={theme.palette.info.main} strokeWidth={2} dot={{ r: 3 }}/>
-          </ComposedChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-=======
   const totalActivos = data.reduce((sum, item) => sum + item.activos, 0);
   const totalInactivos = data.reduce((sum, item) => sum + item.inactivos, 0);
   const promedioTasa = data.length > 0 ? Math.round(data.reduce((sum, item) => sum + item.tasa, 0) / data.length) : 0;
@@ -248,6 +205,5 @@ export default function ActivityByMonthChart({ months = 12 }) {
         </CardContent>
       </Card>
     </motion.div>
->>>>>>> 28-09-Correcciones
   );
 }
