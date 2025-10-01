@@ -70,7 +70,6 @@ export default function ModalEditarVacuna({ open, handleClose, dosis, onSuccess 
                 Observaciones: form.observaciones || "",
             };
 
-            console.log('Enviando datos para actualizar dosis:', { idDosis: dosis.id, data });
             await updateDosisVacuna(dosis.id, data);
             
             // Cerrar el modal primero

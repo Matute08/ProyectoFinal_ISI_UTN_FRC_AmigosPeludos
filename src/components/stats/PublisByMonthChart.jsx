@@ -1,16 +1,58 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Card, CardHeader, CardContent, Stack, ToggleButton, ToggleButtonGroup,
+  Card, CardHeader, CardContent, Stack, ToggleButton, ToggleButtonGroup, Box, Typography, Chip
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell
 } from "recharts";
+import { motion } from "framer-motion";
 import { getPublicationsByMonth } from "../../api/statsApi";
+import ArticleRoundedIcon from "@mui/icons-material/ArticleRounded";
+import AutoGraphRoundedIcon from "@mui/icons-material/AutoGraphRounded";
+import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
 
 const fmtMonth = (d) =>
   new Date(d).toLocaleDateString("es-AR", { month: "short", year: "2-digit" }).replace(".", "");
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <Box
+        sx={{
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(244, 162, 97, 0.2)',
+          borderRadius: 2,
+          p: 2,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+          minWidth: 200
+        }}
+      >
+        <Typography variant="body2" sx={{ fontWeight: 600, mb: 2 }}>
+          {label}
+        </Typography>
+        {payload.map((entry, index) => (
+          <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            <Box
+              sx={{
+                width: 12,
+                height: 12,
+                borderRadius: '50%',
+                background: entry.color
+              }}
+            />
+            <Typography variant="body2" color="text.secondary">
+              {entry.name}: <strong>{entry.value}</strong>
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+    );
+  }
+  return null;
+};
 
 export default function PublisByMonthChart({ months = 12 }) {
   const theme = useTheme();
@@ -43,87 +85,225 @@ export default function PublisByMonthChart({ months = 12 }) {
 
   const tickFmt = (lbl) => {
     const idx = indexByLabel.get(lbl) ?? 0;
-    // mostrás 1 de cada 2; si te parece, cambialo a 3
     return idx % 2 === 0 ? lbl : "";
   };
 
   const empty = data.length === 0 || data.every(d => !d.adopcion && !d.encontrada && !d.perdida);
 
+  const totalAdopcion = data.reduce((sum, item) => sum + item.adopcion, 0);
+  const totalEncontrada = data.reduce((sum, item) => sum + item.encontrada, 0);
+  const totalPerdida = data.reduce((sum, item) => sum + item.perdida, 0);
+  const totalPublicaciones = totalAdopcion + totalEncontrada + totalPerdida;
+
   return (
-    <Card>
-      <CardHeader
-        title="Publicaciones por tipo y mes"
-        subheader={mode === "bars" ? "Barras agrupadas" : "Serie temporal"}
-        action={
-          <Stack direction="row" spacing={1}>
-            <ToggleButtonGroup
-              size="small"
-              exclusive
-              value={displayMode}
-              onChange={(_, v) => v && setDisplayMode(v)}
-            >
-              <ToggleButton value="auto">Auto</ToggleButton>
-              <ToggleButton value="bars">Barras</ToggleButton>
-              <ToggleButton value="lines">Líneas</ToggleButton>
-            </ToggleButtonGroup>
-          </Stack>
-        }
-      />
-      <CardContent>
-        {empty ? (
-          <div style={{ padding: 12, opacity: 0.7 }}>
-            No hay publicaciones en el período seleccionado.
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height={360}>
-            {mode === "bars" ? (
-              <BarChart
-                data={data}
-                margin={{ top: 10, right: 8, left: 0, bottom: 28 }}
-                barCategoryGap="28%"
-                barGap={6}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.2 }}
+    >
+      <Card 
+        sx={{ 
+          borderRadius: 3,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+          border: '1px solid rgba(244, 162, 97, 0.1)',
+          overflow: 'hidden'
+        }}
+      >
+        <CardHeader 
+          sx={{ 
+            background: 'linear-gradient(135deg, rgba(244, 162, 97, 0.05) 0%, rgba(231, 111, 81, 0.05) 100%)',
+            pb: 1
+          }}
+          title={
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Publicaciones por Tipo
+              </Typography>
+              <Chip 
+                icon={<ArticleRoundedIcon />}
+                label={`Total: ${totalPublicaciones}`}
+                size="small"
+                sx={{ 
+                  background: 'linear-gradient(135deg, #F4A261 0%, #E76F51 100%)',
+                  color: 'white',
+                  fontWeight: 600
+                }}
+              />
+            </Box>
+          }
+          subheader={
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              {mode === "bars" ? "Distribución mensual por categorías" : "Tendencia temporal de publicaciones"}
+            </Typography>
+          }
+          action={
+            <Stack direction="row" spacing={1}>
+              <ToggleButtonGroup
+                size="small"
+                exclusive
+                value={displayMode}
+                onChange={(_, v) => v && setDisplayMode(v)}
+                sx={{
+                  '& .MuiToggleButton-root': {
+                    borderRadius: 2,
+                    border: '1px solid rgba(244, 162, 97, 0.3)',
+                    '&.Mui-selected': {
+                      background: 'linear-gradient(135deg, #F4A261 0%, #E76F51 100%)',
+                      color: 'white',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #E76F51 0%, #D2691E 100%)',
+                      }
+                    }
+                  }
+                }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="label"
-                  tickMargin={10}
-                  angle={-35}
-                  textAnchor="end"
-                  interval={0}
-                  tickFormatter={tickFmt}
-                />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: 8 }} />
-                <Bar dataKey="adopcion"   name="Adopción"   fill={theme.palette.warning.main} radius={[6,6,0,0]} barSize={12} />
-                <Bar dataKey="encontrada" name="Encontrada" fill={theme.palette.success.main} radius={[6,6,0,0]} barSize={12} />
-                <Bar dataKey="perdida"    name="Perdida"    fill={theme.palette.error.main}   radius={[6,6,0,0]} barSize={12} />
-              </BarChart>
-            ) : (
-              <LineChart
-                data={data}
-                margin={{ top: 10, right: 8, left: 0, bottom: 28 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="label"
-                  tickMargin={10}
-                  angle={-35}
-                  textAnchor="end"
-                  interval={0}
-                  tickFormatter={tickFmt}
-                />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Legend verticalAlign="top" wrapperStyle={{ paddingBottom: 8 }} />
-                <Line type="monotone" dataKey="adopcion"   name="Adopción"   stroke={theme.palette.warning.main} strokeWidth={2} dot={{ r: 2 }} />
-                <Line type="monotone" dataKey="encontrada" name="Encontrada" stroke={theme.palette.success.main} strokeWidth={2} dot={{ r: 2 }} />
-                <Line type="monotone" dataKey="perdida"    name="Perdida"    stroke={theme.palette.error.main}   strokeWidth={2} dot={{ r: 2 }} />
-              </LineChart>
-            )}
-          </ResponsiveContainer>
-        )}
-      </CardContent>
-    </Card>
+                <ToggleButton value="auto">
+                  <AutoGraphRoundedIcon fontSize="small" sx={{ mr: 0.5 }} />
+                  Auto
+                </ToggleButton>
+                <ToggleButton value="bars">
+                  <BarChartRoundedIcon fontSize="small" sx={{ mr: 0.5 }} />
+                  Barras
+                </ToggleButton>
+                <ToggleButton value="lines">
+                  <AutoGraphRoundedIcon fontSize="small" sx={{ mr: 0.5 }} />
+                  Líneas
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Stack>
+          }
+        />
+        <CardContent sx={{ pt: 2, pb: 3 }}>
+          {empty ? (
+            <Box sx={{ 
+              padding: 4, 
+              textAlign: 'center',
+              opacity: 0.7,
+              background: 'linear-gradient(135deg, rgba(244, 162, 97, 0.05) 0%, rgba(231, 111, 81, 0.05) 100%)',
+              borderRadius: 2,
+              border: '2px dashed rgba(244, 162, 97, 0.3)'
+            }}>
+              <ArticleRoundedIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                Sin publicaciones
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                No hay publicaciones en el período seleccionado
+              </Typography>
+            </Box>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              {mode === "bars" ? (
+                <BarChart
+                  data={data}
+                  margin={{ top: 30, right: 40, left: 30, bottom: 40 }}
+                  barCategoryGap="25%"
+                  barGap={12}
+                >
+                  <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
+                  <XAxis
+                    dataKey="label"
+                    tickMargin={16}
+                    angle={-35}
+                    textAnchor="end"
+                    interval={0}
+                    tickFormatter={tickFmt}
+                    tick={{ fontSize: 13, fill: theme.palette.text.secondary, fontWeight: 500 }}
+                    axisLine={{ stroke: theme.palette.divider, strokeWidth: 1 }}
+                    tickLine={{ stroke: theme.palette.divider }}
+                  />
+                  <YAxis 
+                    allowDecimals={false}
+                    tick={{ fontSize: 13, fill: theme.palette.text.secondary, fontWeight: 500 }}
+                    axisLine={{ stroke: theme.palette.divider, strokeWidth: 1 }}
+                    tickLine={{ stroke: theme.palette.divider }}
+                    tickMargin={8}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    verticalAlign="top" 
+                    wrapperStyle={{ paddingBottom: 20 }}
+                    iconType="circle"
+                  />
+                  <Bar dataKey="adopcion" name="Adopción" fill="#FF9800" radius={[6, 6, 0, 0]} barSize={25}>
+                    {data.map((entry, index) => (
+                      <Cell key={`adopcion-${index}`} fill="#FF9800" />
+                    ))}
+                  </Bar>
+                  <Bar dataKey="encontrada" name="Encontrada" fill="#2E7D32" radius={[6, 6, 0, 0]} barSize={25}>
+                    {data.map((entry, index) => (
+                      <Cell key={`encontrada-${index}`} fill="#2E7D32" />
+                    ))}
+                  </Bar>
+                  <Bar dataKey="perdida" name="Perdida" fill="#E53935" radius={[6, 6, 0, 0]} barSize={25}>
+                    {data.map((entry, index) => (
+                      <Cell key={`perdida-${index}`} fill="#E53935" />
+                    ))}
+                  </Bar>
+                </BarChart>
+              ) : (
+                <LineChart
+                  data={data}
+                  margin={{ top: 30, right: 40, left: 30, bottom: 40 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
+                  <XAxis
+                    dataKey="label"
+                    tickMargin={16}
+                    angle={-35}
+                    textAnchor="end"
+                    interval={0}
+                    tickFormatter={tickFmt}
+                    tick={{ fontSize: 13, fill: theme.palette.text.secondary, fontWeight: 500 }}
+                    axisLine={{ stroke: theme.palette.divider, strokeWidth: 1 }}
+                    tickLine={{ stroke: theme.palette.divider }}
+                  />
+                  <YAxis 
+                    allowDecimals={false}
+                    tick={{ fontSize: 13, fill: theme.palette.text.secondary, fontWeight: 500 }}
+                    axisLine={{ stroke: theme.palette.divider, strokeWidth: 1 }}
+                    tickLine={{ stroke: theme.palette.divider }}
+                    tickMargin={8}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    verticalAlign="top" 
+                    wrapperStyle={{ paddingBottom: 20 }}
+                    iconType="circle"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="adopcion" 
+                    name="Adopción" 
+                    stroke="#FF9800" 
+                    strokeWidth={4} 
+                    dot={{ r: 5, fill: "#FF9800", strokeWidth: 2, stroke: '#fff' }}
+                    activeDot={{ r: 7, fill: "#FF9800" }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="encontrada" 
+                    name="Encontrada" 
+                    stroke="#2E7D32" 
+                    strokeWidth={4} 
+                    dot={{ r: 5, fill: "#2E7D32", strokeWidth: 2, stroke: '#fff' }}
+                    activeDot={{ r: 7, fill: "#2E7D32" }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="perdida" 
+                    name="Perdida" 
+                    stroke="#E53935" 
+                    strokeWidth={4} 
+                    dot={{ r: 5, fill: "#E53935", strokeWidth: 2, stroke: '#fff' }}
+                    activeDot={{ r: 7, fill: "#E53935" }}
+                  />
+                </LineChart>
+              )}
+            </ResponsiveContainer>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }

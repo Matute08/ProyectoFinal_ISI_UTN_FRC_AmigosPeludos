@@ -137,12 +137,20 @@ export default function Login() {
       setOpenResetDialog(false);
       setResetEmail("");
     } catch (error) {
+      console.error("Error al resetear contraseña:", error);
+      
       if (error.code === 'auth/user-not-found') {
         mostrarAlertaError("No existe una cuenta con este correo electrónico");
       } else if (error.code === 'auth/invalid-email') {
         mostrarAlertaError("El formato del correo electrónico no es válido");
+      } else if (error.code === 'auth/too-many-requests') {
+        mostrarAlertaError("Demasiados intentos. Intenta más tarde");
+      } else if (error.code === 'auth/network-request-failed') {
+        mostrarAlertaError("Error de conexión. Verifica tu internet");
+      } else if (error.code === 'auth/invalid-action-code') {
+        mostrarAlertaError("Error en la configuración del enlace. Contacta soporte");
       } else {
-        mostrarAlertaError("Error al enviar el correo de recuperación");
+        mostrarAlertaError(`Error al enviar el correo de recuperación: ${error.message || "Error desconocido"}`);
       }
     }
   };
@@ -250,7 +258,18 @@ export default function Login() {
       </Paper>
 
       {/* Modal para reset de contraseña */}
-      <Dialog open={openResetDialog} onClose={() => setOpenResetDialog(false)}>
+      <Dialog 
+        open={openResetDialog} 
+        onClose={() => setOpenResetDialog(false)}
+        sx={{
+          '& .MuiDialog-root': {
+            zIndex: 1300 // Menor que SweetAlert2 (9999)
+          },
+          '& .MuiDialog-paper': {
+            zIndex: 1300
+          }
+        }}
+      >
         <DialogTitle>Recuperar Contraseña</DialogTitle>
         <DialogContent>
           <Typography variant="body2" sx={{ mb: 2 }}>

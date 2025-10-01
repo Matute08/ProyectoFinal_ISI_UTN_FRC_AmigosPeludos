@@ -9,6 +9,15 @@ export const mostrarAlertaExito = (mensaje, redireccionar = null) => {
     showConfirmButton: false,
     allowOutsideClick: false,
     allowEscapeKey: false,
+    customClass: {
+      container: 'swal-over-mui'
+    },
+    didOpen: () => {
+      const swalContainer = document.querySelector('.swal2-container');
+      if (swalContainer) {
+        swalContainer.style.zIndex = '9999';
+      }
+    },
     didClose: () => {
       if (redireccionar) {
         window.location.href = redireccionar;
@@ -26,6 +35,15 @@ export const mostrarAlertaError = (mensaje) => {
     showConfirmButton: false,
     allowOutsideClick: false,
     allowEscapeKey: false,
+    customClass: {
+      container: 'swal-over-mui'
+    },
+    didOpen: () => {
+      const swalContainer = document.querySelector('.swal2-container');
+      if (swalContainer) {
+        swalContainer.style.zIndex = '9999';
+      }
+    }
   });
 };
 

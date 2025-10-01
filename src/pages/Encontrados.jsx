@@ -83,9 +83,11 @@ export default function Encontrados() {
     useEffect(() => {
         const fetchMascotas = async () => {
             const data = await getMascotasEncontradas();
-            data.sort((a, b) => new Date(b.fechaAlta) - new Date(a.fechaAlta));
-            setMascotas(data);
-            setMascotasFiltradas(data);
+            // Filtrar solo publicaciones activas (esto ya se hace en la API, pero por seguridad)
+            const mascotasActivas = data.filter(mascota => mascota.estado === 'Activa' || !mascota.estado);
+            mascotasActivas.sort((a, b) => new Date(b.fechaAlta) - new Date(a.fechaAlta));
+            setMascotas(mascotasActivas);
+            setMascotasFiltradas(mascotasActivas);
             setLoading(false);
         };
         fetchMascotas();

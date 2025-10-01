@@ -5,7 +5,7 @@ import apiClient from "./apiClient";
  */
 export const getMascotasEnAdopcion = async () => {
   try {
-    const response = await apiClient.get("/publicacionMascota/tipo/Adopcion");
+    const response = await apiClient.get("/publicacionMascota/tipo/Adopcion?estado=Activa");
     return response.data;
 
   } catch (error) {
@@ -19,7 +19,7 @@ export const getMascotasEnAdopcion = async () => {
 
 export const getMascotasPerdidas = async () => {
   try {
-    const response = await apiClient.get("/publicacionMascota/tipo/Perdida");
+    const response = await apiClient.get("/publicacionMascota/tipo/Perdida?estado=Activa");
     return response.data;
   } catch (error) {
     console.error("Error al obtener mascotas perdidas:", error);
@@ -32,7 +32,7 @@ export const getMascotasPerdidas = async () => {
 
 export const getMascotasEncontradas = async () => {
   try {
-    const response = await apiClient.get("/publicacionMascota/tipo/Encontrada");
+    const response = await apiClient.get("/publicacionMascota/tipo/Encontrada?estado=Activa");
     return response.data;
   } catch (error) {
     console.error("Error al obtener mascotas encontradas:", error);
@@ -123,6 +123,77 @@ export const getEstadoIA = async (id) => {
   } catch (error) {
     console.error("Error al obtener estado IA:", error);
     return { ia_indexed: false, ia_matched: false };
+  }
+};
+
+/**
+ * Cambiar el estado de una publicación (finalizada/cancelada)
+ */
+export const cambiarEstadoPublicacion = async (id, estadoId) => {
+  try {
+    const payload = {
+      estadoid: estadoId
+    };
+    
+   
+    
+    const response = await apiClient.put(`/publicacionMascota/${id}/cambiar-estado`, payload);
+    
+   
+    return response.data;
+  } catch (error) {
+    console.error("Error al cambiar estado de publicación:", error);
+    throw error;
+  }
+};
+
+/**
+ * Obtener estadísticas para la landing page
+ */
+export const getEstadisticasLanding = async () => {
+  try {
+    const response = await apiClient.get("/stats/mascotas-encontradas-resumen");
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener estadísticas de landing:", error);
+    // Retornar valores por defecto en caso de error
+    return {
+      totalEncontradas: 0,
+      totalFinalizadas: 0,
+      tiempoPromedio: 0,
+      tasaExito: 0
+    };
+  }
+};
+
+/**
+ * Obtener estadísticas de publicaciones finalizadas para admin
+ */
+export const getEstadisticasPublicacionesFinalizadas = async (months = 12) => {
+  try {
+    const response = await apiClient.get(`/stats/publicaciones-finalizadas/by-month?months=${months}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener estadísticas de publicaciones finalizadas:", error);
+    return [];
+  }
+};
+
+/**
+ * Obtener todos los estados de publicación disponibles
+ */
+export const getEstadosPublicacion = async () => {
+  try {
+    const response = await apiClient.get("/EstadoPublicacion");
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener estados de publicación:", error);
+    // Retornar estados por defecto en caso de error
+    return [
+      { id: 1, nombre: "Activa" },
+      { id: 2, nombre: "Finalizada" },
+      { id: 3, nombre: "Cancelada" }
+    ];
   }
 };
 

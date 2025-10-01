@@ -32,6 +32,7 @@ const excludedKeys = [
     "mailVerificado",
     "habilitada",
     "fechaNacimiento",
+    "fechaAlta",
     "codigoPostal",
     "username",
     "generoId",
