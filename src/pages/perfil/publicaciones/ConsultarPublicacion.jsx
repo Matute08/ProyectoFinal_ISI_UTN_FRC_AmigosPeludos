@@ -15,9 +15,13 @@ import { Carousel } from "react-responsive-carousel";
 import "leaflet/dist/leaflet.css";
 import CustomLoader from "../../../components/CustomLoader";
 import Maps from "../../../components/Maps";
+import CambiarEstadoPublicacion from "../../../components/CambiarEstadoPublicacion";
+import { useAuth } from "../../../auth/AuthProvider";
 const ConsultarPublicacion = ({ id, onCancel }) => {
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [modalEstadoAbierto, setModalEstadoAbierto] = useState(false);
+    const { userData } = useAuth();
 
     useEffect(() => {
         const fetch = async () => {
@@ -44,6 +48,9 @@ const ConsultarPublicacion = ({ id, onCancel }) => {
         return <Typography>Error al cargar la publicación.</Typography>;
     }
 
+    const esCreador = userData?.id === post.usuarioId;
+    const esActiva = post.estado === 'Activa' || !post.estado;
+
     // Utilidad para formatear fecha a DD/MM/AAAA
     const formatDate = (dateStr) => {
         if (!dateStr) return "";
@@ -53,6 +60,19 @@ const ConsultarPublicacion = ({ id, onCancel }) => {
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
+    };
+
+    const handleEstadoCambiado = () => {
+        // Recargar la publicación para obtener el estado actualizado
+        const fetch = async () => {
+            try {
+                const res = await getDetallePublicacion(id);
+                setPost(res);
+            } catch (e) {
+                console.error("Error al obtener publicación actualizada", e);
+            }
+        };
+        fetch();
     };
 
 
@@ -85,6 +105,12 @@ const ConsultarPublicacion = ({ id, onCancel }) => {
                             {post.publicacionTipo === "Perdida"
                                 ? `Perdida el: ${formatDate(post.fechaPerdida)}`
                                 : `En adopción desde: ${formatDate(post.fechaAlta)}`}
+                        </Typography>
+                        <Typography>
+                            Estado: <strong>{post.estado || 'Activa'}</strong>
+                            {post.fechaFinalizada && (
+                                <span> - Finalizada el: {formatDate(post.fechaFinalizada)}</span>
+                            )}
                         </Typography>
                         <Typography>
                             Barrio: {post.barrioPublicacion}
@@ -218,16 +244,42 @@ const ConsultarPublicacion = ({ id, onCancel }) => {
                 </Grid>
 
                 <Grid item size={{ xs: 12 }} sx={{ textAlign: "end" }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={onCancel}
-                        sx={{ mt: 2 }}
-                    >
-                        ← Volver al listado
-                    </Button>
+                    <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end", mt: 2 }}>
+                        {esCreador && esActiva && (
+                            <Button
+                                variant="contained"
+                                color="success"
+                                onClick={() => setModalEstadoAbierto(true)}
+                                sx={{ 
+                                    background: "linear-gradient(45deg, #4caf50, #66bb6a)",
+                                    "&:hover": {
+                                        background: "linear-gradient(45deg, #388e3c, #4caf50)"
+                                    }
+                                }}
+                            >
+                                ✅ Finalizar Publicación
+                            </Button>
+                        )}
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={onCancel}
+                        >
+                            ← Volver al listado
+                        </Button>
+                    </Box>
                 </Grid>
             </Grid>
+
+            {/* Modal para cambiar estado */}
+            <CambiarEstadoPublicacion
+                open={modalEstadoAbierto}
+                onClose={() => setModalEstadoAbierto(false)}
+                publicacionId={id}
+                onEstadoCambiado={handleEstadoCambiado}
+                tipoPublicacion={post.publicacionTipo}
+                nombrePublicacionMascota={post.nombre}
+            />
         </Box>
     );
 };

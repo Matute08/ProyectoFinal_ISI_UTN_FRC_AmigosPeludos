@@ -9,6 +9,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import fondoImagen from "../assets/fondo.png";
 import Servicios from "../components/Servicios";
+import EstadisticasLanding from "../components/EstadisticasLanding";
 import PetsIcon from "@mui/icons-material/Pets";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 
@@ -163,6 +164,11 @@ const Home = () => {
                         </Button>
                     </Box>
                 </Box>
+            </Box>
+
+            {/* Sección de Estadísticas */}
+            <Box sx={{ px: { xs: 2, md: 4 }, py: 4 }}>
+                <EstadisticasLanding />
             </Box>
 
             <Servicios />
