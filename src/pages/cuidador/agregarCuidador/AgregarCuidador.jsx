@@ -48,6 +48,7 @@ const camposPorPaso = [
 ];
 
 const AgregarCuidador = () => {
+    const { userData } = useAuth();
     const [activeStep, setActiveStep] = useState(0);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);

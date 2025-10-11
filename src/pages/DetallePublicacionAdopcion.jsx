@@ -42,46 +42,53 @@ export default function DetallePublicacionAdopcion() {
     const handleFormularioEnviado = async () => {
         handleCloseModal();
         // Verificar nuevamente si existe una solicitud después del envío
-        if (userData?.id && detalle?.id) {
-            setVerificandoSolicitud(true);
-            try {
-                const response = await getFormulariosPosibleAdoptante(userData.id);
-                if (response.data && response.data.length > 0) {
-                    // Buscar si existe una solicitud para esta mascota específica
-                    const solicitudParaEstaMascota = response.data.find(
-                        formulario => formulario.publicacionMascotaId === detalle.id
-                    );
-                    setSolicitudExistente(solicitudParaEstaMascota || null);
-                } else {
-                    setSolicitudExistente(null);
-                }
-            } catch (error) {
-                console.error("Error al verificar solicitud:", error);
-            } finally {
-                setVerificandoSolicitud(false);
+        if (!userData?.id || !detalle?.id) {
+            return;
+        }
+
+        setVerificandoSolicitud(true);
+        try {
+            const response = await getFormulariosPosibleAdoptante(userData.id);
+            if (response.data && response.data.length > 0) {
+                // Buscar si existe una solicitud para esta mascota específica
+                const solicitudParaEstaMascota = response.data.find(
+                    formulario => formulario.publicacionMascotaId === detalle.id
+                );
+                setSolicitudExistente(solicitudParaEstaMascota || null);
+            } else {
+                setSolicitudExistente(null);
             }
+        } catch (error) {
+            console.error("Error al verificar solicitud:", error);
+            setSolicitudExistente(null);
+        } finally {
+            setVerificandoSolicitud(false);
         }
     };
     
 
     useEffect(() => {
-        const fetch = async () => {
-            const data = await getDetallePublicacion(id);
-            setDetalle(data);
-            setLoading(false);
-        };
-        fetch();
-    }, [id]);
+        const fetchData = async () => {
+            try {
+                // Cargar datos de la publicación
+                const data = await getDetallePublicacion(id);
+                setDetalle(data);
+                
+                // Si no hay usuario autenticado, no verificar solicitud
+                if (!userData?.id) {
+                    setVerificandoSolicitud(false);
+                    setSolicitudExistente(null);
+                    setLoading(false);
+                    return;
+                }
 
-    useEffect(() => {
-        const verificarSolicitud = async () => {
-            if (userData?.id && detalle?.id) {
+                // Verificar si existe una solicitud
                 try {
                     const response = await getFormulariosPosibleAdoptante(userData.id);
                     if (response.data && response.data.length > 0) {
                         // Buscar si existe una solicitud para esta mascota específica
                         const solicitudParaEstaMascota = response.data.find(
-                            formulario => formulario.publicacionMascotaId === detalle.id
+                            formulario => formulario.publicacionMascotaId === data.id
                         );
                         setSolicitudExistente(solicitudParaEstaMascota || null);
                     } else {
@@ -90,18 +97,19 @@ export default function DetallePublicacionAdopcion() {
                 } catch (error) {
                     console.error("Error al verificar solicitud:", error);
                     setSolicitudExistente(null);
-                } finally {
-                    setVerificandoSolicitud(false);
                 }
-            } else {
+            } catch (error) {
+                console.error("Error al cargar datos:", error);
+            } finally {
+                setLoading(false);
                 setVerificandoSolicitud(false);
             }
         };
 
-        verificarSolicitud();
-    }, [userData?.id, detalle?.id]);
+        fetchData();
+    }, [id, userData?.id]);
 
-    if (loading) {
+    if (loading || verificandoSolicitud) {
         return (
             <Container sx={{ textAlign: "center", mt: 5 }}>
                 <CustomLoader />
@@ -231,14 +239,7 @@ export default function DetallePublicacionAdopcion() {
                                     Postularse para Adoptar
                                 </Typography>
                                 
-                                {verificandoSolicitud ? (
-                                    <Box sx={{ textAlign: "center", py: 2 }}>
-                                        <CustomLoader />
-                                        <Typography variant="body2" sx={{ mt: 1 }}>
-                                            Verificando estado de solicitud...
-                                        </Typography>
-                                    </Box>
-                                ) : solicitudExistente ? (
+                                {solicitudExistente ? (
                                     <Box>
                                         <Alert 
                                             severity={solicitudExistente.estadoFormularioId === 1 ? "info" : 

@@ -35,8 +35,11 @@ import {
     HelpOutline,
     SupportAgent,
     Menu as MenuIcon,
+    Assessment,
 } from "@mui/icons-material";
 import BarChartRounded from "@mui/icons-material/BarChartRounded";
+import CampaignIcon from "@mui/icons-material/Campaign";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import { useNavigate } from "react-router-dom";
 import { getUserMail } from "../api/userApi";
 import { getFormulariosDuenoPosteo } from "../api/formulariosApi";
@@ -207,6 +210,12 @@ const Navbar = () => {
                         <ListItemText primary="Ayuda" />
                     </ListItemButton>
                 </ListItem>
+                <ListItem disablePadding>
+                    <ListItemButton onClick={() => navigate("/precios-publicidad")}>
+                        <MonetizationOnIcon sx={{ mr: 1 }} />
+                        <ListItemText primary="Publicidad" />
+                    </ListItemButton>
+                </ListItem>
             </List>
         </Box>
     );
@@ -343,6 +352,12 @@ const Navbar = () => {
                             >
                                 Ayuda
                             </Button>
+                            <Button
+                                color="inherit"
+                                onClick={() => navigate("/precios-publicidad")}
+                            >
+                                Publicidad
+                            </Button>
                         </>
                     )}
                 </Box>
@@ -399,6 +414,10 @@ const Navbar = () => {
                                     />
                                 )}
                             </MenuItem>
+                            <MenuItem onClick={() => {navigate("/mis-estadisticas"); handleCloseUserMenu()}}>
+                                <Assessment fontSize="small" sx={{ mr: 1 }} />
+                                Dashboard de publicidades
+                            </MenuItem>
                             {userData?.rolId === 1 && (
                                 <MenuItem
                                     onClick={() => {navigate("/solicitudes"), handleCloseUserMenu();}}
@@ -439,7 +458,18 @@ const Navbar = () => {
                                 }}
                             >
                                 <BarChartRounded fontSize="small" sx={{ mr: 1 }} />
-                                Estadísticas
+                                Dashboard de Estadísticas
+                            </MenuItem>
+                            )}
+                            {userData?.rolId === 1 && (
+                            <MenuItem
+                                onClick={() => {
+                                navigate("/gestion-publicidades");
+                                handleCloseUserMenu();
+                                }}
+                            >
+                                <CampaignIcon fontSize="small" sx={{ mr: 1 }} />
+                                Gestión Publicidades
                             </MenuItem>
                             )}
 

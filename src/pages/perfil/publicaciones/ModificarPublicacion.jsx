@@ -328,12 +328,14 @@ const ModificarPublicacion = () => {
                         <Controller
                             name="nombre"
                             control={control}
-                            rules={{ required: "Requerido" }}
+                            rules={{ 
+                                required: tipoPublicacion !== "Encontrada" ? "Requerido" : false 
+                            }}
                             render={({ field }) => (
                                 <TextField
                                     {...field}
                                     fullWidth
-                                    label="Nombre"
+                                    label={tipoPublicacion === "Encontrada" ? "Nombre (opcional)" : "Nombre"}
                                     error={!!errors.nombre}
                                     helperText={errors.nombre?.message}
                                 />

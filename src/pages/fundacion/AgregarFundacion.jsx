@@ -47,6 +47,13 @@ export default function AgregarFundacion() {
         setLatLng({ lat, lng });
     };
 
+    const handleTelefonoChange = (e) => {
+        const value = e.target.value;
+        // Solo permitir números
+        const numericValue = value.replace(/[^0-9]/g, '');
+        setValue("telefono", numericValue);
+    };
+
 
     const onSubmit = async (data) => {
         if (files.length === 0)
@@ -80,6 +87,7 @@ export default function AgregarFundacion() {
                 estadoId: 1,
                 usuarioId: userData?.id,
                 imagen: uploads[0],
+                habilitado: true,
                 
             };
 
@@ -179,13 +187,22 @@ export default function AgregarFundacion() {
                             <Typography variant="subtitle1" gutterBottom>
                                 Foto de la Fundación *
                             </Typography>
-                            <FilePond
-                                files={files}
-                                onupdatefiles={setFiles}
-                                allowMultiple={false}
-                                maxFiles={1}
-                                labelIdle="Arrastrá o hacé click para subir imagen"
-                            />
+                            <Box sx={{ 
+                                '& .filepond--panel-root': { 
+                                    cursor: 'pointer !important' 
+                                },
+                                '& .filepond--root': { 
+                                    cursor: 'pointer !important' 
+                                }
+                            }}>
+                                <FilePond
+                                    files={files}
+                                    onupdatefiles={setFiles}
+                                    allowMultiple={false}
+                                    maxFiles={1}
+                                    labelIdle="Arrastrá o hacé click para subir imagen"
+                                />
+                            </Box>
                             <form onSubmit={handleSubmit(onSubmit)} noValidate>
                                 <Grid container spacing={2} mt={2}>
                                     <Grid item size={{ xs: 12, sm: 4 }}>
@@ -256,11 +273,24 @@ export default function AgregarFundacion() {
                                             fullWidth
                                             {...register("direccion", {
                                                 required: "Requerido",
+                                                maxLength: {
+                                                    value: 20,
+                                                    message: "Máximo 20 caracteres"
+                                                }
                                             })}
                                             error={!!errors.direccion}
                                             helperText={
                                                 errors.direccion?.message
                                             }
+                                            inputProps={{
+                                                maxLength: 20
+                                            }}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (value.length > 20) {
+                                                    e.target.value = value.slice(0, 20);
+                                                }
+                                            }}
                                         />
                                     </Grid>
                                     <Grid item size={{ xs: 6, sm: 4 }}>
@@ -273,11 +303,26 @@ export default function AgregarFundacion() {
                                                     value: /^[0-9]+$/,
                                                     message: "Solo números",
                                                 },
+                                                maxLength: {
+                                                    value: 5,
+                                                    message: "Máximo 5 caracteres"
+                                                }
                                             })}
                                             error={!!errors.nroCalle}
                                             helperText={
                                                 errors.nroCalle?.message
                                             }
+                                            inputProps={{
+                                                maxLength: 5
+                                            }}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                if (value.length > 5) {
+                                                    e.target.value = value.slice(0, 5);
+                                                } else {
+                                                    e.target.value = value;
+                                                }
+                                            }}
                                         />
                                     </Grid>
 
@@ -331,6 +376,14 @@ export default function AgregarFundacion() {
                                             })}
                                             error={!!errors.cbu}
                                             helperText={errors.cbu?.message}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                if (value.length > 22) {
+                                                    e.target.value = value.slice(0, 22);
+                                                } else {
+                                                    e.target.value = value;
+                                                }
+                                            }}
                                         />
                                     </Grid>
                                     <Grid item size={{ xs: 12, sm: 4 }}>
@@ -339,20 +392,43 @@ export default function AgregarFundacion() {
                                             fullWidth
                                             {...register("aliasCbu", {
                                                 required: "Requerido",
+                                                maxLength: {
+                                                    value: 20,
+                                                    message: "Máximo 20 caracteres"
+                                                }
                                             })}
                                             error={!!errors.aliasCbu}
                                             helperText={
                                                 errors.aliasCbu?.message
                                             }
+                                            inputProps={{
+                                                maxLength: 20
+                                            }}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (value.length > 20) {
+                                                    e.target.value = value.slice(0, 20);
+                                                }
+                                            }}
                                         />
                                     </Grid>
                                     <Grid item size={{ xs: 12, sm: 6 }}>
                                         <TextField
                                             label="Teléfono"
                                             fullWidth
+                                            inputProps={{ maxLength: 12 }}
                                             {...register("telefono", {
                                                 required: "Requerido",
+                                                pattern: {
+                                                    value: /^[0-9]+$/,
+                                                    message: "Solo números",
+                                                },
+                                                maxLength: {
+                                                    value: 12,
+                                                    message: "Máximo 12 caracteres",
+                                                },
                                             })}
+                                            onChange={handleTelefonoChange}
                                             error={!!errors.telefono}
                                             helperText={
                                                 errors.telefono?.message
@@ -364,7 +440,23 @@ export default function AgregarFundacion() {
                                             label="Página Web"
                                             fullWidth
                                             placeholder="https://www.tufundacion.org"
-                                            {...register("paginaUrl")}
+                                            {...register("paginaUrl", {
+                                                maxLength: {
+                                                    value: 30,
+                                                    message: "Máximo 30 caracteres"
+                                                }
+                                            })}
+                                            error={!!errors.paginaUrl}
+                                            helperText={errors.paginaUrl?.message}
+                                            inputProps={{
+                                                maxLength: 30
+                                            }}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (value.length > 30) {
+                                                    e.target.value = value.slice(0, 30);
+                                                }
+                                            }}
                                         />
                                     </Grid>
                                     <Grid item size={{ xs: 12, sm: 6 }}>
@@ -372,7 +464,23 @@ export default function AgregarFundacion() {
                                             label="Facebook"
                                             fullWidth
                                             placeholder="https://www.facebook.com/tu_fundacion"
-                                            {...register("facebook")}
+                                            {...register("facebook", {
+                                                maxLength: {
+                                                    value: 30,
+                                                    message: "Máximo 30 caracteres"
+                                                }
+                                            })}
+                                            error={!!errors.facebook}
+                                            helperText={errors.facebook?.message}
+                                            inputProps={{
+                                                maxLength: 30
+                                            }}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (value.length > 30) {
+                                                    e.target.value = value.slice(0, 30);
+                                                }
+                                            }}
                                         />
                                     </Grid>
                                     <Grid item size={{ xs: 12, sm: 6 }}>
@@ -380,7 +488,23 @@ export default function AgregarFundacion() {
                                             label="Instagram"
                                             fullWidth
                                             placeholder="https://www.instagram.com/tu_fundacion"
-                                            {...register("instagram")}
+                                            {...register("instagram", {
+                                                maxLength: {
+                                                    value: 30,
+                                                    message: "Máximo 30 caracteres"
+                                                }
+                                            })}
+                                            error={!!errors.instagram}
+                                            helperText={errors.instagram?.message}
+                                            inputProps={{
+                                                maxLength: 30
+                                            }}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (value.length > 30) {
+                                                    e.target.value = value.slice(0, 30);
+                                                }
+                                            }}
                                         />
                                     </Grid>
                                     <Grid item size={{ xs: 12 }}>
@@ -389,19 +513,25 @@ export default function AgregarFundacion() {
                                             fullWidth
                                             multiline
                                             rows={3}
-                                            inputProps={{ maxLength: 400 }}
+                                            inputProps={{ maxLength: 300 }}
                                             {...register("descripcion", {
                                                 required: "Requerido",
                                                 maxLength: {
-                                                    value: 400,
+                                                    value: 300,
                                                     message:
-                                                        "Máx 400 caracteres",
+                                                        "Máximo 300 caracteres",
                                                 },
                                             })}
                                             error={!!errors.descripcion}
                                             helperText={
                                                 errors.descripcion?.message
                                             }
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (value.length > 300) {
+                                                    e.target.value = value.slice(0, 300);
+                                                }
+                                            }}
                                         />
                                     </Grid>
                                     <Grid item size={{ xs: 12 }}>
@@ -410,19 +540,25 @@ export default function AgregarFundacion() {
                                             fullWidth
                                             multiline
                                             rows={3}
-                                            inputProps={{ maxLength: 400 }}
+                                            inputProps={{ maxLength: 300 }}
                                             {...register("motivoDonaciones", {
                                                 required: "Requerido",
                                                 maxLength: {
-                                                    value: 400,
+                                                    value: 300,
                                                     message:
-                                                        "Máx 400 caracteres",
+                                                        "Máximo 300 caracteres",
                                                 },
                                             })}
                                             error={!!errors.motivoDonaciones}
                                             helperText={
                                                 errors.motivoDonaciones?.message
                                             }
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (value.length > 300) {
+                                                    e.target.value = value.slice(0, 300);
+                                                }
+                                            }}
                                         />
                                     </Grid>
 

@@ -298,7 +298,7 @@ const PerfilCuidador = () => {
                     {tabIndex === 3 && (
                     <Box mt={3}>
                         
-                        <Valoraciones idCuidador={cuidador.id}  />
+                        <Valoraciones idCuidador={cuidador.id} idUsuarioPerfil={cuidador.datosUsuario?.id} />
                                                 
                     </Box>
                     )}

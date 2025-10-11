@@ -19,9 +19,11 @@ import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import FloatingActionButton from "../components/FloatingActionButton";
 import { getMascotasEncontradas } from "../api/publicacionesApi";
+import { registrarVisualizacionPublicidad, registrarClicPublicidad } from "../api/publicidadesApi";
 import Denuncias from "../components/Denuncias"; 
 import BotonComparaciones from "../components/BotonComparaciones";
 import BadgeProcesandoIA from "../components/BadgeProcesandoIA";
+import PublicidadCarouselNuevo from "../components/PublicidadCarouselNuevo";
 
 export default function Encontrados() {
     const [mascotas, setMascotas] = useState([]);
@@ -99,6 +101,15 @@ export default function Encontrados() {
 
     const formatearFecha = (fechaISO) => moment(fechaISO).format("DD/MM/YYYY");
 
+    // Función para manejar clics en publicidades (si hay alguna visible)
+    const handleClicPublicidad = async (publicidadId) => {
+        try {
+            await registrarClicPublicidad(publicidadId);
+        } catch (error) {
+            console.error(`Error al registrar clic para publicidad ${publicidadId}:`, error);
+        }
+    };
+
     const totalPaginas = Math.ceil(mascotasFiltradas.length / porPagina);
     const inicio = (paginaActual - 1) * porPagina;
     const fin = inicio + porPagina;
@@ -114,6 +125,11 @@ export default function Encontrados() {
 
     return (
         <>
+            {/* Sección de Publicidades - Arriba del todo */}
+            <Box sx={{ mt: 2, mb: 2 }}>
+                <PublicidadCarouselNuevo ubicacion="encontrados" onClicPublicidad={handleClicPublicidad} />
+            </Box>
+
             <Container sx={{ mt: 4, backgroundColor: "#e0d0b8", borderRadius: 4 }}>
                 <Typography
                     variant="h4"
@@ -249,10 +265,12 @@ export default function Encontrados() {
                     </Grid>
                 </Grid>
 
-                {/* Cards */}
+                {/* Cards y Sidebar */}
                 <Grid container spacing={3}>
+                    <Grid size={{xs:12, md:12}}>
+                        <Grid container spacing={3}>
                     {mascotasPagina.map((m) => (
-                        <Grid item key={m.id} size={{ xs: 12, sm: 6, md: 4 }} sx={{ position: "relative" }}>
+                        <Grid key={m.id} size={{xs:12, sm:6, md:4}} sx={{ position: "relative" }}>
                             <BadgeProcesandoIA publicacionId={m.id}>
                                 <Card
                                     sx={{
@@ -309,6 +327,10 @@ export default function Encontrados() {
                             </BadgeProcesandoIA>
                         </Grid>
                     ))}
+                        </Grid>
+                    </Grid>
+                    
+                 
                 </Grid>
 
                 {/* Paginación */}

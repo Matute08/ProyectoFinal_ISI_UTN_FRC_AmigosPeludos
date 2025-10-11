@@ -17,7 +17,11 @@ import {
   DialogContent,
   DialogActions,
   Backdrop,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { mostrarAlertaError, mostrarAlertaExito } from "../utils/showAlert";
 import CustomLoader from "../components/CustomLoader"; 
 
@@ -29,6 +33,7 @@ export default function Login() {
   const [resetEmail, setResetEmail] = useState("");
   const [openResetDialog, setOpenResetDialog] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   // Cargar credenciales guardadas al montar el componente
@@ -44,21 +49,23 @@ export default function Login() {
     }
   }, []);
 
-  // Limpiar credenciales solo cuando se desmarca "recordarme"
-  useEffect(() => {
-    if (!remember) {
-      // Solo limpiar si ya había credenciales guardadas
-      const savedEmail = localStorage.getItem("loginEmail");
-      const savedPassword = localStorage.getItem("loginPassword");
-      
-      if (savedEmail || savedPassword) {
-        setEmail("");
-        setPassword("");
-        localStorage.removeItem("loginEmail");
-        localStorage.removeItem("loginPassword");
-      }
+  // Función para manejar el cambio del checkbox "recordarme"
+  const handleRememberChange = (event) => {
+    const isChecked = event.target.checked;
+    setRemember(isChecked);
+    
+    // Si se desmarca, limpiar credenciales guardadas
+    if (!isChecked) {
+      localStorage.removeItem("loginEmail");
+      localStorage.removeItem("loginPassword");
+      localStorage.removeItem("loginRemember");
     }
-  }, [remember]);
+  };
+
+  // Función para alternar la visibilidad de la contraseña
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleLogin = async () => {
     // Validaciones básicas
@@ -76,15 +83,10 @@ export default function Login() {
       await login(email.trim(), password);
       
       // Guardar credenciales solo si se marca "recordarme"
-      if (remember && email && password) {
+      if (remember) {
         localStorage.setItem("loginEmail", email);
         localStorage.setItem("loginPassword", password);
         localStorage.setItem("loginRemember", "true");
-      } else if (!remember) {
-        // Limpiar credenciales si no se marca "recordarme"
-        localStorage.removeItem("loginEmail");
-        localStorage.removeItem("loginPassword");
-        localStorage.removeItem("loginRemember");
       }
       
       // Mostrar mensaje de éxito y redirigir
@@ -194,9 +196,22 @@ export default function Login() {
           fullWidth
           margin="normal"
           label="Contraseña"
-          type="password"
+          type={showPassword ? "text" : "password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={handleTogglePasswordVisibility}
+                  edge="end"
+                  sx={{ color: '#666' }}
+                >
+                  {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
 
         <Box
@@ -209,7 +224,7 @@ export default function Login() {
             control={
               <Checkbox
                 checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
+                onChange={handleRememberChange}
                 size="small"
               />
             }

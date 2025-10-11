@@ -277,7 +277,7 @@ const PerfilPaseador = () => {
 
                      {tabIndex === 3 && (
                         <Box mt={3}>
-                            <Valoraciones idPaseador={paseador.id} />
+                            <Valoraciones idPaseador={paseador.id} idUsuarioPerfil={paseador.datosUsuario?.id} />
                         </Box>
                     )} 
                 </Grid>

@@ -54,7 +54,7 @@ export function AuthProvider({ children }) {
 
     // Cargar datos del usuario cuando ya existe una sesión
     useEffect(() => {
-        if (user && !userData && user?.email) {
+        if (user && !userData && user?.email && typeof user.email === 'string') {
             const loadUserData = async () => {
                 try {
                     const data = await getUserMail(user.email);
@@ -64,6 +64,16 @@ export function AuthProvider({ children }) {
                     }
                 } catch (error) {
                     console.error("Error al cargar datos del usuario:", error);
+                    // En caso de error, establecer datos básicos para evitar null
+                    if (user?.email) {
+                        const fallbackData = { 
+                            id: null, 
+                            email: user.email, 
+                            nombreCompleto: user.displayName || "Usuario" 
+                        };
+                        setUserData(fallbackData);
+                        localStorage.setItem("userData", JSON.stringify(fallbackData));
+                    }
                 }
             };
             // Pequeño delay para evitar cargar datos inmediatamente después del login
@@ -190,7 +200,22 @@ export function AuthProvider({ children }) {
 
     const logout = async () => {
         await signOut(auth);
+        
+        // Guardar las credenciales de "recordarme" antes de limpiar
+        const savedEmail = localStorage.getItem("loginEmail");
+        const savedPassword = localStorage.getItem("loginPassword");
+        const savedRemember = localStorage.getItem("loginRemember");
+        
+        // Limpiar todo el localStorage
         localStorage.clear();
+        
+        // Restaurar solo las credenciales de "recordarme" si estaban guardadas
+        if (savedRemember === "true" && savedEmail && savedPassword) {
+            localStorage.setItem("loginEmail", savedEmail);
+            localStorage.setItem("loginPassword", savedPassword);
+            localStorage.setItem("loginRemember", savedRemember);
+        }
+        
         setUser(null);
         setUserData(null);
     };

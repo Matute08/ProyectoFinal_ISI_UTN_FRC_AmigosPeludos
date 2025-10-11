@@ -13,7 +13,7 @@ import {
   CardMedia,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { getUserMail } from "../../api/userApi";
+import { useAuth } from "../../auth/AuthProvider";
 import { getPaseadores } from "../../api/paseadoresApi";
 import CustomLoader from "../../components/CustomLoader";
 import FloatingActionButton from "../../components/FloatingActionButton";
@@ -22,21 +22,10 @@ import Denuncias from "../../components/Denuncias";
 
 const Paseadores = () => {
   const navigate = useNavigate();
+  const { userData } = useAuth();
   const [paseadores, setPaseadores] = useState([]);
-  const [userData, setUserData] = useState(null);
   const [puedePublicar, setPuedePublicar] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const cached = localStorage.getItem("userData");
-      if (!cached) return;
-      const { email } = JSON.parse(cached);
-      const res = await getUserMail(email);
-      setUserData(res);
-    };
-    fetchUser();
-  }, []);
 
   useEffect(() => {
     const fetchPaseadores = async () => {
@@ -53,9 +42,11 @@ const Paseadores = () => {
   }, []);
 
   useEffect(() => {
-    if (userData?.id && paseadores.length > 0) {
+    if (userData?.id) {
       const yaRegistrado = paseadores.some((p) => p.idUsuario === userData.id);
       setPuedePublicar(!yaRegistrado);
+    } else {
+      setPuedePublicar(false);
     }
   }, [userData, paseadores]);
 

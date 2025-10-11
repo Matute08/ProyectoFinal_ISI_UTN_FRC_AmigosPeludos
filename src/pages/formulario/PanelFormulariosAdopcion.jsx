@@ -36,21 +36,41 @@ const PanelFormulariosAdopcion = () => {
     const [formulariosEnviados, setFormulariosEnviados] = useState([]);
     const [estados, setEstados] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const fetchUserData = async () => {
-        const local = JSON.parse(localStorage.getItem("userData"));
-        if (!local?.email) return;
-        const res = await getUserMail(local.email);
-        setUserData(res);
+        try {
+            const local = JSON.parse(localStorage.getItem("userData"));
+            
+            // Buscar email en diferentes campos posibles
+            const email = local?.email || local?.mail || local?.user?.email || local?.user?.mail;
+            
+            if (!email) {
+                return;
+            }
+            
+            const res = await getUserMail(email);
+            
+            // Verificar si la respuesta tiene datos
+            if (res && (res.id || res.data?.id)) {
+                setUserData(res);
+            }
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        }
     };
 
     const fetchFormularios = async (userId) => {
-        const [recibidos, enviados] = await Promise.all([
-            getFormulariosDuenoPosteo(userId),
-            getFormulariosPosibleAdoptante(userId),
-        ]);
-        setFormulariosRecibidos(recibidos.data || []);
-        setFormulariosEnviados(enviados.data || []);
+        try {
+            const [recibidos, enviados] = await Promise.all([
+                getFormulariosDuenoPosteo(userId),
+                getFormulariosPosibleAdoptante(userId),
+            ]);
+            setFormulariosRecibidos(recibidos.data || []);
+            setFormulariosEnviados(enviados.data || []);
+        } catch (error) {
+            console.error("Error fetching formularios:", error);
+        }
     };
 
     const fetchEstados = async () => {
@@ -60,15 +80,23 @@ const PanelFormulariosAdopcion = () => {
 
     useEffect(() => {
         (async () => {
-            setLoading(true);
-            await fetchUserData();
-            setLoading(false);
+            try {
+                setLoading(true);
+                setError(null);
+                await fetchUserData();
+            } catch (err) {
+                console.error("Error in initial load:", err);
+                setError("Error al cargar los datos del usuario");
+            } finally {
+                setLoading(false);
+            }
         })();
     }, []);
 
     useEffect(() => {
-        if (userData?.id) {
-            fetchFormularios(userData.id);
+        if (userData?.id || userData?.data?.id) {
+            const userId = userData.id || userData.data?.id;
+            fetchFormularios(userId);
             fetchEstados();
         }
     }, [userData]);
@@ -240,6 +268,19 @@ const PanelFormulariosAdopcion = () => {
         return (
             <Container sx={{ textAlign: "center", mt: 5 }}>
                 <CustomLoader />
+            </Container>
+        );
+    }
+
+    if (error) {
+        return (
+            <Container sx={{ textAlign: "center", mt: 5 }}>
+                <Typography variant="h6" color="error" gutterBottom>
+                    {error}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                    Por favor, verifica que estés logueado correctamente.
+                </Typography>
             </Container>
         );
     }

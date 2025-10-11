@@ -26,6 +26,7 @@ import {
     mostrarAlertaExito,
     mostrarAlertaError,
 } from "../../../utils/showAlert"; // ajustá el path si es distinto
+import { useUserData } from "../../../hooks/useUserData";
 import SelectTipoMascota from "../../../components/select/SelectTipoMascota";
 import SelectEdadMascota from "../../../components/select/SelectEdadMascota";
 import SelectRaza from "../../../components/select/SelectRaza";
@@ -79,7 +80,7 @@ const AgregarMascota = () => {
     const [files, setFiles] = useState([]);
     const [submitError, setSubmitError] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [usuarioReal, setUsuarioReal] = useState(null);
+    const { userData: usuarioReal, loading: loadingUser, getUserId, hasValidUserData } = useUserData();
 
     const {
         control,
@@ -102,18 +103,6 @@ const AgregarMascota = () => {
         mode: "onBlur",
     });
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            const cachedUserData = localStorage.getItem("userData");
-            if (cachedUserData) {
-                const dataLocalStorage = JSON.parse(cachedUserData);
-                const userEmail = dataLocalStorage.email;
-                const datosUsuario = await getUserMail(userEmail);
-                setUsuarioReal(datosUsuario);
-            }
-        };
-        fetchUserData();
-    }, []);
 
     // Agregar estilos CSS al DOM
     useEffect(() => {
@@ -129,6 +118,21 @@ const AgregarMascota = () => {
     const onSubmit = async (data) => {
         setSubmitError(null);
         setLoading(true);
+        
+        // Validar que el usuario esté disponible antes de continuar
+        if (!hasValidUserData()) {
+            setSubmitError("Error: No se pudieron cargar los datos del usuario. Por favor, recarga la página e intenta nuevamente.");
+            setLoading(false);
+            return;
+        }
+        
+        const userId = getUserId();
+        if (!userId) {
+            setSubmitError("Error: No se pudo obtener el ID del usuario. Por favor, recarga la página e intenta nuevamente.");
+            setLoading(false);
+            return;
+        }
+        
         try {
             let fotoUrl = "";
             if (files.length > 0) {
@@ -142,7 +146,7 @@ const AgregarMascota = () => {
                 castracion: data.castracion === 0,
                 peso: String(data.peso),
                 descripcion: data.descripcion || null,
-                idUsuario: usuarioReal.id,
+                idUsuario: userId,
                 foto: fotoUrl,
                 color: data.color,
                 razaId: parseInt(data.razaId),
@@ -154,8 +158,9 @@ const AgregarMascota = () => {
                 "/perfil"
             );
         } catch (error) {
-            console.error(error);
-            mostrarAlertaError("No se pudo agregar la mascota");
+            console.error("Error al agregar mascota:", error);
+            const errorMessage = error.response?.data?.message || error.message || "No se pudo agregar la mascota";
+            mostrarAlertaError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -360,7 +365,7 @@ const AgregarMascota = () => {
                             variant="contained"
                             color="primary"
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || loadingUser || !hasValidUserData()}
                         >
                             {loading ? (
                                 <CircularProgress size={24} />

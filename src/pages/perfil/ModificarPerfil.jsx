@@ -296,7 +296,7 @@ const EditarPerfil = () => {
                                 </Box>
                             </Grid>
 
-                            <Grid  size={{ xs: 12, md: 6 }}>
+                            <Grid  size={{ xs: 12, md: 4 }}>
                                 <TextField
                                     fullWidth
                                     label="Nombre completo"
@@ -308,7 +308,7 @@ const EditarPerfil = () => {
                                 />
                             </Grid>
 
-                            <Grid  size={{ xs: 12, md: 6 }}>
+                            <Grid  size={{ xs: 12, md: 4 }}>
                                 <SelectGenero
                                     value={watch("generoId")}
                                     onChange={(e) =>
@@ -319,7 +319,7 @@ const EditarPerfil = () => {
                                 />
                             </Grid>
 
-                            <Grid  size={{ xs: 12, md: 6 }}>
+                            <Grid  size={{ xs: 12, md: 4 }}>
                                 <TextField
                                     fullWidth
                                     label="Celular"
@@ -335,34 +335,7 @@ const EditarPerfil = () => {
                                 />
                             </Grid>
 
-                            <Grid  size={{ xs: 12, md: 6 }}>
-                                <TextField
-                                    fullWidth
-                                    label="Calle"
-                                    {...register("calle", {
-                                        required: "Campo obligatorio",
-                                    })}
-                                    error={!!errors.calle}
-                                    helperText={errors.calle?.message}
-                                />
-                            </Grid>
-
-                            <Grid  size={{ xs: 12, md: 4 }}>
-                                <TextField
-                                    type="number"
-                                    fullWidth
-                                    label="Número"
-                                    {...register("nroCalle", {
-                                        required: "Campo obligatorio",
-                                        min: {
-                                            value: 1,
-                                            message: "Debe ser mayor a 0",
-                                        },
-                                    })}
-                                    error={!!errors.nroCalle}
-                                    helperText={errors.nroCalle?.message}
-                                />
-                            </Grid>
+                           
 
                             <Grid  size={{ xs: 12, md: 4 }}>
                                 <Controller
@@ -422,6 +395,35 @@ const EditarPerfil = () => {
                                             ))}
                                         </TextField>
                                     )}
+                                />
+                            </Grid>
+
+                            <Grid  size={{ xs: 12, md: 4 }}>
+                                <TextField
+                                    fullWidth
+                                    label="Calle"
+                                    {...register("calle", {
+                                        required: "Campo obligatorio",
+                                    })}
+                                    error={!!errors.calle}
+                                    helperText={errors.calle?.message}
+                                />
+                            </Grid>
+
+                            <Grid  size={{ xs: 12, md: 2 }}>
+                                <TextField
+                                    type="number"
+                                    fullWidth
+                                    label="Número"
+                                    {...register("nroCalle", {
+                                        required: "Campo obligatorio",
+                                        min: {
+                                            value: 1,
+                                            message: "Debe ser mayor a 0",
+                                        },
+                                    })}
+                                    error={!!errors.nroCalle}
+                                    helperText={errors.nroCalle?.message}
                                 />
                             </Grid>
                         </Grid>

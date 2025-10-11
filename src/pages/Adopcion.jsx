@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getMascotasEnAdopcion } from "../api/publicacionesApi";
+import { registrarVisualizacionPublicidad, registrarClicPublicidad } from "../api/publicidadesApi";
 import {
     Card,
     CardMedia,
@@ -20,7 +21,8 @@ import Grid from "@mui/material/Grid";
 import FloatingActionButton from "../components/FloatingActionButton";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import Denuncias from "../components/Denuncias"; 
+import Denuncias from "../components/Denuncias";
+import PublicidadCarouselNuevo from "../components/PublicidadCarouselNuevo";
 
 export default function Adopcion() {
     const [mascotasOriginales, setMascotasOriginales] = useState([]);
@@ -103,6 +105,15 @@ export default function Adopcion() {
 
     const formatearFecha = (fechaISO) => moment(fechaISO).format("DD/MM/YYYY");
 
+    // Función para manejar clics en publicidades (si hay alguna visible)
+    const handleClicPublicidad = async (publicidadId) => {
+        try {
+            await registrarClicPublicidad(publicidadId);
+        } catch (error) {
+            console.error(`Error al registrar clic para publicidad ${publicidadId}:`, error);
+        }
+    };
+
     if (loading) {
         return (
             <Container sx={{ textAlign: "center", mt: 5 }}>
@@ -113,6 +124,10 @@ export default function Adopcion() {
 
     return (
         <>
+        {/* Sección de Publicidades - Arriba del todo */}
+        <Box sx={{ mt: 2, mb: 2 }}>
+                <PublicidadCarouselNuevo ubicacion="adopcion" onClicPublicidad={handleClicPublicidad} />
+            </Box>
             <Container sx={{ mt: 4 , backgroundColor:"#e0d0b8", borderRadius: 4 }}>
                 {/* Titulo */}
                 <Typography
@@ -246,15 +261,16 @@ export default function Adopcion() {
                     </Grid>
                 </Grid>
 
-                {/* Lista de Cards */}
-                <Grid
-                    container
-                    columnSpacing={3}
-                    rowSpacing={4}
-                    size={{ xs: 12, sm: 8, md: 12 }}
-                >
+                {/* Lista de Cards y Sidebar */}
+                <Grid container spacing={3}>
+                    <Grid size={{xs:12, md:12}}>
+                        <Grid
+                            container
+                            columnSpacing={3}
+                            rowSpacing={4}
+                        >
                     {mascotasPagina.map((mascota) => (
-                        <Grid key={mascota.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                        <Grid key={mascota.id} size={{xs:12, sm:6, md:4}}>
                             <Card
                                 sx={{
                                     height: "100%",
@@ -325,6 +341,9 @@ export default function Adopcion() {
                             </Card>
                         </Grid>
                     ))}
+                        </Grid>
+                    </Grid>
+                    
                 </Grid>
                 <Box mt={4} display="flex" justifyContent="center">
                     <Pagination

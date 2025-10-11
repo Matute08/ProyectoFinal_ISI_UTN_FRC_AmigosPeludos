@@ -43,13 +43,28 @@ const Step1DatosGenerales = () => {
                     <Controller
                         name="nombre"
                         control={control}
-                        rules={{ required: "El nombre es obligatorio" }}
+                        rules={{ 
+                            required: "El nombre es obligatorio",
+                            maxLength: {
+                                value: 20,
+                                message: "Máximo 20 caracteres"
+                            }
+                        }}
                         render={({ field, fieldState }) => (
                             <TextField
                                 label="Nombre de la Veterinaria"
                                 fullWidth
                                 required
+                                inputProps={{
+                                    maxLength: 20
+                                }}
                                 {...field}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (value.length <= 20) {
+                                        field.onChange(e);
+                                    }
+                                }}
                                 error={!!fieldState.error}
                                 helperText={fieldState.error?.message}
                             />
@@ -128,13 +143,26 @@ const Step1DatosGenerales = () => {
                     <Controller
                         name="direccion"
                         control={control}
-                        rules={{ required: "La dirección es obligatoria" }}
+                        rules={{ 
+                            required: "La dirección es obligatoria",
+                            maxLength: {
+                                value: 20,
+                                message: "Máximo 20 caracteres"
+                            }
+                        }}
                         render={({ field, fieldState }) => (
                             <TextField
                                 label="Calle"
                                 fullWidth
                                 required
+                                inputProps={{ maxLength: 20 }}
                                 {...field}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (value.length <= 20) {
+                                        field.onChange(e);
+                                    }
+                                }}
                                 error={!!fieldState.error}
                                 helperText={fieldState.error?.message}
                             />
@@ -148,8 +176,8 @@ const Step1DatosGenerales = () => {
                         rules={{ 
                             required: "La altura es obligatoria",
                             maxLength: {
-                                value: 10,
-                                message: "Máximo 10 caracteres"
+                                value: 5,
+                                message: "Máximo 5 caracteres"
                             }
                         }}
                         render={({ field, fieldState }) => (
@@ -159,9 +187,15 @@ const Step1DatosGenerales = () => {
                                 required
                                 type="number"
                                 inputProps={{
-                                    maxLength: 10
+                                    maxLength: 5
                                 }}
                                 {...field}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (value.length <= 5) {
+                                        field.onChange(e);
+                                    }
+                                }}
                                 error={!!fieldState.error}
                                 helperText={fieldState.error?.message}
                             />

@@ -71,6 +71,18 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        
+        // Validar que la fecha de aplicación no sea futura
+        if (name === "fechaAplicacion") {
+            const fechaSeleccionada = dayjs(value);
+            const fechaActual = dayjs();
+            
+            if (fechaSeleccionada.isAfter(fechaActual)) {
+                mostrarAlertaError("No se pueden registrar vacunas en fechas futuras");
+                return; // No actualizar el formulario si la fecha es futura
+            }
+        }
+        
         const nuevoForm = { ...form, [name]: value };
 
         // Si se cambia la vacuna o la fecha, recalculamos fechaProxima
@@ -92,6 +104,15 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
     const handleGuardar = async () => {
         if (!idMascota || idMascota === "undefined") {
             mostrarAlertaError("ID de mascota no válido. No se puede guardar la vacuna.");
+            return;
+        }
+        
+        // Validación adicional: verificar que la fecha no sea futura
+        const fechaSeleccionada = dayjs(form.fechaAplicacion);
+        const fechaActual = dayjs();
+        
+        if (fechaSeleccionada.isAfter(fechaActual)) {
+            mostrarAlertaError("No se pueden registrar vacunas en fechas futuras");
             return;
         }
         
@@ -162,6 +183,10 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
                     onChange={handleChange}
                     sx={{ mt: 2 }}
                     InputLabelProps={{ shrink: true }}
+                    inputProps={{
+                        max: dayjs().format("YYYY-MM-DD")
+                    }}
+                    helperText="No se pueden registrar vacunas en fechas futuras"
                 />
 
                 {fechaProxima && (

@@ -21,15 +21,16 @@ import {
 } from "../api/valoracionesApi";
 import { getUserMail } from "../api/userApi";
 import PromedioValoracion from "./PromedioValoracion";
+import { mostrarAlertaExito, mostrarAlertaError } from "../utils/showAlert";
+import { useUserData } from "../hooks/useUserData";
 
-const Valoraciones = ({ idCuidador = null, idPaseador = null }) => {
+const Valoraciones = ({ idCuidador = null, idPaseador = null, idUsuarioPerfil = null }) => {
   const { user } = useAuth();
-  const [userData, setUserData] = useState(null);
+  const { userData, loading: loadingUsuario, getUserId, hasValidUserData } = useUserData();
   const [lista, setLista] = useState([]);
   const [puntaje, setPuntaje] = useState(0);
   const [comentario, setComentario] = useState("");
   const [loadingValoraciones, setLoadingValoraciones] = useState(true);
-  const [loadingUsuario, setLoadingUsuario] = useState(true);
   const [editando, setEditando] = useState(false);
   const [valoracionEditada, setValoracionEditada] = useState(null);
 
@@ -37,35 +38,6 @@ const Valoraciones = ({ idCuidador = null, idPaseador = null }) => {
   const [menuValoracionId, setMenuValoracionId] = useState(null);
   const open = Boolean(anchorEl);
 
-  // Cargar usuario desde localStorage y backend
-  useEffect(() => {
-    const cargarUsuario = async () => {
-      const local = localStorage.getItem("userData");
-      if (!local) {
-        setUserData(null);
-        setLoadingUsuario(false);
-        return;
-      }
-      const { email } = JSON.parse(local);
-      if (!email) {
-        setUserData(null);
-        setLoadingUsuario(false);
-        return;
-      }
-      try {
-        const res = await getUserMail(email);
-        if (res) {
-          setUserData(res);
-        }
-      } catch (error) {
-        console.error("Error cargando usuario backend:", error);
-        setUserData(null);
-      } finally {
-        setLoadingUsuario(false);
-      }
-    };
-    cargarUsuario();
-  }, []);
 
   // Cargar valoraciones siempre que cambien idCuidador o idPaseador
   useEffect(() => {
@@ -93,16 +65,38 @@ const Valoraciones = ({ idCuidador = null, idPaseador = null }) => {
   }, [idCuidador, idPaseador]);
 
   const handleEnviar = async () => {
-    if (!user || !userData?.id) return;
+    if (!user || !hasValidUserData()) {
+      mostrarAlertaError("No se pudo obtener la información del usuario");
+      return;
+    }
+
+    // Validar que se hayan completado los campos requeridos
+    if (puntaje === 0) {
+      mostrarAlertaError("Todos los campos son solicitados");
+      return;
+    }
+
+    if (!comentario || comentario.trim() === "") {
+      mostrarAlertaError("Todos los campos son solicitados");
+      return;
+    }
+
+    // Obtener el ID del usuario correctamente
+    const userId = getUserId();
+    if (!userId) {
+      mostrarAlertaError("No se pudo obtener el ID del usuario. Por favor, recarga la página e intenta nuevamente.");
+      return;
+    }
 
     const nuevaValoracion = {
       id: valoracionEditada?.id || 0,
-      idUsuario: userData.id,
+      idUsuario: userId,
       idCuidador: idCuidador || null,
       idPaseador: idPaseador || null,
       puntaje,
       opinion: comentario,
     };
+
 
     try {
       let res;
@@ -130,9 +124,39 @@ const Valoraciones = ({ idCuidador = null, idPaseador = null }) => {
 
       setPuntaje(0);
       setComentario("");
+      
+      // Mostrar mensaje de éxito
+      if (editando) {
+        mostrarAlertaExito("Valoración actualizada correctamente");
+      } else {
+        mostrarAlertaExito("Valoración enviada correctamente");
+      }
     } catch (error) {
-      alert("Error al enviar valoración");
-      console.error(error);
+      console.error("Error detallado:", error);
+      console.error("Response data:", error.response?.data);
+      
+      // Manejar errores específicos del servidor
+      let errorMessage = "Error al enviar valoración";
+      
+      if (error.response?.status === 400) {
+        const serverMessage = error.response?.data?.message || error.response?.data;
+        
+        // Si el error indica campos faltantes, mostrar mensaje genérico
+        if (serverMessage && (
+          serverMessage.includes("requerida") || 
+          serverMessage.includes("requerido") ||
+          serverMessage.includes("obligatorio") ||
+          serverMessage.includes("necesario")
+        )) {
+          errorMessage = "Todos los campos son solicitados";
+        } else {
+          errorMessage = `Error al enviar valoración: ${serverMessage}`;
+        }
+      } else {
+        errorMessage = `Error al enviar valoración: ${error.response?.data?.message || error.message}`;
+      }
+      
+      mostrarAlertaError(errorMessage);
     }
   };
 
@@ -140,8 +164,10 @@ const Valoraciones = ({ idCuidador = null, idPaseador = null }) => {
     try {
       await deleteValoracion(valoracionId);
       setLista((prev) => prev.filter((v) => v.id !== valoracionId));
+      mostrarAlertaExito("Valoración eliminada correctamente");
     } catch (error) {
       console.error("Error al eliminar valoración:", error);
+      mostrarAlertaError("Error al eliminar la valoración");
     } finally {
       handleCloseMenu();
     }
@@ -190,51 +216,68 @@ const Valoraciones = ({ idCuidador = null, idPaseador = null }) => {
     return suma / lista.length;
   }, [lista]);
 
+  // Verificar si el usuario está intentando calificarse a sí mismo
+  const esElMismoUsuario = React.useMemo(() => {
+    if (!hasValidUserData() || !idUsuarioPerfil) return false;
+    
+    const userId = getUserId();
+    if (!userId) return false;
+    
+    // Comparar el ID del usuario logueado con el ID del usuario dueño del perfil
+    return userId === idUsuarioPerfil;
+  }, [userData, idUsuarioPerfil, hasValidUserData, getUserId]);
+
   return (
     <Box mt={3}>
-      {/* Formulario de calificar y opinar - solo si está logueado */}
+      {/* Formulario de calificar y opinar - solo si está logueado y no es el mismo usuario */}
       {userData ? (
-        <>
-          <Typography variant="h6" fontWeight={600} mb={2}>
-            {editando ? "Editar tu valoración" : "Calificar y opinar"}
+        esElMismoUsuario ? (
+          <Typography variant="body2" color="text.secondary" mb={2}>
+            No puedes calificarte a ti mismo.
           </Typography>
-          <Rating
-            value={puntaje}
-            onChange={(e, newVal) => setPuntaje(newVal)}
-            size="large"
-          />
-          <TextField
-            multiline
-            fullWidth
-            rows={3}
-            placeholder="Cuéntales a otros tu experiencia"
-            value={comentario}
-            onChange={(e) => setComentario(e.target.value)}
-            sx={{ mt: 2 }}
-          />
-          <Box display="flex" gap={2} mt={2}>
-            <Button
-              variant="contained"
-              onClick={handleEnviar}
-              disabled={!userData?.id || puntaje === 0}
-            >
-              {editando ? "Guardar cambios" : "Enviar valoración"}
-            </Button>
-            {editando && (
+        ) : (
+          <>
+            <Typography variant="h6" fontWeight={600} mb={2}>
+              {editando ? "Editar tu valoración" : "Calificar y opinar"}
+            </Typography>
+            <Rating
+              value={puntaje}
+              onChange={(e, newVal) => setPuntaje(newVal)}
+              size="large"
+            />
+            <TextField
+              multiline
+              fullWidth
+              rows={3}
+              placeholder="Cuéntales a otros tu experiencia"
+              value={comentario}
+              onChange={(e) => setComentario(e.target.value)}
+              sx={{ mt: 2 }}
+            />
+            <Box display="flex" gap={2} mt={2}>
               <Button
-                variant="outlined"
-                onClick={() => {
-                  setEditando(false);
-                  setComentario("");
-                  setPuntaje(0);
-                  setValoracionEditada(null);
-                }}
+                variant="contained"
+                onClick={handleEnviar}
+                disabled={!hasValidUserData() || puntaje === 0 || !comentario || comentario.trim() === ""}
               >
-                Cancelar
+                {editando ? "Guardar cambios" : "Enviar valoración"}
               </Button>
-            )}
-          </Box>
-        </>
+              {editando && (
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setEditando(false);
+                    setComentario("");
+                    setPuntaje(0);
+                    setValoracionEditada(null);
+                  }}
+                >
+                  Cancelar
+                </Button>
+              )}
+            </Box>
+          </>
+        )
       ) : (
         <Typography variant="body2" color="text.secondary" mb={2}>
           Debes iniciar sesión para calificar y opinar.

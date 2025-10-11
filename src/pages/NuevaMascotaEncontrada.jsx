@@ -113,6 +113,14 @@ export default function NuevaMascotaEncontrada() {
             return mostrarAlertaError("Seleccioná la ubicación en el mapa");
         if (files.length === 0)
             return mostrarAlertaError("Subí al menos una imagen");
+        
+        // Validar que la fecha de encuentro no sea futura
+        const fechaEncuentro = new Date(data.fechaPerdida);
+        const fechaActual = new Date();
+        if (fechaEncuentro > fechaActual) {
+            return mostrarAlertaError("No se pueden registrar fechas posteriores a la actual");
+        }
+        
         setSubiendo(true);
         try {
             const urls = [];
@@ -219,6 +227,49 @@ export default function NuevaMascotaEncontrada() {
                             />
 
                             <form onSubmit={handleSubmit(onSubmit)}>
+                                {/* Campos ocultos para validación */}
+                                <input
+                                    type="hidden"
+                                    {...register("tipoMascotaId", {
+                                        required: "El tipo de mascota es obligatorio"
+                                    })}
+                                />
+                                <input
+                                    type="hidden"
+                                    {...register("razaId", {
+                                        required: "La raza es obligatoria"
+                                    })}
+                                />
+                                <input
+                                    type="hidden"
+                                    {...register("edadMascotaId", {
+                                        required: "La edad es obligatoria"
+                                    })}
+                                />
+                                <input
+                                    type="hidden"
+                                    {...register("sexoId", {
+                                        required: "El sexo es obligatorio"
+                                    })}
+                                />
+                                <input
+                                    type="hidden"
+                                    {...register("provinciaId", {
+                                        required: "La provincia es obligatoria"
+                                    })}
+                                />
+                                <input
+                                    type="hidden"
+                                    {...register("ciudadId", {
+                                        required: "La ciudad es obligatoria"
+                                    })}
+                                />
+                                <input
+                                    type="hidden"
+                                    {...register("barrioId", {
+                                        required: "El barrio es obligatorio"
+                                    })}
+                                />
                                 <Grid container spacing={2}>
                                     {/* Nombre */}
                                     <Grid size={{ xs: 4 }}>
@@ -245,14 +296,20 @@ export default function NuevaMascotaEncontrada() {
                                             {...register("color", {
                                                 required: "Campo obligatorio",
                                                 maxLength: {
-                                                    value: 30,
-                                                    message: "El color no puede tener más de 30 caracteres"
+                                                    value: 20,
+                                                    message: "El color no puede tener más de 20 caracteres"
                                                 }
                                             })}
                                             error={!!errors.color}
                                             helperText={errors.color?.message}
                                             inputProps={{
-                                                maxLength: 30
+                                                maxLength: 20
+                                            }}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (value.length > 20) {
+                                                    e.target.value = value.slice(0, 20);
+                                                }
                                             }}
                                             sx={{ flex: 1 }}
                                         />
@@ -264,7 +321,8 @@ export default function NuevaMascotaEncontrada() {
                                             onChange={(e) =>
                                                 setValue(
                                                     "tipoMascotaId",
-                                                    e.target.value
+                                                    e.target.value,
+                                                    { shouldValidate: true }
                                                 )
                                             }
                                             error={!!errors.tipoMascotaId}
@@ -283,7 +341,8 @@ export default function NuevaMascotaEncontrada() {
                                             onChange={(e) =>
                                                 setValue(
                                                     "razaId",
-                                                    e.target.value
+                                                    e.target.value,
+                                                    { shouldValidate: true }
                                                 )
                                             }
                                             error={!!errors.razaId}
@@ -297,7 +356,8 @@ export default function NuevaMascotaEncontrada() {
                                             onChange={(e) =>
                                                 setValue(
                                                     "edadMascotaId",
-                                                    e.target.value
+                                                    e.target.value,
+                                                    { shouldValidate: true }
                                                 )
                                             }
                                             error={!!errors.edadMascotaId}
@@ -313,7 +373,8 @@ export default function NuevaMascotaEncontrada() {
                                             onChange={(e) =>
                                                 setValue(
                                                     "sexoId",
-                                                    e.target.value
+                                                    e.target.value,
+                                                    { shouldValidate: true }
                                                 )
                                             }
                                             error={!!errors.sexoId}
@@ -334,6 +395,18 @@ export default function NuevaMascotaEncontrada() {
                                                 errors.fechaPerdida?.message
                                             }
                                             InputLabelProps={{ shrink: true }}
+                                            inputProps={{
+                                                max: new Date().toISOString().split('T')[0]
+                                            }}
+                                            onChange={(e) => {
+                                                const fechaSeleccionada = new Date(e.target.value);
+                                                const fechaActual = new Date();
+                                                
+                                                if (fechaSeleccionada > fechaActual) {
+                                                    mostrarAlertaError("No se pueden registrar fechas posteriores a la actual");
+                                                    e.target.value = new Date().toISOString().split('T')[0];
+                                                }
+                                            }}
                                             sx={{ flex: 1 }}
                                         />
                                     </Grid>
@@ -344,7 +417,8 @@ export default function NuevaMascotaEncontrada() {
                                             onChange={(e) =>
                                                 setValue(
                                                     "provinciaId",
-                                                    e.target.value
+                                                    e.target.value,
+                                                    { shouldValidate: true }
                                                 )
                                             }
                                             error={!!errors.provinciaId}
@@ -361,7 +435,8 @@ export default function NuevaMascotaEncontrada() {
                                             onChange={(e) =>
                                                 setValue(
                                                     "ciudadId",
-                                                    e.target.value
+                                                    e.target.value,
+                                                    { shouldValidate: true }
                                                 )
                                             }
                                             error={!!errors.ciudadId}
@@ -378,7 +453,8 @@ export default function NuevaMascotaEncontrada() {
                                             onChange={(e) =>
                                                 setValue(
                                                     "barrioId",
-                                                    e.target.value
+                                                    e.target.value,
+                                                    { shouldValidate: true }
                                                 )
                                             }
                                             error={!!errors.barrioId}
@@ -393,9 +469,22 @@ export default function NuevaMascotaEncontrada() {
                                             label="Calle"
                                             {...register("calle", {
                                                 required: "Campo obligatorio",
+                                                maxLength: {
+                                                    value: 20,
+                                                    message: "Máximo 20 caracteres"
+                                                }
                                             })}
                                             error={!!errors.calle}
                                             helperText={errors.calle?.message}
+                                            inputProps={{
+                                                maxLength: 20
+                                            }}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (value.length > 20) {
+                                                    e.target.value = value.slice(0, 20);
+                                                }
+                                            }}
                                             sx={{ flex: 1 }}
                                         />
                                     </Grid>
@@ -406,11 +495,24 @@ export default function NuevaMascotaEncontrada() {
                                             type="number"
                                             {...register("nroCalle", {
                                                 required: "Campo obligatorio",
+                                                maxLength: {
+                                                    value: 5,
+                                                    message: "Máximo 5 caracteres"
+                                                }
                                             })}
                                             error={!!errors.nroCalle}
                                             helperText={
                                                 errors.nroCalle?.message
                                             }
+                                            inputProps={{
+                                                maxLength: 5
+                                            }}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (value.length > 5) {
+                                                    e.target.value = value.slice(0, 5);
+                                                }
+                                            }}
                                             sx={{ flex: 1 }}
                                         />
                                     </Grid>
@@ -420,11 +522,30 @@ export default function NuevaMascotaEncontrada() {
                                             label="Número de celular"
                                             {...register("telefono", {
                                                 required: "Campo obligatorio",
+                                                maxLength: {
+                                                    value: 12,
+                                                    message: "Máximo 12 caracteres"
+                                                },
+                                                pattern: {
+                                                    value: /^[0-9]+$/,
+                                                    message: "Solo números"
+                                                }
                                             })}
                                             error={!!errors.telefono}
                                             helperText={
                                                 errors.telefono?.message
                                             }
+                                            inputProps={{
+                                                maxLength: 12
+                                            }}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                if (value.length > 12) {
+                                                    e.target.value = value.slice(0, 12);
+                                                } else {
+                                                    e.target.value = value;
+                                                }
+                                            }}
                                             sx={{ flex: 1 }}
                                         />
                                     </Grid>

@@ -212,20 +212,32 @@ const PublicacionesTab = () => {
                                         pt: 1,
                                         borderTop: '1px solid #f0f0f0'
                                     }}>
-                                        <Tooltip title="Ver detalles">
-                                            <IconButton
-                                                onClick={() => setPostToViewId(post.id)}
-                                                sx={{ 
-                                                    color: '#2196f3',
-                                                    '&:hover': {
-                                                        backgroundColor: '#e3f2fd',
-                                                        transform: 'scale(1.1)'
-                                                    },
-                                                    transition: 'all 0.2s ease'
-                                                }}
-                                            >
-                                                <VisibilityIcon fontSize="small" />
-                                            </IconButton>
+                                        <Tooltip title={
+                                            (post.estado === 'Finalizada' || post.estado === 'Cancelada' || post.estadoId === 2 || post.estadoId === 3) 
+                                                ? "No se puede ver detalles de publicaciones finalizadas o canceladas" 
+                                                : "Ver detalles"
+                                        }>
+                                            <span>
+                                                <IconButton
+                                                    onClick={() => {
+                                                        if (!(post.estado === 'Finalizada' || post.estado === 'Cancelada' || post.estadoId === 2 || post.estadoId === 3)) {
+                                                            setPostToViewId(post.id);
+                                                        }
+                                                    }}
+                                                    disabled={(post.estado === 'Finalizada' || post.estado === 'Cancelada' || post.estadoId === 2 || post.estadoId === 3)}
+                                                    sx={{ 
+                                                        color: (post.estado === 'Finalizada' || post.estado === 'Cancelada' || post.estadoId === 2 || post.estadoId === 3) ? '#ccc' : '#2196f3',
+                                                        '&:hover': {
+                                                            backgroundColor: (post.estado === 'Finalizada' || post.estado === 'Cancelada' || post.estadoId === 2 || post.estadoId === 3) ? 'transparent' : '#e3f2fd',
+                                                            transform: (post.estado === 'Finalizada' || post.estado === 'Cancelada' || post.estadoId === 2 || post.estadoId === 3) ? 'none' : 'scale(1.1)'
+                                                        },
+                                                        transition: 'all 0.2s ease',
+                                                        cursor: (post.estado === 'Finalizada' || post.estado === 'Cancelada' || post.estadoId === 2 || post.estadoId === 3) ? 'not-allowed' : 'pointer'
+                                                    }}
+                                                >
+                                                    <VisibilityIcon fontSize="small" />
+                                                </IconButton>
+                                            </span>
                                         </Tooltip>
                                         
                                         {((post.estado === 'Activa' || !post.estado) && post.estadoId !== 2 && post.estadoId !== 3) && (
