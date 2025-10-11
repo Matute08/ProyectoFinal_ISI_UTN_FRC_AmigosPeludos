@@ -13,41 +13,48 @@ import Swal from "sweetalert2";
 import { useAuth } from "../../auth/AuthProvider";
 import { updateUser } from "../../api/userApi"; // asegurate que esté disponible
 
-const keyMap = {
-    nombreCompleto: "Nombre Completo",
-    mail: "Correo Electrónico",
-    celular: "Teléfono",
-    generoUsuario: "Género",
-    provincia: "Provincia",
-    ciudadUsuario: "Ciudad",
-    barrioUsuario: "Barrio",
-    direccionCompleta: "Dirección",
-};
-
-const excludedKeys = [
-    "id",
-    "foto",
-    "rolId",
-    "password",
-    "mailVerificado",
-    "habilitada",
-    "fechaNacimiento",
-    "fechaAlta",
-    "codigoPostal",
-    "username",
-    "generoId",
-    "barrioId",
-    "tieneMascota",
-    "cuentaVerificada",
-    "qr",
-    "esPaseador",
-    "esCuidador",
-    "esVeterinaria",
-    "esFundacion",
-    "tipoAutenticacionId",
-    "rolUsuario",
-    "nroCalle",
-    "calle",
+// Campos que queremos mostrar en el perfil con sus etiquetas
+const profileFields = [
+    {
+        key: "nombreCompleto",
+        label: "Nombre Completo",
+        required: true
+    },
+    {
+        key: "mail",
+        label: "Correo Electrónico",
+        required: true
+    },
+    {
+        key: "celular",
+        label: "Teléfono",
+        required: false
+    },
+    {
+        key: "generoUsuario",
+        label: "Género",
+        required: false
+    },
+    {
+        key: "provinciaNombre",
+        label: "Provincia",
+        required: false
+    },
+    {
+        key: "ciudadUsuario",
+        label: "Ciudad",
+        required: false
+    },
+    {
+        key: "barrioUsuario",
+        label: "Barrio",
+        required: false
+    },
+    {
+        key: "direccionCompleta",
+        label: "Dirección",
+        required: false
+    }
 ];
 
 const PerfilInfo = ({ userData }) => {
@@ -112,26 +119,39 @@ const PerfilInfo = ({ userData }) => {
             <Divider sx={{ my: 2 }} />
 
             <Box>
-                {Object.entries(userData)
-                    .filter(
-                        ([key, value]) =>
-                            !excludedKeys.includes(key) &&
-                            value !== null &&
-                            value !== ""
-                    )
-                    .map(([key, value]) => (
-                        <Box key={key} mb={1}>
+                {profileFields.map((field) => {
+                    const value = userData[field.key];
+                    const hasValue = value !== null && value !== "" && value !== undefined;
+                    
+                    return (
+                        <Box key={field.key} mb={1}>
                             <Typography
                                 variant="subtitle2"
                                 color="text.secondary"
                             >
-                                {keyMap[key] || key}
+                                {field.label}
+                                {field.required && (
+                                    <Typography 
+                                        component="span" 
+                                        color="error.main"
+                                        sx={{ ml: 0.5 }}
+                                    >
+                                        
+                                    </Typography>
+                                )}
                             </Typography>
-                            <Typography variant="body1">
-                                {String(value)}
+                            <Typography 
+                                variant="body1"
+                                sx={{ 
+                                    color: hasValue ? 'text.primary' : 'text.disabled',
+                                    fontStyle: hasValue ? 'normal' : 'italic'
+                                }}
+                            >
+                                {hasValue ? String(value) : 'No especificado'}
                             </Typography>
                         </Box>
-                    ))}
+                    );
+                })}
             </Box>
 
             <Divider sx={{ my: 2 }} />
@@ -145,16 +165,6 @@ const PerfilInfo = ({ userData }) => {
                 >
                     Editar Perfil
                 </Button>
-                {/* <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() =>
-                        alert("Eliminar cuenta pendiente de implementación")
-                    }
-                    fullWidth
-                >
-                    Eliminar Cuenta
-                </Button> */}
 
                 <Button
                     variant="outlined"

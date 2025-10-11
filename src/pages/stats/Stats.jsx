@@ -183,6 +183,7 @@ export default function Stats() {
                     <PublicacionesFinalizadasChart months={months} />
                   </motion.div>
                 </Grid>
+
               </Grid>
             </motion.div>
           </Box>

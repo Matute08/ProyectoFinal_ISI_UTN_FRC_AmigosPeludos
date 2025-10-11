@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import fondoImagen from "../assets/fondo.png";
 import Servicios from "../components/Servicios";
 import EstadisticasLanding from "../components/EstadisticasLanding";
+import PublicidadCarouselNuevo from "../components/PublicidadCarouselNuevo";
 import PetsIcon from "@mui/icons-material/Pets";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 
@@ -28,7 +29,7 @@ const Home = () => {
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",
                     display: "flex",
-                    alignItems: "center",
+                    alignItems: "flex-start",
                     justifyContent: "center",
                     position: "relative",
                     "&::before": {
@@ -55,8 +56,10 @@ const Home = () => {
                         width: "100%",
                         display: "flex",
                         flexDirection: "column",
-                        justifyContent: "center",
-                        minHeight: isMobile ? "auto" : "70vh",
+                        justifyContent: "flex-start",
+                        minHeight: isMobile ? "auto" : "40vh",
+                        paddingTop: isMobile ? "8vh" : "10vh",
+
                         
                     }}
                 >
@@ -164,14 +167,24 @@ const Home = () => {
                         </Button>
                     </Box>
                 </Box>
+
+            </Box> 
+                            
+            {/* Sección de Publicidades */}
+            <Box sx={{ width: { xs: "100%", lg: "80%" }, margin: "0 auto",  px: { xs: 2, md: 4 }, py: 4 }}>
+                <PublicidadCarouselNuevo ubicacion="home" />
             </Box>
 
+
             {/* Sección de Estadísticas */}
-            <Box sx={{ px: { xs: 2, md: 4 }, py: 4 }}>
+            <Box sx={{ width: { xs: "100%", lg: "80%" }, margin: "0 auto",  px: { xs: 2, md: 4 }, py: 4 }}>
                 <EstadisticasLanding />
             </Box>
 
-            <Servicios />
+            <Box sx={{ width: { xs: "100%", lg: "80%" }, margin: "0 auto",  px: { xs: 2, md: 4 }, py: 4 }}>
+                <Servicios />
+            </Box>
+            
         </>
     );
 };

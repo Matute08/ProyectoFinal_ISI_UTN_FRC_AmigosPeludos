@@ -13,7 +13,7 @@ import {
   CardMedia,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { getUserMail } from "../../api/userApi";
+import { useAuth } from "../../auth/AuthProvider";
 import { getCuidadores } from "../../api/cuidadoresApi";
 import CustomLoader from "../../components/CustomLoader";
 import FloatingActionButton from "../../components/FloatingActionButton";
@@ -22,22 +22,10 @@ import Denuncias from "../../components/Denuncias";
 
 const Cuidadores = () => {
   const navigate = useNavigate();
+  const { userData } = useAuth();
   const [cuidadores, setCuidadores] = useState([]);
-  const [userData, setUserData] = useState(null);
   const [puedePublicar, setPuedePublicar] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const cached = localStorage.getItem("userData");
-      if (!cached) return;
-      const { email } = JSON.parse(cached);
-      const res = await getUserMail(email);
-      setUserData(res);
-    };
-
-    fetchUser();
-  }, []);
 
   useEffect(() => {
     const fetchCuidadores = async () => {
@@ -54,9 +42,11 @@ const Cuidadores = () => {
   }, []);
 
   useEffect(() => {
-    if (userData?.id && cuidadores.length > 0) {
+    if (userData?.id) {
       const yaRegistrado = cuidadores.some((c) => c.idUsuario === userData.id);
       setPuedePublicar(!yaRegistrado);
+    } else {
+      setPuedePublicar(false);
     }
   }, [userData, cuidadores]);
 

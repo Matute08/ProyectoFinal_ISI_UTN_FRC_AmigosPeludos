@@ -77,11 +77,26 @@ const Step4DatosDonacion = () => {
                         <Controller
                             name="aliasCBU"
                             control={control}
-                            render={({ field }) => (
+                            rules={{
+                                maxLength: {
+                                    value: 20,
+                                    message: "Máximo 20 caracteres"
+                                }
+                            }}
+                            render={({ field, fieldState }) => (
                                 <TextField
                                     label="Alias CBU"
                                     fullWidth
+                                    inputProps={{ maxLength: 20 }}
                                     {...field}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value.length <= 20) {
+                                            field.onChange(e);
+                                        }
+                                    }}
+                                    error={!!fieldState.error}
+                                    helperText={fieldState.error?.message}
                                 />
                             )}
                         />
@@ -126,12 +141,27 @@ const Step4DatosDonacion = () => {
                         <Controller
                             name="paginaWeb"
                             control={control}
-                            render={({ field }) => (
+                            rules={{
+                                maxLength: {
+                                    value: 30,
+                                    message: "Máximo 30 caracteres"
+                                }
+                            }}
+                            render={({ field, fieldState }) => (
                                 <TextField
                                     placeholder="www.paginaWeb.com"
                                     label="Página Web"
                                     fullWidth
+                                    inputProps={{ maxLength: 30 }}
                                     {...field}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value.length <= 30) {
+                                            field.onChange(e);
+                                        }
+                                    }}
+                                    error={!!fieldState.error}
+                                    helperText={fieldState.error?.message}
                                 />
                             )}
                         />
@@ -140,12 +170,27 @@ const Step4DatosDonacion = () => {
                         <Controller
                             name="instagram"
                             control={control}
-                            render={({ field }) => (
+                            rules={{
+                                maxLength: {
+                                    value: 30,
+                                    message: "Máximo 30 caracteres"
+                                }
+                            }}
+                            render={({ field, fieldState }) => (
                                 <TextField
                                     placeholder="www.instagram.com/tuVeterinaria"
                                     label="Instagram"
                                     fullWidth
+                                    inputProps={{ maxLength: 30 }}
                                     {...field}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value.length <= 30) {
+                                            field.onChange(e);
+                                        }
+                                    }}
+                                    error={!!fieldState.error}
+                                    helperText={fieldState.error?.message}
                                 />
                             )}
                         />
@@ -154,12 +199,27 @@ const Step4DatosDonacion = () => {
                         <Controller
                             name="facebook"
                             control={control}
-                            render={({ field }) => (
+                            rules={{
+                                maxLength: {
+                                    value: 30,
+                                    message: "Máximo 30 caracteres"
+                                }
+                            }}
+                            render={({ field, fieldState }) => (
                                 <TextField
                                     placeholder="www.facebook.com/tuVeterinaria"
                                     label="Facebook"
                                     fullWidth
+                                    inputProps={{ maxLength: 30 }}
                                     {...field}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value.length <= 30) {
+                                            field.onChange(e);
+                                        }
+                                    }}
+                                    error={!!fieldState.error}
+                                    helperText={fieldState.error?.message}
                                 />
                             )}
                         />

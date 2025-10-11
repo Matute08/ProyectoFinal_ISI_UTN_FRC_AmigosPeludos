@@ -75,7 +75,7 @@ const servicios = [
         icon: <VaccinesIcon color="success" fontSize="inherit" />,
         titulo: "Carnet de vacunación",
         descripcion:
-            "Crea y gestiona el carnet de vacunación de tu mascota. Mantén un registro completo y actualizado de todas sus vacunas",
+            "Crea y gestiona el carnet de vacunación de tu mascota.",
         ruta: "/perfil",
     },
 ];
@@ -84,7 +84,8 @@ const Servicios = () => {
     const navigate = useNavigate();
 
     return (
-        <Container maxWidth="lg" sx={{ py: 4, backgroundColor:"#bb9c70" }} >
+        //<Container maxWidth="lg" sx={{ py: 4, backgroundColor:"#bb9c70" }} >
+        <>
             <Typography
                 variant="h4"
                 align="center"
@@ -106,7 +107,9 @@ const Servicios = () => {
                     </Grid>
                 ))}
             </Grid>
-        </Container>
+       </>
+
+
     );
 };
 

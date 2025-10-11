@@ -72,5 +72,15 @@ export const uploadFilesCuidador = (file) => uploadFile(file, "cuidador");
 
 export const uploadFileUser = (file) => uploadFile(file, "avatarUser");
 
+// Función específica para subir imágenes de publicidades
+export const uploadFilesPublicidades = async (file) => {
+    const storageRef = ref(storage, `publicidades/${v4()}`);
+    const metadata = {
+        contentType: file.type
+    };
+    await uploadBytes(storageRef, file, metadata);
+    return await getDownloadURL(storageRef);
+};
+
 //export const uploadQrUsuario = (file) => uploadFile(file, "qrUsuarios");
 

@@ -51,6 +51,10 @@ import ComparacionesMascotaPage from "../pages/ComparacionesMascotaPage";
 import NotFound from "../pages/NotFound";
 
 import Stats from "../pages/stats/Stats";
+import GestionPublicidades from "../pages/admin/GestionPublicidades";
+import PreciosPublicidad from "../components/PreciosPublicidad";
+import RegistroAds from "../pages/ads/RegistroAds";
+import UserStats from "../pages/stats/UserStats";
 
 export default function AppRouter() {
     return (
@@ -75,25 +79,45 @@ export default function AppRouter() {
 
                 <Route
                     path="/consultar-posteo-perdida/:id"
-                    element={<DetallePublicacionGeneral tipo="Perdida" />}
+                    element={
+                        <PrivateRoute>
+                            <DetallePublicacionGeneral tipo="Perdida" />
+                        </PrivateRoute>
+                    }
                 />
                 <Route
                     path="/consultar-posteo-encontrada/:id"
-                    element={<DetallePublicacionGeneral tipo="Encontrada" />}
+                    element={
+                        <PrivateRoute>
+                            <DetallePublicacionGeneral tipo="Encontrada" />
+                        </PrivateRoute>
+                    }
                 />
                 <Route
                     path="/consultar-posteo-adopcion/:id"
-                    element={<DetallePublicacionAdopcion />}
+                    element={
+                        <PrivateRoute>
+                            <DetallePublicacionAdopcion />
+                        </PrivateRoute>
+                    }
                 />
 
                 <Route
                     path="/perfil-cuidador/:id"
-                    element={<PerfilCuidador />}
+                    element={
+                        <PrivateRoute>
+                            <PerfilCuidador />
+                        </PrivateRoute>
+                    }
                 />
 
                 <Route
                     path="/perfil-paseador/:id"
-                    element={<PerfilPaseador />}
+                    element={
+                        <PrivateRoute>
+                            <PerfilPaseador />
+                        </PrivateRoute>
+                    }
                 />
 
                 <Route
@@ -287,6 +311,38 @@ export default function AppRouter() {
                     </PrivateRoute>
                 }
 />
+
+                <Route
+                    path="/gestion-publicidades"
+                    element={
+                        <AdminRoute>
+                            <GestionPublicidades />
+                        </AdminRoute>
+                    }
+                />
+
+                <Route
+                    path="/precios-publicidad"
+                    element={<PreciosPublicidad />}
+                />
+
+                <Route
+                    path="/ads/registro"
+                    element={
+                        <PrivateRoute>
+                            <RegistroAds />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/mis-estadisticas"
+                    element={
+                        <PrivateRoute>
+                            <UserStats />
+                        </PrivateRoute>
+                    }
+                />
 
                 {/* Puedes agregar más rutas aquí */}
                 <Route path="*" element={<NotFound />} />

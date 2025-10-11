@@ -19,10 +19,12 @@ import {
 import Maps from "../components/Maps";
 import Slider from "react-slick";
 import CustomLoader from "../components/CustomLoader";
+import { useAuth } from "../auth/AuthProvider";
 export default function DetallePublicacionGeneral({ tipo }) {
     const { id } = useParams();
     const navigate = useNavigate();
     const [detalle, setDetalle] = useState(null);
+    const { userData } = useAuth();
 
     useEffect(() => {
         const fetch = async () => {
@@ -32,6 +34,9 @@ export default function DetallePublicacionGeneral({ tipo }) {
         fetch();
     }, [id]);
     const formatDate = (fechaISO) => moment(fechaISO).format("DD/MM/YYYY");
+
+    // Verificar si el usuario actual es el creador de la publicación
+    const esCreador = userData?.id === detalle?.usuarioId;
 
     if (!detalle)
         return (
@@ -184,35 +189,53 @@ export default function DetallePublicacionGeneral({ tipo }) {
                 </Grid>
             </Grid>
 
-            {/* Contacto */}
-            <Box mt={5}>
-                <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-                    <CardContent>
-                        <Typography variant="h6">Contacto</Typography>
-                        <Typography variant="body2" sx={{ mb: 2 }}>
-                            Si tienes información sobre esta mascota o deseas
-                            comunicarte:
-                        </Typography>
-                        <Box mt={1} display="flex" flexWrap="wrap" gap={2}>
-                            <Button
-                                variant="contained"
-                                color="success"
-                                href={`https://wa.me/?text=Hola, vi una mascota ${tipo.toLowerCase()} en Amigos Peludos y quiero ayudar.`}
-                                target="_blank"
-                            >
-                                WhatsApp
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                href={`mailto:${detalle.mailUsuario}`}
-                            >
-                                Enviar Correo
-                            </Button>
-                        </Box>
-                    </CardContent>
-                </Card>
-            </Box>
+            {/* Contacto - Solo mostrar si no es el creador */}
+            {!esCreador && (
+                <Box mt={5}>
+                    <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+                        <CardContent>
+                            <Typography variant="h6">Contacto</Typography>
+                            <Typography variant="body2" sx={{ mb: 2 }}>
+                                Si tienes información sobre esta mascota o deseas
+                                comunicarte:
+                            </Typography>
+                            <Box mt={1} display="flex" flexWrap="wrap" gap={2}>
+                                <Button
+                                    variant="contained"
+                                    color="success"
+                                    href={`https://wa.me/?text=Hola, vi una mascota ${tipo.toLowerCase()} en Amigos Peludos y quiero ayudar.`}
+                                    target="_blank"
+                                >
+                                    WhatsApp
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    href={`mailto:${detalle.mailUsuario}`}
+                                >
+                                    Enviar Correo
+                                </Button>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Box>
+            )}
+
+            {/* Mensaje para el creador */}
+            {esCreador && (
+                <Box mt={5}>
+                    <Card sx={{ borderRadius: 3, boxShadow: 3, bgcolor: "info.light" }}>
+                        <CardContent sx={{ textAlign: "center" }}>
+                            <Typography variant="h6" color="info.contrastText">
+                                ¡Esta es tu publicación!
+                            </Typography>
+                            <Typography variant="body2" color="info.contrastText" sx={{ mt: 1 }}>
+                                Puedes gestionar esta publicación desde tu perfil.
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Box>
+            )}
 
             {/* Volver */}
             <Box mt={4} sx={{ textAlign: "end" }}>

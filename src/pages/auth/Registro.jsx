@@ -123,10 +123,10 @@ const Register = () => {
                                 label="Nombre completo"
                                 {...registerField("nombreCompleto", {
                                     required: "El nombre es obligatorio",
-                                    pattern: {
-                                        value: /^[A-Za-z\s]+$/,
-                                        message: "Solo letras y espacios",
-                                    },
+                                pattern: {
+                                    value: /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/,
+                                    message: "Solo letras, acentos y espacios",
+                                },
                                 })}
                                 error={!!errors.nombreCompleto}
                                 helperText={errors.nombreCompleto?.message}
@@ -313,13 +313,7 @@ const Register = () => {
                         </Grid>
                     </Grid>
 
-                    <Typography variant="body2" color="text.secondary" mt={2}>
-                        Al registrarte, aceptás nuestros{" "}
-                        <MuiLink href="#" underline="hover">
-                            Términos y Condiciones
-                        </MuiLink>
-                        .
-                    </Typography>
+                   
 
                     <Button
                         type="submit"

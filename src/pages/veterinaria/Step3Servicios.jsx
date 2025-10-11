@@ -67,14 +67,31 @@ const Step3Servicios = () => {
                 <Controller
                     name="servicios.otros"
                     control={control}
-                    render={({ field }) => (
+                    rules={{
+                        maxLength: {
+                            value: 100,
+                            message: "Máximo 100 caracteres"
+                        }
+                    }}
+                    render={({ field, fieldState }) => (
                         <TextField
                             label="Otros servicios (especifique)"
                             fullWidth
                             multiline
                             minRows={1}
                             maxRows={3}
+                            inputProps={{
+                                maxLength: 100
+                            }}
                             {...field}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (value.length <= 100) {
+                                    field.onChange(e);
+                                }
+                            }}
+                            error={!!fieldState.error}
+                            helperText={fieldState.error?.message || `${field.value?.length || 0}/100 caracteres`}
                         />
                     )}
                 />
