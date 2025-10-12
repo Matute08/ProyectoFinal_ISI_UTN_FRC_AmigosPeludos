@@ -210,20 +210,20 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
                     minRows={2}
                     sx={{ mt: 2 }}
                     inputProps={{
-                        maxLength: 150
+                        maxLength: 75
                     }}
                     helperText={
-                        form.observacion?.length > 120 
-                            ? `Máximo 150 caracteres` 
+                        form.observacion?.length > 75 
+                            ? `Máximo 75 caracteres` 
                             : ""
                     }
                 />
                 <Typography 
                     variant="caption" 
-                    color={form.observacion?.length > 120 ? "error" : "text.secondary"}
+                    color={form.observacion?.length > 75 ? "error" : "text.secondary"}
                     sx={{ mt: 0.5, display: 'block' }}
                 >
-                    {form.observacion?.length || 0}/150 caracteres
+                    {form.observacion?.length || 0}/75 caracteres
                 </Typography>
             </DialogContent>
 

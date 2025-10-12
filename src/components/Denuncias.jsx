@@ -23,6 +23,8 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import { getUserMail } from "../api/userApi";
 import { postDenuncia, verificarDenuncia } from "../api/denunciasApi";
+import { useAuth } from "../auth/AuthProvider";
+import { mostrarAlertaError, mostrarAlertaExito } from "../utils/showAlert";
 
 const motivos = [
   "Estafa, fraude o spam",
@@ -33,6 +35,7 @@ const motivos = [
 ];
 
 const Denuncias = ({ idEntidad, tipoEntidad }) => {
+  const { isAuthenticated, userData: authUserData } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalYaReportado, setModalYaReportado] = useState(false);
@@ -43,6 +46,13 @@ const Denuncias = ({ idEntidad, tipoEntidad }) => {
 
   useEffect(() => {
     const cargarUsuario = async () => {
+      // Primero intentar usar los datos del AuthProvider
+      if (authUserData?.id) {
+        setUserData(authUserData);
+        return;
+      }
+
+      // Si no hay datos en AuthProvider, intentar cargar desde localStorage
       const local = localStorage.getItem("userData");
       if (!local) return;
 
@@ -61,7 +71,7 @@ const Denuncias = ({ idEntidad, tipoEntidad }) => {
     };
 
     cargarUsuario();
-  }, []);
+  }, [authUserData]);
 
   useEffect(() => {
     const verificar = async () => {
@@ -103,8 +113,9 @@ const Denuncias = ({ idEntidad, tipoEntidad }) => {
   const handleEnviar = async () => {
     if (!motivo) return;
 
-    if (!userData?.id) {
-      alert("Tenés que iniciar sesión para poder denunciar.");
+    // Verificar autenticación usando el hook de AuthProvider
+    if (!isAuthenticated || !userData?.id) {
+      mostrarAlertaError("Tenés que iniciar sesión para poder denunciar.");
       return;
     }
 
@@ -125,14 +136,13 @@ const Denuncias = ({ idEntidad, tipoEntidad }) => {
       nuevaDenuncia.idPublicacion = idEntidad;
     }
 
-
     try {
       await postDenuncia(nuevaDenuncia, tipoEntidad);
       setEnviado(true);
       setYaDenuncio(true);
     } catch (error) {
       console.error("Error al enviar denuncia:", error);
-      alert("Error al enviar denuncia");
+      mostrarAlertaError("Error al enviar denuncia. Por favor, intentá nuevamente.");
     }
   };
 

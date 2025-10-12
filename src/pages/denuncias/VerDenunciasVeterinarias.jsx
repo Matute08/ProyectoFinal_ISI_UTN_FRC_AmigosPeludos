@@ -19,6 +19,7 @@ import {
   deshabilitarVeterinaria,
   marcarDesestimadaVeterinaria,
 } from "../../api/denunciasApi";
+import { mostrarAlertaExito, mostrarAlertaError } from "../../utils/showAlert";
 
 const VerDenunciasVeterinarias = ({ denuncias }) => {
   const [expanded, setExpanded] = useState(null);
@@ -67,8 +68,14 @@ const VerDenunciasVeterinarias = ({ denuncias }) => {
           d.id === idDenuncia ? { ...d, estadoDenuncia: nuevoEstado } : d
         )
       );
+      
+      // Obtener el nombre del estado para el mensaje
+      const estadoNombre = estados.find(e => e.id === nuevoEstado)?.estado || `Estado ${nuevoEstado}`;
+      mostrarAlertaExito(`Estado de denuncia actualizado a: ${estadoNombre}`);
     } catch (error) {
       console.error("Error al cambiar estado de denuncia", error);
+      const errorMessage = error.response?.data?.message || error.message || "Error al actualizar el estado de la denuncia";
+      mostrarAlertaError(errorMessage);
     } finally {
       setUpdating((u) => ({ ...u, [idDenuncia]: false }));
     }
@@ -116,8 +123,10 @@ const VerDenunciasVeterinarias = ({ denuncias }) => {
     try {
       if (tipoConfirm === "deshabilitar") {
         await deshabilitarVeterinaria(idVeterinariaTarget);
+        mostrarAlertaExito("Veterinaria deshabilitada correctamente");
       } else if (tipoConfirm === "mantener") {
         await marcarDesestimadaVeterinaria(idVeterinariaTarget);
+        mostrarAlertaExito("Veterinaria mantenida - denuncias desestimadas");
       }
 
       setDenunciasData((prev) =>
@@ -127,7 +136,9 @@ const VerDenunciasVeterinarias = ({ denuncias }) => {
       cerrarConfirmacion();
     } catch (error) {
       console.error("Error al realizar acción:", error);
-      setErrorConfirm("Ocurrió un error inesperado.");
+      const errorMessage = error.response?.data?.message || error.response?.data || error.message || "Ocurrió un error inesperado";
+      mostrarAlertaError(errorMessage);
+      setErrorConfirm(errorMessage);
     }
   };
 

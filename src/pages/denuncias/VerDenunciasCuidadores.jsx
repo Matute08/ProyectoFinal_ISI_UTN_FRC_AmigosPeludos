@@ -19,6 +19,7 @@ import {
   deshabilitarCuidador,
   marcarDesestimadaCuidador, // si tienes un endpoint equivalente
 } from "../../api/denunciasApi";
+import { mostrarAlertaExito, mostrarAlertaError } from "../../utils/showAlert";
 
 const VerDenunciasCuidadores = ({ denuncias }) => {
   const [expanded, setExpanded] = useState(null);
@@ -65,8 +66,14 @@ const VerDenunciasCuidadores = ({ denuncias }) => {
       setDenunciasData(prev =>
         prev.map(d => d.id === idDenuncia ? { ...d, estadoDenuncia: nuevoEstado } : d)
       );
+      
+      // Obtener el nombre del estado para el mensaje
+      const estadoNombre = estados.find(e => e.id === nuevoEstado)?.estado || `Estado ${nuevoEstado}`;
+      mostrarAlertaExito(`Estado de denuncia actualizado a: ${estadoNombre}`);
     } catch (error) {
       console.error("Error al cambiar estado de denuncia", error);
+      const errorMessage = error.response?.data?.message || error.message || "Error al actualizar el estado de la denuncia";
+      mostrarAlertaError(errorMessage);
     } finally {
       setUpdating(u => ({ ...u, [idDenuncia]: false }));
     }
@@ -119,19 +126,25 @@ const VerDenunciasCuidadores = ({ denuncias }) => {
         await deshabilitarCuidador(idCuidadorTarget);
         setDenunciasData(prev => prev.filter(d => d.idCuidador !== idCuidadorTarget));
         if (expanded === idCuidadorTarget) setExpanded(null);
+        mostrarAlertaExito("Cuidador deshabilitado correctamente");
         cerrarConfirmacion();
       } catch (error) {
-        setErrorConfirm(error.response?.data || "Ocurrió un error inesperado.");
+        const errorMessage = error.response?.data?.message || error.response?.data || error.message || "Ocurrió un error inesperado";
+        mostrarAlertaError(errorMessage);
+        setErrorConfirm(errorMessage);
       }
     } else if (tipoConfirm === "mantener") {
       try {
-        await marcarDesestimadaCuidador(idCuidadorTarget); // si tienes endpoint
+        await marcarDesestimadaCuidador(idCuidadorTarget);
         setDenunciasData(prev => prev.filter(d => d.idCuidador !== idCuidadorTarget));
         if (expanded === idCuidadorTarget) setExpanded(null);
+        mostrarAlertaExito("Cuidador mantenido - denuncias desestimadas");
         cerrarConfirmacion();
       } catch (error) {
         console.error("Error al mantener cuidador:", error);
-        setErrorConfirm(error.response?.data || "Ocurrió un error inesperado.");
+        const errorMessage = error.response?.data?.message || error.response?.data || error.message || "Ocurrió un error inesperado";
+        mostrarAlertaError(errorMessage);
+        setErrorConfirm(errorMessage);
       }
     }
   };
