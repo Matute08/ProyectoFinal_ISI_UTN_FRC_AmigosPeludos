@@ -19,7 +19,7 @@ import {
 } from "../../api/denunciasApi";
 import { mostrarAlertaExito, mostrarAlertaError } from "../../utils/showAlert";
 
-const VerDenunciasPublicaciones = ({ denuncias }) => {
+const VerDenunciasPublicaciones = ({ denuncias, onActualizarDenuncias }) => {
   const [expanded, setExpanded] = useState(null);
   const [localDenuncias, setLocalDenuncias] = useState(denuncias);
   const [estados, setEstados] = useState([]);
@@ -90,9 +90,12 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
     if (idPublicacionAEliminar != null) {
       try {
         await deshabilitarPublicacion(idPublicacionAEliminar);
-        setLocalDenuncias((prev) =>
-          prev.filter((d) => d.idPublicacion !== idPublicacionAEliminar)
-        );
+        const nuevaLista = localDenuncias.filter((d) => d.idPublicacion !== idPublicacionAEliminar);
+        setLocalDenuncias(nuevaLista);
+        // Actualización optimista en el componente padre
+        if (onActualizarDenuncias) {
+          onActualizarDenuncias(nuevaLista);
+        }
         if (expanded === idPublicacionAEliminar) {
           setExpanded(null);
         }
@@ -129,9 +132,12 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
       try {
         await marcarDesestimada(idPublicacionAMantener);
         
-        setLocalDenuncias((prev) =>
-          prev.filter((d) => d.idPublicacion !== parseInt(idPublicacionAMantener))
-        );
+        const nuevaLista = localDenuncias.filter((d) => d.idPublicacion !== parseInt(idPublicacionAMantener));
+        setLocalDenuncias(nuevaLista);
+        // Actualización optimista en el componente padre
+        if (onActualizarDenuncias) {
+          onActualizarDenuncias(nuevaLista);
+        }
         if (expanded === idPublicacionAMantener) {
           setExpanded(null);
         }
@@ -150,11 +156,14 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
     setUpdating((u) => ({ ...u, [idDenuncia]: true }));
     try {
       await cambiarEstado(idDenuncia, nuevoEstado);
-      setLocalDenuncias((prev) =>
-        prev.map((d) =>
-          d.id === idDenuncia ? { ...d, estadoDenuncia: nuevoEstado } : d
-        )
+      const nuevaLista = localDenuncias.map((d) =>
+        d.id === idDenuncia ? { ...d, estadoDenuncia: nuevoEstado } : d
       );
+      setLocalDenuncias(nuevaLista);
+      // Actualización optimista en el componente padre
+      if (onActualizarDenuncias) {
+        onActualizarDenuncias(nuevaLista);
+      }
       
       // Obtener el nombre del estado para el mensaje
       const estadoNombre = estados.find(e => e.id === nuevoEstado)?.estado || `Estado ${nuevoEstado}`;

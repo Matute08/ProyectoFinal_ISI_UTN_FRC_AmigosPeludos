@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
     AppBar,
     Box,
@@ -46,6 +46,7 @@ import { getFormulariosDuenoPosteo } from "../api/formulariosApi";
 import { useAuth } from "../auth/AuthProvider";
 import { getVeterinarias } from "../api/commonApi";
 import { getFundacion } from "../api/fundacionesApi";
+import { tienePublicidadesUsuario } from "../api/publicidadesApi";
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -65,6 +66,7 @@ const Navbar = () => {
         fundaciones: 0,
         total:0
     });
+    const [tienePublicidades, setTienePublicidades] = useState(false);
     const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
     const handleOpenMascotasMenu = (event) =>
         setAnchorElMascotas(event.currentTarget);
@@ -90,10 +92,30 @@ const Navbar = () => {
         }
     }, [user]);
 
+    // Función para verificar si el usuario tiene publicidades
+    const verificarPublicidades = useCallback(async () => {
+        if (userData?.id) {
+            try {
+                const resultado = await tienePublicidadesUsuario(userData.id);
+                setTienePublicidades(resultado.count > 0);
+            } catch (error) {
+                console.error('Error al verificar publicidades:', error);
+                setTienePublicidades(false);
+            }
+        } else {
+            setTienePublicidades(false);
+        }
+    }, [userData?.id]);
+
     // Cerrar el menú cuando cambien los datos del usuario o el usuario
     useEffect(() => {
         setAnchorElUser(null);
     }, [userData, user]);
+
+    // Verificar publicidades cuando cambien los datos del usuario
+    useEffect(() => {
+        verificarPublicidades();
+    }, [verificarPublicidades]);
 
     useEffect(() => {
         const fetchNotificaciones = async () => {
@@ -414,10 +436,12 @@ const Navbar = () => {
                                     />
                                 )}
                             </MenuItem>
-                            <MenuItem onClick={() => {navigate("/mis-estadisticas"); handleCloseUserMenu()}}>
-                                <Assessment fontSize="small" sx={{ mr: 1 }} />
-                                Dashboard de publicidades
-                            </MenuItem>
+                            {tienePublicidades && (
+                                <MenuItem onClick={() => {navigate("/mis-estadisticas"); handleCloseUserMenu()}}>
+                                    <Assessment fontSize="small" sx={{ mr: 1 }} />
+                                    Dashboard de publicidades
+                                </MenuItem>
+                            )}
                             {userData?.rolId === 1 && (
                                 <MenuItem
                                     onClick={() => {navigate("/solicitudes"), handleCloseUserMenu();}}

@@ -52,8 +52,10 @@ import NotFound from "../pages/NotFound";
 
 import Stats from "../pages/stats/Stats";
 import GestionPublicidades from "../pages/admin/GestionPublicidades";
+import VerDetallePublicidad from "../pages/admin/VerDetallePublicidad";
 import PreciosPublicidad from "../components/PreciosPublicidad";
 import RegistroAds from "../pages/ads/RegistroAds";
+import EditarPublicidad from "../pages/ads/EditarPublicidad";
 import UserStats from "../pages/stats/UserStats";
 
 export default function AppRouter() {
@@ -322,6 +324,15 @@ export default function AppRouter() {
                 />
 
                 <Route
+                    path="/ver-publicidad/:id"
+                    element={
+                        <AdminRoute>
+                            <VerDetallePublicidad />
+                        </AdminRoute>
+                    }
+                />
+
+                <Route
                     path="/precios-publicidad"
                     element={<PreciosPublicidad />}
                 />
@@ -340,6 +351,15 @@ export default function AppRouter() {
                     element={
                         <PrivateRoute>
                             <UserStats />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/editar-publicidad/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditarPublicidad />
                         </PrivateRoute>
                     }
                 />

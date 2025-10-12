@@ -65,12 +65,25 @@ const PanelDenuncias = () => {
     }
   };
 
-  const eliminarPublicacion = (idPublicacion) => {
-    // TODO: Llamar a la API para eliminar publicación y refrescar la lista
+  // Callbacks para actualizaciones optimistas
+  const actualizarDenunciasPublicaciones = (nuevaLista) => {
+    setDenunciasPublicaciones(nuevaLista);
   };
 
-  const descartarDenuncia = (idDenuncia) => {
-    // TODO: Llamar a la API para ocultar o marcar como revisada la denuncia y refrescar la lista
+  const actualizarDenunciasPaseadores = (nuevaLista) => {
+    setDenunciasPaseadores(nuevaLista);
+  };
+
+  const actualizarDenunciasCuidadores = (nuevaLista) => {
+    setDenunciasCuidadores(nuevaLista);
+  };
+
+  const actualizarDenunciasFundaciones = (nuevaLista) => {
+    setDenunciasFundaciones(nuevaLista);
+  };
+
+  const actualizarDenunciasVeterinarias = (nuevaLista) => {
+    setDenunciasVeterinarias(nuevaLista);
   };
 
   // Verificar si es administrador
@@ -115,19 +128,34 @@ const PanelDenuncias = () => {
       ) : (
         <>
           {tabIndex === 0 && (
-            <VerDenunciasPublicaciones denuncias={denunciasPublicaciones} />
+            <VerDenunciasPublicaciones 
+              denuncias={denunciasPublicaciones} 
+              onActualizarDenuncias={actualizarDenunciasPublicaciones}
+            />
           )}
           {tabIndex === 1 && (
-            <VerDenunciasPaseadores denuncias={denunciasPaseadores} />
+            <VerDenunciasPaseadores 
+              denuncias={denunciasPaseadores} 
+              onActualizarDenuncias={actualizarDenunciasPaseadores}
+            />
           )}
           {tabIndex === 2 && (
-            <VerDenunciasCuidadores denuncias={denunciasCuidadores} />
+            <VerDenunciasCuidadores 
+              denuncias={denunciasCuidadores} 
+              onActualizarDenuncias={actualizarDenunciasCuidadores}
+            />
           )}
           {tabIndex === 3 && (
-            <VerDenunciasFundaciones denuncias={denunciasFundaciones} /> 
+            <VerDenunciasFundaciones 
+              denuncias={denunciasFundaciones} 
+              onActualizarDenuncias={actualizarDenunciasFundaciones}
+            /> 
           )}
           {tabIndex === 4 && (
-            <VerDenunciasVeterinarias denuncias={denunciasVeterinarias} /> 
+            <VerDenunciasVeterinarias 
+              denuncias={denunciasVeterinarias} 
+              onActualizarDenuncias={actualizarDenunciasVeterinarias}
+            /> 
           )}
         </>
       )}

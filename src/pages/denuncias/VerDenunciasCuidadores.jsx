@@ -21,7 +21,7 @@ import {
 } from "../../api/denunciasApi";
 import { mostrarAlertaExito, mostrarAlertaError } from "../../utils/showAlert";
 
-const VerDenunciasCuidadores = ({ denuncias }) => {
+const VerDenunciasCuidadores = ({ denuncias, onActualizarDenuncias }) => {
   const [expanded, setExpanded] = useState(null);
   const [estados, setEstados] = useState([]);
   const [loadingEstados, setLoadingEstados] = useState(true);
@@ -63,9 +63,12 @@ const VerDenunciasCuidadores = ({ denuncias }) => {
     setUpdating(u => ({ ...u, [idDenuncia]: true }));
     try {
       await cambiarEstadoDenunciaCuidador(idDenuncia, nuevoEstado);
-      setDenunciasData(prev =>
-        prev.map(d => d.id === idDenuncia ? { ...d, estadoDenuncia: nuevoEstado } : d)
-      );
+      const nuevaLista = denunciasData.map(d => d.id === idDenuncia ? { ...d, estadoDenuncia: nuevoEstado } : d);
+      setDenunciasData(nuevaLista);
+      // Actualización optimista en el componente padre
+      if (onActualizarDenuncias) {
+        onActualizarDenuncias(nuevaLista);
+      }
       
       // Obtener el nombre del estado para el mensaje
       const estadoNombre = estados.find(e => e.id === nuevoEstado)?.estado || `Estado ${nuevoEstado}`;
@@ -124,7 +127,12 @@ const VerDenunciasCuidadores = ({ denuncias }) => {
     if (tipoConfirm === "deshabilitar") {
       try {
         await deshabilitarCuidador(idCuidadorTarget);
-        setDenunciasData(prev => prev.filter(d => d.idCuidador !== idCuidadorTarget));
+        const nuevaLista = denunciasData.filter(d => d.idCuidador !== idCuidadorTarget);
+        setDenunciasData(nuevaLista);
+        // Actualización optimista en el componente padre
+        if (onActualizarDenuncias) {
+          onActualizarDenuncias(nuevaLista);
+        }
         if (expanded === idCuidadorTarget) setExpanded(null);
         mostrarAlertaExito("Cuidador deshabilitado correctamente");
         cerrarConfirmacion();
@@ -136,7 +144,12 @@ const VerDenunciasCuidadores = ({ denuncias }) => {
     } else if (tipoConfirm === "mantener") {
       try {
         await marcarDesestimadaCuidador(idCuidadorTarget);
-        setDenunciasData(prev => prev.filter(d => d.idCuidador !== idCuidadorTarget));
+        const nuevaLista = denunciasData.filter(d => d.idCuidador !== idCuidadorTarget);
+        setDenunciasData(nuevaLista);
+        // Actualización optimista en el componente padre
+        if (onActualizarDenuncias) {
+          onActualizarDenuncias(nuevaLista);
+        }
         if (expanded === idCuidadorTarget) setExpanded(null);
         mostrarAlertaExito("Cuidador mantenido - denuncias desestimadas");
         cerrarConfirmacion();

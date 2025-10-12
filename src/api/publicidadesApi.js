@@ -71,7 +71,7 @@ export const actualizarPublicidad = async (id, publicidadData) => {
 // Eliminar publicidad
 export const eliminarPublicidad = async (id) => {
   try {
-    const response = await apiClient.delete(`/publicidades/${id}`);
+    const response = await apiClient.put(`/publicidades/${id}/desactivar`);
     return response.data;
   } catch (error) {
     console.error('Error al eliminar publicidad:', error);
@@ -209,5 +209,19 @@ export const getTendenciasCTRUsuario = async (usuarioId, periodo = 30) => {
   } catch (error) {
     console.error('Error al obtener tendencias de CTR:', error);
     throw error;
+  }
+};
+
+// Verificar si el usuario tiene publicidades (usa endpoint existente)
+export const tienePublicidadesUsuario = async (usuarioId) => {
+  try {
+    const response = await apiClient.get(`/publicidades/usuario/${usuarioId}`);
+    // Si la respuesta es exitosa, verificar si tiene datos
+    const publicidades = response.data || [];
+    return { count: publicidades.length };
+  } catch (error) {
+    console.error('Error al verificar publicidades del usuario:', error);
+    // En caso de error, retornar 0 para no mostrar el menú
+    return { count: 0 };
   }
 };

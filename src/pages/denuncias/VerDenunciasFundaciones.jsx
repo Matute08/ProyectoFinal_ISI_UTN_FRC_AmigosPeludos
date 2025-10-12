@@ -21,7 +21,7 @@ import {
 } from "../../api/denunciasApi";
 import { mostrarAlertaExito, mostrarAlertaError } from "../../utils/showAlert";
 
-const VerDenunciasFundaciones = ({ denuncias }) => {
+const VerDenunciasFundaciones = ({ denuncias, onActualizarDenuncias }) => {
   const [expanded, setExpanded] = useState(null);
   const [estados, setEstados] = useState([]);
   const [loadingEstados, setLoadingEstados] = useState(true);
@@ -64,11 +64,14 @@ const VerDenunciasFundaciones = ({ denuncias }) => {
     setUpdating((u) => ({ ...u, [idDenuncia]: true }));
     try {
       await cambiarEstadoDenunciaFundacion(idDenuncia, nuevoEstado);
-      setDenunciasData((prev) =>
-        prev.map((d) =>
-          d.id === idDenuncia ? { ...d, estadoDenuncia: nuevoEstado } : d
-        )
+      const nuevaLista = denunciasData.map((d) =>
+        d.id === idDenuncia ? { ...d, estadoDenuncia: nuevoEstado } : d
       );
+      setDenunciasData(nuevaLista);
+      // Actualización optimista en el componente padre
+      if (onActualizarDenuncias) {
+        onActualizarDenuncias(nuevaLista);
+      }
       
       // Obtener el nombre del estado para el mensaje
       const estadoNombre = estados.find(e => e.id === nuevoEstado)?.estado || `Estado ${nuevoEstado}`;
@@ -143,9 +146,12 @@ const VerDenunciasFundaciones = ({ denuncias }) => {
         mostrarAlertaExito("Fundación mantenida - denuncias desestimadas");
       }
 
-      setDenunciasData((prev) =>
-        prev.filter((d) => d.idFundacion !== parseInt(idFundacionTarget))
-      );
+      const nuevaLista = denunciasData.filter((d) => d.idFundacion !== parseInt(idFundacionTarget));
+      setDenunciasData(nuevaLista);
+      // Actualización optimista en el componente padre
+      if (onActualizarDenuncias) {
+        onActualizarDenuncias(nuevaLista);
+      }
       if (expanded === idFundacionTarget) setExpanded(null);
       cerrarConfirmacion();
     } catch (error) {
