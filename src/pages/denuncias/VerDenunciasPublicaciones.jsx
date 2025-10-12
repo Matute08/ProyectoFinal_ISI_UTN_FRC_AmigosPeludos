@@ -17,6 +17,7 @@ import {
   deshabilitarPublicacion,
   marcarDesestimada,
 } from "../../api/denunciasApi";
+import { mostrarAlertaExito, mostrarAlertaError } from "../../utils/showAlert";
 
 const VerDenunciasPublicaciones = ({ denuncias }) => {
   const [expanded, setExpanded] = useState(null);
@@ -95,13 +96,18 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
         if (expanded === idPublicacionAEliminar) {
           setExpanded(null);
         }
+        mostrarAlertaExito("Publicación deshabilitada correctamente");
         cerrarConfirmacion();
       } catch (error) {
         if (error.response?.status === 400) {
-          setErrorEliminacion(error.response.data);
+          const errorMessage = error.response.data?.message || error.response.data;
+          mostrarAlertaError(errorMessage);
+          setErrorEliminacion(errorMessage);
         } else {
           console.error("Error al eliminar publicación:", error);
-          setErrorEliminacion("Ocurrió un error inesperado.");
+          const errorMessage = error.response?.data?.message || error.message || "Ocurrió un error inesperado";
+          mostrarAlertaError(errorMessage);
+          setErrorEliminacion(errorMessage);
         }
       }
     }
@@ -129,9 +135,12 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
         if (expanded === idPublicacionAMantener) {
           setExpanded(null);
         }
+        mostrarAlertaExito("Publicación mantenida - denuncias desestimadas");
         cerrarConfirmacionMantener();
       } catch (error) {
         console.error("Error al mantener publicación:", error);
+        const errorMessage = error.response?.data?.message || error.message || "Error al mantener la publicación";
+        mostrarAlertaError(errorMessage);
       }
     }
   };
@@ -146,8 +155,14 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
           d.id === idDenuncia ? { ...d, estadoDenuncia: nuevoEstado } : d
         )
       );
+      
+      // Obtener el nombre del estado para el mensaje
+      const estadoNombre = estados.find(e => e.id === nuevoEstado)?.estado || `Estado ${nuevoEstado}`;
+      mostrarAlertaExito(`Estado de denuncia actualizado a: ${estadoNombre}`);
     } catch (error) {
       console.error("Error al cambiar estado de denuncia", error);
+      const errorMessage = error.response?.data?.message || error.message || "Error al actualizar el estado de la denuncia";
+      mostrarAlertaError(errorMessage);
     } finally {
       setUpdating((u) => ({ ...u, [idDenuncia]: false }));
     }

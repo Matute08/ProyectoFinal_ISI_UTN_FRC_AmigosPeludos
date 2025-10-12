@@ -19,6 +19,7 @@ import {
   deshabilitarFundacion,
   marcarDesestimadaFundacion,
 } from "../../api/denunciasApi";
+import { mostrarAlertaExito, mostrarAlertaError } from "../../utils/showAlert";
 
 const VerDenunciasFundaciones = ({ denuncias }) => {
   const [expanded, setExpanded] = useState(null);
@@ -68,8 +69,14 @@ const VerDenunciasFundaciones = ({ denuncias }) => {
           d.id === idDenuncia ? { ...d, estadoDenuncia: nuevoEstado } : d
         )
       );
+      
+      // Obtener el nombre del estado para el mensaje
+      const estadoNombre = estados.find(e => e.id === nuevoEstado)?.estado || `Estado ${nuevoEstado}`;
+      mostrarAlertaExito(`Estado de denuncia actualizado a: ${estadoNombre}`);
     } catch (error) {
       console.error("Error al cambiar estado de denuncia", error);
+      const errorMessage = error.response?.data?.message || error.message || "Error al actualizar el estado de la denuncia";
+      mostrarAlertaError(errorMessage);
     } finally {
       setUpdating((u) => ({ ...u, [idDenuncia]: false }));
     }
@@ -130,8 +137,10 @@ const VerDenunciasFundaciones = ({ denuncias }) => {
     try {
       if (tipoConfirm === "deshabilitar") {
         await deshabilitarFundacion(idFundacionTarget);
+        mostrarAlertaExito("Fundación deshabilitada correctamente");
       } else if (tipoConfirm === "mantener") {
         await marcarDesestimadaFundacion(idFundacionTarget);
+        mostrarAlertaExito("Fundación mantenida - denuncias desestimadas");
       }
 
       setDenunciasData((prev) =>
@@ -141,7 +150,9 @@ const VerDenunciasFundaciones = ({ denuncias }) => {
       cerrarConfirmacion();
     } catch (error) {
       console.error("Error en acción:", error);
-      setErrorConfirm("Ocurrió un error inesperado.");
+      const errorMessage = error.response?.data?.message || error.response?.data || error.message || "Ocurrió un error inesperado";
+      mostrarAlertaError(errorMessage);
+      setErrorConfirm(errorMessage);
     }
   };
 

@@ -19,6 +19,7 @@ import {
   deshabilitarPaseador,
   marcarDesestimadaPaseador,
 } from "../../api/denunciasApi";
+import { mostrarAlertaExito, mostrarAlertaError } from "../../utils/showAlert";
 
 const VerDenunciasPaseadores = ({ denuncias }) => {
   const [expanded, setExpanded] = useState(null);
@@ -67,8 +68,14 @@ const VerDenunciasPaseadores = ({ denuncias }) => {
           d.id === idDenuncia ? { ...d, estadoDenuncia: nuevoEstado } : d
         )
       );
+      
+      // Obtener el nombre del estado para el mensaje
+      const estadoNombre = estados.find(e => e.id === nuevoEstado)?.estado || `Estado ${nuevoEstado}`;
+      mostrarAlertaExito(`Estado de denuncia actualizado a: ${estadoNombre}`);
     } catch (error) {
       console.error("Error al cambiar estado de denuncia", error);
+      const errorMessage = error.response?.data?.message || error.message || "Error al actualizar el estado de la denuncia";
+      mostrarAlertaError(errorMessage);
     } finally {
       setUpdating((u) => ({ ...u, [idDenuncia]: false }));
     }
@@ -121,21 +128,27 @@ const VerDenunciasPaseadores = ({ denuncias }) => {
         await deshabilitarPaseador(idPaseadorTarget);
         setDenunciasData(prev => prev.filter(d => d.idPaseador !== idPaseadorTarget));
         if (expanded === idPaseadorTarget) setExpanded(null);
+        mostrarAlertaExito("Paseador deshabilitado correctamente");
         cerrarConfirmacion();
       } catch (error) {
-        setErrorConfirm(error.response?.data || "Ocurrió un error inesperado.");
+        const errorMessage = error.response?.data?.message || error.response?.data || error.message || "Ocurrió un error inesperado";
+        mostrarAlertaError(errorMessage);
+        setErrorConfirm(errorMessage);
       }
     } else if (tipoConfirm === "mantener") {
       try {
-        await marcarDesestimadaPaseador(idPaseadorTarget);  // 👈 llamada al backend
+        await marcarDesestimadaPaseador(idPaseadorTarget);
         setDenunciasData(prev =>
           prev.filter(d => d.idPaseador !== idPaseadorTarget)
         );
         if (expanded === idPaseadorTarget) setExpanded(null);
+        mostrarAlertaExito("Paseador mantenido - denuncias desestimadas");
         cerrarConfirmacion();
       } catch (error) {
         console.error("Error al mantener paseador:", error);
-        setErrorConfirm(error.response?.data || "Ocurrió un error inesperado.");
+        const errorMessage = error.response?.data?.message || error.response?.data || error.message || "Ocurrió un error inesperado";
+        mostrarAlertaError(errorMessage);
+        setErrorConfirm(errorMessage);
       }
     }
 

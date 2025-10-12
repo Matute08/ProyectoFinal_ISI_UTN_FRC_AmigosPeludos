@@ -346,14 +346,38 @@ const ModificarMascota = () => {
                         <Controller
                             name="descripcion"
                             control={control}
+                            rules={{ 
+                                maxLength: {
+                                    value: 150,
+                                    message: "La descripción no puede tener más de 150 caracteres"
+                                }
+                            }}
                             render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    fullWidth
-                                    label="Descripción"
-                                    multiline
-                                    rows={4}
-                                />
+                                <Box>
+                                    <TextField
+                                        {...field}
+                                        fullWidth
+                                        label="Descripción"
+                                        multiline
+                                        rows={4}
+                                        error={!!errors.descripcion}
+                                        helperText={errors.descripcion?.message}
+                                        onChange={(e) => {
+                                            // Limitar estrictamente a 100 caracteres
+                                            const value = e.target.value;
+                                            if (value.length <= 150) {
+                                                field.onChange(value);
+                                            }
+                                        }}
+                                    />
+                                    <Typography 
+                                        variant="caption" 
+                                        color={field.value?.length > 150 ? "error" : "text.secondary"}
+                                        sx={{ mt: 0.5, display: 'block' }}
+                                    >
+                                        {field.value?.length || 0}/150 caracteres
+                                    </Typography>
+                                </Box>
                             )}
                         />
                     </Grid>

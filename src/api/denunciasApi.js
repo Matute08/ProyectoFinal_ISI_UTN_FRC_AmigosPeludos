@@ -91,7 +91,7 @@ export const cambiarEstadoDenunciaCuidador = (idDenuncia, nuevoEstado) => {
 export const cambiarEstadoDenunciaFundacion = (idDenuncia, nuevoEstado) => {
   return apiClient.put(`/denuncias/cambiarEstadoDenunciaFundacion/${idDenuncia}`, nuevoEstado);
 };
-// Cambiar estado de denuncia de fundacion
+// Cambiar estado de denuncia de veterinaria
 export const cambiarEstadoDenunciaVeterinaria = (idDenuncia, nuevoEstado) => {
   return apiClient.put(`/denuncias/cambiarEstadoDenunciaVeterinaria/${idDenuncia}`, nuevoEstado);
 };

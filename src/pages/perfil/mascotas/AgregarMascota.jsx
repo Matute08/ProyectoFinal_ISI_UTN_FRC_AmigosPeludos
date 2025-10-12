@@ -318,8 +318,8 @@ const AgregarMascota = () => {
                             control={control}
                             rules={{ 
                                 maxLength: {
-                                    value: 300,
-                                    message: "La descripción no puede tener más de 300 caracteres"
+                                    value: 150,
+                                    message: "La descripción no puede tener más de 150 caracteres"
                                 }
                             }}
                             render={({ field }) => (
@@ -332,16 +332,20 @@ const AgregarMascota = () => {
                                         rows={4}
                                         error={!!errors.descripcion}
                                         helperText={errors.descripcion?.message}
-                                        inputProps={{
-                                            maxLength: 300
+                                        onChange={(e) => {
+                                            // Limitar estrictamente a 100 caracteres
+                                            const value = e.target.value;
+                                            if (value.length <= 150) {
+                                                field.onChange(value);
+                                            }
                                         }}
                                     />
                                     <Typography 
                                         variant="caption" 
-                                        color={field.value?.length > 250 ? "error" : "text.secondary"}
+                                        color={field.value?.length > 150 ? "error" : "text.secondary"}
                                         sx={{ mt: 0.5, display: 'block' }}
                                     >
-                                        {field.value?.length || 0}/300 caracteres
+                                        {field.value?.length || 0}/150 caracteres
                                     </Typography>
                                 </Box>
                             )}
