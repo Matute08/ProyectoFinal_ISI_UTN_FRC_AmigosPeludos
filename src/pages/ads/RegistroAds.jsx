@@ -154,8 +154,8 @@ const RegistroAds = () => {
 
         if (!formData.descripcion.trim()) {
             newErrors.descripcion = "La descripción es requerida";
-        } else if (formData.descripcion.length > 1000) {
-            newErrors.descripcion = "La descripción no puede exceder 1000 caracteres";
+        } else if (formData.descripcion.length > 110) {
+            newErrors.descripcion = "La descripción no puede exceder 110 caracteres";
         }
 
         if (!formData.imagen) {
@@ -325,7 +325,7 @@ const RegistroAds = () => {
                                 value={formData.descripcion}
                                 onChange={handleInputChange}
                                 error={!!errors.descripcion}
-                                helperText={errors.descripcion || "Máximo 1000 caracteres"}
+                                helperText={errors.descripcion || "Máximo 110 caracteres"}
                                 multiline
                                 rows={3}
                                 required

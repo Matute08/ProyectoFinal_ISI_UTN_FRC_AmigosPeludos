@@ -1,4 +1,4 @@
-import React, {useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useFormContext, Controller } from "react-hook-form";
 import {
     Box,
@@ -22,7 +22,20 @@ const Step1DatosGenerales = () => {
         },
         mode: "onBlur",
     });
+    
+    // Obtener latitud y longitud del formulario
+    const latitud = watch("latitud");
+    const longitud = watch("longitud");
+    
+    // Inicializar latLng con los valores del formulario si existen
     const [latLng, setLatLng] = useState(null);
+
+    // Sincronizar latLng cuando cambien los valores del formulario
+    useEffect(() => {
+        if (latitud && longitud && (!latLng || latLng.lat !== latitud || latLng.lng !== longitud)) {
+            setLatLng({ lat: latitud, lng: longitud });
+        }
+    }, [latitud, longitud, latLng]);
 
 
 

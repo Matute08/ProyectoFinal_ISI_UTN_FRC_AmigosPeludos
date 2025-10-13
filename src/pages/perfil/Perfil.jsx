@@ -72,10 +72,11 @@ const Perfil = () => {
     }
 
     const showServicios =
-        userData.esPaseador ||
-        userData.esCuidador ||
-        userData.esVeterinaria ||
-        userData.esFundacion;
+        userData?.esPaseador ||
+        userData?.esCuidador ||
+        userData?.esVeterinaria ||
+        userData?.esFundacion;
+
 
     return (
         <>
@@ -114,7 +115,7 @@ const Perfil = () => {
                             )}
                             {activeTab === 2 && <QrTab userData={userData} />}
                             {activeTab === 3 && showServicios && (
-                                <ServiciosTab userId={userData.id} />
+                                <ServiciosTab userData={userData} />
                             )}
                         </Box>
                     </Grid>

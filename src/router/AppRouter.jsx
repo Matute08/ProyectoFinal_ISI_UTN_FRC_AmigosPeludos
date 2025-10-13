@@ -41,6 +41,10 @@ import PerfilCuidador from "../pages/cuidador/PerfilCuidador";
 import PerfilPaseador from "../pages/paseador/PerfilPaseador";
 import AgregarPaseador from "../pages/paseador/agregarPaseador/AgregarPaseador";
 import AgregarCuidador from "../pages/cuidador/agregarCuidador/AgregarCuidador";
+import EditarPaseador from "../pages/paseador/EditarPaseador";
+import EditarCuidador from "../pages/cuidador/EditarCuidador";
+import EditarVeterinaria from "../pages/veterinaria/EditarVeterinaria";
+import EditarFundacion from "../pages/fundacion/EditarFundacion";
 import ModificarPerfil from "../pages/perfil/ModificarPerfil";
 import VacunacionMascota from "../pages/perfil/mascotas/vacunas/VacunacionMascota";
 import ModificarPaseador from "../pages/perfil/servicios/modificar/ModificarPaseador";
@@ -52,8 +56,10 @@ import NotFound from "../pages/NotFound";
 
 import Stats from "../pages/stats/Stats";
 import GestionPublicidades from "../pages/admin/GestionPublicidades";
+import VerDetallePublicidad from "../pages/admin/VerDetallePublicidad";
 import PreciosPublicidad from "../components/PreciosPublicidad";
 import RegistroAds from "../pages/ads/RegistroAds";
+import EditarPublicidad from "../pages/ads/EditarPublicidad";
 import UserStats from "../pages/stats/UserStats";
 
 export default function AppRouter() {
@@ -322,6 +328,15 @@ export default function AppRouter() {
                 />
 
                 <Route
+                    path="/ver-publicidad/:id"
+                    element={
+                        <AdminRoute>
+                            <VerDetallePublicidad />
+                        </AdminRoute>
+                    }
+                />
+
+                <Route
                     path="/precios-publicidad"
                     element={<PreciosPublicidad />}
                 />
@@ -340,6 +355,51 @@ export default function AppRouter() {
                     element={
                         <PrivateRoute>
                             <UserStats />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/editar-publicidad/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditarPublicidad />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/editar-paseador/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditarPaseador />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/editar-cuidador/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditarCuidador />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/editar-veterinaria/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditarVeterinaria />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/editar-fundacion/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditarFundacion />
                         </PrivateRoute>
                     }
                 />

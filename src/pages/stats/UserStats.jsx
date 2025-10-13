@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -18,14 +19,22 @@ import {
   Tabs,
   Tab,
   IconButton,
-  Tooltip
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button
 } from '@mui/material';
 import {
   TrendingUp,
   Visibility,
   TouchApp,
   BarChart,
-  Assessment
+  Assessment,
+  Edit,
+  Delete
 } from '@mui/icons-material';
 import {
   Chart as ChartJS,
@@ -44,9 +53,10 @@ import {
   getPublicidadesUsuario,
   getEstadisticasUsuarioPeriodo,
   getRendimientoUbicacionUsuario,
-  getTendenciasCTRUsuario
+  getTendenciasCTRUsuario,
+  eliminarPublicidad
 } from '../../api/publicidadesApi';
-import { mostrarAlertaError } from '../../utils/showAlert';
+import { mostrarAlertaError, mostrarAlertaExito } from '../../utils/showAlert';
 
 // Registrar componentes de Chart.js
 ChartJS.register(
@@ -62,9 +72,14 @@ ChartJS.register(
 
 const UserStats = () => {
   const { userData } = useAuth();
+  const navigate = useNavigate();
   const [publicidades, setPublicidades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tabValue, setTabValue] = useState(0);
+  
+  // Estados para el diálogo de confirmación de eliminación
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [publicidadToDelete, setPublicidadToDelete] = useState(null);
   
   // Estados para datos de gráficos
   const [estadisticasPeriodo, setEstadisticasPeriodo] = useState({});
@@ -122,6 +137,46 @@ const UserStats = () => {
   const ctr = estadisticasTotales.totalVisualizaciones > 0 
     ? ((estadisticasTotales.totalClics / estadisticasTotales.totalVisualizaciones) * 100).toFixed(2)
     : 0;
+
+  // Función para editar publicidad
+  const handleEditarPublicidad = (publicidad) => {
+    navigate(`/editar-publicidad/${publicidad.id}`, { 
+      state: { publicidadData: publicidad } 
+    });
+  };
+
+  // Función para abrir diálogo de confirmación de eliminación
+  const handleEliminarPublicidad = (publicidad) => {
+    setPublicidadToDelete(publicidad);
+    setOpenDeleteDialog(true);
+  };
+
+  // Función para cerrar diálogo de eliminación
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+    setPublicidadToDelete(null);
+  };
+
+  // Función para confirmar eliminación
+  const handleConfirmarEliminacion = async () => {
+    if (!publicidadToDelete) return;
+
+    try {
+      await eliminarPublicidad(publicidadToDelete.id);
+      
+      // Actualizar la lista de publicidades
+      setPublicidades(prev => prev.filter(p => p.id !== publicidadToDelete.id));
+      
+      mostrarAlertaExito('Publicidad eliminada correctamente');
+      handleCloseDeleteDialog();
+      
+      // Recargar datos para actualizar estadísticas
+      fetchData();
+    } catch (error) {
+      console.error('Error al eliminar publicidad:', error);
+      mostrarAlertaError('Error al eliminar la publicidad');
+    }
+  };
 
   // Función para obtener el color del estado
   const getEstadoColor = (estado) => {
@@ -354,12 +409,13 @@ const UserStats = () => {
                       <TableCell>Clics</TableCell>
                       <TableCell>CTR</TableCell>
                       <TableCell>Fecha Creación</TableCell>
+                      <TableCell>Acciones</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {publicidades.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={8} sx={{ textAlign: 'center', py: 4 }}>
+                        <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
                           <Typography variant="body1" color="text.secondary">
                             No tienes publicidades registradas
                           </Typography>
@@ -432,6 +488,34 @@ const UserStats = () => {
                                   ? new Date(publicidad.fechaCreacion).toLocaleDateString()
                                   : 'N/A'}
                               </Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Box sx={{ display: 'flex', gap: 1 }}>
+                                <Tooltip title={publicidad.estadoPublicidadId === 6 ? "No se puede editar una publicidad eliminada" : "Editar publicidad"}>
+                                  <span>
+                                    <IconButton
+                                      size="small"
+                                      color="primary"
+                                      onClick={() => handleEditarPublicidad(publicidad)}
+                                      disabled={publicidad.estadoPublicidadId === 6}
+                                    >
+                                      <Edit fontSize="small" />
+                                    </IconButton>
+                                  </span>
+                                </Tooltip>
+                                <Tooltip title={publicidad.estadoPublicidadId === 6 ? "No se puede eliminar una publicidad ya eliminada" : "Eliminar publicidad"}>
+                                  <span>
+                                    <IconButton
+                                      size="small"
+                                      color="error"
+                                      onClick={() => handleEliminarPublicidad(publicidad)}
+                                      disabled={publicidad.estadoPublicidadId === 6}
+                                    >
+                                      <Delete fontSize="small" />
+                                    </IconButton>
+                                  </span>
+                                </Tooltip>
+                              </Box>
                             </TableCell>
                           </TableRow>
                         );
@@ -589,6 +673,37 @@ const UserStats = () => {
           </Grid>
         </Box>
       )}
+
+      {/* Diálogo de confirmación para eliminar publicidad */}
+      <Dialog
+        open={openDeleteDialog}
+        onClose={handleCloseDeleteDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ color: 'error.main' }}>
+          Confirmar Eliminación
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Estás seguro de que deseas eliminar la publicidad "{publicidadToDelete?.titulo}"?
+            Esta acción no se puede deshacer.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog} color="primary">
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleConfirmarEliminacion} 
+            color="error" 
+            variant="contained"
+            autoFocus
+          >
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

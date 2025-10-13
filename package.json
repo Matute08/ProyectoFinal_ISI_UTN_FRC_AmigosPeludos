@@ -19,6 +19,7 @@
     "@mui/material": "^7.1.0",
     "@react-pdf/renderer": "^4.3.0",
     "axios": "^1.9.0",
+    "buffer": "^6.0.3",
     "chart.js": "^4.5.0",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",

@@ -21,7 +21,7 @@ import {
 } from "../../api/denunciasApi";
 import { mostrarAlertaExito, mostrarAlertaError } from "../../utils/showAlert";
 
-const VerDenunciasVeterinarias = ({ denuncias }) => {
+const VerDenunciasVeterinarias = ({ denuncias, onActualizarDenuncias }) => {
   const [expanded, setExpanded] = useState(null);
   const [estados, setEstados] = useState([]);
   const [loadingEstados, setLoadingEstados] = useState(true);
@@ -63,11 +63,14 @@ const VerDenunciasVeterinarias = ({ denuncias }) => {
     setUpdating((u) => ({ ...u, [idDenuncia]: true }));
     try {
       await cambiarEstadoDenunciaVeterinaria(idDenuncia, nuevoEstado);
-      setDenunciasData((prev) =>
-        prev.map((d) =>
-          d.id === idDenuncia ? { ...d, estadoDenuncia: nuevoEstado } : d
-        )
+      const nuevaLista = denunciasData.map((d) =>
+        d.id === idDenuncia ? { ...d, estadoDenuncia: nuevoEstado } : d
       );
+      setDenunciasData(nuevaLista);
+      // Actualización optimista en el componente padre
+      if (onActualizarDenuncias) {
+        onActualizarDenuncias(nuevaLista);
+      }
       
       // Obtener el nombre del estado para el mensaje
       const estadoNombre = estados.find(e => e.id === nuevoEstado)?.estado || `Estado ${nuevoEstado}`;
@@ -129,9 +132,12 @@ const VerDenunciasVeterinarias = ({ denuncias }) => {
         mostrarAlertaExito("Veterinaria mantenida - denuncias desestimadas");
       }
 
-      setDenunciasData((prev) =>
-        prev.filter((d) => d.idVeterinaria !== parseInt(idVeterinariaTarget))
-      );
+      const nuevaLista = denunciasData.filter((d) => d.idVeterinaria !== parseInt(idVeterinariaTarget));
+      setDenunciasData(nuevaLista);
+      // Actualización optimista en el componente padre
+      if (onActualizarDenuncias) {
+        onActualizarDenuncias(nuevaLista);
+      }
       if (expanded === idVeterinariaTarget) setExpanded(null);
       cerrarConfirmacion();
     } catch (error) {

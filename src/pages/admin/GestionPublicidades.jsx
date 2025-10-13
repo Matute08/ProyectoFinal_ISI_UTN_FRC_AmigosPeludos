@@ -17,7 +17,8 @@ import {
   Paper,
   CircularProgress,
   Tabs,
-  Tab
+  Tab,
+  Tooltip
 } from '@mui/material';
 import {
   Delete,
@@ -27,7 +28,8 @@ import {
   TrendingUp,
   MonetizationOn,
   Schedule,
-  LocationOn
+  LocationOn,
+  Info
 } from '@mui/icons-material';
 import { 
   getAllPublicidades, 
@@ -42,14 +44,16 @@ import {
 } from '../../api/publicidadesApi';
 import Swal from 'sweetalert2';
 import { mostrarAlertaExito, mostrarAlertaError } from '../../utils/showAlert';
+import { useNavigate } from 'react-router-dom';
 
 const GestionPublicidades = () => {
+  const navigate = useNavigate();
   const [publicidades, setPublicidades] = useState([]);
   const [estadisticas, setEstadisticas] = useState({});
   const [precios, setPrecios] = useState([]);
   const [tiposAnunciante, setTiposAnunciante] = useState([]);
   const [ubicaciones, setUbicaciones] = useState([]);
-    const [estados, setEstados] = useState([]);
+  const [estados, setEstados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tabValue, setTabValue] = useState(0);
   
@@ -129,6 +133,11 @@ const GestionPublicidades = () => {
         console.error('Error al eliminar publicidad:', error);
       }
     }
+  };
+
+  // Función para ver detalles de la publicidad
+  const handleVerDetalles = (publicidadId) => {
+    navigate(`/ver-publicidad/${publicidadId}`);
   };
 
   const handleCambiarEstado = async (publicidad) => {
@@ -417,22 +426,33 @@ const GestionPublicidades = () => {
                     </TableCell>
                     <TableCell>
                       <Box display="flex" gap={1}>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleCambiarEstado(publicidad)}
-                          color="primary"
-                          title="Cambiar estado"
-                        >
-                          <Edit />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleDelete(publicidad.id)}
-                          color="error"
-                          title="Eliminar publicidad"
-                        >
-                          <Delete />
-                        </IconButton>
+                        <Tooltip title="Ver detalles">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleVerDetalles(publicidad.id)}
+                            color="info"
+                          >
+                            <Info />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Cambiar estado">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleCambiarEstado(publicidad)}
+                            color="primary"
+                          >
+                            <Edit />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Eliminar publicidad">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDelete(publicidad.id)}
+                            color="error"
+                          >
+                            <Delete />
+                          </IconButton>
+                        </Tooltip>
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -550,7 +570,6 @@ const GestionPublicidades = () => {
           ))}
         </Grid>
       )}
-
 
     </Container>
   );

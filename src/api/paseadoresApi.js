@@ -14,3 +14,14 @@ export const updatePaseador = (id, data) =>
     apiClient.put(`/paseador/${id}`, data);
 export const updateGrillaPaseador = (id, data) =>
     apiClient.put(`/paseador/grilla/${id}`, data);
+
+// Obtener paseador por usuario
+export const getPaseadorByUsuario = async (usuarioId) => {
+  try {
+    const response = await apiClient.get(`/paseador/usuario/${usuarioId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener paseador por usuario:', error);
+    throw error;
+  }
+};
