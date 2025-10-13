@@ -41,6 +41,10 @@ import PerfilCuidador from "../pages/cuidador/PerfilCuidador";
 import PerfilPaseador from "../pages/paseador/PerfilPaseador";
 import AgregarPaseador from "../pages/paseador/agregarPaseador/AgregarPaseador";
 import AgregarCuidador from "../pages/cuidador/agregarCuidador/AgregarCuidador";
+import EditarPaseador from "../pages/paseador/EditarPaseador";
+import EditarCuidador from "../pages/cuidador/EditarCuidador";
+import EditarVeterinaria from "../pages/veterinaria/EditarVeterinaria";
+import EditarFundacion from "../pages/fundacion/EditarFundacion";
 import ModificarPerfil from "../pages/perfil/ModificarPerfil";
 import VacunacionMascota from "../pages/perfil/mascotas/vacunas/VacunacionMascota";
 import ModificarPaseador from "../pages/perfil/servicios/modificar/ModificarPaseador";
@@ -360,6 +364,42 @@ export default function AppRouter() {
                     element={
                         <PrivateRoute>
                             <EditarPublicidad />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/editar-paseador/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditarPaseador />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/editar-cuidador/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditarCuidador />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/editar-veterinaria/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditarVeterinaria />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/editar-fundacion/:id"
+                    element={
+                        <PrivateRoute>
+                            <EditarFundacion />
                         </PrivateRoute>
                     }
                 />

@@ -12,3 +12,14 @@ export const postFotoCuidador = (photoData) =>
     apiClient.post("/cuidadorFoto", photoData);
 export const deleteFotoCuidador = (id) =>
     apiClient.delete(`/cuidadorFoto/${id}`);
+
+// Obtener cuidador por usuario
+export const getCuidadorByUsuario = async (usuarioId) => {
+  try {
+    const response = await apiClient.get(`/cuidadors/usuario/${usuarioId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener cuidador por usuario:', error);
+    throw error;
+  }
+};

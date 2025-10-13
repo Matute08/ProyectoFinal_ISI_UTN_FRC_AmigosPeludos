@@ -33,7 +33,19 @@ export const updateEstadoVeterinaria = (id, data) => apiClient.put(`/veterinaria
 
 
 export const postVeterinaria = (data) => apiClient.post('/veterinaria', data);
-export const deleteVeterinaria = (id) => apiClient.delete(`/veterinaria/${id}`);
+export const updateVeterinaria = (id, data) => apiClient.put(`/veterinaria/${id}`, data);
+export const deleteVeterinaria = (id) => apiClient.put(`/veterinaria/baja/${id}`);
+
+// Obtener veterinaria por usuario
+export const getVeterinariaByUsuario = async (usuarioId) => {
+  try {
+    const response = await apiClient.get(`/veterinaria/usuario/${usuarioId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener veterinaria por usuario:', error);
+    throw error;
+  }
+};
 
 // Comparaciones automáticas de mascotas
 export const getComparacionesByPublicacion = async (publicacionId) => {
