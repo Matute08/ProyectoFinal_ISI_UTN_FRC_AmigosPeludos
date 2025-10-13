@@ -108,12 +108,13 @@ const PanelFormulariosAdopcion = () => {
         }, {});
 
         const { value: estadoId } = await Swal.fire({
-            title: `Cambiar estado del formulario ${formularioId}`,
+            title: `Cambiar estado del formulario`,
             input: "select",
             inputOptions,
             inputPlaceholder: "Seleccione un estado",
             showCancelButton: true,
             confirmButtonText: "Actualizar",
+            cancelButtonText: "Cancelar",
         });
 
 
