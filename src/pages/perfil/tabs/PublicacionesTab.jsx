@@ -11,6 +11,9 @@ import {
     Box,
     Container,
     Tooltip,
+    Pagination,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -33,6 +36,15 @@ const PublicacionesTab = () => {
     const navigate = useNavigate();
     const [modalEstadoAbierto, setModalEstadoAbierto] = useState(false);
     const [postSeleccionado, setPostSeleccionado] = useState(null);
+    
+    // Estados para paginación
+    const [currentPage, setCurrentPage] = useState(1);
+    const [postsPerPage, setPostsPerPage] = useState(3);
+    
+    // Hooks para responsive
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
     const cargarPublicaciones = async () => {
         try {
@@ -49,9 +61,44 @@ const PublicacionesTab = () => {
         cargarPublicaciones();
     }, []);
 
+    // Efecto para actualizar posts por página según el tamaño de pantalla
+    useEffect(() => {
+        if (isMobile) {
+            setPostsPerPage(1);
+        } else if (isTablet) {
+            setPostsPerPage(2);
+        } else {
+            setPostsPerPage(3);
+        }
+        setCurrentPage(1); // Reset a la primera página cuando cambie el tamaño
+    }, [isMobile, isTablet]);
+
 
     const handleEstadoCambiado = () => {
         cargarPublicaciones(); // Recargar la lista
+    };
+
+    // Ordenar posts: activos primero (estadoId === 1), luego los demás
+    const sortedPosts = [...posts].sort((a, b) => {
+        // Si ambos tienen estadoId 1, mantener orden original
+        if (a.estadoId === 1 && b.estadoId === 1) return 0;
+        // Si solo a tiene estadoId 1, va primero
+        if (a.estadoId === 1) return -1;
+        // Si solo b tiene estadoId 1, va primero
+        if (b.estadoId === 1) return 1;
+        // Para los demás, mantener orden original
+        return 0;
+    });
+
+    // Calcular posts para la página actual
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    const currentPosts = sortedPosts.slice(indexOfFirstPost, indexOfLastPost);
+    const totalPages = Math.ceil(sortedPosts.length / postsPerPage);
+
+    // Manejar cambio de página
+    const handlePageChange = (event, value) => {
+        setCurrentPage(value);
     };
 
     if (postToViewId !== null) {
@@ -105,7 +152,7 @@ const PublicacionesTab = () => {
                             </Box>
                         </Grid>
                     )}
-                    {posts.map((post) => (
+                    {currentPosts.map((post) => (
                         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={post.id}>
                             <Card sx={{ 
                                 height: '100%', 
@@ -306,6 +353,48 @@ const PublicacionesTab = () => {
                         </Grid>
                     ))}
                 </Grid>
+                
+                {/* Información de paginación y controles */}
+                {posts.length > 0 && (
+                    <Box sx={{ mt: 3 }}>
+                        {/* Información de paginación */}
+                        <Box sx={{ 
+                            textAlign: 'center', 
+                            mb: 2,
+                            color: 'text.secondary'
+                        }}>
+                            <Typography variant="body2">
+                                Mostrando {indexOfFirstPost + 1}-{Math.min(indexOfLastPost, sortedPosts.length)} de {sortedPosts.length} publicaciones
+                            </Typography>
+                        </Box>
+                        
+                        {/* Paginación */}
+                        {sortedPosts.length > postsPerPage && (
+                            <Box 
+                                sx={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'center',
+                                    mb: 2
+                                }}
+                            >
+                                <Pagination
+                                    count={totalPages}
+                                    page={currentPage}
+                                    onChange={handlePageChange}
+                                    color="primary"
+                                    size={isMobile ? "small" : "medium"}
+                                    showFirstButton
+                                    showLastButton
+                                    sx={{
+                                        '& .MuiPaginationItem-root': {
+                                            fontSize: isMobile ? '0.875rem' : '1rem',
+                                        }
+                                    }}
+                                />
+                            </Box>
+                        )}
+                    </Box>
+                )}
             </Box>
 
 

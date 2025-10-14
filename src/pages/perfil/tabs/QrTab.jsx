@@ -111,6 +111,7 @@ const handleGenerarQR = async () => {
                 <QrDescargable
                     qrUrl={qrGenerado}
                     nombre={userData?.nombreCompleto}
+                    userId={userData?.id}
                 />
             ) : (
                 <>

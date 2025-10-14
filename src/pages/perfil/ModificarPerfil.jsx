@@ -121,6 +121,10 @@ const EditarPerfil = () => {
                 if (userInfo.ciudadId) {
                     const barriosRes = await getBarriosPorCiudad(userInfo.ciudadId);
                     setBarrios(barriosRes.data || []);
+                    // Asegurar que el barrioId se mantenga después de cargar los barrios
+                    if (userInfo.barrioId) {
+                        setValue("barrioId", userInfo.barrioId);
+                    }
                 } else {
                     // Si no tiene ciudad, cargar todos los barrios como fallback
                     const barriosRes = await getBarrios();
@@ -155,14 +159,22 @@ const EditarPerfil = () => {
     // Efecto para manejar cambios de ciudad y cargar barrios correspondientes
     useEffect(() => {
         const ciudadId = watch("ciudadId");
+        const currentBarrioId = watch("barrioId");
+        
         if (ciudadId) {
             getBarriosPorCiudad(ciudadId).then((res) => {
-                setBarrios(res.data || []);
-                // Limpiar barrio seleccionado cuando cambia la ciudad
-                setValue("barrioId", "");
+                const nuevosBarrios = res.data || [];
+                setBarrios(nuevosBarrios);
+                
+                // Verificar si el barrio actual es válido para la nueva ciudad
+                const barrioValido = nuevosBarrios.find(b => b.id === currentBarrioId);
+                if (!barrioValido) {
+                    // Si el barrio no es válido para la nueva ciudad, limpiarlo
+                    setValue("barrioId", "");
+                }
             });
         }
-    }, [watch("ciudadId"), setValue]);
+    }, [watch("ciudadId"), watch("barrioId"), setValue]);
 
     const onSubmit = async (data) => {
         setLoading(true);

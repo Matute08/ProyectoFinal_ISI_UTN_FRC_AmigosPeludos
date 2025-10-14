@@ -5,16 +5,19 @@ import { Box, Button, Typography, Stack } from "@mui/material";
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 
-const QrDescargable = ({ qrUrl, nombre = "usuario" }) => {
+const QrDescargable = ({ qrUrl, nombre = "usuario", userId }) => {
     const handleDescargarPDF = async () => {
-        // const qrDataUrl = await QRCode.toDataURL(
-        //     `https://amigos-peludos.vercel.app/datos-usuario/${nombre}`,
-        //     { width: 300, margin: 2 }
-        // );
-
         const qrDataUrl = await QRCode.toDataURL(
-            `localhost:5173/datos-usuario/${nombre}`,
-            { width: 300, margin: 2 }
+            `https://amigos-peludos.vercel.app/datos-usuario/${userId}`,
+            { 
+                width: 400, 
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                },
+                errorCorrectionLevel: 'M'
+            }
         );
 
         const doc = new jsPDF({
@@ -29,10 +32,10 @@ const QrDescargable = ({ qrUrl, nombre = "usuario" }) => {
             align: "center",
         });
 
-        doc.addImage(qrDataUrl, "PNG", (pageWidth - 100) / 2, 30, 100, 100);
+        doc.addImage(qrDataUrl, "PNG", (pageWidth - 120) / 2, 30, 120, 120);
 
         doc.setFontSize(12);
-        doc.text(nombre, pageWidth / 2, 140, { align: "center" });
+        doc.text(nombre, pageWidth / 2, 160, { align: "center" });
         doc.save(`qr_${nombre}.pdf`);
     };
 
