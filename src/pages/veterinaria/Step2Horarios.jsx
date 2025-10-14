@@ -53,28 +53,29 @@ const Step2Horarios = () => {
         const horarios = {};
         
         local.forEach(({ dia, corrido, desdeC, hastaC, desdeM, hastaM, desdeT, hastaT }) => {
-            // Enviar como objeto para que EditarVeterinaria pueda procesarlo correctamente
-            horarios[dia] = {
-                corrido: corrido,
-                desde: corrido ? desdeC : desdeM,
-                hasta: corrido ? hastaC : hastaM,
-                desdeM: desdeM,
-                hastaM: hastaM,
-                desdeT: desdeT,
-                hastaT: hastaT
-            };
+            let horarioString = "";
             
-            // Verificar si hay horarios válidos
             if (corrido && desdeC && hastaC) {
+                // Horario corrido
+                horarioString = `desde ${desdeC} hasta ${hastaC}`;
+                hasValidHorarios = true;
+            } else if (desdeM && hastaM && desdeT && hastaT) {
+                // Horario partido: mañana y tarde
+                horarioString = `desde ${desdeM} hasta ${hastaM}, desde ${desdeT} hasta ${hastaT}`;
                 hasValidHorarios = true;
             } else if (desdeM && hastaM) {
+                // Solo horario de mañana
+                horarioString = `desde ${desdeM} hasta ${hastaM}`;
                 hasValidHorarios = true;
             } else if (desdeT && hastaT) {
+                // Solo horario de tarde
+                horarioString = `desde ${desdeT} hasta ${hastaT}`;
                 hasValidHorarios = true;
             }
+            
+            horarios[dia] = horarioString;
         });
         
-        console.log("Step2Horarios - Horarios enviados al formulario:", horarios);
         setValue("horarios", horarios);
         setValue("hasValidHorarios", hasValidHorarios);
         trigger("horarios");
@@ -82,7 +83,6 @@ const Step2Horarios = () => {
 
     // Actualizar formulario cuando cambien los horarios
     useEffect(() => {
-        console.log("useEffect ejecutado - local cambió:", local);
         updateForm();
     }, [local]);
 
@@ -106,29 +106,21 @@ const Step2Horarios = () => {
 
     // Copiar horario a días siguientes
     const handleCopy = (i) => {
-        console.log("=== INICIANDO COPIA ===");
-        console.log("Copiando horario del día:", DIAS[i].label, "índice:", i);
         
         setLocal((prev) => {
-            console.log("Estado anterior:", prev);
             const from = prev[i];
-            console.log("Horario a copiar:", from);
             
             // Extraer solo los horarios, excluyendo la propiedad 'dia'
             const { dia, ...horariosACopiar } = from;
-            console.log("Horarios a copiar (sin dia):", horariosACopiar);
             
             const updated = prev.map((d, idx) => {
                 if (idx > i) {
                     const newDay = { ...d, ...horariosACopiar };
-                    console.log(`Copiando a ${DIAS[idx].label}:`, newDay);
                     return newDay;
                 }
                 return d;
             });
             
-            console.log("Estado actualizado:", updated);
-            console.log("=== FIN COPIA ===");
             return updated;
         });
     };

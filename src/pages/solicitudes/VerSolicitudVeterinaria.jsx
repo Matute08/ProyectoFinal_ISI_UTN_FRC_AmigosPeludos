@@ -13,6 +13,7 @@ import { useParams } from "react-router-dom";
 import { getVeterinarias } from "../../api/commonApi";
 import logo from "/logo-amigos-peludos.png";
 import { Button, Container, Box, Typography } from "@mui/material";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 const styles = StyleSheet.create({
     page: {
@@ -485,17 +486,19 @@ const VerSolicitudVeterinaria = () => {
                     }}
                 >
                     {solicitud && (
-                        <PDFViewer
-                            width="100%"
-                            height="100%"
-                            style={{
-                                border: "none",
-                                display: "flex",
-                                justifyContent: "center",
-                            }}
-                        >
-                            {Doc}
-                        </PDFViewer>
+                        <ErrorBoundary>
+                            <PDFViewer
+                                width="100%"
+                                height="100%"
+                                style={{
+                                    border: "none",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                {Doc}
+                            </PDFViewer>
+                        </ErrorBoundary>
                     )}
                 </Box>
             </Container>

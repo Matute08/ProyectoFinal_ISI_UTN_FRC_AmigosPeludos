@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useFormContext, Controller } from "react-hook-form";
 import {
     Box,
@@ -27,9 +27,19 @@ const Step3Servicios = () => {
     const { control, watch, setValue } = useFormContext();
     const servicios = watch("servicios") || {};
 
+    // Inicializar todos los servicios como booleanos
+    useEffect(() => {
+        SERVICIOS.forEach(serv => {
+            const currentValue = servicios[serv.name];
+            if (currentValue === undefined || currentValue === "" || typeof currentValue !== 'boolean') {
+                setValue(`servicios.${serv.name}`, false);
+            }
+        });
+    }, [servicios, setValue]);
+
     // Actualiza el objeto servicios en el form al checkear/descheckear
     const handleCheck = (name, checked) => {
-        setValue(`servicios.${name}`, checked, {
+        setValue(`servicios.${name}`, Boolean(checked), {
             shouldValidate: true,
             shouldDirty: true,
         });

@@ -13,6 +13,7 @@ import { useParams } from "react-router-dom";
 import { getFundacion } from "../../api/fundacionesApi";
 import logo from "/logo-amigos-peludos.png";
 import { Box, Button, Container, Typography } from "@mui/material";
+import ErrorBoundary from "../../components/ErrorBoundary";
 const styles = StyleSheet.create({
     page: {
         padding: 40,
@@ -330,17 +331,19 @@ const VerSolicitudFundacion = () => {
                     }}
                 >
                     {solicitud && (
-                        <PDFViewer
-                            width="100%"
-                            height="100%"
-                            style={{
-                                border: "none",
-                                display: "flex",
-                                justifyContent: "center",
-                            }}
-                        >
-                            {Doc}
-                        </PDFViewer>
+                        <ErrorBoundary>
+                            <PDFViewer
+                                width="100%"
+                                height="100%"
+                                style={{
+                                    border: "none",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                {Doc}
+                            </PDFViewer>
+                        </ErrorBoundary>
                     )}
                 </Box>
             </Container>

@@ -64,14 +64,13 @@ const AgregarVeterinaria = () => {
                 "guardia24hs",
                 "equipoLaboratorio",
                 "castraciones",
+                "observaciones",
             ];
             const serviciosFormatted = {};
             allServicios.forEach((s) => {
                 serviciosFormatted[s] = !!data.servicios?.[s];
             });
             serviciosFormatted.otros = data.servicios?.otros || "";
-            serviciosFormatted.observaciones =
-                data.servicios?.observaciones || "";
 
             // 3. Formatear datos de donación y redes
             const donacion = {

@@ -21,12 +21,12 @@ export default function AdminRoute({ children }) {
 
   // Si no hay usuario autenticado, redirigir al login
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
   // Si no hay datos del usuario o no es administrador, redirigir al home
   if (!userData || userData.rolId !== 1) {
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
 
   // Si es administrador, mostrar el contenido

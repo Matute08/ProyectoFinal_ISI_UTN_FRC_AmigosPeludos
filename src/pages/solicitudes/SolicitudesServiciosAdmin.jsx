@@ -265,12 +265,9 @@ const SolicitudesServiciosAdmin = () => {
 
     const handleVerPDF = (id, tipo) => {
         if (tipo === "vete") {
-            //window.open(`/ver-solicitud-veterinaria/${id} `, "_blank");
-            navigate(`/ver-solicitud-veterinaria/${id} `, "_blank");
+            window.open(`/ver-solicitud-veterinaria/${id}`, "_blank");
         } else {
-            //window.open(`/ver-solicitud-fundacion/${id}`, "_blank");
-
-            navigate(`/ver-solicitud-fundacion/${id}`, "_blank");
+            window.open(`/ver-solicitud-fundacion/${id}`, "_blank");
         }
     };
 
