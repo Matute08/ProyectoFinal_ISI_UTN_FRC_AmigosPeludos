@@ -497,17 +497,12 @@ const RegistroAds = () => {
                     </Button>
                 </form>
 
-                <Typography variant="body2" color="text.secondary" mt={2}>
-                    Al registrar tu publicidad, aceptás nuestros Terminos y Condiciones.
-                    
-                    
-                </Typography>
+
 
                 <Box mt={3} textAlign="center">
                     <Typography variant="body2">
                         <strong>Nota:</strong> Una vez registrada tu publicidad, será revisada por nuestro equipo.
-                        Te contactaremos para coordinar el pago y activación. Las fechas de inicio y fin se
-                        configurarán según el plan seleccionado.
+                        Te contactaremos para coordinar el pago y activación.
                     </Typography>
                 </Box>
             </Paper>
