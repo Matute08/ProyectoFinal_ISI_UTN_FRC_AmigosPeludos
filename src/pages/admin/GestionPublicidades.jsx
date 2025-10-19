@@ -18,7 +18,10 @@ import {
   CircularProgress,
   Tabs,
   Tab,
-  Tooltip
+  Tooltip,
+  TextField,
+  Button,
+  Stack
 } from '@mui/material';
 import {
   Delete,
@@ -29,7 +32,11 @@ import {
   MonetizationOn,
   Schedule,
   LocationOn,
-  Info
+  Info,
+  AttachMoney,
+  People,
+  Payment,
+  BarChart
 } from '@mui/icons-material';
 import { 
   getAllPublicidades, 
@@ -40,27 +47,77 @@ import {
   actualizarPrecioUbicacion,
   getTiposAnunciante,
   getUbicaciones,
-  getEstadosPublicidad
+  getEstadosPublicidad,
+  getEstadisticasPagos,
+  getEstadisticasPorUbicacion,
+  getEstadisticasDetalladasUbicacion
 } from '../../api/publicidadesApi';
 import Swal from 'sweetalert2';
 import { mostrarAlertaExito, mostrarAlertaError } from '../../utils/showAlert';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthProvider';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart as RechartsBarChart, Bar } from 'recharts';
 
 const GestionPublicidades = () => {
   const navigate = useNavigate();
+  const { userData } = useAuth();
   const [publicidades, setPublicidades] = useState([]);
   const [estadisticas, setEstadisticas] = useState({});
+  const [estadisticasPagos, setEstadisticasPagos] = useState({});
+  const [estadisticasUbicacion, setEstadisticasUbicacion] = useState({});
   const [precios, setPrecios] = useState([]);
   const [tiposAnunciante, setTiposAnunciante] = useState([]);
   const [ubicaciones, setUbicaciones] = useState([]);
   const [estados, setEstados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tabValue, setTabValue] = useState(0);
+  const [fechaDesde, setFechaDesde] = useState('');
+  const [fechaHasta, setFechaHasta] = useState('');
+  const [loadingPagos, setLoadingPagos] = useState(false);
   
 
   useEffect(() => {
+    // Establecer fechas por defecto (hoy y un mes antes)
+    const hoy = new Date();
+    const unMesAtras = new Date();
+    unMesAtras.setMonth(hoy.getMonth() - 1);
+    
+    const fechaHastaStr = hoy.toISOString().split('T')[0];
+    const fechaDesdeStr = unMesAtras.toISOString().split('T')[0];
+    
+    setFechaHasta(fechaHastaStr);
+    setFechaDesde(fechaDesdeStr);
+    
     fetchData();
   }, []);
+
+  // Efecto para cargar estadísticas de pagos y ubicaciones cuando cambien las fechas o el usuario
+  useEffect(() => {
+    if (userData?.rolId === 1 && fechaDesde && fechaHasta) {
+      const cargarEstadisticas = async () => {
+        try {
+          setLoadingPagos(true);
+          
+          // Cargar estadísticas de pagos
+          const pagosData = await getEstadisticasPagos(fechaDesde, fechaHasta);
+          setEstadisticasPagos(pagosData || {});
+          
+          // Cargar estadísticas por ubicación
+          const ubicacionData = await getEstadisticasPorUbicacion(fechaDesde, fechaHasta);
+          setEstadisticasUbicacion(ubicacionData || {});
+          
+        } catch (error) {
+          console.error('Error al cargar estadísticas:', error);
+          setEstadisticasPagos({});
+          setEstadisticasUbicacion({});
+        } finally {
+          setLoadingPagos(false);
+        }
+      };
+      
+      cargarEstadisticas();
+    }
+  }, [fechaDesde, fechaHasta, userData?.rolId]);
 
   const fetchData = async () => {
     try {
@@ -115,6 +172,8 @@ const GestionPublicidades = () => {
         setPrecios([]);
       }
 
+      // Las estadísticas de pagos se cargarán en el useEffect cuando las fechas estén listas
+
     } catch (error) {
       console.error('Error al cargar publicidades:', error);
       setPublicidades([]);
@@ -123,6 +182,29 @@ const GestionPublicidades = () => {
     }
   };
 
+  // Función para actualizar estadísticas de pagos y ubicaciones (llamada manual)
+  const actualizarEstadisticasPagos = async () => {
+    if (userData?.rolId !== 1 || !fechaDesde || !fechaHasta) return;
+    
+    try {
+      setLoadingPagos(true);
+      
+      // Cargar estadísticas de pagos
+      const pagosData = await getEstadisticasPagos(fechaDesde, fechaHasta);
+      setEstadisticasPagos(pagosData || {});
+      
+      // Cargar estadísticas por ubicación
+      const ubicacionData = await getEstadisticasPorUbicacion(fechaDesde, fechaHasta);
+      setEstadisticasUbicacion(ubicacionData || {});
+      
+    } catch (error) {
+      console.error('Error al actualizar estadísticas:', error);
+      setEstadisticasPagos({});
+      setEstadisticasUbicacion({});
+    } finally {
+      setLoadingPagos(false);
+    }
+  };
 
   const handleDelete = async (id) => {
     if (window.confirm('¿Estás seguro de que querés eliminar esta publicidad?')) {
@@ -522,6 +604,300 @@ const GestionPublicidades = () => {
               </Card>
             </Grid>
           </Grid>
+
+          {/* Dashboard de Ganancias - Solo para Admin */}
+          {userData?.rolId === 1 && (
+            <Box>
+              <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 3 }}>
+                Dashboard de Ganancias
+              </Typography>
+              
+              {/* Selector de fechas */}
+              <Card sx={{ mb: 3 }}>
+                <CardContent>
+                  <Typography variant="h6" fontWeight="bold" gutterBottom>
+                    Seleccionar Período
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Período actual: {fechaDesde && fechaHasta ? 
+                      `${new Date(fechaDesde).toLocaleDateString('es-ES')} - ${new Date(fechaHasta).toLocaleDateString('es-ES')}` : 
+                      'Seleccionando fechas...'
+                    }
+                  </Typography>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+                    <TextField
+                      label="Desde"
+                      type="date"
+                      value={fechaDesde}
+                      onChange={(e) => setFechaDesde(e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                      size="small"
+                    />
+                    <TextField
+                      label="Hasta"
+                      type="date"
+                      value={fechaHasta}
+                      onChange={(e) => setFechaHasta(e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                      size="small"
+                    />
+                    <Button
+                      variant="contained"
+                      onClick={actualizarEstadisticasPagos}
+                      disabled={loadingPagos || !fechaDesde || !fechaHasta}
+                      startIcon={loadingPagos ? <CircularProgress size={16} /> : null}
+                    >
+                      {loadingPagos ? 'Cargando...' : 'Actualizar'}
+                    </Button>
+                  </Stack>
+                </CardContent>
+              </Card>
+              
+              {/* Estadísticas de Pagos */}
+              <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid size={{xs: 12, md:3}} >
+                  <Card>
+                    <CardContent>
+                      <Box display="flex" alignItems="center" gap={2}>
+                        <AttachMoney color="success" />
+                        <Box>
+                          <Typography variant="h4" fontWeight="bold" color="success.main">
+                            ${(estadisticasPagos.totalRecaudado || 0).toLocaleString()}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Total Recaudado
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid size={{xs: 12, md:3}} >
+                  <Card>
+                    <CardContent>
+                      <Box display="flex" alignItems="center" gap={2}>
+                        <Payment color="primary" />
+                        <Box>
+                          <Typography variant="h4" fontWeight="bold">
+                            {estadisticasPagos.totalPagos || 0}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Total Pagos
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid size={{xs: 12, md:3}} >
+                  <Card>
+                    <CardContent>
+                      <Box display="flex" alignItems="center" gap={2}>
+                        <BarChart color="info" />
+                        <Box>
+                          <Typography variant="h4" fontWeight="bold">
+                            ${(estadisticasPagos.promedioPago || 0).toLocaleString()}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Promedio por Pago
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid size={{xs: 12, md:3}} >
+                  <Card>
+                    <CardContent>
+                      <Box display="flex" alignItems="center" gap={2}>
+                        <People color="warning" />
+                        <Box>
+                          <Typography variant="h4" fontWeight="bold">
+                            {estadisticasPagos.usuariosUnicos || 0}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Usuarios Únicos
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+
+              
+
+              {/* Gráficos */}
+              <Grid container spacing={3} sx={{ mb: 4 }}>
+                {/* Gráfico de líneas - Pagos por Mes */}
+                
+
+                
+                </Grid>
+
+              {/* Gráficos de Estadísticas por Ubicación */}
+              {estadisticasUbicacion.estadisticasPorUbicacion && estadisticasUbicacion.estadisticasPorUbicacion.length > 0 && (
+                <Grid container spacing={3} sx={{ mb: 4 }}>
+                  {/* Gráfico de barras - Recaudación por Ubicación */}
+                  <Grid size={{xs: 12, md:8}} >
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" fontWeight="bold" gutterBottom>
+                          Recaudación por Ubicación
+                        </Typography>
+                        <Box sx={{ height: 300 }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <RechartsBarChart data={estadisticasUbicacion.estadisticasPorUbicacion}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis 
+                                dataKey="ubicacionNombre" 
+                                angle={-45}
+                                textAnchor="end"
+                                height={80}
+                                fontSize={12}
+                              />
+                              <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`} />
+                              <RechartsTooltip 
+                                formatter={(value) => [`$${value.toLocaleString()}`, 'Total Recaudado']}
+                              />
+                              <Bar 
+                                dataKey="totalRecaudado" 
+                                fill="#1976d2"
+                                radius={[4, 4, 0, 0]}
+                              />
+                            </RechartsBarChart>
+                          </ResponsiveContainer>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+
+                  {/* Gráfico de torta - Distribución de Publicidades por Ubicación */}
+                  <Grid size={{xs: 12, md:4}} >
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" fontWeight="bold" gutterBottom>
+                          Distribución de Publicidades
+                        </Typography>
+                        <Box sx={{ height: 300 }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={estadisticasUbicacion.estadisticasPorUbicacion}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={({ ubicacionNombre, totalPublicidades }) => `${ubicacionNombre}: ${totalPublicidades}`}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="totalPublicidades"
+                              >
+                                {estadisticasUbicacion.estadisticasPorUbicacion.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={['#1976d2', '#2e7d32', '#ed6c02', '#d32f2f'][index % 4]} />
+                                ))}
+                              </Pie>
+                              <RechartsTooltip 
+                                formatter={(value) => [value, 'Publicidades']}
+                              />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+              )}
+
+
+              {/* Tabla detallada de ubicaciones */}
+              {estadisticasUbicacion.estadisticasPorUbicacion && estadisticasUbicacion.estadisticasPorUbicacion.length > 0 && (
+                <Card sx={{ mb: 4 }}>
+                  <CardContent>
+                    <Typography variant="h6" fontWeight="bold" gutterBottom>
+                      Detalle por Ubicación
+                    </Typography>
+                    <TableContainer>
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Ubicación</TableCell>
+                            <TableCell>Precio Base</TableCell>
+                            <TableCell>Total Publicidades</TableCell>
+                            <TableCell>Total Recaudado</TableCell>
+                            <TableCell>Promedio por Publicidad</TableCell>
+                            <TableCell>Usuarios Únicos</TableCell>
+                            <TableCell>Activas/Inactivas</TableCell>
+                            <TableCell>Rentabilidad</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {estadisticasUbicacion.estadisticasPorUbicacion.map((ubicacion, index) => (
+                            <TableRow key={index}>
+                              <TableCell>
+                                <Typography variant="subtitle2" fontWeight="bold">
+                                  {ubicacion.ubicacionNombre}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2">
+                                  ${ubicacion.precioUbicacion.toLocaleString()}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2">
+                                  {ubicacion.totalPublicidades}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2" fontWeight="bold" color="success.main">
+                                  ${ubicacion.totalRecaudado.toLocaleString()}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2">
+                                  ${ubicacion.promedioPorPublicidad.toLocaleString()}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Typography variant="body2">
+                                  {ubicacion.totalUsuariosUnicos}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                <Box display="flex" gap={1}>
+                                  <Chip 
+                                    label={`${ubicacion.publicidadesActivas} activas`} 
+                                    size="small" 
+                                    color="success" 
+                                    variant="outlined"
+                                  />
+                                  <Chip 
+                                    label={`${ubicacion.publicidadesInactivas} inactivas`} 
+                                    size="small" 
+                                    color="error" 
+                                    variant="outlined"
+                                  />
+                                </Box>
+                              </TableCell>
+                              <TableCell>
+                                <Chip 
+                                  label={`${ubicacion.rentabilidad.toFixed(1)}x`} 
+                                  size="small" 
+                                  color="primary" 
+                                  variant="filled"
+                                />
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </CardContent>
+                </Card>
+              )}
+
+            </Box>
+          )}
 
         </Box>
       )}

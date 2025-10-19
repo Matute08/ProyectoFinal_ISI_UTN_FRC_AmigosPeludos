@@ -111,7 +111,17 @@ const PreciosPublicidad = () => {
         });
     };
 
-    const ubicaciones = mapearUbicaciones(precios);
+    // Ordenar las ubicaciones según el orden deseado: HOME (id: 1) - PUBLICACIONES (id: 2) - FULL (id: 4)
+    const ordenarUbicaciones = (ubicaciones) => {
+        const orden = [1, 2, 4]; // HOME, PUBLICACIONES, FULL
+        return ubicaciones.sort((a, b) => {
+            const indexA = orden.indexOf(a.id);
+            const indexB = orden.indexOf(b.id);
+            return indexA - indexB;
+        });
+    };
+
+    const ubicaciones = ordenarUbicaciones(mapearUbicaciones(precios));
 
     const beneficios = [
         "Métricas detalladas de rendimiento",

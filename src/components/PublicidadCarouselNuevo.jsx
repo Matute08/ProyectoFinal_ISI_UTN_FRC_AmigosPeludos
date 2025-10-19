@@ -140,22 +140,24 @@ const PublicidadCarouselNuevo = ({ ubicacion = "home", onClicPublicidad }) => {
     };
 
     const handleClic = async (publicidad) => {
-        if (publicidad.url) {
-            try {
-                // Registrar el clic antes de abrir la URL
-                await registrarClicPublicidad(publicidad.id);
-                
-                // Llamar a la función adicional si se proporciona
-                if (onClicPublicidad) {
-                    await onClicPublicidad(publicidad.id);
-                }
-                
-                // Normalizar y abrir la URL
+        try {
+            // Registrar el clic
+            await registrarClicPublicidad(publicidad.id);
+            
+            // Llamar a la función adicional si se proporciona
+            if (onClicPublicidad) {
+                await onClicPublicidad(publicidad.id);
+            }
+            
+            // Si hay URL, abrirla
+            if (publicidad.url) {
                 const urlNormalizada = normalizarUrl(publicidad.url);
                 window.open(urlNormalizada, "_blank");
-            } catch (error) {
-                console.error(`Error al registrar clic para publicidad ${publicidad.id}:`, error);
-                // Aún abrir la URL aunque falle el registro del clic
+            }
+        } catch (error) {
+            console.error(`Error al registrar clic para publicidad ${publicidad.id}:`, error);
+            // Si hay URL, intentar abrirla aunque falle el registro del clic
+            if (publicidad.url) {
                 const urlNormalizada = normalizarUrl(publicidad.url);
                 window.open(urlNormalizada, "_blank");
             }
@@ -255,22 +257,20 @@ const PublicidadCarouselNuevo = ({ ubicacion = "home", onClicPublicidad }) => {
                             >
                                 <Card
                                     sx={{
-                                        cursor: publicidad.url ? "pointer" : "default",
+                                        cursor: "pointer",
                                         height: "100%",
                                         borderRadius: 2,
                                         overflow: "hidden",
                                         transition: "all 0.3s ease",
                                         boxShadow: theme.shadows[3],
-                                        "&:hover": publicidad.url
-                                            ? {
-                                                  transform: "translateY(-4px)",
-                                                  boxShadow: theme.shadows[8],
-                                              }
-                                            : {},
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        "&:hover": {
+                                            transform: "translateY(-4px)",
+                                            boxShadow: theme.shadows[8],
+                                        },
                                     }}
-                                    onClick={() =>
-                                        publicidad.url && handleClic(publicidad)
-                                    }
+                                    onClick={() => handleClic(publicidad)}
                                 >
                                     {/* Imagen */}
                                     <Box sx={{ position: "relative", height: 200 }}>
@@ -337,55 +337,70 @@ const PublicidadCarouselNuevo = ({ ubicacion = "home", onClicPublicidad }) => {
                                     </Box>
 
                                     {/* Contenido */}
-                                    <CardContent sx={{ p: 2 }}>
-                                        <Typography
-                                            variant="h6"
-                                            fontWeight="bold"
-                                            color="primary"
-                                            gutterBottom
-                                            sx={{
-                                                fontSize: "1rem",
-                                                lineHeight: 1.3,
-                                                display: "-webkit-box",
-                                                WebkitLineClamp: 2,
-                                                WebkitBoxOrient: "vertical",
-                                                overflow: "hidden",
-                                                mb: 1,
-                                            }}
-                                        >
-                                            {publicidad.titulo}
-                                        </Typography>
+                                    <CardContent 
+                                        sx={{ 
+                                            p: 2,
+                                            flex: 1,
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            justifyContent: "space-between"
+                                        }}
+                                    >
+                                        <Box>
+                                            <Typography
+                                                variant="h6"
+                                                fontWeight="bold"
+                                                color="primary"
+                                                gutterBottom
+                                                sx={{
+                                                    fontSize: "1rem",
+                                                    lineHeight: 1.3,
+                                                    display: "-webkit-box",
+                                                    WebkitLineClamp: 2,
+                                                    WebkitBoxOrient: "vertical",
+                                                    overflow: "hidden",
+                                                    mb: 1,
+                                                }}
+                                            >
+                                                {publicidad.titulo}
+                                            </Typography>
 
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                            sx={{
-                                                fontSize: "0.85rem",
-                                                lineHeight: 1.4,
-                                                display: "-webkit-box",
-                                                WebkitLineClamp: 3,
-                                                WebkitBoxOrient: "vertical",
-                                                overflow: "hidden",
-                                                mb: 2,
-                                            }}
-                                        >
-                                            {publicidad.descripcion}
-                                        </Typography>
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                sx={{
+                                                    fontSize: "0.85rem",
+                                                    lineHeight: 1.4,
+                                                    display: "-webkit-box",
+                                                    WebkitLineClamp: 3,
+                                                    WebkitBoxOrient: "vertical",
+                                                    overflow: "hidden",
+                                                    mb: 2,
+                                                }}
+                                            >
+                                                {publicidad.descripcion}
+                                            </Typography>
+                                        </Box>
 
-                                        {publicidad.url && (
+                                        <Box sx={{ mt: "auto", pt: 1, width: "100%" }}>
                                             <Button
                                                 variant="contained"
-                                                endIcon={<OpenInNew />}
+                                                endIcon={publicidad.url ? <OpenInNew /> : null}
                                                 size="small"
+                                                fullWidth
                                                 sx={{
                                                     textTransform: "none",
                                                     borderRadius: 1,
                                                     fontSize: "0.8rem",
+                                                    backgroundColor: theme.palette.primary.main,
+                                                    "&:hover": {
+                                                        backgroundColor: theme.palette.primary.dark,
+                                                    },
                                                 }}
                                             >
                                                 Ver más
                                             </Button>
-                                        )}
+                                        </Box>
                                     </CardContent>
                                 </Card>
                             </Box>

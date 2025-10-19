@@ -143,8 +143,8 @@ const Step4DatosDonacion = () => {
                             control={control}
                             rules={{
                                 maxLength: {
-                                    value: 30,
-                                    message: "Máximo 30 caracteres"
+                                    value: 255,
+                                    message: "Máximo 255 caracteres"
                                 }
                             }}
                             render={({ field, fieldState }) => (
@@ -152,11 +152,11 @@ const Step4DatosDonacion = () => {
                                     placeholder="www.paginaWeb.com"
                                     label="Página Web"
                                     fullWidth
-                                    inputProps={{ maxLength: 30 }}
+                                    inputProps={{ maxLength: 255 }}
                                     {...field}
                                     onChange={(e) => {
                                         const value = e.target.value;
-                                        if (value.length <= 30) {
+                                        if (value.length <= 255) {
                                             field.onChange(e);
                                         }
                                     }}
@@ -172,8 +172,8 @@ const Step4DatosDonacion = () => {
                             control={control}
                             rules={{
                                 maxLength: {
-                                    value: 30,
-                                    message: "Máximo 30 caracteres"
+                                    value: 255,
+                                    message: "Máximo 255 caracteres"
                                 }
                             }}
                             render={({ field, fieldState }) => (
@@ -181,11 +181,11 @@ const Step4DatosDonacion = () => {
                                     placeholder="www.instagram.com/tuVeterinaria"
                                     label="Instagram"
                                     fullWidth
-                                    inputProps={{ maxLength: 30 }}
+                                    inputProps={{ maxLength: 255 }}
                                     {...field}
                                     onChange={(e) => {
                                         const value = e.target.value;
-                                        if (value.length <= 30) {
+                                        if (value.length <= 255) {
                                             field.onChange(e);
                                         }
                                     }}
@@ -201,8 +201,8 @@ const Step4DatosDonacion = () => {
                             control={control}
                             rules={{
                                 maxLength: {
-                                    value: 30,
-                                    message: "Máximo 30 caracteres"
+                                    value: 255,
+                                    message: "Máximo 255 caracteres"
                                 }
                             }}
                             render={({ field, fieldState }) => (
@@ -210,11 +210,11 @@ const Step4DatosDonacion = () => {
                                     placeholder="www.facebook.com/tuVeterinaria"
                                     label="Facebook"
                                     fullWidth
-                                    inputProps={{ maxLength: 30 }}
+                                    inputProps={{ maxLength: 255 }}
                                     {...field}
                                     onChange={(e) => {
                                         const value = e.target.value;
-                                        if (value.length <= 30) {
+                                        if (value.length <= 255) {
                                             field.onChange(e);
                                         }
                                     }}
