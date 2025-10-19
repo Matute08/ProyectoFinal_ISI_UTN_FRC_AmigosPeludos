@@ -24,6 +24,14 @@ export function AuthProvider({ children }) {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Función utilitaria para limpiar el caché del usuario
+    const clearUserCache = () => {
+        localStorage.removeItem("userData");
+        localStorage.removeItem("user");
+        localStorage.removeItem("authToken");
+        setUserData(null);
+    };
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
@@ -83,6 +91,9 @@ export function AuthProvider({ children }) {
     }, [user, userData]);
 
     const login = async (email, password) => {
+        // Limpiar datos del usuario anterior antes de iniciar nueva sesión
+        clearUserCache();
+        
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         setUser(user);
@@ -117,6 +128,9 @@ export function AuthProvider({ children }) {
     };
 
     const loginWithGoogle = async () => {
+        // Limpiar datos del usuario anterior antes de iniciar nueva sesión
+        clearUserCache();
+        
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
 
@@ -206,18 +220,34 @@ export function AuthProvider({ children }) {
         const savedPassword = localStorage.getItem("loginPassword");
         const savedRemember = localStorage.getItem("loginRemember");
         
-        // Limpiar todo el localStorage
-        localStorage.clear();
+        // Limpiar específicamente todos los datos relacionados con el usuario actual
+        // para evitar que se muestren datos del usuario anterior cuando otro usuario inicie sesión
+        clearUserCache();
         
-        // Restaurar solo las credenciales de "recordarme" si estaban guardadas
+        // Limpiar cualquier otro dato que pueda estar relacionado con la sesión
+        // Mantener solo las credenciales de "recordarme" si están configuradas
+        const keysToKeep = [];
+        if (savedRemember === "true" && savedEmail && savedPassword) {
+            keysToKeep.push("loginEmail", "loginPassword", "loginRemember");
+        }
+        
+        // Limpiar todo el localStorage excepto las credenciales de "recordarme"
+        const allKeys = Object.keys(localStorage);
+        allKeys.forEach(key => {
+            if (!keysToKeep.includes(key)) {
+                localStorage.removeItem(key);
+            }
+        });
+        
+        // Restaurar las credenciales de "recordarme" si estaban guardadas
         if (savedRemember === "true" && savedEmail && savedPassword) {
             localStorage.setItem("loginEmail", savedEmail);
             localStorage.setItem("loginPassword", savedPassword);
             localStorage.setItem("loginRemember", savedRemember);
         }
         
+        // Limpiar el estado local
         setUser(null);
-        setUserData(null);
     };
 
     // RESTABLECER CONTRASEÑA
@@ -240,7 +270,13 @@ const deleteAccount = async (password) => {
     const credential = EmailAuthProvider.credential(currentUser.email, password);
     await reauthenticateWithCredential(currentUser, credential);
     await deleteUser(currentUser);
+    
+    // Limpiar completamente el localStorage al eliminar la cuenta
     localStorage.clear();
+    
+        // Limpiar el estado local
+        setUser(null);
+        setUserData(null);
     return { success: true };
   } catch (error) {
     return { success: false, error };
@@ -261,6 +297,7 @@ const deleteAccount = async (password) => {
                 deleteAccount,
                 logout,
                 loginWithGoogle,
+                clearUserCache,
                 isAuthenticated: !!user,
             }}
         >

@@ -442,19 +442,19 @@ export default function AgregarFundacion() {
                                             placeholder="https://www.tufundacion.org"
                                             {...register("paginaUrl", {
                                                 maxLength: {
-                                                    value: 30,
-                                                    message: "Máximo 30 caracteres"
+                                                    value: 255,
+                                                    message: "Máximo 255 caracteres"
                                                 }
                                             })}
                                             error={!!errors.paginaUrl}
                                             helperText={errors.paginaUrl?.message}
                                             inputProps={{
-                                                maxLength: 30
+                                                maxLength: 255
                                             }}
                                             onChange={(e) => {
                                                 const value = e.target.value;
-                                                if (value.length > 30) {
-                                                    e.target.value = value.slice(0, 30);
+                                                if (value.length > 255) {
+                                                    e.target.value = value.slice(0, 255);
                                                 }
                                             }}
                                         />
@@ -466,19 +466,19 @@ export default function AgregarFundacion() {
                                             placeholder="https://www.facebook.com/tu_fundacion"
                                             {...register("facebook", {
                                                 maxLength: {
-                                                    value: 30,
-                                                    message: "Máximo 30 caracteres"
+                                                    value: 255,
+                                                    message: "Máximo 255 caracteres"
                                                 }
                                             })}
                                             error={!!errors.facebook}
                                             helperText={errors.facebook?.message}
                                             inputProps={{
-                                                maxLength: 30
+                                                maxLength: 255
                                             }}
                                             onChange={(e) => {
                                                 const value = e.target.value;
-                                                if (value.length > 30) {
-                                                    e.target.value = value.slice(0, 30);
+                                                if (value.length > 255) {
+                                                    e.target.value = value.slice(0, 255);
                                                 }
                                             }}
                                         />
@@ -490,19 +490,19 @@ export default function AgregarFundacion() {
                                             placeholder="https://www.instagram.com/tu_fundacion"
                                             {...register("instagram", {
                                                 maxLength: {
-                                                    value: 30,
-                                                    message: "Máximo 30 caracteres"
+                                                    value: 255,
+                                                    message: "Máximo 255 caracteres"
                                                 }
                                             })}
                                             error={!!errors.instagram}
                                             helperText={errors.instagram?.message}
                                             inputProps={{
-                                                maxLength: 30
+                                                maxLength: 255
                                             }}
                                             onChange={(e) => {
                                                 const value = e.target.value;
-                                                if (value.length > 30) {
-                                                    e.target.value = value.slice(0, 30);
+                                                if (value.length > 255) {
+                                                    e.target.value = value.slice(0, 255);
                                                 }
                                             }}
                                         />
