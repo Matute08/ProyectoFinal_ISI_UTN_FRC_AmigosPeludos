@@ -380,9 +380,7 @@ const VerDetallePublicidad = () => {
           {/* Fechas */}
           <Card sx={{ mb: 3 }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Fechas Importantes
-              </Typography>
+             
               <List dense>
                 <ListItem>
                   <ListItemIcon>
@@ -393,24 +391,7 @@ const VerDetallePublicidad = () => {
                     secondary={formatearFecha(publicidad.fechaCreacion)}
                   />
                 </ListItem>
-                <ListItem>
-                  <ListItemIcon>
-                    <Schedule />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Fecha de Inicio"
-                    secondary={formatearFecha(publicidad.fechaInicio)}
-                  />
-                </ListItem>
-                <ListItem>
-                  <ListItemIcon>
-                    <Schedule />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Fecha de Fin"
-                    secondary={formatearFecha(publicidad.fechaFin)}
-                  />
-                </ListItem>
+               
               </List>
             </CardContent>
           </Card>

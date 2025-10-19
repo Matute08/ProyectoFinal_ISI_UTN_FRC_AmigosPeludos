@@ -47,7 +47,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-export default function ActivityByMonthChart({ months = 12 }) {
+export default function ActivityByMonthChart({ months = 13 }) {
   const theme = useTheme();
   const [rows, setRows] = useState([]);
 
@@ -59,7 +59,14 @@ export default function ActivityByMonthChart({ months = 12 }) {
     const inactivos = Math.max(usuariosTotales - usuariosActivos, 0);
     const tasa = r.tasaActivosPct ?? r.TasaActivosPct ?? 0;
     return {
-      month: new Date(r.mes).toLocaleDateString("es-AR",{month:"short",year:"numeric"}).replace(".",""),
+      month: (() => {
+        const date = new Date(r.mes);
+        const month = date.getUTCMonth();
+        const year = date.getUTCFullYear();
+        const monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 
+                           'jul', 'ago', 'sept', 'oct', 'nov', 'dic'];
+        return `${monthNames[month]} ${year.toString().slice(-2)}`;
+      })(),
       activos: usuariosActivos,
       inactivos,
       tasa

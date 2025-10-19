@@ -13,8 +13,15 @@ import ArticleRoundedIcon from "@mui/icons-material/ArticleRounded";
 import AutoGraphRoundedIcon from "@mui/icons-material/AutoGraphRounded";
 import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
 
-const fmtMonth = (d) =>
-  new Date(d).toLocaleDateString("es-AR", { month: "short", year: "2-digit" }).replace(".", "");
+const fmtMonth = (d) => {
+  const date = new Date(d);
+  // Asegurar que usamos UTC para evitar problemas de zona horaria
+  const month = date.getUTCMonth();
+  const year = date.getUTCFullYear();
+  const monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 
+                     'jul', 'ago', 'sept', 'oct', 'nov', 'dic'];
+  return `${monthNames[month]} ${year.toString().slice(-2)}`;
+};
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -54,7 +61,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-export default function PublisByMonthChart({ months = 12 }) {
+export default function PublisByMonthChart({ months = 13 }) {
   const theme = useTheme();
   const [rows, setRows] = useState([]);
   // displayMode: 'auto' | 'bars' | 'lines'

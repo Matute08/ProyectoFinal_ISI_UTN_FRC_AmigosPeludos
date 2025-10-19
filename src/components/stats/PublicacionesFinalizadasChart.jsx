@@ -19,7 +19,7 @@ import {
 } from 'recharts';
 import { getEstadisticasPublicacionesFinalizadas } from '../../api/publicacionesApi';
 
-const PublicacionesFinalizadasChart = ({ months = 12 }) => {
+const PublicacionesFinalizadasChart = ({ months = 13 }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
