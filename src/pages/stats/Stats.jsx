@@ -34,7 +34,7 @@ const itemVariants = {
 };
 
 export default function Stats() {
-  const [months, setMonths] = useState(12);
+  const [months, setMonths] = useState(13);
   const [orgsData, setOrgsData] = useState(null);
 
   useEffect(() => {

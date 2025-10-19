@@ -41,14 +41,21 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-export default function UsersByMonthChart({ months = 12 }) {
+export default function UsersByMonthChart({ months = 13 }) {
   const theme = useTheme();
   const [rows, setRows] = useState([]);
 
   useEffect(() => { getUsersByMonth(months).then(setRows).catch(() => {}); }, [months]);
 
   const data = useMemo(() => rows.map(r => ({
-    month: new Date(r.mes).toLocaleDateString("es-AR",{month:"short",year:"numeric"}).replace(".",""),
+    month: (() => {
+      const date = new Date(r.mes);
+      const month = date.getUTCMonth();
+      const year = date.getUTCFullYear();
+      const monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 
+                         'jul', 'ago', 'sept', 'oct', 'nov', 'dic'];
+      return `${monthNames[month]} ${year.toString().slice(-2)}`;
+    })(),
     usuarios: r.usuarios ?? r.Usuarios ?? 0
   })), [rows]);
 
