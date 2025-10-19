@@ -128,10 +128,22 @@ const RegistroAds = () => {
             };
             reader.readAsDataURL(file);
         } else {
-            setFormData((prev) => ({
-                ...prev,
-                [name]: value,
-            }));
+            // Validación especial para teléfono - solo números y máximo 20 dígitos
+            if (name === "telefono") {
+                // Remover cualquier carácter que no sea número
+                const numericValue = value.replace(/\D/g, '');
+                // Limitar a máximo 20 dígitos
+                const limitedValue = numericValue.slice(0, 20);
+                setFormData((prev) => ({
+                    ...prev,
+                    [name]: limitedValue,
+                }));
+            } else {
+                setFormData((prev) => ({
+                    ...prev,
+                    [name]: value,
+                }));
+            }
         }
 
         // Limpiar error cuando el usuario empiece a escribir/seleccionar
@@ -170,8 +182,12 @@ const RegistroAds = () => {
             newErrors.tipoAnunciante = "El tipo de anunciante es requerido";
         }
 
-        if (formData.telefono && formData.telefono.length > 20) {
-            newErrors.telefono = "El teléfono no puede exceder 20 caracteres";
+        if (!formData.telefono.trim()) {
+            newErrors.telefono = "El teléfono es requerido";
+        } else if (!/^\d+$/.test(formData.telefono)) {
+            newErrors.telefono = "El teléfono solo puede contener números";
+        } else if (formData.telefono.length > 20) {
+            newErrors.telefono = "El teléfono no puede exceder 20 dígitos";
         }
 
         if (formData.direccion && formData.direccion.length > 200) {
@@ -303,79 +319,8 @@ const RegistroAds = () => {
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
 
+                        {/* Campo de imagen al principio */}
                         <Grid item size={{ xs: 12 }}>
-                            <TextField
-                                fullWidth
-                                label="Título de la publicidad"
-                                name="titulo"
-                                value={formData.titulo}
-                                onChange={handleInputChange}
-                                error={!!errors.titulo}
-                                helperText={errors.titulo || "Máximo 200 caracteres"}
-                                required
-                                placeholder="Ej: Veterinaria San Pedro - Atención 24hs"
-                            />
-                        </Grid>
-
-                        <Grid item size={{ xs: 12 }}>
-                            <TextField
-                                fullWidth
-                                label="Descripción"
-                                name="descripcion"
-                                value={formData.descripcion}
-                                onChange={handleInputChange}
-                                error={!!errors.descripcion}
-                                helperText={errors.descripcion || "Máximo 110 caracteres"}
-                                multiline
-                                rows={3}
-                                required
-                                placeholder="Describe tu servicio o negocio..."
-                            />
-                        </Grid>
-
-                        <Grid item size={{ xs: 12, md: 6 }}>
-                            <FormControl
-                                fullWidth
-                                error={!!errors.tipoAnunciante}
-                                required
-                            >
-                                <InputLabel>Tipo de anunciante</InputLabel>
-                                <Select
-                                    name="tipoAnunciante"
-                                    value={formData.tipoAnunciante}
-                                    onChange={handleInputChange}
-                                    label="Tipo de anunciante"
-                                    disabled={loadingTipos}
-                                >
-                                    {loadingTipos ? (
-                                        <MenuItem disabled>
-                                            Cargando tipos...
-                                        </MenuItem>
-                                    ) : tiposAnunciante.length === 0 ? (
-                                        <MenuItem disabled>
-                                            No hay tipos disponibles
-                                        </MenuItem>
-                                    ) : (
-                                        tiposAnunciante.map((tipo) => (
-                                            <MenuItem key={tipo.id} value={tipo.id}>
-                                                {tipo.nombre}
-                                            </MenuItem>
-                                        ))
-                                    )}
-                                </Select>
-                            </FormControl>
-                            {errors.tipoAnunciante && (
-                                <Typography
-                                    variant="caption"
-                                    color="error"
-                                    sx={{ mt: 0.5, display: "block" }}
-                                >
-                                    {errors.tipoAnunciante}
-                                </Typography>
-                            )}
-                        </Grid>
-
-                        <Grid item size={{ xs: 12, md: 6 }}>
                             <Box>
                                 <input
                                     accept="image/*"
@@ -436,6 +381,65 @@ const RegistroAds = () => {
                         <Grid item size={{ xs: 12 }}>
                             <TextField
                                 fullWidth
+                                label="Título de la publicidad"
+                                name="titulo"
+                                value={formData.titulo}
+                                onChange={handleInputChange}
+                                error={!!errors.titulo}
+                                helperText={errors.titulo || "Máximo 200 caracteres"}
+                                required
+                                placeholder="Ej: Veterinaria San Pedro - Atención 24hs"
+                            />
+                        </Grid>
+
+                       
+
+                        <Grid item size={{ xs: 12, md: 6 }}>
+                            <FormControl
+                                fullWidth
+                                error={!!errors.tipoAnunciante}
+                                required
+                            >
+                                <InputLabel>Tipo de anunciante</InputLabel>
+                                <Select
+                                    name="tipoAnunciante"
+                                    value={formData.tipoAnunciante}
+                                    onChange={handleInputChange}
+                                    label="Tipo de anunciante"
+                                    disabled={loadingTipos}
+                                >
+                                    {loadingTipos ? (
+                                        <MenuItem disabled>
+                                            Cargando tipos...
+                                        </MenuItem>
+                                    ) : tiposAnunciante.length === 0 ? (
+                                        <MenuItem disabled>
+                                            No hay tipos disponibles
+                                        </MenuItem>
+                                    ) : (
+                                        tiposAnunciante.map((tipo) => (
+                                            <MenuItem key={tipo.id} value={tipo.id}>
+                                                {tipo.nombre}
+                                            </MenuItem>
+                                        ))
+                                    )}
+                                </Select>
+                            </FormControl>
+                            {errors.tipoAnunciante && (
+                                <Typography
+                                    variant="caption"
+                                    color="error"
+                                    sx={{ mt: 0.5, display: "block" }}
+                                >
+                                    {errors.tipoAnunciante}
+                                </Typography>
+                            )}
+                        </Grid>
+
+
+                        <Grid item size={{ xs: 6 }}>
+                            <TextField
+                                fullWidth
                                 label="URL del sitio web (opcional)"
                                 name="url"
                                 value={formData.url}
@@ -452,13 +456,19 @@ const RegistroAds = () => {
                         <Grid item size={{ xs: 12, md: 6 }}>
                             <TextField
                                 fullWidth
-                                label="Teléfono (opcional)"
+                                label="Teléfono"
                                 name="telefono"
                                 value={formData.telefono}
                                 onChange={handleInputChange}
                                 error={!!errors.telefono}
-                                helperText={errors.telefono || "Máximo 20 caracteres"}
-                                placeholder="+54 9 11 1234-5678"
+                                helperText={errors.telefono || "Solo números, máximo 20 dígitos"}
+                                placeholder="541112345678"
+                                required
+                                inputProps={{
+                                    pattern: "[0-9]*",
+                                    inputMode: "numeric",
+                                    maxLength: 20
+                                }}
                                 InputProps={{
                                     startAdornment: <Phone sx={{ mr: 1, color: "text.secondary" }} />,
                                 }}
@@ -478,6 +488,23 @@ const RegistroAds = () => {
                                 InputProps={{
                                     startAdornment: <LocationOn sx={{ mr: 1, color: "text.secondary" }} />,
                                 }}
+                            />
+                        </Grid>
+
+
+                        <Grid item size={{ xs: 12 }}>
+                            <TextField
+                                fullWidth
+                                label="Descripción"
+                                name="descripcion"
+                                value={formData.descripcion}
+                                onChange={handleInputChange}
+                                error={!!errors.descripcion}
+                                helperText={errors.descripcion || "Máximo 110 caracteres"}
+                                multiline
+                                rows={3}
+                                required
+                                placeholder="Describe tu servicio o negocio..."
                             />
                         </Grid>
                             </Grid>

@@ -296,19 +296,19 @@ export default function NuevaMascotaEncontrada() {
                                             {...register("color", {
                                                 required: "Campo obligatorio",
                                                 maxLength: {
-                                                    value: 20,
-                                                    message: "El color no puede tener más de 20 caracteres"
+                                                    value: 30,
+                                                    message: "El color no puede tener más de 30 caracteres"
                                                 }
                                             })}
                                             error={!!errors.color}
                                             helperText={errors.color?.message}
                                             inputProps={{
-                                                maxLength: 20
+                                                maxLength: 30
                                             }}
                                             onChange={(e) => {
                                                 const value = e.target.value;
-                                                if (value.length > 20) {
-                                                    e.target.value = value.slice(0, 20);
+                                                if (value.length > 30) {
+                                                    e.target.value = value.slice(0, 30);
                                                 }
                                             }}
                                             sx={{ flex: 1 }}

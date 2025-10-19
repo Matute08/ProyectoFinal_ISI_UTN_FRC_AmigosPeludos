@@ -33,7 +33,7 @@ export default function Perdidos() {
     const [paginaActual, setPaginaActual] = useState(1);
     const navigate = useNavigate();
 
-    const porPagina = 16;
+    const porPagina = 6;
     const [filtros, setFiltros] = useState({
         tipo: "Todos",
         sexo: "Todos",

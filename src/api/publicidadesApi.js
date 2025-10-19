@@ -225,3 +225,51 @@ export const tienePublicidadesUsuario = async (usuarioId) => {
     return { count: 0 };
   }
 };
+
+// Obtener estadísticas de pagos de publicidades
+export const getEstadisticasPagos = async (desde, hasta) => {
+  try {
+    const response = await apiClient.get(`/publicidades/pagos/estadisticas`, {
+      params: {
+        desde,
+        hasta
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener estadísticas de pagos:', error);
+    throw error;
+  }
+};
+
+// Obtener estadísticas por ubicación
+export const getEstadisticasPorUbicacion = async (desde, hasta) => {
+  try {
+    const response = await apiClient.get(`/publicidades/estadisticas/por-ubicacion`, {
+      params: {
+        desde,
+        hasta
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener estadísticas por ubicación:', error);
+    throw error;
+  }
+};
+
+// Obtener estadísticas detalladas por ubicación específica
+export const getEstadisticasDetalladasUbicacion = async (ubicacionId, desde, hasta) => {
+  try {
+    const response = await apiClient.get(`/publicidades/estadisticas/ubicacion/${ubicacionId}`, {
+      params: {
+        desde,
+        hasta
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener estadísticas detalladas de ubicación:', error);
+    throw error;
+  }
+};
