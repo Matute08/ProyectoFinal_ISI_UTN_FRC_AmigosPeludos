@@ -62,33 +62,15 @@ const EditarPerfil = () => {
                 setLoading(true);
                 setError("");
                 
-                const cached = localStorage.getItem("userData");
-                if (!cached) {
+                // SIEMPRE usar el email del usuario actual desde el contexto de autenticación
+                // NO usar localStorage para evitar datos de usuarios anteriores
+                if (!authUser?.email) {
                     setError("No se encontró información de usuario. Por favor, inicia sesión nuevamente.");
                     return;
                 }
                 
-                const userData = JSON.parse(cached);
-                
-                // Obtener email desde loginEmail en localStorage
-                let email = localStorage.getItem("loginEmail");
-                
-                // Si no está en loginEmail, buscar en otras propiedades
-                if (!email) {
-                    email = userData?.email || userData?.mail || userData?.user?.email || userData?.user?.mail;
-                }
-                
-                // Si no se encuentra en localStorage, intentar con el contexto de auth
-                if (!email && authUser?.email) {
-                    email = authUser.email;
-                }
-                
-                if (!email) {
-                    setError("Email de usuario no encontrado. Por favor, inicia sesión nuevamente.");
-                    return;
-                }
-                
-                const res = await getUserMail(email);
+                // Obtener datos frescos del backend usando el email del usuario actual
+                const res = await getUserMail(authUser.email);
                 
                 if (!res) {
                     setError("La API no devolvió respuesta.");
@@ -143,7 +125,7 @@ const EditarPerfil = () => {
             }
         };
         fetchData();
-    }, [setValue]);
+    }, [setValue, authUser]);
 
     useEffect(() => {
         let tempUrl;
