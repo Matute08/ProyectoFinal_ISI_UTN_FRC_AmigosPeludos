@@ -15,11 +15,21 @@ import {
 } from "@mui/material";
 import { getComparacionesByPublicacion } from "../api/commonApi";
 
-const getColorByPorcentaje = (porcentaje) => {
-  if (!porcentaje || porcentaje === 0) return "error";
-  if (porcentaje > 75) return "success";
-  if (porcentaje >= 50) return "warning";
-  return "error";
+const getColorByPorcentaje = (resultado) => {
+  // Normalizar el resultado (trim y lowercase)
+  const resultadoNormalizado = (resultado || "").toString().trim().toLowerCase();
+  
+  switch (resultadoNormalizado) {
+    case "coincide":
+      return "success"; // Verde
+    case "indeterminado":
+      return "warning"; // Amarillo/Naranja
+    case "no coincide":
+      return "error"; // Rojo
+    default:
+      console.log("Resultado no reconocido:", resultado, "-> usando warning por defecto");
+      return "warning"; // Amarillo por defecto
+  }
 };
 
 const getEstadoLabel = (resultado) => {
@@ -156,9 +166,26 @@ const ComparacionesMascota = ({ publicacionId }) => {
       ) : (
         <Stack spacing={4}>
           {comparaciones.map((comp, idx) => {
-            // Color de borde según resultado
+            // Color de borde según resultado del backend
             const resultado = comp.resultado || "indeterminado";
-            const borde = resultado === "coincide" ? "#4caf50" : "#e57373";
+            const porcentaje = comp.porcentajesimilitud || 0;
+          
+            
+            // Determinar color según resultado del backend
+            let borde;
+            switch (resultado) {
+              case "coincide":
+                borde = "#4caf50"; // Verde
+                break;
+              case "indeterminado":
+                borde = "#ff9800"; // Amarillo/Naranja
+                break;
+              case "no coincide":
+                borde = "#f44336"; // Rojo
+                break;
+              default:
+                borde = "#ff9800"; // Amarillo por defecto
+            }
             return (
               <Card key={idx} sx={{ p: { xs: 1, sm: 3 }, borderRadius: 4, boxShadow: 3, background: '#fff' }}>
                 <Grid container spacing={2} alignItems="center" justifyContent="center">
@@ -179,7 +206,7 @@ const ComparacionesMascota = ({ publicacionId }) => {
                         <Box display="flex" alignItems="center" gap={2} mb={1}>
                           <Chip
                             label={`${(comp.porcentajesimilitud || 0).toFixed(2)} %`}
-                            color={getColorByPorcentaje(comp.porcentajesimilitud || 0)}
+                            color={getColorByPorcentaje(resultado)}
                             sx={{ fontWeight: "bold", fontSize: 16, px: 2, py: 1 }}
                           />
                           <Typography variant="body2" color="textSecondary">
