@@ -42,8 +42,21 @@ const DonacionFundacion = () => {
         fetch();
     }, [idFunda]);
 
-    const corregirUrl = (url) =>
-        url?.startsWith("http") ? url : `https://${url}`;
+    const corregirUrl = (url) => {
+        if (!url || url.trim() === "") {
+            return "#";
+        }
+        
+        const urlTrimmed = url.trim();
+        
+        // Si ya tiene protocolo, devolver tal como está
+        if (urlTrimmed.startsWith("http://") || urlTrimmed.startsWith("https://")) {
+            return urlTrimmed;
+        }
+        
+        // Si no tiene protocolo, agregar https://
+        return `https://${urlTrimmed}`;
+    };
 
     const handleCopy = async (text, tipo) => {
         try {
@@ -219,10 +232,14 @@ const DonacionFundacion = () => {
                                         <IconButton
                                             component="a"
                                             href={corregirUrl(
-                                                fundacion.paginaWeb
+                                                fundacion.paginaUrl
                                             )}
                                             target="_blank"
                                             rel="noopener"
+                                            onClick={() => {
+                                                console.log("URL original:", fundacion.paginaUrl);
+                                                console.log("URL corregida:", corregirUrl(fundacion.paginaUrl));
+                                            }}
                                         >
                                             <Language color="primary" />
                                         </IconButton>

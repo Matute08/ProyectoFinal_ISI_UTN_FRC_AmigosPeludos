@@ -53,11 +53,14 @@ const Register = () => {
 
 
         try {
-            const isUser = await getUserMail(data.mail);
-            const userCredential = await register(data.mail, data.password);
+            // Normalizar email a minúsculas para consistencia con Firebase
+            const emailNormalizado = data.mail.toLowerCase().trim();
+            const isUser = await getUserMail(emailNormalizado);
+            const userCredential = await register(emailNormalizado, data.password);
 
             if (userCredential) {
                 data.habilitada = true;
+                data.mail = emailNormalizado; // Usar el email normalizado
 
                 if (isUser) {
                     await updateUser(isUser.id, data);
@@ -143,6 +146,7 @@ const Register = () => {
                                         value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                                         message: "Formato de email inválido",
                                     },
+                                    setValueAs: (value) => value?.toLowerCase().trim(),
                                 })}
                                 error={!!errors.mail}
                                 helperText={errors.mail?.message}
