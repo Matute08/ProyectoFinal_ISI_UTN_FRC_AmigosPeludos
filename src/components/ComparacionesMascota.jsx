@@ -191,7 +191,7 @@ const ComparacionesMascota = ({ publicacionId }) => {
                 <Grid container spacing={2} alignItems="center" justifyContent="center">
                   {/* Mascota origen */}
                   <Grid item size={{xs:12, sm:5, md:4}}>
-                    <MascotaInfo mascota={mascotaOrigen} borderColor={borde} titulo={"PERDIDA"} />
+                    <MascotaInfo mascota={mascotaOrigen} borderColor={borde} titulo={"ENCONTRADA"} />
                   </Grid>
                   {/* Mascota comparada */}
                   <Grid item size={{xs:12, sm:7, md:8}} >
@@ -201,7 +201,7 @@ const ComparacionesMascota = ({ publicacionId }) => {
                       alignItems={{ xs: 'center', sm: 'flex-start' }}
                       gap={2}
                     >
-                      <MascotaInfo mascota={comp.mascotaComparada} borderColor={borde} titulo={"ENCONTRADA"} />
+                      <MascotaInfo mascota={comp.mascotaComparada} borderColor={borde} titulo={"PERDIDA"} />
                       <Box flex={1} minWidth={180}>
                         <Box display="flex" alignItems="center" gap={2} mb={1}>
                           <Chip
