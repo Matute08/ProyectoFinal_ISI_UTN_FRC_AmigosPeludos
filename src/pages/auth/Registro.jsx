@@ -337,7 +337,7 @@ const Register = () => {
                 <Box mt={3} textAlign="center">
                     <Typography variant="body2">
                         ¿Ya tenés una cuenta?{" "}
-                        <MuiLink href="/iniciar-sesion" underline="hover">
+                        <MuiLink href="/login" underline="hover">
                             Iniciá sesión
                         </MuiLink>
                     </Typography>
