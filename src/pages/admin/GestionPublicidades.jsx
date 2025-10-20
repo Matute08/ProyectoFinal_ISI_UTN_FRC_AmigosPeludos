@@ -21,7 +21,12 @@ import {
   Tooltip,
   TextField,
   Button,
-  Stack
+  Stack,
+  Pagination,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import {
   Delete,
@@ -74,7 +79,58 @@ const GestionPublicidades = () => {
   const [fechaDesde, setFechaDesde] = useState('');
   const [fechaHasta, setFechaHasta] = useState('');
   const [loadingPagos, setLoadingPagos] = useState(false);
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const [filtroEstado, setFiltroEstado] = useState('todos');
+
+  // Función para filtrar publicidades por estado
+  const filtrarPublicidadesPorEstado = (publicidades) => {
+    if (filtroEstado === 'todos') {
+      return publicidades;
+    }
+    
+    return publicidades.filter(publicidad => {
+      const estadoNombre = typeof publicidad.estado === 'object' ? publicidad.estado?.nombre : publicidad.estado;
+      return estadoNombre === filtroEstado;
+    });
+  };
+
+  // Función para ordenar publicidades (pendientes primero)
+  const ordenarPublicidades = (publicidades) => {
+    return [...publicidades].sort((a, b) => {
+      const estadoA = typeof a.estado === 'object' ? a.estado?.nombre : a.estado;
+      const estadoB = typeof b.estado === 'object' ? b.estado?.nombre : b.estado;
+      
+      // Pendientes primero
+      if (estadoA === 'Pendiente' && estadoB !== 'Pendiente') return -1;
+      if (estadoA !== 'Pendiente' && estadoB === 'Pendiente') return 1;
+      
+      // Si ambos son del mismo tipo de estado, mantener orden original
+      return 0;
+    });
+  };
+
+  // Función para obtener publicidades filtradas, ordenadas y paginadas
+  const getPublicidadesPaginadas = () => {
+    const publicidadesFiltradas = filtrarPublicidadesPorEstado(publicidades);
+    const publicidadesOrdenadas = ordenarPublicidades(publicidadesFiltradas);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return publicidadesOrdenadas.slice(startIndex, endIndex);
+  };
+
+  // Función para obtener publicidades filtradas (para calcular total de páginas)
+  const getPublicidadesFiltradas = () => {
+    return filtrarPublicidadesPorEstado(publicidades);
+  };
+
+  // Función para calcular total de páginas basado en publicidades filtradas
+  const totalPages = Math.ceil(getPublicidadesFiltradas().length / itemsPerPage);
+
+  // Resetear página cuando cambien las publicidades o el filtro
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [publicidades.length, filtroEstado]);
 
   useEffect(() => {
     // Establecer fechas por defecto (hoy y un mes antes)
@@ -426,8 +482,23 @@ const GestionPublicidades = () => {
         <Box>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
             <Typography variant="h6">
-              Todas las Publicidades ({publicidades.length})
+              Todas las Publicidades ({getPublicidadesFiltradas().length})
             </Typography>
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel>Filtrar por Estado</InputLabel>
+              <Select
+                value={filtroEstado}
+                label="Filtrar por Estado"
+                onChange={(e) => setFiltroEstado(e.target.value)}
+              >
+                <MenuItem value="todos">Todos los Estados</MenuItem>
+                {estados.map((estado) => (
+                  <MenuItem key={estado.id} value={estado.nombre}>
+                    {estado.nombre}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Box>
 
           <TableContainer component={Paper}>
@@ -444,19 +515,25 @@ const GestionPublicidades = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {publicidades.length === 0 ? (
+                {getPublicidadesFiltradas().length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4 }}>
                       <Typography variant="body1" color="text.secondary">
-                        No hay publicidades registradas
+                        {filtroEstado === 'todos' 
+                          ? 'No hay publicidades registradas'
+                          : `No hay publicidades con estado "${filtroEstado}"`
+                        }
                       </Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                        Las nuevas solicitudes aparecerán aquí una vez que los usuarios las envíen
+                        {filtroEstado === 'todos' 
+                          ? 'Las nuevas solicitudes aparecerán aquí una vez que los usuarios las envíen'
+                          : 'Intenta cambiar el filtro para ver otras publicidades'
+                        }
                       </Typography>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  publicidades.map((publicidad) => {
+                  getPublicidadesPaginadas().map((publicidad) => {
                     return (
                   <TableRow key={publicidad.id}>
                     <TableCell>
@@ -544,6 +621,21 @@ const GestionPublicidades = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          
+          {/* Controles de paginación */}
+          {getPublicidadesFiltradas().length > 0 && totalPages > 1 && (
+            <Box display="flex" justifyContent="center" mt={3}>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={(event, page) => setCurrentPage(page)}
+                color="primary"
+                size="large"
+                showFirstButton
+                showLastButton
+              />
+            </Box>
+          )}
         </Box>
       )}
 

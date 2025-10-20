@@ -106,7 +106,7 @@ const PublicidadCarouselNuevo = ({ ubicacion = "home", onClicPublicidad }) => {
             setCurrentIndex(
                 (prevIndex) => (prevIndex + 1) % publicidades.length
             );
-        }, 5000);
+        }, 2000);
 
         return () => clearInterval(interval);
     }, [publicidades.length, visibleCount]);
@@ -239,7 +239,7 @@ const PublicidadCarouselNuevo = ({ ubicacion = "home", onClicPublicidad }) => {
                     <Box
                         sx={{
                             display: "flex",
-                            transition: "transform 0.5s ease-in-out",
+                            transition: "transform 0.6s ease-in-out",
                             transform: `translateX(calc(-${currentIndex * (100 / visibleCount)}% - ${currentIndex * 16}px))`,
                             gap: 2,
                             m: 2,

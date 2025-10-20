@@ -78,7 +78,7 @@ const PublicacionesFinalizadasChart = ({ months = 13 }) => {
     <Card sx={{ height: 400 }}>
       <CardContent>
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-          📊 Publicaciones Finalizadas por Mes
+          Publicaciones Finalizadas por Mes
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Evolución de publicaciones finalizadas y canceladas en los últimos {months} meses
