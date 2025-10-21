@@ -47,6 +47,7 @@ import EditarVeterinaria from "../pages/veterinaria/EditarVeterinaria";
 import EditarFundacion from "../pages/fundacion/EditarFundacion";
 import ModificarPerfil from "../pages/perfil/ModificarPerfil";
 import VacunacionMascota from "../pages/perfil/mascotas/vacunas/VacunacionMascota";
+import CarnetVacunasPublico from "../pages/CarnetVacunasPublico";
 import ModificarPaseador from "../pages/perfil/servicios/modificar/ModificarPaseador";
 import ModificarCuidador from "../pages/perfil/servicios/modificar/ModificarCuidador";
 
@@ -286,6 +287,10 @@ export default function AppRouter() {
                             <VacunacionMascota />
                         </PrivateRoute>
                     }
+                />
+                <Route
+                    path="/carnet-vacunas/:mascotaId"
+                    element={<CarnetVacunasPublico />}
                 />
 
                   <Route

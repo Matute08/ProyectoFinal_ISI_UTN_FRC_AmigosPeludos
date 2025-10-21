@@ -11,6 +11,12 @@ import {
   Paper,
   Stack,
   CardMedia,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Slider,
+  TextField,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
@@ -24,14 +30,106 @@ const Paseadores = () => {
   const navigate = useNavigate();
   const { userData } = useAuth();
   const [paseadores, setPaseadores] = useState([]);
+  const [paseadoresFiltrados, setPaseadoresFiltrados] = useState([]);
   const [puedePublicar, setPuedePublicar] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  const [filtros, setFiltros] = useState({
+    ciudad: "Todas",
+    barrio: "Todos",
+    valoracionMinima: 0,
+    precioMinimo: 0,
+    precioMaximo: 10000,
+  });
+
+  // Función para obtener valores únicos de un campo
+  const valoresUnicos = (campo) => {
+    const unicos = [
+      ...new Set(paseadores.map((p) => p[campo]).filter(Boolean)),
+    ];
+    return unicos.sort();
+  };
+
+  // Función para aplicar filtros
+  const aplicarFiltros = () => {
+    let filtradas = [...paseadores];
+
+    // Filtrar por ciudad
+    if (filtros.ciudad !== "Todas") {
+      filtradas = filtradas.filter((p) => p.ciudadPublicacion === filtros.ciudad);
+    }
+
+    // Filtrar por barrio
+    if (filtros.barrio !== "Todos") {
+      filtradas = filtradas.filter((p) => p.barrioPublicacion === filtros.barrio);
+    }
+
+    // Filtrar por valoración mínima
+    if (filtros.valoracionMinima > 0) {
+      filtradas = filtradas.filter((p) => {
+        const valoracion = p.promedioValoracion || 0;
+        if (filtros.valoracionMinima === 1) {
+          // 0 Estrella (0-1): 0.0 a 0.9
+          return valoracion >= 0 && valoracion < 1;
+        } else if (filtros.valoracionMinima === 2) {
+          // 1 Estrella (1-2): 1.0 a 1.9
+          return valoracion >= 1 && valoracion < 2;
+        } else if (filtros.valoracionMinima === 3) {
+          // 2 Estrellas (2-3): 2.0 a 2.9
+          return valoracion >= 2 && valoracion < 3;
+        } else if (filtros.valoracionMinima === 4) {
+          // 3 Estrellas (3-4): 3.0 a 3.9
+          return valoracion >= 3 && valoracion < 4;
+        } else if (filtros.valoracionMinima === 5) {
+          // 4 Estrellas (4-5): 4.0 a 4.9
+          return valoracion >= 4 && valoracion < 5;
+        } else if (filtros.valoracionMinima === 6) {
+          // 5 Estrellas (5): 5.0
+          return valoracion === 5;
+        }
+        return false;
+      });
+    }
+
+    // Filtrar por rango de precios
+    filtradas = filtradas.filter((p) => 
+      p.precioPaseo >= filtros.precioMinimo && p.precioPaseo <= filtros.precioMaximo
+    );
+
+    setPaseadoresFiltrados(filtradas);
+  };
+
+  // Función para limpiar filtros
+  const limpiarFiltros = () => {
+    // Calcular el precio máximo real de los paseadores
+    const precios = paseadores.map(p => p.precioPaseo || 0);
+    const precioMaxReal = precios.length > 0 ? Math.max(...precios) : 10000;
+    
+    setFiltros({
+      ciudad: "Todas",
+      barrio: "Todos",
+      valoracionMinima: 0,
+      precioMinimo: 0,
+      precioMaximo: precioMaxReal,
+    });
+  };
 
   useEffect(() => {
     const fetchPaseadores = async () => {
       try {
+        setLoading(true);
         const res = await getPaseadores();
         setPaseadores(res.data || []);
+        
+        // Calcular precio máximo dinámicamente
+        const precios = (res.data || []).map(p => p.precioPaseo || 0);
+        const precioMax = precios.length > 0 ? Math.max(...precios) : 10000;
+        
+        setFiltros(prev => ({
+          ...prev,
+          precioMaximo: precioMax
+        }));
+        
       } catch (e) {
         console.error("Error cargando paseadores:", e);
       } finally {
@@ -41,14 +139,21 @@ const Paseadores = () => {
     fetchPaseadores();
   }, []);
 
+  // Aplicar filtros cuando cambien
+  useEffect(() => {
+    if (paseadores.length > 0) {
+      aplicarFiltros();
+    }
+  }, [filtros, paseadores]);
+
   useEffect(() => {
     if (userData?.id) {
-      const yaRegistrado = paseadores.some((p) => p.idUsuario === userData.id);
+      const yaRegistrado = paseadoresFiltrados.some((p) => p.idUsuario === userData.id);
       setPuedePublicar(!yaRegistrado);
     } else {
       setPuedePublicar(false);
     }
-  }, [userData, paseadores]);
+  }, [userData, paseadoresFiltrados]);
 
   if (loading) return <CustomLoader />;
 
@@ -61,11 +166,128 @@ const Paseadores = () => {
       >
         Publicaciones de Paseadores
       </Typography>
-      <Typography align="center" color="text.secondary" mb={5}>
+      <Typography align="center" color="text.secondary" mb={3}>
         Conocé a los paseadores registrados y encontrá el ideal para tu mascota.
       </Typography>
 
-      {paseadores.length === 0 ? (
+      {/* Filtros */}
+      <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <FormControl fullWidth>
+            <InputLabel>Ciudad</InputLabel>
+            <Select
+              value={filtros.ciudad}
+              label="Ciudad"
+              onChange={(e) =>
+                setFiltros({
+                  ...filtros,
+                  ciudad: e.target.value,
+                })
+              }
+            >
+              <MenuItem value="Todas">Todas</MenuItem>
+              {valoresUnicos("ciudadPublicacion").map((ciudad) => (
+                <MenuItem key={ciudad} value={ciudad}>
+                  {ciudad}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <FormControl fullWidth>
+            <InputLabel>Barrio</InputLabel>
+            <Select
+              value={filtros.barrio}
+              label="Barrio"
+              onChange={(e) =>
+                setFiltros({
+                  ...filtros,
+                  barrio: e.target.value,
+                })
+              }
+            >
+              <MenuItem value="Todos">Todos</MenuItem>
+              {valoresUnicos("barrioPublicacion").map((barrio) => (
+                <MenuItem key={barrio} value={barrio}>
+                  {barrio}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <FormControl fullWidth>
+            <InputLabel>Valoración Mínima</InputLabel>
+            <Select
+              value={filtros.valoracionMinima}
+              label="Valoración Mínima"
+              onChange={(e) =>
+                setFiltros({
+                  ...filtros,
+                  valoracionMinima: e.target.value,
+                })
+              }
+            >
+              <MenuItem value={0}>Todas</MenuItem>
+              <MenuItem value={1}>0 Estrella (0-1)</MenuItem>
+              <MenuItem value={2}>1 Estrella (1-2)</MenuItem>
+              <MenuItem value={3}>2 Estrellas (2-3)</MenuItem>
+              <MenuItem value={4}>3 Estrellas (3-4)</MenuItem>
+              <MenuItem value={5}>4 Estrellas (4-5)</MenuItem>
+              <MenuItem value={6}>5 Estrellas (5)</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 1 }}>
+              <TextField
+                size="medium"
+                label="Mín"
+                type="number"
+                value={filtros.precioMinimo}
+                onChange={(e) => {
+                  const valor = Math.max(0, Math.min(parseInt(e.target.value) || 0, filtros.precioMaximo));
+                  setFiltros({
+                    ...filtros,
+                    precioMinimo: valor,
+                  });
+                }}
+                inputProps={{ min: 0, max: filtros.precioMaximo }}
+                sx={{ width: "100%" }}
+              />
+              <Typography variant="body2">-</Typography>
+              <TextField
+                size="medium"
+                label="Máx"
+                type="number"
+                value={filtros.precioMaximo}
+                onChange={(e) => {
+                  const valor = Math.max(filtros.precioMinimo, Math.min(parseInt(e.target.value) || filtros.precioMaximo, 50000));
+                  setFiltros({
+                    ...filtros,
+                    precioMaximo: valor,
+                  });
+                }}
+                inputProps={{ min: filtros.precioMinimo, max: 50000 }}
+                sx={{ width: "100%" }}
+              />
+            </Box>
+          
+        </Grid>
+
+        <Grid size={{ xs: 12 }} sx={{ textAlign: { xs: "center", sm: "right" } }}>
+          <Button variant="outlined" onClick={limpiarFiltros}>
+            🧹 Limpiar Filtros
+          </Button>
+        </Grid>
+      </Grid>
+
+      {paseadoresFiltrados.length === 0 ? (
         <Paper sx={{ p: 3, textAlign: "center" }} elevation={2}>
           <Typography variant="h6" color="text.secondary">
             No hay paseadores registrados aún.
@@ -73,9 +295,9 @@ const Paseadores = () => {
         </Paper>
       ) : (
         <Grid container spacing={{ xs: 3, md: 4 }} justifyContent="center">
-          {paseadores.map((paseador) => (
+          {paseadoresFiltrados.map((paseador) => (
             <Grid
-              item
+              
               size={{ xs: 10, sm: 6, md: 5, lg: 4 }}
               key={paseador.id}
             >

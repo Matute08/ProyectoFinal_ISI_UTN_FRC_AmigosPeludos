@@ -1,15 +1,49 @@
-import React from "react";
+import React, { useState } from "react";
 import HTMLFlipBook from "react-pageflip";
-import { Button, Typography, Box, Avatar } from "@mui/material";
+import { Button, Typography, Box, Avatar, Snackbar, Alert } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import ShareIcon from "@mui/icons-material/Share";
 
 const CarnetDigitalMascota = ({
     open,
     onClose,
     vacunas = [],
     mascota = null,
+    showShareButtons = true, // Nuevo prop para controlar los botones de compartir
 }) => {
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
+
     if (!open || !mascota || !vacunas || !mascota.nombre) return null;
+
+    // Función para generar el link público del carnet
+    const generarLinkPublico = () => {
+        const baseUrl = window.location.origin;
+        return `${baseUrl}/carnet-vacunas/${mascota.id}`;
+    };
+
+    // Función para compartir por WhatsApp
+    const compartirPorWhatsApp = () => {
+        const link = generarLinkPublico();
+        const mensaje = `*Carnet de Vacunación de ${mascota.nombre}*\n\nTe comparto el carnet digital de vacunación de mi mascota. Podés verlo completo en el siguiente enlace:\n\n${link}\n\n¡Gracias por cuidar de ${mascota.nombre}!`;
+        
+        const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+        window.open(urlWhatsApp, '_blank');
+    };
+
+    // Función para copiar link al portapapeles
+    const copiarLink = async () => {
+        try {
+            const link = generarLinkPublico();
+            await navigator.clipboard.writeText(link);
+            setSnackbarMessage("¡Link copiado al portapapeles!");
+            setSnackbarOpen(true);
+        } catch (err) {
+            setSnackbarMessage("Error al copiar el link");
+            setSnackbarOpen(true);
+        }
+    };
 
     // Función para agrupar vacunas por tipo
     const agruparVacunasPorTipo = (vacunas) => {
@@ -252,7 +286,41 @@ const CarnetDigitalMascota = ({
                     ))}
                 </HTMLFlipBook>
 
-                <Box mt={3} display="flex" gap={2}>
+                <Box mt={3} display="flex" gap={2} flexWrap="wrap" justifyContent="center">
+                    {showShareButtons && (
+                        <>
+                            <Button
+                                variant="contained"
+                                startIcon={<WhatsAppIcon />}
+                                onClick={compartirPorWhatsApp}
+                                sx={{
+                                    backgroundColor: "#25D366",
+                                    color: "white",
+                                    "&:hover": { backgroundColor: "#128C7E" },
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                Compartir por WhatsApp
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                startIcon={<ShareIcon />}
+                                onClick={copiarLink}
+                                sx={{
+                                    borderColor: "#f57c00",
+                                    color: "#f57c00",
+                                    "&:hover": { 
+                                        backgroundColor: "#f57c00",
+                                        color: "white",
+                                        borderColor: "#f57c00"
+                                    },
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                Copiar Link
+                            </Button>
+                        </>
+                    )}
                     <Button
                         variant="text"
                         onClick={onClose}
@@ -266,6 +334,22 @@ const CarnetDigitalMascota = ({
                     </Button>
                 </Box>
             </Box>
+            
+            {/* Snackbar para notificaciones */}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={() => setSnackbarOpen(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={() => setSnackbarOpen(false)} 
+                    severity="success" 
+                    sx={{ width: '100%' }}
+                >
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
