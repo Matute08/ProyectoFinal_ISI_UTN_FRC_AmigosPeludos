@@ -122,7 +122,6 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
     if (idPublicacionAMantener != null) {
       try {
         await marcarDesestimada(idPublicacionAMantener);
-        
         setLocalDenuncias((prev) =>
           prev.filter((d) => d.idPublicacion !== parseInt(idPublicacionAMantener))
         );
@@ -136,7 +135,7 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
     }
   };
 
-  // ==== Estados de denuncias individuales ====
+  // ==== Cambio individual ====
   const handleCambioEstado = async (idDenuncia, nuevoEstado) => {
     setUpdating((u) => ({ ...u, [idDenuncia]: true }));
     try {
@@ -150,6 +149,38 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
       console.error("Error al cambiar estado de denuncia", error);
     } finally {
       setUpdating((u) => ({ ...u, [idDenuncia]: false }));
+    }
+  };
+
+  // ==== NUEVO ====
+  const handleMarcarTodas = async (idPublicacion, nuevoEstado) => {
+    const denunciasPorPublicacion = localDenuncias.filter(d => d.idPublicacion === parseInt(idPublicacion));
+    setUpdating(prev => {
+      const actualizaciones = {};
+      denunciasPorPublicacion.forEach(d => { actualizaciones[d.id] = true; });
+      return { ...prev, ...actualizaciones };
+    });
+
+    try {
+      await Promise.all(
+        denunciasPorPublicacion.map(d => cambiarEstado(d.id, nuevoEstado))
+      );
+
+      setLocalDenuncias(prev =>
+        prev.map(d =>
+          d.idPublicacion === parseInt(idPublicacion)
+            ? { ...d, estadoDenuncia: nuevoEstado }
+            : d
+        )
+      );
+    } catch (error) {
+      console.error("Error al cambiar todas las denuncias:", error);
+    } finally {
+      setUpdating(prev => {
+        const actualizaciones = {};
+        denunciasPorPublicacion.forEach(d => { actualizaciones[d.id] = false; });
+        return { ...prev, ...actualizaciones };
+      });
     }
   };
 
@@ -201,16 +232,16 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
               const tooltipEliminar = canEliminar
                 ? "Eliminar publicación"
                 : tienePendientes
-                ? "No se puede eliminar: hay denuncias pendientes."
-                : "No se puede eliminar: no hay denuncias aceptadas.";
+                  ? "No se puede eliminar: hay denuncias pendientes."
+                  : "No se puede eliminar: no hay denuncias aceptadas.";
 
               const tooltipMantener = canMantener
                 ? "Mantener publicación"
                 : tienePendientes
-                ? "No se puede mantener: hay denuncias pendientes."
-                : tieneAceptadas
-                ? "No se puede mantener: hay denuncias aceptadas."
-                : "No se puede mantener: deben estar todas rechazadas.";
+                  ? "No se puede mantener: hay denuncias pendientes."
+                  : tieneAceptadas
+                    ? "No se puede mantener: hay denuncias aceptadas."
+                    : "No se puede mantener: deben estar todas rechazadas.";
 
               return (
                 <React.Fragment key={id}>
@@ -226,8 +257,8 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
                             d.tipoPublicacion === "Encontrada"
                               ? `/consultar-posteo-encontrada/${id}`
                               : d.tipoPublicacion === "Perdida"
-                              ? `/consultar-posteo-perdida/${id}`
-                              : `/consultar-posteo-adopcion/${id}`
+                                ? `/consultar-posteo-perdida/${id}`
+                                : `/consultar-posteo-adopcion/${id}`
                           }
                           color="primary"
                         >
@@ -235,7 +266,6 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
                         </IconButton>
                       </Tooltip>
 
-                      {/* Botón eliminar */}
                       <Tooltip title={tooltipEliminar}>
                         <span>
                           <IconButton
@@ -248,7 +278,6 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
                         </span>
                       </Tooltip>
 
-                      {/* Botón mantener */}
                       <Tooltip title={tooltipMantener}>
                         <span>
                           <IconButton
@@ -275,6 +304,49 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
                     <TableCell colSpan={5} sx={{ py: 0 }}>
                       <Collapse in={isOpen} timeout="auto" unmountOnExit>
                         <Box sx={{ p: 2, pl: 6 }}>
+                          
+                          {/* === NUEVOS BOTONES === */}
+                          <Box
+                            sx={{
+                              display: "flex",
+                              gap: 2,
+                              mb: 2,
+                              justifyContent: "flex-end",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <Button
+                              variant="outlined"
+                              color="success"
+                              size="small"
+                              onClick={() => handleMarcarTodas(id, 2)} // 2 = Aceptada
+                              sx={{
+                                borderRadius: 4,
+                                textTransform: "none",
+                                fontWeight: 500,
+                                px: 2,
+                              }}
+                            >
+                              ✅ Marcar todas como aceptadas
+                            </Button>
+
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              size="small"
+                              onClick={() => handleMarcarTodas(id, 3)} // 3 = Rechazada
+                              sx={{
+                                borderRadius: 4,
+                                textTransform: "none",
+                                fontWeight: 500,
+                                px: 2,
+                              }}
+                            >
+                              ❌ Marcar todas como rechazadas
+                            </Button>
+                          </Box>
+                          {/* === FIN NUEVOS BOTONES === */}
+
                           {denunciasPorId.map((denuncia) => {
                             const estadoActual = estados.find(e => e.id === denuncia.estadoDenuncia);
                             const estadoTexto = estadoActual?.estado || "Desconocido";
@@ -390,7 +462,7 @@ const VerDenunciasPublicaciones = ({ denuncias }) => {
 
         <DialogContent>
           <DialogContentText sx={{ fontSize: '1.05rem', mt: 1 }}>
-            ¿Estás seguro que deseas mantener esta publicación?   
+            ¿Estás seguro que deseas mantener esta publicación?
           </DialogContentText>
         </DialogContent>
 
