@@ -29,7 +29,7 @@ export default function Adopcion() {
     const [mascotasFiltradas, setMascotasFiltradas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [paginaActual, setPaginaActual] = useState(1);
-    const porPagina = 16;
+    const porPagina = 6;
     const totalPaginas = Math.ceil(mascotasFiltradas.length / porPagina);
     const inicio = (paginaActual - 1) * porPagina;
     const fin = inicio + porPagina;

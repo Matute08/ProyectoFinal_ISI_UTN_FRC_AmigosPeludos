@@ -301,7 +301,28 @@ const PanelFormulariosAdopcion = () => {
                                                     ? `${item.nombre} ${item.apellido}`
                                                     : item.nombreDueño}
                                             </TableCell>
-                                            <TableCell>{item.celular}</TableCell>
+                                            <TableCell>
+                                                {item.celular ? (
+                                                    <MuiLink
+                                                        href={`https://wa.me/${item.celular.replace(/\D/g, '')}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        sx={{
+                                                            cursor: 'pointer',
+                                                            textDecoration: 'none',
+                                                            color: 'success.main',
+                                                            fontWeight: 600,
+                                                            '&:hover': {
+                                                                textDecoration: 'underline'
+                                                            }
+                                                        }}
+                                                    >
+                                                        {item.celular}
+                                                    </MuiLink>
+                                                ) : (
+                                                    item.celular
+                                                )}
+                                            </TableCell>
                                             <TableCell>
                                                 <MuiLink
                                                     component={Link}
