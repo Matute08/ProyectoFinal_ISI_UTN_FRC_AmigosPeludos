@@ -83,6 +83,38 @@ const VerDenunciasPaseadores = ({ denuncias, onActualizarDenuncias }) => {
       setUpdating((u) => ({ ...u, [idDenuncia]: false }));
     }
   };
+  // ==== NUEVO ====
+  // Cambiar todas las denuncias de un paseador a un estado
+  const handleMarcarTodas = async (idPaseador, nuevoEstado) => {
+    const denunciasDelPaseador = denunciasData.filter(d => d.idPaseador === parseInt(idPaseador));
+    setUpdating(prev => {
+      const actualizaciones = {};
+      denunciasDelPaseador.forEach(d => { actualizaciones[d.id] = true; });
+      return { ...prev, ...actualizaciones };
+    });
+
+    try {
+      await Promise.all(
+        denunciasDelPaseador.map(d => cambiarEstadoDenunciaPaseador(d.id, nuevoEstado))
+      );
+
+      setDenunciasData(prev =>
+        prev.map(d =>
+          d.idPaseador === parseInt(idPaseador)
+            ? { ...d, estadoDenuncia: nuevoEstado }
+            : d
+        )
+      );
+    } catch (error) {
+      console.error("Error al cambiar todas las denuncias:", error);
+    } finally {
+      setUpdating(prev => {
+        const actualizaciones = {};
+        denunciasDelPaseador.forEach(d => { actualizaciones[d.id] = false; });
+        return { ...prev, ...actualizaciones };
+      });
+    }
+  };
 
   // Abrir confirmación dinámica (deshabilitar o mantener)
   const abrirConfirmacion = (idPaseador, tipo) => {
@@ -245,6 +277,48 @@ const VerDenunciasPaseadores = ({ denuncias, onActualizarDenuncias }) => {
                     <TableCell colSpan={4} sx={{ py: 0 }}>
                       <Collapse in={isOpen} timeout="auto" unmountOnExit>
                         <Box sx={{ p: 2, pl: 6 }}>
+                          {/* === NUEVOS BOTONES === */}
+                          <Box
+                            sx={{
+                              display: "flex",
+                              gap: 2,
+                              mb: 2,
+                              justifyContent: "flex-end",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <Button
+                              variant="outlined"
+                              color="success"
+                              size="small"
+                              onClick={() => handleMarcarTodas(id, 2)} // 2 = Aceptada
+                              sx={{
+                                borderRadius: 4,
+                                textTransform: "none",
+                                fontWeight: 500,
+                                px: 2,
+                              }}
+                            >
+                              ✅ Marcar todas como aceptadas
+                            </Button>
+
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              size="small"
+                              onClick={() => handleMarcarTodas(id, 3)} // 3 = Rechazada
+                              sx={{
+                                borderRadius: 4,
+                                textTransform: "none",
+                                fontWeight: 500,
+                                px: 2,
+                              }}
+                            >
+                              ❌ Marcar todas como rechazadas
+                            </Button>
+                          </Box>
+                          {/* === FIN NUEVOS BOTONES === */}
+
                           {denuncias.map((denuncia) => {
                             const estadoActual = estados.find(e => e.id === denuncia.estadoDenuncia);
                             const estadoTexto = estadoActual?.estado || "Desconocido";
