@@ -22,12 +22,14 @@ import { postNuevoUsuario, getUserMail, updateUser } from "../../api/userApi";
 import SelectBarrio from "../../components/select/SelectBarrio";
 import SelectCiudad from "../../components/select/SelectCiudad";
 import SelectProvincia from "../../components/select/SelectProvincia";
-import SelectGenero from "../../components/select/SelectGenero"
+import SelectGenero from "../../components/select/SelectGenero";
+import TerminosCondicionesModal from "../../components/TerminosCondicionesModal";
 
 const Register = () => {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState(null);
+    const [openTerminos, setOpenTerminos] = useState(false);
 
     const {
         register: registerField,
@@ -317,7 +319,26 @@ const Register = () => {
                         </Grid>
                     </Grid>
 
-                   
+                    <Box sx={{ mt: 2, textAlign: 'center' }}>
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            Al registrarte, aceptas nuestros{" "}
+                            <MuiLink
+                                component="button"
+                                variant="body2"
+                                onClick={() => setOpenTerminos(true)}
+                                sx={{
+                                    color: '#2e7d32',
+                                    textDecoration: 'underline',
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        textDecoration: 'none'
+                                    }
+                                }}
+                            >
+                                términos y condiciones
+                            </MuiLink>
+                        </Typography>
+                    </Box>
 
                     <Button
                         type="submit"
@@ -347,6 +368,11 @@ const Register = () => {
                     </Typography>
                 </Box>
             </Paper>
+            
+            <TerminosCondicionesModal 
+                open={openTerminos} 
+                onClose={() => setOpenTerminos(false)} 
+            />
         </Box>
     );
 };

@@ -41,7 +41,8 @@ import {
   AttachMoney,
   People,
   Payment,
-  BarChart
+  BarChart,
+  CreditCard
 } from '@mui/icons-material';
 import { 
   getAllPublicidades, 
@@ -57,6 +58,7 @@ import {
   getEstadisticasPorUbicacion,
   getEstadisticasDetalladasUbicacion
 } from '../../api/publicidadesApi';
+import apiClient from '../../api/apiClient';
 import Swal from 'sweetalert2';
 import { mostrarAlertaExito, mostrarAlertaError } from '../../utils/showAlert';
 import { useNavigate } from 'react-router-dom';
@@ -276,6 +278,108 @@ const GestionPublicidades = () => {
   // Función para ver detalles de la publicidad
   const handleVerDetalles = (publicidadId) => {
     navigate(`/ver-publicidad/${publicidadId}`);
+  };
+
+  // Función para crear preferencia de pago
+  const handleCrearPago = async (publicidadId) => {
+    try {
+      // Verificar que la publicidad existe y obtener sus datos
+      const publicidad = publicidades.find(p => p.id === parseInt(publicidadId));
+      
+      if (!publicidad) {
+        Swal.fire({
+          title: 'Error',
+          text: 'No se encontró la publicidad seleccionada',
+          icon: 'error',
+          confirmButtonText: 'Entendido'
+        });
+        return;
+      }
+
+      // Verificar que el usuario actual es el dueño de la publicidad
+      if (publicidad.usuarioId !== userData?.id) {
+        Swal.fire({
+          title: 'Acceso Denegado',
+          text: 'Solo el dueño de la publicidad puede procesar el pago',
+          icon: 'warning',
+          confirmButtonText: 'Entendido'
+        });
+        return;
+      }
+
+      // Mostrar confirmación antes de proceder
+      const confirmacion = await Swal.fire({
+        title: 'Procesar Pago',
+        text: `¿Estás seguro de que querés proceder con el pago de "${publicidad.titulo}"?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, proceder',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#2e7d32',
+        cancelButtonColor: '#d33'
+      });
+
+      if (!confirmacion.isConfirmed) {
+        return;
+      }
+
+      // Mostrar loading
+      Swal.fire({
+        title: 'Procesando pago...',
+        text: 'Creando preferencia de pago con Mercado Pago',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      // Obtener la URL base actual
+      const baseUrl = window.location.origin;
+      
+      // Crear preferencia de pago usando apiClient
+      const response = await apiClient.post('/pagos/crear-preferencia', {
+        publicidadId: publicidadId,
+        successUrl: `${baseUrl}/mis-estadisticas?pago=exitoso`,
+        failureUrl: `${baseUrl}/mis-estadisticas?pago=fallido`
+      });
+
+      const data = response.data;
+
+      if (data.exito) {
+        // Cerrar loading
+        Swal.close();
+        
+        // Redirigir al usuario a Mercado Pago
+        window.location.href = data.urlPago;
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: data.mensaje || 'Error al crear la preferencia de pago',
+          icon: 'error',
+          confirmButtonText: 'Entendido'
+        });
+      }
+    } catch (error) {
+      console.error('Error al crear preferencia de pago:', error);
+      
+      // Manejar diferentes tipos de errores
+      let errorMessage = 'Error de conexión. Por favor, intentá nuevamente.';
+      
+      if (error.response?.data?.mensaje) {
+        errorMessage = error.response.data.mensaje;
+      } else if (error.response?.status === 404) {
+        errorMessage = 'El servicio de pagos no está disponible en este momento.';
+      } else if (error.response?.status === 500) {
+        errorMessage = 'Error interno del servidor. Por favor, intentá más tarde.';
+      }
+      
+      Swal.fire({
+        title: 'Error',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'Entendido'
+      });
+    }
   };
 
   const handleCambiarEstado = async (publicidad) => {
@@ -603,6 +707,30 @@ const GestionPublicidades = () => {
                             <Edit />
                           </IconButton>
                         </Tooltip>
+                         {/* Botón de pago - Solo se muestra cuando el estado es Pre-Aprobada (id=7) y el usuario es el dueño */}
+                         {(() => {
+                           const estadoId = typeof publicidad.estado === 'object' ? publicidad.estado?.id : null;
+                           const esDueño = publicidad.usuarioId === userData?.id;
+                           
+                           return (estadoId === 7 && esDueño) ? (
+                             <Tooltip title="Procesar pago">
+                               <IconButton
+                                 size="small"
+                                 onClick={() => handleCrearPago(publicidad.id)}
+                                 color="success"
+                                 sx={{
+                                   backgroundColor: '#2e7d32',
+                                   color: 'white',
+                                   '&:hover': {
+                                     backgroundColor: '#27642a'
+                                   }
+                                 }}
+                               >
+                                 <CreditCard />
+                               </IconButton>
+                             </Tooltip>
+                           ) : null;
+                         })()}
                         <Tooltip title="Eliminar publicidad">
                           <IconButton
                             size="small"
