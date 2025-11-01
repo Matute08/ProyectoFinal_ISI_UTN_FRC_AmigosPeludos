@@ -26,9 +26,10 @@ const PublicidadCarouselNuevo = ({ ubicacion = "home", onClicPublicidad }) => {
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
-    const [currentIndex, setCurrentIndex] = useState(0);
     const [publicidades, setPublicidades] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isPaused, setIsPaused] = useState(false);
+    const carouselRef = React.useRef(null);
 
     // Mapear ubicación a ubicacionId
     const getUbicacionId = (ubicacion) => {
@@ -98,27 +99,86 @@ const PublicidadCarouselNuevo = ({ ubicacion = "home", onClicPublicidad }) => {
 
     const visibleCount = getVisibleCount();
 
-    // Auto-rotación cada 5 segundos
+    // Crear array duplicado para el carrusel infinito fluido
+    // Duplicamos TODO el contenido al final para crear un loop infinito perfecto
+    const publicidadesInfinitas = React.useMemo(() => {
+        if (publicidades.length === 0) return [];
+        // Duplicar todo el contenido al final
+        return [...publicidades, ...publicidades];
+    }, [publicidades]);
+
+    // Índice actual del carrusel
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    // Efecto para detectar cuando llegamos al final y resetear (después de la transición)
     useEffect(() => {
-        if (publicidades.length <= visibleCount) return;
+        if (publicidades.length === 0) return;
+        
+        // Si el índice llegó al final del contenido original
+        if (currentIndex >= publicidades.length) {
+            // Esperar que termine la transición (600ms) y luego resetear sin transición
+            const timer = setTimeout(() => {
+                if (carouselRef.current) {
+                    carouselRef.current.style.transition = 'none';
+                    setCurrentIndex(0);
+                    // Forzar reflow
+                    void carouselRef.current.offsetHeight;
+                    // Reactivar transición en el siguiente frame
+                    setTimeout(() => {
+                        if (carouselRef.current) {
+                            carouselRef.current.style.transition = 'transform 0.6s ease-in-out';
+                        }
+                    }, 50);
+                }
+            }, 600); // Tiempo de la transición CSS
+            
+            return () => clearTimeout(timer);
+        }
+        
+        // Si retrocedimos antes del inicio
+        if (currentIndex < 0) {
+            const timer = setTimeout(() => {
+                if (carouselRef.current) {
+                    carouselRef.current.style.transition = 'none';
+                    setCurrentIndex(publicidades.length - 1);
+                    void carouselRef.current.offsetHeight;
+                    setTimeout(() => {
+                        if (carouselRef.current) {
+                            carouselRef.current.style.transition = 'transform 0.6s ease-in-out';
+                        }
+                    }, 50);
+                }
+            }, 600);
+            
+            return () => clearTimeout(timer);
+        }
+    }, [currentIndex, publicidades.length]);
+
+    // Auto-rotación continua (solo si no está en pausa)
+    useEffect(() => {
+        if (publicidades.length <= visibleCount || isPaused) return;
 
         const interval = setInterval(() => {
-            setCurrentIndex(
-                (prevIndex) => (prevIndex + 1) % publicidades.length
-            );
+            setCurrentIndex((prevIndex) => prevIndex + 1);
         }, 2000);
 
         return () => clearInterval(interval);
-    }, [publicidades.length, visibleCount]);
+    }, [publicidades.length, visibleCount, isPaused]);
 
+    // Función para avanzar al siguiente item
     const handleNext = () => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % publicidades.length);
+        setCurrentIndex((prevIndex) => prevIndex + 1);
     };
 
+    // Función para retroceder al item anterior
     const handlePrev = () => {
-        setCurrentIndex((prevIndex) =>
-            prevIndex === 0 ? publicidades.length - 1 : prevIndex - 1
-        );
+        setCurrentIndex((prevIndex) => {
+            if (prevIndex === 0) {
+                // Si estamos al inicio, ir al final (el useEffect manejará el salto invisible)
+                return publicidades.length;
+            }
+            return prevIndex - 1;
+        });
     };
 
     // Función para normalizar URLs
@@ -226,7 +286,11 @@ const PublicidadCarouselNuevo = ({ ubicacion = "home", onClicPublicidad }) => {
             />
 
             {/* Contenedor del carrusel */}
-            <Box sx={{ position: "relative", width: "100%", height: "fit-content" }}>
+            <Box 
+                sx={{ position: "relative", width: "100%", height: "fit-content" }}
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+            >
                 {/* Contenedor principal del carrusel */}
                 <Box
                     sx={{
@@ -237,17 +301,22 @@ const PublicidadCarouselNuevo = ({ ubicacion = "home", onClicPublicidad }) => {
                 >
                     {/* Contenedor de las cards */}
                     <Box
+                        ref={carouselRef}
                         sx={{
                             display: "flex",
                             transition: "transform 0.6s ease-in-out",
+                            // Calcular el desplazamiento: ancho de card + gap por cada índice
+                            // gap: 2 = 16px en Material-UI
+                            // Si estamos en las copias (>= maxIndex), usar el índice normalizado
                             transform: `translateX(calc(-${currentIndex * (100 / visibleCount)}% - ${currentIndex * 16}px))`,
                             gap: 2,
                             m: 2,
+                            willChange: "transform",
                         }}
                     >
-                        {publicidades.map((publicidad, index) => (
-                            <Box
-                                key={publicidad.id}
+                        {publicidadesInfinitas.map((publicidad, index) => (
+                                <Box
+                                key={`${publicidad.id}-${index}`}
                                 sx={{
                                     width: `calc(${100 / visibleCount}% - ${(16 * (visibleCount - 1)) / visibleCount}px)`,
                                     flexShrink: 0,
@@ -409,7 +478,7 @@ const PublicidadCarouselNuevo = ({ ubicacion = "home", onClicPublicidad }) => {
                 </Box>
 
                 {/* Botones de navegación */}
-                {publicidades.length > visibleCount && (
+                {publicidades.length > visibleCount && publicidadesInfinitas.length > visibleCount && (
                     <>
                         <IconButton
                             onClick={handlePrev}
@@ -453,40 +522,7 @@ const PublicidadCarouselNuevo = ({ ubicacion = "home", onClicPublicidad }) => {
                     </>
                 )}
 
-                {/* Indicadores de puntos */}
-                {publicidades.length > visibleCount && (
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            gap: 1,
-                            mt: 2,
-                            mb: 1,
-                        }}
-                    >
-                        {Array.from({ length: Math.ceil(publicidades.length / visibleCount) }).map((_, index) => (
-                            <Box
-                                key={index}
-                                onClick={() => setCurrentIndex(index * visibleCount)}
-                                sx={{
-                                    width: 10,
-                                    height: 10,
-                                    borderRadius: "50%",
-                                    backgroundColor:
-                                        Math.floor(currentIndex / visibleCount) === index
-                                            ? theme.palette.primary.main
-                                            : theme.palette.grey[400],
-                                    cursor: "pointer",
-                                    transition: "all 0.3s ease",
-                                    "&:hover": {
-                                        backgroundColor: theme.palette.primary.main,
-                                        transform: "scale(1.2)",
-                                    },
-                                }}
-                            />
-                        ))}
-                    </Box>
-                )}
+                {/* Sin indicadores de puntos para carrusel infinito continuo */}
             </Box>
         </Box>
     );

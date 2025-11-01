@@ -306,7 +306,6 @@ const PanelFormulariosAdopcion = () => {
                                                 <MuiLink
                                                     component={Link}
                                                     to={`/consultar-posteo-adopcion/${item.publicacionMascotaId}`}
-                                                    target="_blank"
                                                 >
                                                     Ver Mascota
                                                 </MuiLink>

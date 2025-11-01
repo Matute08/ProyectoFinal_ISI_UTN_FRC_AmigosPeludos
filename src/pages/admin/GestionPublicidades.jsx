@@ -339,8 +339,6 @@ const GestionPublicidades = () => {
       // Crear preferencia de pago usando apiClient
       const response = await apiClient.post('/pagos/crear-preferencia', {
         publicidadId: publicidadId,
-        successUrl: `${baseUrl}/mis-estadisticas?pago=exitoso`,
-        failureUrl: `${baseUrl}/mis-estadisticas?pago=fallido`
       });
 
       const data = response.data;
