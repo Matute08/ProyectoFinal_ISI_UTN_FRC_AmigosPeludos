@@ -76,3 +76,13 @@ export const deletePost = async (publicacionId) => {
     return { data: null };
   }
 };
+
+export const renovarPublicacion = async (publicacionId) => {
+  try {
+    const response = await apiClient.post(`/publicacionMascota/${publicacionId}/renew`, {});
+    return response;
+  } catch (error) {
+    console.error("Error al renovar publicacion", error);
+    throw error;
+  }
+};

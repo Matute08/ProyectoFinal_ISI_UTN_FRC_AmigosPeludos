@@ -231,3 +231,4 @@ export const validateMercadoPagoEnvCredentials = (env = {}) => {
   return result;
 };
 
+

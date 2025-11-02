@@ -18,9 +18,10 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../auth/AuthProvider";
-import { getPublicacionesUser } from "../../../api/userApi";
+import { getPublicacionesUser, renovarPublicacion } from "../../../api/userApi";
 import {
     mostrarAlertaExito,
     mostrarAlertaError,
@@ -76,6 +77,17 @@ const PublicacionesTab = () => {
 
     const handleEstadoCambiado = () => {
         cargarPublicaciones(); // Recargar la lista
+    };
+
+    const handleRenovarPublicacion = async (postId) => {
+        try {
+            await renovarPublicacion(postId);
+            mostrarAlertaExito("Publicación renovada exitosamente");
+            cargarPublicaciones(); // Recargar la lista para actualizar los datos
+        } catch (error) {
+            console.error("Error al renovar publicación:", error);
+            mostrarAlertaError("Error al renovar la publicación. Por favor, intentá nuevamente.");
+        }
     };
 
     // Ordenar posts: activos primero (estadoId === 1), luego los demás
@@ -152,7 +164,11 @@ const PublicacionesTab = () => {
                             </Box>
                         </Grid>
                     )}
-                    {currentPosts.map((post) => (
+                    {currentPosts.map((post) => {
+                        const puedeRenovar = post.renovacionesDisponibles !== 0 && 
+                                           post.renovarPublicacion === true && 
+                                           post.estadoId === 1;
+                        return (
                         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={post.id}>
                             <Card sx={{ 
                                 height: '100%', 
@@ -347,11 +363,36 @@ const PublicacionesTab = () => {
                                             </Tooltip>
                                         )}
 
+                                        <Tooltip title={
+                                            !puedeRenovar
+                                                ? "No se puede renovar esta publicación" 
+                                                : "Renovar publicación"
+                                        }>
+                                            <span>
+                                                <IconButton
+                                                    onClick={() => handleRenovarPublicacion(post.id)}
+                                                    disabled={!puedeRenovar}
+                                                    sx={{ 
+                                                        color: !puedeRenovar ? '#ccc' : '#9c27b0',
+                                                        '&:hover': {
+                                                            backgroundColor: !puedeRenovar ? 'transparent' : '#f3e5f5',
+                                                            transform: !puedeRenovar ? 'none' : 'scale(1.1)'
+                                                        },
+                                                        transition: 'all 0.2s ease',
+                                                        cursor: !puedeRenovar ? 'not-allowed' : 'pointer'
+                                                    }}
+                                                >
+                                                    <RefreshIcon fontSize="small" />
+                                                </IconButton>
+                                            </span>
+                                        </Tooltip>
+
                                     </Box>
                                 </CardContent>
                             </Card>
                         </Grid>
-                    ))}
+                        );
+                    })}
                 </Grid>
                 
                 {/* Información de paginación y controles */}
