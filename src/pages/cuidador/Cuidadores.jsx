@@ -209,13 +209,11 @@ const Cuidadores = () => {
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>
-            Valoración (estrellas)
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 1 }}>
               <TextField
                 size="medium"
-                label="Mín"
+                label="Mín Valoración"
                 type="text"
                 value={valoracionMinInput}
                 onChange={(e) => {
@@ -274,7 +272,7 @@ const Cuidadores = () => {
               <Typography variant="body2">-</Typography>
               <TextField
                 size="medium"
-                label="Máx"
+                label="Máx Valoración"
                 type="text"
                 value={valoracionMaxInput}
                 onChange={(e) => {
@@ -338,7 +336,7 @@ const Cuidadores = () => {
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 1 }}>
               <TextField
                 size="medium"
-                label="Mín"
+                label="Mín Precio"
                 type="text"
                 value={precioMinInput}
                 onChange={(e) => {
@@ -383,7 +381,7 @@ const Cuidadores = () => {
               <Typography variant="body2">-</Typography>
               <TextField
                 size="medium"
-                label="Máx"
+                label="Máx Precio"
                 type="text"
                 value={precioMaxInput}
                 onChange={(e) => {
