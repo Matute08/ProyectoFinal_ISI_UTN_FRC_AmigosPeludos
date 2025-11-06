@@ -38,9 +38,18 @@ const Paseadores = () => {
     ciudad: "Todas",
     barrio: "Todos",
     valoracionMinima: 0,
+    valoracionMaxima: 5,
     precioMinimo: 0,
     precioMaximo: 10000,
   });
+
+  // Estados locales para los inputs de precio (permiten valores vacíos)
+  const [precioMinInput, setPrecioMinInput] = useState("0");
+  const [precioMaxInput, setPrecioMaxInput] = useState("10000");
+  
+  // Estados locales para los inputs de valoración (permiten valores vacíos)
+  const [valoracionMinInput, setValoracionMinInput] = useState("0");
+  const [valoracionMaxInput, setValoracionMaxInput] = useState("5");
 
   // Función para obtener valores únicos de un campo
   const valoresUnicos = (campo) => {
@@ -64,32 +73,11 @@ const Paseadores = () => {
       filtradas = filtradas.filter((p) => p.barrioPublicacion === filtros.barrio);
     }
 
-    // Filtrar por valoración mínima
-    if (filtros.valoracionMinima > 0) {
-      filtradas = filtradas.filter((p) => {
-        const valoracion = p.promedioValoracion || 0;
-        if (filtros.valoracionMinima === 1) {
-          // 0 Estrella (0-1): 0.0 a 0.9
-          return valoracion >= 0 && valoracion < 1;
-        } else if (filtros.valoracionMinima === 2) {
-          // 1 Estrella (1-2): 1.0 a 1.9
-          return valoracion >= 1 && valoracion < 2;
-        } else if (filtros.valoracionMinima === 3) {
-          // 2 Estrellas (2-3): 2.0 a 2.9
-          return valoracion >= 2 && valoracion < 3;
-        } else if (filtros.valoracionMinima === 4) {
-          // 3 Estrellas (3-4): 3.0 a 3.9
-          return valoracion >= 3 && valoracion < 4;
-        } else if (filtros.valoracionMinima === 5) {
-          // 4 Estrellas (4-5): 4.0 a 4.9
-          return valoracion >= 4 && valoracion < 5;
-        } else if (filtros.valoracionMinima === 6) {
-          // 5 Estrellas (5): 5.0
-          return valoracion === 5;
-        }
-        return false;
-      });
-    }
+    // Filtrar por rango de valoración
+    filtradas = filtradas.filter((p) => {
+      const valoracion = p.promedioValoracion || 0;
+      return valoracion >= filtros.valoracionMinima && valoracion <= filtros.valoracionMaxima;
+    });
 
     // Filtrar por rango de precios
     filtradas = filtradas.filter((p) => 
@@ -109,9 +97,14 @@ const Paseadores = () => {
       ciudad: "Todas",
       barrio: "Todos",
       valoracionMinima: 0,
+      valoracionMaxima: 5,
       precioMinimo: 0,
       precioMaximo: precioMaxReal,
     });
+    setPrecioMinInput("0");
+    setPrecioMaxInput(String(precioMaxReal));
+    setValoracionMinInput("0");
+    setValoracionMaxInput("5");
   };
 
   useEffect(() => {
@@ -129,6 +122,7 @@ const Paseadores = () => {
           ...prev,
           precioMaximo: precioMax
         }));
+        setPrecioMaxInput(String(precioMax));
         
       } catch (e) {
         console.error("Error cargando paseadores:", e);
@@ -219,27 +213,125 @@ const Paseadores = () => {
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <FormControl fullWidth>
-            <InputLabel>Valoración Mínima</InputLabel>
-            <Select
-              value={filtros.valoracionMinima}
-              label="Valoración Mínima"
-              onChange={(e) =>
-                setFiltros({
-                  ...filtros,
-                  valoracionMinima: e.target.value,
-                })
-              }
-            >
-              <MenuItem value={0}>Todas</MenuItem>
-              <MenuItem value={1}>0 Estrella (0-1)</MenuItem>
-              <MenuItem value={2}>1 Estrella (1-2)</MenuItem>
-              <MenuItem value={3}>2 Estrellas (2-3)</MenuItem>
-              <MenuItem value={4}>3 Estrellas (3-4)</MenuItem>
-              <MenuItem value={5}>4 Estrellas (4-5)</MenuItem>
-              <MenuItem value={6}>5 Estrellas (5)</MenuItem>
-            </Select>
-          </FormControl>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 1 }}>
+              <TextField
+                size="medium"
+                label="Mín Valoración"
+                type="text"
+                value={valoracionMinInput}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  // Permitir campo vacío o solo números
+                  if (inputValue === '' || /^\d*\.?\d*$/.test(inputValue)) {
+                    // Si hay un valor, validar que esté en el rango 0-5
+                    if (inputValue !== '') {
+                      const numValue = parseFloat(inputValue);
+                      if (!isNaN(numValue)) {
+                        // No permitir valores menores a 0 ni mayores a 5
+                        if (numValue < 0 || numValue > 5) {
+                          return; // Rechazar la entrada
+                        }
+                        // No permitir que el mínimo sea mayor al máximo
+                        if (numValue > filtros.valoracionMaxima) {
+                          return; // Rechazar la entrada
+                        }
+                      }
+                    }
+                    setValoracionMinInput(inputValue);
+                    // Actualizar filtro solo si hay un valor válido
+                    if (inputValue !== '') {
+                      const numValue = parseFloat(inputValue);
+                      if (!isNaN(numValue)) {
+                        const valor = Math.max(0, Math.min(numValue, filtros.valoracionMaxima));
+                        setFiltros({
+                          ...filtros,
+                          valoracionMinima: valor,
+                        });
+                      }
+                    }
+                  }
+                }}
+                onBlur={(e) => {
+                  // Validar y normalizar al perder el foco
+                  const numValue = parseFloat(e.target.value);
+                  if (isNaN(numValue) || e.target.value === '') {
+                    setValoracionMinInput("0");
+                    setFiltros({
+                      ...filtros,
+                      valoracionMinima: 0,
+                    });
+                  } else {
+                    const valor = Math.max(0, Math.min(numValue, Math.min(filtros.valoracionMaxima, 5)));
+                    setValoracionMinInput(String(valor));
+                    setFiltros({
+                      ...filtros,
+                      valoracionMinima: valor,
+                    });
+                  }
+                }}
+                inputProps={{ min: 0, max: 5, step: 0.1 }}
+                sx={{ width: "100%" }}
+              />
+              <Typography variant="body2">-</Typography>
+              <TextField
+                size="medium"
+                label="Máx Valoración"
+                type="text"
+                value={valoracionMaxInput}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  // Permitir campo vacío o solo números
+                  if (inputValue === '' || /^\d*\.?\d*$/.test(inputValue)) {
+                    // Si hay un valor, validar que esté en el rango 0-5
+                    if (inputValue !== '') {
+                      const numValue = parseFloat(inputValue);
+                      if (!isNaN(numValue)) {
+                        // No permitir valores menores a 0 ni mayores a 5
+                        if (numValue < 0 || numValue > 5) {
+                          return; // Rechazar la entrada
+                        }
+                        // No permitir que el máximo sea menor al mínimo
+                        if (numValue < filtros.valoracionMinima) {
+                          return; // Rechazar la entrada
+                        }
+                      }
+                    }
+                    setValoracionMaxInput(inputValue);
+                    // Actualizar filtro solo si hay un valor válido
+                    if (inputValue !== '') {
+                      const numValue = parseFloat(inputValue);
+                      if (!isNaN(numValue)) {
+                        const valor = Math.max(filtros.valoracionMinima, Math.min(numValue, 5));
+                        setFiltros({
+                          ...filtros,
+                          valoracionMaxima: valor,
+                        });
+                      }
+                    }
+                  }
+                }}
+                onBlur={(e) => {
+                  // Validar y normalizar al perder el foco
+                  const numValue = parseFloat(e.target.value);
+                  if (isNaN(numValue) || e.target.value === '') {
+                    setValoracionMaxInput("5");
+                    setFiltros({
+                      ...filtros,
+                      valoracionMaxima: 5,
+                    });
+                  } else {
+                    const valor = Math.max(filtros.valoracionMinima, Math.min(numValue, 5));
+                    setValoracionMaxInput(String(valor));
+                    setFiltros({
+                      ...filtros,
+                      valoracionMaxima: valor,
+                    });
+                  }
+                }}
+                inputProps={{ min: 0, max: 5, step: 0.1 }}
+                sx={{ width: "100%" }}
+              />
+            </Box>
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -247,15 +339,44 @@ const Paseadores = () => {
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 1 }}>
               <TextField
                 size="medium"
-                label="Mín"
-                type="number"
-                value={filtros.precioMinimo}
+                label="Mín Precio"
+                type="text"
+                value={precioMinInput}
                 onChange={(e) => {
-                  const valor = Math.max(0, Math.min(parseInt(e.target.value) || 0, filtros.precioMaximo));
-                  setFiltros({
-                    ...filtros,
-                    precioMinimo: valor,
-                  });
+                  const inputValue = e.target.value;
+                  // Permitir campo vacío o solo números
+                  if (inputValue === '' || /^\d*$/.test(inputValue)) {
+                    setPrecioMinInput(inputValue);
+                    // Actualizar filtro solo si hay un valor válido
+                    if (inputValue !== '') {
+                      const numValue = parseInt(inputValue);
+                      if (!isNaN(numValue)) {
+                        const valor = Math.max(0, Math.min(numValue, filtros.precioMaximo));
+                        setFiltros({
+                          ...filtros,
+                          precioMinimo: valor,
+                        });
+                      }
+                    }
+                  }
+                }}
+                onBlur={(e) => {
+                  // Validar y normalizar al perder el foco
+                  const numValue = parseInt(e.target.value);
+                  if (isNaN(numValue) || e.target.value === '') {
+                    setPrecioMinInput("0");
+                    setFiltros({
+                      ...filtros,
+                      precioMinimo: 0,
+                    });
+                  } else {
+                    const valor = Math.max(0, Math.min(numValue, filtros.precioMaximo));
+                    setPrecioMinInput(String(valor));
+                    setFiltros({
+                      ...filtros,
+                      precioMinimo: valor,
+                    });
+                  }
                 }}
                 inputProps={{ min: 0, max: filtros.precioMaximo }}
                 sx={{ width: "100%" }}
@@ -263,15 +384,40 @@ const Paseadores = () => {
               <Typography variant="body2">-</Typography>
               <TextField
                 size="medium"
-                label="Máx"
-                type="number"
-                value={filtros.precioMaximo}
+                label="Máx Precio"
+                type="text"
+                value={precioMaxInput}
                 onChange={(e) => {
-                  const valor = Math.max(filtros.precioMinimo, Math.min(parseInt(e.target.value) || filtros.precioMaximo, 50000));
-                  setFiltros({
-                    ...filtros,
-                    precioMaximo: valor,
-                  });
+                  const inputValue = e.target.value;
+                  // Permitir campo vacío o solo números
+                  if (inputValue === '' || /^\d*$/.test(inputValue)) {
+                    setPrecioMaxInput(inputValue);
+                    // Actualizar filtro solo si hay un valor válido
+                    if (inputValue !== '') {
+                      const numValue = parseInt(inputValue);
+                      if (!isNaN(numValue)) {
+                        const valor = Math.max(filtros.precioMinimo, Math.min(numValue, 50000));
+                        setFiltros({
+                          ...filtros,
+                          precioMaximo: valor,
+                        });
+                      }
+                    }
+                  }
+                }}
+                onBlur={(e) => {
+                  // Validar y normalizar al perder el foco
+                  const numValue = parseInt(e.target.value);
+                  if (isNaN(numValue) || e.target.value === '') {
+                    setPrecioMaxInput(String(filtros.precioMaximo));
+                  } else {
+                    const valor = Math.max(filtros.precioMinimo, Math.min(numValue, 50000));
+                    setPrecioMaxInput(String(valor));
+                    setFiltros({
+                      ...filtros,
+                      precioMaximo: valor,
+                    });
+                  }
                 }}
                 inputProps={{ min: filtros.precioMinimo, max: 50000 }}
                 sx={{ width: "100%" }}
@@ -294,11 +440,11 @@ const Paseadores = () => {
           </Typography>
         </Paper>
       ) : (
-        <Grid container spacing={{ xs: 3, md: 4 }} justifyContent="center">
+        <Grid container spacing={{ xs: 2, md: 4 }} justifyContent="center">
           {paseadoresFiltrados.map((paseador) => (
             <Grid
               
-              size={{ xs: 10, sm: 6, md: 5, lg: 4 }}
+              size={{ xs: 12, sm: 6, md: 5, lg: 4 }}
               key={paseador.id}
             >
               <Card
@@ -353,7 +499,7 @@ const Paseadores = () => {
                   />
                 </Box>
 
-                <CardContent sx={{ width: "100%", px: 4, pt: 3 }}>
+                <CardContent sx={{ width: "100%", px: 4, pt: 3, flex: 1, display: "flex", flexDirection: "column" }}>
                   <Typography
                     variant="h5"
                     fontWeight={700}
@@ -375,6 +521,7 @@ const Paseadores = () => {
                       WebkitBoxOrient: "vertical",
                       overflow: "hidden",
                       wordBreak: "break-word",
+                      minHeight: "4.5em", // Altura mínima para 3 líneas
                     }}
                   >
                     {paseador.presentacion}
@@ -422,7 +569,7 @@ const Paseadores = () => {
                 <Stack
                   direction="row"
                   justifyContent="center"
-                  sx={{ width: "100%", pb: 3 }}
+                  sx={{ width: "100%", pb: 3, mt: "auto" }}
                 >
                   <Button
                     variant="contained"

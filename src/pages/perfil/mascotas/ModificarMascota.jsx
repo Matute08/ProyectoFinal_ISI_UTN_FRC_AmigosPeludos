@@ -44,6 +44,7 @@ const ModificarMascota = () => {
     const [loading, setLoading] = useState(true);
     const [submitLoading, setSubmitLoading] = useState(false);
     const [submitError, setSubmitError] = useState(null);
+    const [fotoError, setFotoError] = useState(null);
     const [initialData, setInitialData] = useState(null);
     const [fotoActual, setFotoActual] = useState(null);
     const [files, setFiles] = useState([]);
@@ -108,8 +109,19 @@ const ModificarMascota = () => {
 
     const onSubmit = async (data) => {
         setSubmitError(null);
+        setFotoError(null);
         setSubmitLoading(true);
         let newPhotoUrl = null;
+        
+        // Validar que haya una foto (actual mantenida o nueva)
+        const tieneFotoActual = fotoActual && fotoActual.estadoTemporal;
+        const tieneNuevaFoto = files.length > 0;
+        
+        if (!tieneFotoActual && !tieneNuevaFoto) {
+            setSubmitLoading(false);
+            setFotoError("Por favor, mantené la foto actual o seleccioná una nueva foto de la mascota antes de continuar.");
+            return;
+        }
         
         try {
             // 1. Subir nueva foto si se seleccionó
@@ -192,10 +204,17 @@ const ModificarMascota = () => {
                                 <IconButton
                                     size="small"
                                     onClick={() => {
-                                        setFotoActual(prev => ({
-                                            ...prev,
-                                            estadoTemporal: !prev.estadoTemporal
-                                        }));
+                                        setFotoActual(prev => {
+                                            const nuevoEstado = !prev.estadoTemporal;
+                                            // Limpiar el error si se marca para mantener la foto
+                                            if (nuevoEstado) {
+                                                setFotoError(null);
+                                            }
+                                            return {
+                                                ...prev,
+                                                estadoTemporal: nuevoEstado
+                                            };
+                                        });
                                     }}
                                     sx={{
                                         position: 'absolute',
@@ -226,12 +245,27 @@ const ModificarMascota = () => {
                         
                         <FilePond
                             files={files}
-                            onupdatefiles={setFiles}
+                            onupdatefiles={(fileItems) => {
+                                setFiles(fileItems);
+                                // Limpiar el error cuando se selecciona una foto
+                                if (fileItems.length > 0) {
+                                    setFotoError(null);
+                                }
+                            }}
                             allowMultiple={false}
                             maxFiles={1}
                             name="foto"
                             labelIdle="Arrastrá o seleccioná una nueva imagen"
                         />
+                        {fotoError && (
+                            <Typography 
+                                variant="caption" 
+                                color="error"
+                                sx={{ mt: 0.5, display: 'block' }}
+                            >
+                                {fotoError}
+                            </Typography>
+                        )}
                     </Grid>
 
                     <Grid item size={{ xs: 12, sm: 6 }}>

@@ -393,7 +393,7 @@ const PreciosPublicidad = () => {
                                         },
                                     }}
                                 >
-                                    Contactar
+                                    Contratar
                                 </Button>
                             </CardContent>
                         </Card>

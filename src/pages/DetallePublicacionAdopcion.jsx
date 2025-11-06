@@ -117,6 +117,9 @@ export default function DetallePublicacionAdopcion() {
         );
     }
 
+    // Verificar si el usuario actual es el creador de la publicación
+    const esCreador = userData?.id === detalle?.usuarioId;
+
     return (
         <>
             <Container sx={{ mt: 5, mb: 5, backgroundColor:"#e0d0b8", borderRadius: 4 }}>
@@ -232,51 +235,53 @@ export default function DetallePublicacionAdopcion() {
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item size={{ xs: 12, md: 12 }}>
-                        <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-                            <CardContent>
-                                <Typography variant="h6" gutterBottom>
-                                    Postularse para Adoptar
-                                </Typography>
-                                
-                                {solicitudExistente ? (
-                                    <Box>
-                                        <Alert 
-                                            severity={solicitudExistente.estadoFormularioId === 1 ? "info" : 
-                                                    solicitudExistente.estadoFormularioId === 2 ? "success" : "warning"}
-                                            icon={solicitudExistente.estadoFormularioId === 1 ? <HourglassEmptyIcon /> : 
-                                                  solicitudExistente.estadoFormularioId === 2 ? <CheckCircleIcon /> : <HourglassEmptyIcon />}
-                                            sx={{ mb: 2 }}
-                                        >
-                                            {solicitudExistente.estadoFormularioId === 1 && 
-                                                "Tu solicitud está siendo revisada. Te notificaremos cuando tengamos una respuesta."}
-                                            {solicitudExistente.estadoFormularioId === 2 && 
-                                                "¡Felicitaciones! Tu solicitud ha sido aprobada. Contacta al dueño para coordinar la adopción."}
-                                            {solicitudExistente.estadoFormularioId === 3 && 
-                                                "Tu solicitud fue rechazada. Puedes intentar con otra mascota."}
-                                        </Alert>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Fecha de solicitud: {new Date(solicitudExistente.fechaAlta).toLocaleDateString()}
-                                        </Typography>
-                                    </Box>
-                                ) : (
-                                    <Box>
-                                        <Typography variant="body2" sx={{ mb: 2 }}>
-                                            Si querés brindarle un hogar a esta mascota,
-                                            completá el formulario.
-                                        </Typography>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={handleOpenModal}
-                                        >
-                                            📄 Completar Formulario
-                                        </Button>
-                                    </Box>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </Grid>
+                    {!esCreador && (
+                        <Grid item size={{ xs: 12, md: 12 }}>
+                            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+                                <CardContent>
+                                    <Typography variant="h6" gutterBottom>
+                                        Postularse para Adoptar
+                                    </Typography>
+                                    
+                                    {solicitudExistente ? (
+                                        <Box>
+                                            <Alert 
+                                                severity={solicitudExistente.estadoFormularioId === 1 ? "info" : 
+                                                        solicitudExistente.estadoFormularioId === 2 ? "success" : "warning"}
+                                                icon={solicitudExistente.estadoFormularioId === 1 ? <HourglassEmptyIcon /> : 
+                                                      solicitudExistente.estadoFormularioId === 2 ? <CheckCircleIcon /> : <HourglassEmptyIcon />}
+                                                sx={{ mb: 2 }}
+                                            >
+                                                {solicitudExistente.estadoFormularioId === 1 && 
+                                                    "Tu solicitud está siendo revisada. Te notificaremos cuando tengamos una respuesta."}
+                                                {solicitudExistente.estadoFormularioId === 2 && 
+                                                    "¡Felicitaciones! Tu solicitud ha sido aprobada. Contacta al dueño para coordinar la adopción."}
+                                                {solicitudExistente.estadoFormularioId === 3 && 
+                                                    "Tu solicitud fue rechazada. Puedes intentar con otra mascota."}
+                                            </Alert>
+                                            <Typography variant="body2" color="text.secondary">
+                                                Fecha de solicitud: {new Date(solicitudExistente.fechaAlta).toLocaleDateString()}
+                                            </Typography>
+                                        </Box>
+                                    ) : (
+                                        <Box>
+                                            <Typography variant="body2" sx={{ mb: 2 }}>
+                                                Si querés brindarle un hogar a esta mascota,
+                                                completá el formulario.
+                                            </Typography>
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={handleOpenModal}
+                                            >
+                                                📄 Completar Formulario
+                                            </Button>
+                                        </Box>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    )}
                 </Grid>
 
                 {/* Volver */}

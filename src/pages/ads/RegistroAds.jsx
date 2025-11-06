@@ -528,7 +528,7 @@ const RegistroAds = () => {
 
                 <Box mt={3} textAlign="center">
                     <Typography variant="body2">
-                        <strong>Nota:</strong> Una vez registrada tu publicidad, será revisada por nuestro equipo.
+                        <strong>Nota:</strong> Una vez registrada tu solicitud, será revisada por nuestro equipo.
                         Te contactaremos para coordinar el pago y activación.
                     </Typography>
                 </Box>

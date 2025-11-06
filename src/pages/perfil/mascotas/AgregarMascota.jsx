@@ -79,6 +79,7 @@ const AgregarMascota = () => {
     const navigate = useNavigate();
     const [files, setFiles] = useState([]);
     const [submitError, setSubmitError] = useState(null);
+    const [fotoError, setFotoError] = useState(null);
     const [loading, setLoading] = useState(false);
     const { userData: usuarioReal, loading: loadingUser, getUserId, hasValidUserData } = useUserData();
 
@@ -117,6 +118,7 @@ const AgregarMascota = () => {
 
     const onSubmit = async (data) => {
         setSubmitError(null);
+        setFotoError(null);
         setLoading(true);
         
         // Validar que el usuario esté disponible antes de continuar
@@ -130,6 +132,13 @@ const AgregarMascota = () => {
         if (!userId) {
             setSubmitError("Error: No se pudo obtener el ID del usuario. Por favor, recarga la página e intenta nuevamente.");
             setLoading(false);
+            return;
+        }
+        
+        // Validar que se haya seleccionado una foto
+        if (files.length === 0) {
+            setLoading(false);
+            setFotoError("Por favor, seleccioná una foto de la mascota antes de continuar.");
             return;
         }
         
@@ -191,12 +200,27 @@ const AgregarMascota = () => {
                         </Typography>
                         <FilePond
                             files={files}
-                            onupdatefiles={setFiles}
+                            onupdatefiles={(fileItems) => {
+                                setFiles(fileItems);
+                                // Limpiar el error cuando se selecciona una foto
+                                if (fileItems.length > 0) {
+                                    setFotoError(null);
+                                }
+                            }}
                             allowMultiple={false}
                             maxFiles={1}
                             name="foto"
                             labelIdle="Arrastrá o seleccioná una imagen"
                         />
+                        {fotoError && (
+                            <Typography 
+                                variant="caption" 
+                                color="error"
+                                sx={{ mt: 0.5, display: 'block' }}
+                            >
+                                {fotoError}
+                            </Typography>
+                        )}
                     </Grid>
 
                     {/* Nombre */}
