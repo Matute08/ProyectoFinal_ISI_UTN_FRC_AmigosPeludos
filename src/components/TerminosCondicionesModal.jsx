@@ -103,16 +103,11 @@ const TerminosCondicionesModal = ({ open, onClose }) => {
                     <strong>Servicios incluidos en nuestra plataforma:</strong>
                 </Typography>
                 <Typography variant="body2" component="div" sx={{ pl: 2 }}>
-                    • <strong>Cuidado de mascotas:</strong> Servicios de cuidado temporal, permanente y especializado<br/>
-                    • <strong>Paseo de mascotas:</strong> Servicios de paseo individual y grupal<br/>
-                    • <strong>Servicios veterinarios:</strong> Consultas, emergencias, cirugías y tratamientos<br/>
-                    • <strong>Adopción y rescate:</strong> Plataforma para adopción responsable de mascotas<br/>
-                    • <strong>Servicios de emergencia:</strong> Atención 24/7 para situaciones críticas<br/>
-                    • <strong>Servicios de transporte:</strong> Traslado seguro de mascotas<br/>
-                    • <strong>Servicios de entrenamiento:</strong> Adiestramiento y modificación de conductas<br/>
-                    • <strong>Servicios de grooming:</strong> Baño, corte, estética y cuidado estético<br/>
-                    • <strong>Servicios de hospedaje:</strong> Alojamiento temporal para mascotas<br/>
-                    • <strong>Servicios de emergencia médica:</strong> Atención veterinaria de urgencia
+                    • <strong>Cuidado de mascotas:</strong> Información sobre servicios de cuidado temporal<br/>
+                    • <strong>Paseo de mascotas:</strong> Información sobre servicios de paseo individual y grupal<br/>
+                    • <strong>Veterinarias y fundaciones</strong> Información sobre ubicacion, servicios brindados, datos de contacto y datos bancarios para donaciones<br/>
+                    • <strong>Adopción:</strong> Plataforma para adopción responsable de mascotas<br/>
+                    • <strong>Mascotas perdidas y encontradas</strong> Publicación y consulta de posteos sobre mascotas perdidas o encontradas
                 </Typography>
                 <Typography variant="body2" paragraph>
                     <strong>IMPORTANTE:</strong> Amigos Peludos actúa únicamente como intermediario tecnológico. 
@@ -543,22 +538,15 @@ const TerminosCondicionesModal = ({ open, onClose }) => {
                     <strong>13.1 Información de Contacto:</strong>
                 </Typography>
                 <Typography variant="body2" component="div" sx={{ pl: 2 }}>
-                    • Email: soporte@amigospeludos.com<br/>
-                    • Teléfono: +54 11 1234-5678<br/>
-                    • Dirección: Av. Corrientes 1234, CABA, Argentina<br/>
+                    • Email: 2023amigospeludos@gmail.com<br/>
                     • Horario de atención: Lunes a Viernes de 9:00 a 18:00<br/>
-                    • Sitio web: www.amigospeludos.com
                 </Typography>
 
                 <Typography variant="body2" paragraph>
                     <strong>13.2 Soporte Técnico:</strong>
                 </Typography>
                 <Typography variant="body2" component="div" sx={{ pl: 2 }}>
-                    • Disponible a través de la sección de ayuda de la plataforma<br/>
-                    • Tiempo de respuesta: 24-48 horas hábiles<br/>
-                    • Soporte en español e inglés<br/>
-                    • Documentación y tutoriales disponibles online<br/>
-                    • Chat en vivo durante horario comercial
+                    • Documentación y tutoriales disponibles online
                 </Typography>
 
                 <Box sx={{ 
