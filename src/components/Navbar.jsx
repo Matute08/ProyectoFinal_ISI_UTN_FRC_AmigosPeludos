@@ -46,7 +46,7 @@ import { getFormulariosDuenoPosteo } from "../api/formulariosApi";
 import { useAuth } from "../auth/AuthProvider";
 import { getVeterinarias } from "../api/commonApi";
 import { getFundacion } from "../api/fundacionesApi";
-import { tienePublicidadesUsuario } from "../api/publicidadesApi";
+import { tienePublicidadesUsuario, getCantidadPublicidadesPendientes } from "../api/publicidadesApi";
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -67,6 +67,7 @@ const Navbar = () => {
         total:0
     });
     const [tienePublicidades, setTienePublicidades] = useState(false);
+    const [publicidadesPendientes, setPublicidadesPendientes] = useState(0);
     const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
     const handleOpenMascotasMenu = (event) =>
         setAnchorElMascotas(event.currentTarget);
@@ -122,7 +123,7 @@ const Navbar = () => {
             if (!userData?.id) return;
 
             try {
-                const [formulariosRes, vetsRes, fundacionesRes] =
+                const [formulariosRes, vetsRes, fundacionesRes, publicidadesRes] =
                     await Promise.all([
                         getFormulariosDuenoPosteo(userData.id),
                         userData.rolId === 1
@@ -131,6 +132,9 @@ const Navbar = () => {
                         userData.rolId === 1
                             ? getFundacion()
                             : Promise.resolve({ data: [] }),
+                        userData.rolId === 1
+                            ? getCantidadPublicidadesPendientes()
+                            : Promise.resolve({ cantidadPendientes: 0 }),
                     ]);
 
                 const formulariosPendientes = formulariosRes.data.filter(
@@ -147,12 +151,15 @@ const Navbar = () => {
                     (f) => f.estadoId === 1
                 ).length;
 
+                const publicidadesPendientesCount = publicidadesRes.cantidadPendientes || 0;
+
                 setNotificaciones({
                     formularios: formulariosPendientes,
                     veterinarias: vetsPendientes,
                     fundaciones: fundPendientes,
                     total: formulariosPendientes + vetsPendientes + fundPendientes
                 });
+                setPublicidadesPendientes(publicidadesPendientesCount);
             } catch (err) {
                 console.error("Error al cargar notificaciones", err);
                 setNotificaciones({
@@ -161,6 +168,7 @@ const Navbar = () => {
                     fundaciones: 0,
                     total: 0
                 });
+                setPublicidadesPendientes(0);
             }
         };
 
@@ -494,6 +502,13 @@ const Navbar = () => {
                             >
                                 <CampaignIcon fontSize="small" sx={{ mr: 1 }} />
                                 Gestión Publicidades
+                                {publicidadesPendientes > 0 && (
+                                    <Badge
+                                        color="warning"
+                                        badgeContent={publicidadesPendientes}
+                                        sx={{ ml: 2 }}
+                                    />
+                                )}
                             </MenuItem>
                             )}
 

@@ -402,7 +402,7 @@ const PreciosPublicidad = () => {
                 </Grid>
             )}
 
-            {/* Beneficios adicionales */}
+            {/* Beneficios adicionales
             <Box mt={4} textAlign="center">
                 <Typography
                     variant="h4"
@@ -483,7 +483,7 @@ const PreciosPublicidad = () => {
                         </Grid>
                     ))}
                 </Grid>
-            </Box>
+            </Box> */}
 
 
         </Box>

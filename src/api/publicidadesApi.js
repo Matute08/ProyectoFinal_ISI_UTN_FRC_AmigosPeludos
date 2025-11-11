@@ -273,3 +273,14 @@ export const getEstadisticasDetalladasUbicacion = async (ubicacionId, desde, has
     throw error;
   }
 };
+
+// Obtener cantidad de publicidades pendientes
+export const getCantidadPublicidadesPendientes = async () => {
+  try {
+    const response = await apiClient.get('/publicidades/pendientes/cantidad');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener cantidad de publicidades pendientes:', error);
+    throw error;
+  }
+};

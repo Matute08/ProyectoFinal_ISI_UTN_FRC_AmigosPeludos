@@ -19,10 +19,10 @@ import { getEstadisticasLanding } from '../api/publicacionesApi';
 
 const EstadisticasLanding = () => {
     const [estadisticas, setEstadisticas] = useState({
-        totalEncontradas: 0,
-        totalFinalizadas: 0,
+        publicacionesRealizadas: 0,
+        publicacionesFinalizadas: 0,
         tiempoPromedio: 0,
-        tasaExito: 0
+        tasaDeExito: 0
     });
     const [cargando, setCargando] = useState(true);
     const theme = useTheme();
@@ -38,10 +38,10 @@ const EstadisticasLanding = () => {
                 console.error('Error cargando estadísticas:', error);
                 // Valores por defecto en caso de error
                 setEstadisticas({
-                    totalEncontradas: 0,
-                    totalFinalizadas: 0,
+                    publicacionesRealizadas: 0,
+                    publicacionesFinalizadas: 0,
                     tiempoPromedio: 0,
-                    tasaExito: 0
+                    tasaDeExito: 0
                 });
             } finally {
                 setCargando(false);
@@ -53,22 +53,22 @@ const EstadisticasLanding = () => {
 
     const statsCards = [
         {
-            titulo: 'Mascotas Encontradas',
-            valor: estadisticas.totalEncontradas,
+            titulo: 'Publicaciones Realizadas',
+            valor: estadisticas.publicacionesRealizadas,
             icono: Pets,
             color: '#4caf50',
             descripcion: 'gracias a nuestra comunidad'
         },
         {
             titulo: 'Publicaciones Finalizadas',
-            valor: estadisticas.totalFinalizadas,
+            valor: estadisticas.publicacionesFinalizadas,
             icono: CheckCircle,
             color: '#2196f3',
             descripcion: 'casos resueltos exitosamente'
         },
         {
             titulo: 'Tiempo Promedio',
-            valor: estadisticas.tiempoPromedio,
+            valor: estadisticas.tiempoPromedio != null ? estadisticas.tiempoPromedio.toFixed(2) : '0.00',
             icono: Timer,
             color: '#ff9800',
             descripcion: 'días hasta encontrar',
@@ -76,7 +76,7 @@ const EstadisticasLanding = () => {
         },
         {
             titulo: 'Tasa de Éxito',
-            valor: estadisticas.tasaExito,
+            valor: estadisticas.tasaDeExito != null ? estadisticas.tasaDeExito.toFixed(2) : '0.00',
             icono: TrendingUp,
             color: '#9c27b0',
             descripcion: 'de casos resueltos',
