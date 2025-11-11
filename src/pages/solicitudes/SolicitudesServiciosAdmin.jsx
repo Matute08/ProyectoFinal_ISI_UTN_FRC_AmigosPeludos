@@ -170,20 +170,37 @@ const SolicitudesServiciosAdmin = () => {
 
     const navigate = useNavigate();
 
+    // Función para ordenar por estado: primero los de estadoId=1 (Revisión)
+    // Segundo criterio: por fecha, los más recientes primero
+    const ordenarPorEstado = (arr) => {
+        return [...arr].sort((a, b) => {
+            // Primer criterio: estadoId=1 (Revisión) primero
+            if (a.estadoId === 1 && b.estadoId !== 1) return -1;
+            if (a.estadoId !== 1 && b.estadoId === 1) return 1;
+            
+            // Segundo criterio: por fecha (más recientes primero)
+            const fechaA = new Date(a.fechaAlta);
+            const fechaB = new Date(b.fechaAlta);
+            return fechaB - fechaA; // Orden descendente (más reciente primero)
+        });
+    };
+
     useEffect(() => {
         if (!userData?.rolId || userData.rolId !== 1) return;
 
         const fetchVete = async () => {
             setLoadingVete(true);
             const res = await getVeterinarias();
-            setVeterinarias(res.data || []);
+            const datosOrdenados = ordenarPorEstado(res.data || []);
+            setVeterinarias(datosOrdenados);
             setLoadingVete(false);
         };
 
         const fetchFunda = async () => {
             setLoadingFunda(true);
             const res = await getFundacion();
-            setFundaciones(res.data || []);
+            const datosOrdenados = ordenarPorEstado(res.data || []);
+            setFundaciones(datosOrdenados);
             setLoadingFunda(false);
         };
 
@@ -235,21 +252,23 @@ const SolicitudesServiciosAdmin = () => {
                     willClose: () => {
                         // Solo refrescar los datos en lugar de recargar la página
                         if (tipo === "vete") {
-                            setVeterinarias((prev) =>
-                                prev.map((v) =>
+                            setVeterinarias((prev) => {
+                                const actualizados = prev.map((v) =>
                                     v.id === row.id
                                         ? { ...v, estadoId: Number(estadoId) }
                                         : v
-                                )
-                            );
+                                );
+                                return ordenarPorEstado(actualizados);
+                            });
                         } else {
-                            setFundaciones((prev) =>
-                                prev.map((f) =>
+                            setFundaciones((prev) => {
+                                const actualizados = prev.map((f) =>
                                     f.id === row.id
                                         ? { ...f, estadoId: Number(estadoId) }
                                         : f
-                                )
-                            );
+                                );
+                                return ordenarPorEstado(actualizados);
+                            });
                         }
                     },
                 });
