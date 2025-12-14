@@ -27,6 +27,8 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import WarningIcon from "@mui/icons-material/Warning";
+import InfoIcon from "@mui/icons-material/Info";
+import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -42,6 +44,7 @@ import ModalCargarVacuna from "./ModalCargarVacuna";
 import ModalEditarVacuna from "./ModalEditarVacuna";
 import CarnetDigitalMascota from "./CarnetDigitalMascota";
 import CustomLoader from "../../../../components/CustomLoader";
+import CalendarioVacunacionGatos, { CalendarioVacunacionPerros } from "../../../../components/CalendarioVacunacion";
 const VacunacionMascota = () => {
     const { mascotaId } = useParams();
     const [vacunas, setVacunas] = useState([]);
@@ -54,6 +57,7 @@ const VacunacionMascota = () => {
     const [actualizandoHistorial, setActualizandoHistorial] = useState(false);
     const [modalEditar, setModalEditar] = useState(false);
     const [dosisEditando, setDosisEditando] = useState(null);
+    const [modalInfoVacunas, setModalInfoVacunas] = useState(false);
     const fetchVacunas = async () => {
         try {
             const res = await getVacunasMascota(mascotaId);
@@ -315,10 +319,23 @@ const VacunacionMascota = () => {
             });
         }
     };
+    // Función helper para formatear fecha a DD/MM/AAAA
+    const formatearFecha = (fecha) => {
+        if (!fecha) return '';
+        const date = new Date(fecha);
+        if (isNaN(date.getTime())) return '';
+        
+        const dia = String(date.getDate()).padStart(2, '0');
+        const mes = String(date.getMonth() + 1).padStart(2, '0');
+        const año = date.getFullYear();
+        
+        return `${dia}/${mes}/${año}`;
+    };
+
     const calcularProxima = (fechaAplicacion, semanas) => {
         const f = new Date(fechaAplicacion);
         f.setDate(f.getDate() + semanas * 7);
-        return f.toLocaleDateString();
+        return formatearFecha(f);
     };
 
     // Agrupar vacunas por nombre
@@ -460,6 +477,26 @@ const VacunacionMascota = () => {
                             Ver carnet
                         </Box>
                     </Button>
+                    <Tooltip title="Información sobre vacunas">
+                        <IconButton
+                            size="large"
+                            onClick={() => setModalInfoVacunas(true)}
+                            sx={{
+                                color: "#F4A261",
+                                border: "2px solid #F4A261",
+                                "&:hover": {
+                                    backgroundColor: "#F4A261",
+                                    color: "white",
+                                    borderColor: "#F4A261",
+                                },
+                                width: { xs: "100%", sm: "48px" },
+                                height: { xs: "48px", sm: "48px" },
+                                maxWidth: { xs: "280px", sm: "none" },
+                            }}
+                        >
+                            <InfoIcon />
+                        </IconButton>
+                    </Tooltip>
                 </Stack>
             </Box>
 
@@ -516,17 +553,13 @@ const VacunacionMascota = () => {
             ) : (
                 <Box>
                     {/* Tarjetas de vacunas */}
-                    <Grid container spacing={3}>
+                    <Grid container spacing={3} sx={{ alignItems: "stretch" }}>
                         {Object.entries(vacunasAgrupadas).map(
                             ([nombre, lista]) => {
                                 const ultimaVacuna = lista[0];
-                                const aplicada = new Date(
-                                    ultimaVacuna.fechaAplicacion
-                                ).toLocaleDateString();
+                                const aplicada = formatearFecha(ultimaVacuna.fechaAplicacion);
                                 const proxima = ultimaVacuna.fechaProxima
-                                    ? new Date(
-                                          ultimaVacuna.fechaProxima
-                                      ).toLocaleDateString()
+                                    ? formatearFecha(ultimaVacuna.fechaProxima)
                                     : ultimaVacuna.vacuna?.frecuenciaSemanas
                                       ? calcularProxima(
                                             ultimaVacuna.fechaAplicacion,
@@ -574,7 +607,8 @@ const VacunacionMascota = () => {
                                                     p: 3,
                                                     display: "flex",
                                                     flexDirection: "column",
-                                                    height: "100%",
+                                                    flex: 1,
+                                                    minHeight: 0,
                                                 }}
                                             >
                                                 {/* Header de la tarjeta */}
@@ -586,6 +620,7 @@ const VacunacionMascota = () => {
                                                         alignItems:
                                                             "flex-start",
                                                         mb: 2,
+                                                        minHeight: "80px",
                                                     }}
                                                 >
                                                     <Box
@@ -605,10 +640,16 @@ const VacunacionMascota = () => {
                                                                     : "#4caf50",
                                                             }}
                                                         />
-                                                        <Box>
+                                                        <Box sx={{ flex: 1, minWidth: 0 }}>
                                                             <Typography
-                                                                variant="h6"
+                                                                variant="subtitle1"
                                                                 fontWeight="bold"
+                                                                sx={{
+                                                                    fontSize: { xs: "0.9rem", sm: "1rem" },
+                                                                    wordBreak: "break-word",
+                                                                    overflowWrap: "break-word",
+                                                                    lineHeight: 1.3,
+                                                                }}
                                                             >
                                                                 {nombre}
                                                             </Typography>
@@ -617,6 +658,7 @@ const VacunacionMascota = () => {
                                                                 size="small"
                                                                 color="primary"
                                                                 variant="outlined"
+                                                                sx={{ mt: 0.5 }}
                                                             />
                                                         </Box>
                                                     </Box>
@@ -907,6 +949,78 @@ const VacunacionMascota = () => {
                 onSuccess={handleDosisEditada}
             />
 
+            {/* Modal de información de vacunas */}
+            <Dialog
+                open={modalInfoVacunas}
+                onClose={() => setModalInfoVacunas(false)}
+                maxWidth="lg"
+                fullWidth
+                PaperProps={{
+                    sx: { borderRadius: 2, maxHeight: "90vh" },
+                }}
+            >
+                <DialogTitle
+                    sx={{
+                        backgroundColor: "#F4A261",
+                        color: "white",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        py: 2,
+                        px: 3,
+                    }}
+                >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                        <InfoIcon sx={{ fontSize: "1.5rem" }} />
+                        <Typography variant="h6" fontWeight="bold">
+                            Calendario de Vacunación
+                        </Typography>
+                    </Box>
+                    <IconButton
+                        onClick={() => setModalInfoVacunas(false)}
+                        sx={{ color: "white" }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+
+                <DialogContent
+                    sx={{
+                        p: 3,
+                        maxHeight: "80vh",
+                        overflow: "auto",
+                        bgcolor: "#f8f9fa",
+                    }}
+                >
+                    {mascota?.tipoMascotaNombre === "Gato" ? (
+                        <CalendarioVacunacionGatos />
+                    ) : mascota?.tipoMascotaNombre === "Perro" ? (
+                        <CalendarioVacunacionPerros />
+                    ) : (
+                        <Box sx={{ textAlign: "center", py: 4 }}>
+                            <Typography variant="h6" color="text.secondary">
+                                No se pudo determinar el tipo de mascota
+                            </Typography>
+                        </Box>
+                    )}
+                </DialogContent>
+
+                <DialogActions sx={{ p: 2, backgroundColor: "#f8f9fa" }}>
+                    <Button
+                        onClick={() => setModalInfoVacunas(false)}
+                        variant="contained"
+                        sx={{
+                            backgroundColor: "#F4A261",
+                            "&:hover": { backgroundColor: "#E76F51" },
+                            px: 3,
+                            fontWeight: "bold",
+                        }}
+                    >
+                        Cerrar
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
             {/* Modal del historial de vacunas */}
             <Dialog
                 open={modalHistorial}
@@ -966,13 +1080,9 @@ const VacunacionMascota = () => {
                             {vacunaSeleccionada.lista.map((v, i) => {
                                 const dosisNum =
                                     vacunaSeleccionada.lista.length - i;
-                                const aplicada = new Date(
-                                    v.fechaAplicacion
-                                ).toLocaleDateString();
+                                const aplicada = formatearFecha(v.fechaAplicacion);
                                 const proxima = v.fechaProxima
-                                    ? new Date(
-                                          v.fechaProxima
-                                      ).toLocaleDateString()
+                                    ? formatearFecha(v.fechaProxima)
                                     : v.vacuna?.frecuenciaSemanas
                                       ? calcularProxima(
                                             v.fechaAplicacion,

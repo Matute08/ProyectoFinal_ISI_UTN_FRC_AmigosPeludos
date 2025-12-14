@@ -8,8 +8,11 @@ import {
     MenuItem,
     Box,
     Typography,
+    InputAdornment,
+    IconButton,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { postVacunaMascota, getVacunasPorTipo, getVacunas } from "../../../../api/vacunaApi";
 import { getMascotaId } from "../../../../api/mascotasApi";
@@ -24,6 +27,60 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
         observacion: "",
     });
     const [fechaProxima, setFechaProxima] = useState("");
+    
+    // Estados para los valores visuales de las fechas (DD/MM/YYYY)
+    const [fechaAplicacionVisual, setFechaAplicacionVisual] = useState("");
+    const [fechaProximaVisual, setFechaProximaVisual] = useState("");
+    
+    // Referencias para los inputs de fecha nativos (ocultos)
+    const fechaAplicacionInputRef = React.useRef(null);
+    const fechaProximaInputRef = React.useRef(null);
+
+    // Función helper para formatear fecha de ISO (YYYY-MM-DD) a DD/MM/YYYY
+    const formatearFecha = (fechaISO) => {
+        if (!fechaISO) return '';
+        const [año, mes, dia] = fechaISO.split('-');
+        return `${dia}/${mes}/${año}`;
+    };
+
+    // Función para convertir DD/MM/YYYY a YYYY-MM-DD (ISO)
+    const convertirAFechaISO = (fechaDDMMYYYY) => {
+        if (!fechaDDMMYYYY) return '';
+        const fechaLimpia = fechaDDMMYYYY.replace(/[^\d/]/g, '');
+        const partes = fechaLimpia.split('/');
+        
+        if (partes.length === 3) {
+            const [dia, mes, año] = partes;
+            if (dia.length === 2 && mes.length === 2 && año.length === 4) {
+                const diaNum = parseInt(dia, 10);
+                const mesNum = parseInt(mes, 10);
+                const añoNum = parseInt(año, 10);
+                
+                const fecha = new Date(añoNum, mesNum - 1, diaNum);
+                if (!isNaN(fecha.getTime()) && 
+                    fecha.getDate() === diaNum && 
+                    fecha.getMonth() + 1 === mesNum && 
+                    fecha.getFullYear() === añoNum) {
+                    return `${año}-${mes}-${dia}`;
+                }
+            }
+        }
+        return '';
+    };
+
+    // Función para aplicar máscara DD/MM/YYYY mientras el usuario escribe
+    const aplicarMascaraFecha = (valor) => {
+        const soloNumeros = valor.replace(/\D/g, '');
+        const limitado = soloNumeros.slice(0, 8);
+        
+        if (limitado.length <= 2) {
+            return limitado;
+        } else if (limitado.length <= 4) {
+            return `${limitado.slice(0, 2)}/${limitado.slice(2)}`;
+        } else {
+            return `${limitado.slice(0, 2)}/${limitado.slice(2, 4)}/${limitado.slice(4)}`;
+        }
+    };
 
     useEffect(() => {
         const fetch = async () => {
@@ -59,12 +116,16 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
         };
 
         if (open) {
+            const fechaHoyISO = dayjs().format("YYYY-MM-DD");
             setForm({
                 vacunaId: "",
-                fechaAplicacion: dayjs().format("YYYY-MM-DD"),
+                fechaAplicacion: fechaHoyISO,
                 observacion: "",
             });
             setFechaProxima("");
+            // Inicializar valores visuales
+            setFechaAplicacionVisual(formatearFecha(fechaHoyISO));
+            setFechaProximaVisual("");
             fetch();
         }
     }, [open, idMascota]);
@@ -72,33 +133,73 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
     const handleChange = (e) => {
         const { name, value } = e.target;
         
-        // Validar que la fecha de aplicación no sea futura
         if (name === "fechaAplicacion") {
-            const fechaSeleccionada = dayjs(value);
+            // Manejar fecha de aplicación con formato DD/MM/YYYY
+            const valorConMascara = aplicarMascaraFecha(value);
+            setFechaAplicacionVisual(valorConMascara);
+            
+            // Si tiene formato completo (DD/MM/YYYY), convertir a ISO y validar
+            if (valorConMascara.length === 10) {
+                const fechaISO = convertirAFechaISO(valorConMascara);
+                if (fechaISO) {
+                    const fechaSeleccionada = dayjs(fechaISO);
+                    const fechaActual = dayjs();
+                    
+                    if (fechaSeleccionada.isAfter(fechaActual)) {
+                        mostrarAlertaError("No se pueden registrar vacunas en fechas futuras");
+                        return;
+                    }
+                    
+                    setForm({ ...form, fechaAplicacion: fechaISO });
+                }
+            }
+            return;
+        }
+        
+        const nuevoForm = { ...form, [name]: value };
+        setForm(nuevoForm);
+    };
+
+    const handleFechaAplicacionBlur = (e) => {
+        const fechaISO = convertirAFechaISO(e.target.value);
+        if (fechaISO) {
+            const fechaSeleccionada = dayjs(fechaISO);
             const fechaActual = dayjs();
             
             if (fechaSeleccionada.isAfter(fechaActual)) {
                 mostrarAlertaError("No se pueden registrar vacunas en fechas futuras");
-                return; // No actualizar el formulario si la fecha es futura
+                setFechaAplicacionVisual("");
+                return;
             }
+            
+            setForm({ ...form, fechaAplicacion: fechaISO });
+            setFechaAplicacionVisual(formatearFecha(fechaISO));
+        } else if (e.target.value && e.target.value.length === 10) {
+            setFechaAplicacionVisual("");
         }
+    };
+
+    const handleFechaProximaChange = (e) => {
+        const valorConMascara = aplicarMascaraFecha(e.target.value);
+        setFechaProximaVisual(valorConMascara);
         
-        const nuevoForm = { ...form, [name]: value };
-
-        // Si se cambia la vacuna o la fecha, recalculamos fechaProxima
-        if (name === "vacunaId" || name === "fechaAplicacion") {
-            const vacunaSeleccionada = vacunas.find(v => v.id === parseInt(nuevoForm.vacunaId));
-            if (vacunaSeleccionada?.frecuenciaSemanas) {
-                const proxima = dayjs(nuevoForm.fechaAplicacion)
-                    .add(vacunaSeleccionada.frecuenciaSemanas, "week")
-                    .format("YYYY-MM-DD");
-                setFechaProxima(proxima);
-            } else {
-                setFechaProxima("");
+        // Si tiene formato completo (DD/MM/YYYY), convertir a ISO
+        if (valorConMascara.length === 10) {
+            const fechaISO = convertirAFechaISO(valorConMascara);
+            if (fechaISO) {
+                setFechaProxima(fechaISO);
             }
         }
+    };
 
-        setForm(nuevoForm);
+    const handleFechaProximaBlur = (e) => {
+        const fechaISO = convertirAFechaISO(e.target.value);
+        if (fechaISO) {
+            setFechaProxima(fechaISO);
+            setFechaProximaVisual(formatearFecha(fechaISO));
+        } else if (e.target.value && e.target.value.length === 10) {
+            setFechaProximaVisual("");
+        }
     };
 
     const handleGuardar = async () => {
@@ -107,7 +208,7 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
             return;
         }
         
-        // Validación adicional: verificar que la fecha no sea futura
+        // Validación: verificar que la fecha de aplicación no sea futura
         const fechaSeleccionada = dayjs(form.fechaAplicacion);
         const fechaActual = dayjs();
         
@@ -116,13 +217,23 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
             return;
         }
         
+        // Validación: verificar que se haya proporcionado la fecha próxima dosis
+        if (!fechaProxima || fechaProxima.trim() === "") {
+            mostrarAlertaError("Debes proporcionar una fecha próxima dosis");
+            return;
+        }
+        
         try {
+            // Usar dayjs para evitar problemas de timezone
+            const fechaAplicacionISO = dayjs(form.fechaAplicacion).format("YYYY-MM-DD");
+            const fechaProximaISO = fechaProxima ? dayjs(fechaProxima).format("YYYY-MM-DD") : null;
+            
             const data = {
                 MascotaId: parseInt(idMascota),
                 VacunaId: parseInt(form.vacunaId),
-                FechaAplicacion: new Date(form.fechaAplicacion).toISOString(),
+                FechaAplicacion: dayjs(fechaAplicacionISO).toISOString(),
                 Observaciones: form.observacion || "",
-                FechaProxima: fechaProxima ? new Date(fechaProxima).toISOString() : null,
+                FechaProxima: fechaProximaISO ? dayjs(fechaProximaISO).toISOString() : null,
             };
             await postVacunaMascota(data);
             
@@ -174,31 +285,106 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
                     )}
                 </TextField>
 
-                <TextField
-                    label="Fecha de aplicación"
+                <input
+                    ref={fechaAplicacionInputRef}
                     type="date"
-                    fullWidth
-                    name="fechaAplicacion"
                     value={form.fechaAplicacion}
-                    onChange={handleChange}
-                    sx={{ mt: 2 }}
-                    InputLabelProps={{ shrink: true }}
-                    inputProps={{
-                        max: dayjs().format("YYYY-MM-DD")
+                    onChange={(e) => {
+                        if (e.target.value) {
+                            setForm({ ...form, fechaAplicacion: e.target.value });
+                            setFechaAplicacionVisual(formatearFecha(e.target.value));
+                        }
                     }}
-                    helperText="No se pueden registrar vacunas en fechas futuras"
+                    style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0 }}
                 />
 
-                {fechaProxima && (
-                    <TextField
-                        label="Fecha próxima dosis"
-                        value={fechaProxima}
-                        fullWidth
-                        disabled
-                        sx={{ mt: 2 }}
-                        InputLabelProps={{ shrink: true }}
-                    />
-                )}
+                <TextField
+                    label="Fecha de aplicación"
+                    type="text"
+                    fullWidth
+                    name="fechaAplicacion"
+                    value={fechaAplicacionVisual}
+                    onChange={handleChange}
+                    onBlur={handleFechaAplicacionBlur}
+                    sx={{ mt: 2 }}
+                    InputLabelProps={{ shrink: true }}
+                    placeholder="DD/MM/AAAA"
+                    helperText="No se pueden registrar vacunas en fechas futuras"
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    edge="end"
+                                    onClick={() => {
+                                        if (fechaAplicacionInputRef.current) {
+                                            if (typeof fechaAplicacionInputRef.current.showPicker === 'function') {
+                                                fechaAplicacionInputRef.current.showPicker();
+                                            } else {
+                                                fechaAplicacionInputRef.current.click();
+                                            }
+                                        }
+                                    }}
+                                    size="small"
+                                >
+                                    <CalendarTodayIcon fontSize="small" />
+                                </IconButton>
+                            </InputAdornment>
+                        )
+                    }}
+                    inputProps={{
+                        maxLength: 10
+                    }}
+                />
+
+                <input
+                    ref={fechaProximaInputRef}
+                    type="date"
+                    value={fechaProxima}
+                    onChange={(e) => {
+                        if (e.target.value) {
+                            setFechaProxima(e.target.value);
+                            setFechaProximaVisual(formatearFecha(e.target.value));
+                        }
+                    }}
+                    style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0 }}
+                />
+
+                <TextField
+                    label="Fecha próxima dosis"
+                    type="text"
+                    name="fechaProxima"
+                    value={fechaProximaVisual}
+                    onChange={handleFechaProximaChange}
+                    onBlur={handleFechaProximaBlur}
+                    fullWidth
+                    sx={{ mt: 2 }}
+                    InputLabelProps={{ shrink: true }}
+                    placeholder="DD/MM/AAAA"
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    edge="end"
+                                    onClick={() => {
+                                        if (fechaProximaInputRef.current) {
+                                            if (typeof fechaProximaInputRef.current.showPicker === 'function') {
+                                                fechaProximaInputRef.current.showPicker();
+                                            } else {
+                                                fechaProximaInputRef.current.click();
+                                            }
+                                        }
+                                    }}
+                                    size="small"
+                                >
+                                    <CalendarTodayIcon fontSize="small" />
+                                </IconButton>
+                            </InputAdornment>
+                        )
+                    }}
+                    inputProps={{
+                        maxLength: 10
+                    }}
+                />
 
                 <TextField
                     label="Observaciones"
@@ -232,7 +418,7 @@ export default function ModalCargarVacuna({ open, handleClose, idMascota, onSucc
                 <Button 
                     variant="contained" 
                     onClick={handleGuardar}
-                    disabled={loading || !form.vacunaId || vacunas.length === 0}
+                    disabled={loading || !form.vacunaId || !fechaProxima || vacunas.length === 0}
                 >
                     Guardar
                 </Button>

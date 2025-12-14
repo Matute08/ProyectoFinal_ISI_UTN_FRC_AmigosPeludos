@@ -26,7 +26,8 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  InputAdornment
 } from '@mui/material';
 import {
   Delete,
@@ -41,7 +42,8 @@ import {
   AttachMoney,
   People,
   Payment,
-  BarChart
+  BarChart,
+  CalendarToday
 } from '@mui/icons-material';
 import { 
   getAllPublicidades, 
@@ -54,11 +56,10 @@ import {
   getUbicaciones,
   getEstadosPublicidad,
   getEstadisticasPagos,
-  getEstadisticasPorUbicacion,
-  getEstadisticasDetalladasUbicacion
+  getEstadisticasPorUbicacion
 } from '../../api/publicidadesApi';
 import Swal from 'sweetalert2';
-import { mostrarAlertaExito, mostrarAlertaError } from '../../utils/showAlert';
+import { mostrarAlertaError } from '../../utils/showAlert';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthProvider';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart as RechartsBarChart, Bar } from 'recharts';
@@ -71,8 +72,6 @@ const GestionPublicidades = () => {
   const [estadisticasPagos, setEstadisticasPagos] = useState({});
   const [estadisticasUbicacion, setEstadisticasUbicacion] = useState({});
   const [precios, setPrecios] = useState([]);
-  const [tiposAnunciante, setTiposAnunciante] = useState([]);
-  const [ubicaciones, setUbicaciones] = useState([]);
   const [estados, setEstados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tabValue, setTabValue] = useState(0);
@@ -82,6 +81,67 @@ const GestionPublicidades = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const [filtroEstado, setFiltroEstado] = useState('todos');
+
+  // Función helper para formatear fecha de ISO (YYYY-MM-DD) a DD/MM/YYYY
+  const formatearFecha = (fechaISO) => {
+    if (!fechaISO) return '';
+    const [año, mes, dia] = fechaISO.split('-');
+    return `${dia}/${mes}/${año}`;
+  };
+
+  // Función para convertir DD/MM/YYYY a YYYY-MM-DD (ISO)
+  const convertirAFechaISO = (fechaDDMMYYYY) => {
+    if (!fechaDDMMYYYY) return '';
+    // Remover espacios y caracteres no numéricos excepto /
+    const fechaLimpia = fechaDDMMYYYY.replace(/[^\d/]/g, '');
+    const partes = fechaLimpia.split('/');
+    
+    if (partes.length === 3) {
+      const [dia, mes, año] = partes;
+      // Validar que tenga formato correcto
+      if (dia.length === 2 && mes.length === 2 && año.length === 4) {
+        const diaNum = parseInt(dia, 10);
+        const mesNum = parseInt(mes, 10);
+        const añoNum = parseInt(año, 10);
+        
+        // Validar que la fecha sea válida
+        const fecha = new Date(añoNum, mesNum - 1, diaNum);
+        if (!isNaN(fecha.getTime()) && 
+            fecha.getDate() === diaNum && 
+            fecha.getMonth() + 1 === mesNum && 
+            fecha.getFullYear() === añoNum) {
+          return `${año}-${mes}-${dia}`;
+        }
+      }
+    }
+    return '';
+  };
+
+  // Función para aplicar máscara DD/MM/YYYY mientras el usuario escribe
+  const aplicarMascaraFecha = (valor) => {
+    // Remover todo excepto números
+    const soloNumeros = valor.replace(/\D/g, '');
+    
+    // Limitar a 8 dígitos (DDMMYYYY)
+    const limitado = soloNumeros.slice(0, 8);
+    
+    // Aplicar formato
+    if (limitado.length <= 2) {
+      return limitado;
+    } else if (limitado.length <= 4) {
+      return `${limitado.slice(0, 2)}/${limitado.slice(2)}`;
+    } else {
+      return `${limitado.slice(0, 2)}/${limitado.slice(2, 4)}/${limitado.slice(4)}`;
+    }
+  };
+
+  // Estados para los valores visuales de los inputs
+  const [fechaDesdeVisual, setFechaDesdeVisual] = useState('');
+  const [fechaHastaVisual, setFechaHastaVisual] = useState('');
+  
+  // Referencias para los inputs de fecha nativos (ocultos)
+  const fechaDesdeInputRef = React.useRef(null);
+  const fechaHastaInputRef = React.useRef(null);
 
   // Función para filtrar publicidades por estado
   const filtrarPublicidadesPorEstado = (publicidades) => {
@@ -144,6 +204,10 @@ const GestionPublicidades = () => {
     setFechaHasta(fechaHastaStr);
     setFechaDesde(fechaDesdeStr);
     
+    // Inicializar valores visuales
+    setFechaDesdeVisual(formatearFecha(fechaDesdeStr));
+    setFechaHastaVisual(formatearFecha(fechaHastaStr));
+    
     fetchData();
   }, []);
 
@@ -183,22 +247,18 @@ const GestionPublicidades = () => {
       const publicidadesData = await getAllPublicidades();
       setPublicidades(publicidadesData || []);
 
-      // Cargar tipos de anunciante
+      // Cargar tipos de anunciante (no se usa pero se mantiene por si se necesita en el futuro)
       try {
-        const tiposData = await getTiposAnunciante();
-        setTiposAnunciante(tiposData || []);
+        await getTiposAnunciante();
       } catch (error) {
         console.error('Error al cargar tipos de anunciante:', error);
-        setTiposAnunciante([]);
       }
 
-      // Cargar ubicaciones
+      // Cargar ubicaciones (no se usa pero se mantiene por si se necesita en el futuro)
       try {
-        const ubicacionesData = await getUbicaciones();
-        setUbicaciones(ubicacionesData || []);
+        await getUbicaciones();
       } catch (error) {
         console.error('Error al cargar ubicaciones:', error);
-        setUbicaciones([]);
       }
 
       // Cargar estados
@@ -311,9 +371,6 @@ const GestionPublicidades = () => {
         try {
           await cambiarEstadoPublicidad(publicidad.id, parseInt(estadoId));
           
-          // Obtener el nombre del nuevo estado
-          const nuevoEstado = estados.find(e => e.id === parseInt(estadoId));
-          
           Swal.fire({
             title: "Estado actualizado",
             icon: "success",
@@ -323,7 +380,7 @@ const GestionPublicidades = () => {
             showConfirmButton: false,
             didOpen: () => {
               const b = Swal.getHtmlContainer().querySelector("b");
-              const timerInterval = setInterval(() => {
+              setInterval(() => {
                 b.textContent = (Swal.getTimerLeft() / 1000).toFixed(1);
               }, 100);
             },
@@ -413,7 +470,7 @@ const GestionPublicidades = () => {
           showConfirmButton: false,
           didOpen: () => {
             const b = Swal.getHtmlContainer().querySelector("b");
-            const timerInterval = setInterval(() => {
+            setInterval(() => {
               b.textContent = (Swal.getTimerLeft() / 1000).toFixed(1);
             }, 100);
           },
@@ -712,26 +769,144 @@ const GestionPublicidades = () => {
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                     Período actual: {fechaDesde && fechaHasta ? 
-                      `${new Date(fechaDesde).toLocaleDateString('es-ES')} - ${new Date(fechaHasta).toLocaleDateString('es-ES')}` : 
+                      `${formatearFecha(fechaDesde)} - ${formatearFecha(fechaHasta)}` : 
                       'Seleccionando fechas...'
                     }
                   </Typography>
                   <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
-                    <TextField
-                      label="Desde"
+                    <input
+                      ref={fechaDesdeInputRef}
                       type="date"
                       value={fechaDesde}
-                      onChange={(e) => setFechaDesde(e.target.value)}
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setFechaDesde(e.target.value);
+                          setFechaDesdeVisual(formatearFecha(e.target.value));
+                        }
+                      }}
+                      style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0 }}
+                    />
+                    <TextField
+                      label="Desde"
+                      type="text"
+                      value={fechaDesdeVisual}
+                      onChange={(e) => {
+                        const valorConMascara = aplicarMascaraFecha(e.target.value);
+                        setFechaDesdeVisual(valorConMascara);
+                        
+                        // Si tiene formato completo (DD/MM/YYYY), convertir a ISO
+                        if (valorConMascara.length === 10) {
+                          const fechaISO = convertirAFechaISO(valorConMascara);
+                          if (fechaISO) {
+                            setFechaDesde(fechaISO);
+                          }
+                        }
+                      }}
+                      onBlur={(e) => {
+                        // Validar al perder el foco
+                        const fechaISO = convertirAFechaISO(e.target.value);
+                        if (fechaISO) {
+                          setFechaDesde(fechaISO);
+                          setFechaDesdeVisual(formatearFecha(fechaISO));
+                        } else if (e.target.value && e.target.value.length === 10) {
+                          // Si tiene formato pero es inválida, mostrar error
+                          setFechaDesdeVisual('');
+                        }
+                      }}
                       InputLabelProps={{ shrink: true }}
+                      placeholder="DD/MM/AAAA"
                       size="small"
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              edge="end"
+                              onClick={() => {
+                                if (fechaDesdeInputRef.current) {
+                                  // Intentar usar showPicker() si está disponible (navegadores modernos)
+                                  if (typeof fechaDesdeInputRef.current.showPicker === 'function') {
+                                    fechaDesdeInputRef.current.showPicker();
+                                  } else {
+                                    // Fallback para navegadores que no soportan showPicker()
+                                    fechaDesdeInputRef.current.click();
+                                  }
+                                }
+                              }}
+                              size="small"
+                            >
+                              <CalendarToday fontSize="small" />
+                            </IconButton>
+                          </InputAdornment>
+                        )
+                      }}
+                      inputProps={{
+                        maxLength: 10
+                      }}
+                    />
+                    <input
+                      ref={fechaHastaInputRef}
+                      type="date"
+                      value={fechaHasta}
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setFechaHasta(e.target.value);
+                          setFechaHastaVisual(formatearFecha(e.target.value));
+                        }
+                      }}
+                      style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0 }}
                     />
                     <TextField
                       label="Hasta"
-                      type="date"
-                      value={fechaHasta}
-                      onChange={(e) => setFechaHasta(e.target.value)}
+                      type="text"
+                      value={fechaHastaVisual}
+                      onChange={(e) => {
+                        const valorConMascara = aplicarMascaraFecha(e.target.value);
+                        setFechaHastaVisual(valorConMascara);
+                        
+                        // Si tiene formato completo (DD/MM/YYYY), convertir a ISO
+                        if (valorConMascara.length === 10) {
+                          const fechaISO = convertirAFechaISO(valorConMascara);
+                          if (fechaISO) {
+                            setFechaHasta(fechaISO);
+                          }
+                        }
+                      }}
+                      onBlur={(e) => {
+                        // Validar al perder el foco
+                        const fechaISO = convertirAFechaISO(e.target.value);
+                        if (fechaISO) {
+                          setFechaHasta(fechaISO);
+                          setFechaHastaVisual(formatearFecha(fechaISO));
+                        } else if (e.target.value && e.target.value.length === 10) {
+                          // Si tiene formato pero es inválida, mostrar error
+                          setFechaHastaVisual('');
+                        }
+                      }}
                       InputLabelProps={{ shrink: true }}
+                      placeholder="DD/MM/AAAA"
                       size="small"
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              edge="end"
+                              onClick={() => {
+                                if (fechaHastaInputRef.current) {
+                                  fechaHastaInputRef.current.showPicker?.();
+                                } else {
+                                  fechaHastaInputRef.current?.click();
+                                }
+                              }}
+                              size="small"
+                            >
+                              <CalendarToday fontSize="small" />
+                            </IconButton>
+                          </InputAdornment>
+                        )
+                      }}
+                      inputProps={{
+                        maxLength: 10
+                      }}
                     />
                     <Button
                       variant="contained"
